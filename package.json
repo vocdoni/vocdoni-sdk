@@ -1,0 +1,78 @@
+{
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "clean": "rimraf node_modules dist",
+    "start": "tsdx watch",
+    "postinstall": "git submodule update --init",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "lintfix": "tsdx lint --fix",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "./test-environment.js"
+  },
+  "name": "vocdoni-sdk",
+  "author": "Vocdoni",
+  "module": "dist/vocdoni-sdk.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/vocdoni-sdk.cjs.production.min.js",
+      "limit": "1024 KB"
+    },
+    {
+      "path": "dist/vocdoni-sdk.esm.js",
+      "limit": "1024 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^8.1.0",
+    "husky": "^8.0.1",
+    "rimraf": "^3.0.2",
+    "size-limit": "^8.1.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.4.0",
+    "typescript": "^3.9.10"
+  },
+  "dependencies": {
+    "@ethersproject/abstract-signer": "^5.7.0",
+    "@ethersproject/address": "^5.7.0",
+    "@ethersproject/keccak256": "^5.7.0",
+    "@ethersproject/providers": "^5.7.1",
+    "@ethersproject/signing-key": "^5.7.0",
+    "@ethersproject/wallet": "^5.7.0",
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.3",
+    "dvote-solidity": "^1.4.0",
+    "ipfs-only-hash": "^4.0.0",
+    "iso-language-codes": "^1.1.0",
+    "tiny-invariant": "^1.3.1",
+    "tweetnacl-sealedbox-js": "^1.2.0",
+    "yup": "^0.32.11"
+  }
+}

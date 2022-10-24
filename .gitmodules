@@ -1,0 +1,3 @@
+[submodule "dvote-protobuf"]
+	path = src/dvote-protobuf
+	url = https://github.com/vocdoni/dvote-protobuf.git
