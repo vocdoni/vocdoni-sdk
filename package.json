@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "rimraf node_modules dist",
     "start": "tsdx watch",
-    "postinstall": "git submodule update --init",
+    "prebuild": "git submodule update --init",
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
