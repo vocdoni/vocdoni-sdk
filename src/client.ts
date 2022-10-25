@@ -225,12 +225,14 @@ export class VocdoniSDKClient {
       return Promise.reject('No valid wallet or signer');
     });
 
-    return voteData
+    const voteHash = await voteData
       .then(censusProof => {
         const voteTx = VoteCore.generateVoteTransaction(this.election, censusProof, vote);
         return VoteCore.signTransaction(voteTx, this.chainData, this.wallet);
       })
       .then(signedTx => ChainAPI.submitTx(this.url, { payload: signedTx }))
       .then(data => data.hash);
+
+    return this.waitForTransaction(voteHash).then(() => voteHash);
   }
 }
