@@ -34,6 +34,11 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "./test-environment.js"
@@ -44,11 +49,11 @@
   "size-limit": [
     {
       "path": "dist/vocdoni-sdk.cjs.production.min.js",
-      "limit": "1024 KB"
+      "limit": "512 KB"
     },
     {
       "path": "dist/vocdoni-sdk.esm.js",
-      "limit": "1024 KB"
+      "limit": "512 KB"
     }
   ],
   "devDependencies": {
