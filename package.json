@@ -13,12 +13,13 @@
   "scripts": {
     "clean": "rimraf node_modules dist",
     "start": "tsdx watch",
-    "prebuild": "git submodule update --init",
+    "submodule": "git submodule update --init",
+    "prebuild": "npm run submodule",
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "lintfix": "tsdx lint --fix",
-    "prepare": "tsdx build",
+    "prepare": "npm run submodule && tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
