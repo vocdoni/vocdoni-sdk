@@ -12,37 +12,41 @@ beforeEach(async () => {
   await client.ensureAccount();
 }, 15000);
 
+const createElection = (census) => {
+  const election = new Election({
+    title: 'Election title',
+    description: 'Election description',
+    header: 'https://source.unsplash.com/random',
+    streamUri: 'https://source.unsplash.com/random',
+    startDate: new Date().getTime() + 25000,
+    endDate: new Date().getTime() + 10000000,
+    census,
+  });
+
+  election.addQuestion('This is a title', 'This is a description', [
+    {
+      title: 'Option 1',
+      value: 0,
+    },
+    {
+      title: 'Option 2',
+      value: 1,
+    },
+  ]);
+
+  return election;
+}
+
 describe('Election integration tests', () => {
   it('should create an election with public keys census', async () => {
     const census = new PlainCensus();
-    const now = new Date().getTime();
-
     census.add(computePublicKey(Wallet.createRandom().publicKey, true));
     census.add(computePublicKey(Wallet.createRandom().publicKey, true));
     census.add(computePublicKey(Wallet.createRandom().publicKey, true));
     const voter = Wallet.createRandom();
     census.add(computePublicKey(voter.publicKey, true));
 
-    const election = new Election({
-      title: 'Election title',
-      description: 'Election description',
-      header: 'https://source.unsplash.com/random',
-      streamUri: 'https://source.unsplash.com/random',
-      startDate: now + 25000,
-      endDate: now + 10000000,
-      census,
-    });
-
-    election.addQuestion('This is a title', 'This is a description', [
-      {
-        title: 'Option 1',
-        value: 0,
-      },
-      {
-        title: 'Option 2',
-        value: 1,
-      },
-    ]);
+    const election = createElection(census);
 
     await client
       .createElection(election)
@@ -60,7 +64,6 @@ describe('Election integration tests', () => {
   }, 85000);
   it('should create an election with addresses census', async () => {
     const census = new PlainCensus();
-    const now = new Date().getTime();
 
     census.add(await Wallet.createRandom().getAddress());
     census.add(await Wallet.createRandom().getAddress());
@@ -68,28 +71,8 @@ describe('Election integration tests', () => {
     const voter = Wallet.createRandom();
     census.add(await voter.getAddress());
 
-    const election = new Election({
-      title: 'Election title',
-      description: 'Election description',
-      header: 'https://source.unsplash.com/random',
-      streamUri: 'https://source.unsplash.com/random',
-      startDate: now + 25000,
-      endDate: now + 10000000,
-      census,
-    });
+    const election = createElection(census);
 
-    election.addQuestion('This is a title', 'This is a description', [
-      {
-        title: 'Option 1',
-        value: 0,
-      },
-      {
-        title: 'Option 2',
-        value: 1,
-      },
-    ]);
-
-    const delay = ms => new Promise(res => setTimeout(res, ms));
     await client
       .createElection(election)
       .then(electionId => {

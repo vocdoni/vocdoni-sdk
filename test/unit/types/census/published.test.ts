@@ -4,12 +4,6 @@ const validCensusId = '43cbda11b9d1a322c03eac325eb8a7b72779b46a76f8a727cff94b539
 const validCensusURI = 'ipfs://QmeowUvr4Q9SMBSB942QVzFAqQQYukbjLYXxwANH3oTxbf';
 const validCensusType = CensusType.WEIGHTED;
 
-let census: PublishedCensus;
-
-beforeEach(() => {
-  census = new PublishedCensus(validCensusId, validCensusURI, validCensusType);
-});
-
 describe('Published census tests', () => {
   it('should throw with no valid census identifier', () => {
     expect(() => {
@@ -39,10 +33,9 @@ describe('Published census tests', () => {
       new PublishedCensus(validCensusId, validCensusURI, 'test' as CensusType);
     }).toThrow('Census type is missing or invalid');
   });
-  it('should be published', () => {
-    expect(census.isPublished).toBeTruthy();
-  });
-  it('should have the correct type', () => {
+  it('should have the correct type and be published', () => {
+    const census = new PublishedCensus(validCensusId, validCensusURI, validCensusType);
     expect(census.type).toBe(validCensusType);
+    expect(census.isPublished).toBeTruthy();
   });
 });

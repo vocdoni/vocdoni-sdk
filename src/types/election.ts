@@ -115,7 +115,7 @@ export class Election {
   }
 
   set title(value: MultiLanguage<string>) {
-    invariant(value.default.length > 0, 'Title is not set!');
+    invariant(value?.default.length > 0, 'Title is not set');
     this._title = value;
   }
 
@@ -124,7 +124,7 @@ export class Election {
   }
 
   set description(value: MultiLanguage<string>) {
-    invariant(value.default.length > 0, 'Description is not set!');
+    invariant(value?.default.length > 0, 'Description is not set');
     this._description = value;
   }
 
@@ -149,7 +149,7 @@ export class Election {
   }
 
   set startDate(value: Date) {
-    invariant(!value || !isNaN(value.getTime()), 'Invalid start date!');
+    invariant(!value || !isNaN(value.getTime()), 'Invalid start date');
     this._startDate = value;
   }
 
@@ -158,7 +158,7 @@ export class Election {
   }
 
   set endDate(value: Date) {
-    invariant(!isNaN(value.getTime()), 'Invalid end date!');
+    invariant(!isNaN(value.getTime()), 'Invalid end date');
     invariant(value > this.startDate, 'The end date cannot be prior to the start date');
     this._endDate = value;
   }
@@ -192,6 +192,7 @@ export class Election {
   }
 
   set census(value: PublishedCensus | PlainCensus | WeightedCensus) {
+    invariant(value instanceof PlainCensus || value instanceof PublishedCensus || value instanceof WeightedCensus, 'Invalid census');
     this._census = value;
   }
 }
