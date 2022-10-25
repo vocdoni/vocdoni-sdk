@@ -192,7 +192,10 @@ export class Election {
   }
 
   set census(value: PublishedCensus | PlainCensus | WeightedCensus) {
-    invariant(value instanceof PlainCensus || value instanceof PublishedCensus || value instanceof WeightedCensus, 'Invalid census');
+    invariant(
+      value instanceof PlainCensus || value instanceof PublishedCensus || value instanceof WeightedCensus,
+      'Invalid census'
+    );
     this._census = value;
   }
 }

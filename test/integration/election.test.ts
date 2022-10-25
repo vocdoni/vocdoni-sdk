@@ -12,7 +12,7 @@ beforeEach(async () => {
   await client.ensureAccount();
 }, 15000);
 
-const createElection = (census) => {
+const createElection = census => {
   const election = new Election({
     title: 'Election title',
     description: 'Election description',
@@ -35,7 +35,7 @@ const createElection = (census) => {
   ]);
 
   return election;
-}
+};
 
 describe('Election integration tests', () => {
   it('should create an election with public keys census', async () => {
