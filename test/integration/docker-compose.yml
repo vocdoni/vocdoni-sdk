@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+  voconed:
+    image: "vocdoni/go-dvote:latest"
+    entrypoint: "/app/voconed"
+    env_file: voconed.env
+    # TODO: the following flags should really go into voconed.env
+    # but voconed doesn't yet support it as an env, only as cmdline arg
+    command: |
+      --setTxCosts --txCosts 10
+      --fundedAccounts 0x3e951345Fd7f3fE62606356C31a1a7CD948ea101:1000
+      --fundedAccounts 0xC7C6E17059801b6962cc144a374eCc3ba1b8A9e0:1000000
+    # account 0x3e951345Fd7f3fE62606356C31a1a7CD948ea101 corresponds to privkey:
+    # 8b254cdf202856f9e2f0a6b493bb8d1598302c33ec3e79b729eb1963358073d5
+    # and will be funded with 1000 tokens.
+    # account 0xC7C6E17059801b6962cc144a374eCc3ba1b8A9e0 will have 1000000 tokens
+    volumes:
+      - "run:/app/run"
+    ports:
+      - 127.0.0.1::9095
+    sysctls:
+      net.core.somaxconn: 8128
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "10"
+
+volumes:
+  run: {}
