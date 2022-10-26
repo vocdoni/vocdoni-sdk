@@ -1,5 +1,5 @@
 export * from './vote';
-export * from './metadata';
+export * from './metadata/election';
 export * from './election';
 export * from './census/plain';
 export * from './census/published';

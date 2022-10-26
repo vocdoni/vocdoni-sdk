@@ -1,21 +1,21 @@
-import { ProcessMetadata, checkValidProcessMetadata, ProcessMetadataTemplate } from '../../../src';
+import { ElectionMetadata, checkValidElectionMetadata, ElectionMetadataTemplate } from '../../../../src';
 
-let processMetadata: ProcessMetadata;
+let electionMetadata: ElectionMetadata;
 
 beforeEach(() => {
-  processMetadata = ProcessMetadataTemplate;
+  electionMetadata = ElectionMetadataTemplate;
 });
 
 describe('Metadata validation', () => {
   it('Should accept a valid Process Metadata JSON', () => {
     expect(() => {
-      checkValidProcessMetadata(processMetadata);
+      checkValidElectionMetadata(electionMetadata);
     }).not.toThrow();
   });
 
   it('Should reject a non valid Process Metadata JSON', () => {
     expect(() => {
-      checkValidProcessMetadata(null);
+      checkValidElectionMetadata(null);
     }).toThrow();
   });
 
@@ -23,44 +23,44 @@ describe('Metadata validation', () => {
     // Totally invalid
     expect(() => {
       const payload = JSON.parse('{"test": 123}');
-      checkValidProcessMetadata(payload);
+      checkValidElectionMetadata(payload);
     }).toThrow();
 
     expect(() => {
       const payload = JSON.parse('{"name": {"default": "hello", "fr": "Alô"}}');
-      checkValidProcessMetadata(payload);
+      checkValidElectionMetadata(payload);
     }).toThrow();
 
     expect(() => {
-      processMetadata.questions[0].choices[0].value = 'a' as any;
-      checkValidProcessMetadata(processMetadata);
+      electionMetadata.questions[0].choices[0].value = 'a' as any;
+      checkValidElectionMetadata(electionMetadata);
     }).toThrow();
   });
 
   it('Should reject null required fields', () => {
     // Incomplete fields
     expect(() => {
-      checkValidProcessMetadata(Object.assign({}, processMetadata, { version: null }));
+      checkValidElectionMetadata(Object.assign({}, electionMetadata, { version: null }));
     }).toThrow();
     expect(() => {
-      checkValidProcessMetadata(Object.assign({}, processMetadata, { title: null }));
+      checkValidElectionMetadata(Object.assign({}, electionMetadata, { title: null }));
     }).toThrow();
     expect(() => {
-      checkValidProcessMetadata(Object.assign({}, processMetadata, { description: null }));
+      checkValidElectionMetadata(Object.assign({}, electionMetadata, { description: null }));
     }).toThrow();
     expect(() => {
-      checkValidProcessMetadata(Object.assign({}, processMetadata, { media: null }));
+      checkValidElectionMetadata(Object.assign({}, electionMetadata, { media: null }));
     }).toThrow();
     expect(() => {
-      checkValidProcessMetadata(Object.assign({}, processMetadata, { questions: null }));
+      checkValidElectionMetadata(Object.assign({}, electionMetadata, { questions: null }));
     }).toThrow();
   });
 
   it('Should accept big number of questions', () => {
-    processMetadata.questions = [];
+    electionMetadata.questions = [];
 
     for (let i = 0; i < 200; i++) {
-      processMetadata.questions.push({
+      electionMetadata.questions.push({
         title: {
           default: '', // Should universal basic income become a human right?
         },
@@ -85,49 +85,49 @@ describe('Metadata validation', () => {
     }
 
     expect(() => {
-      checkValidProcessMetadata(processMetadata);
+      checkValidElectionMetadata(electionMetadata);
     }).not.toThrow();
 
-    const result = checkValidProcessMetadata(processMetadata);
+    const result = checkValidElectionMetadata(electionMetadata);
     expect(result.questions.length).toEqual(200);
   });
 
   it('Should accept big number of choices', () => {
-    const choiceTemplate = JSON.stringify(processMetadata.questions[0].choices[0]);
+    const choiceTemplate = JSON.stringify(electionMetadata.questions[0].choices[0]);
     for (let i = 2; i < 200; i++) {
       const choice = JSON.parse(choiceTemplate);
       choice.title = { default: 'Yes ' + String(i) };
       choice.value = i;
-      processMetadata.questions[0].choices.push(choice);
+      electionMetadata.questions[0].choices.push(choice);
     }
 
     expect(() => {
-      checkValidProcessMetadata(processMetadata);
+      checkValidElectionMetadata(electionMetadata);
     }).not.toThrow();
 
-    const result = checkValidProcessMetadata(processMetadata);
+    const result = checkValidElectionMetadata(electionMetadata);
     expect(result.questions[0].choices.length).toEqual(200);
   });
 
   it('Should allow for arbitrary fields within `meta`', () => {
-    processMetadata.meta = undefined;
+    electionMetadata.meta = undefined;
     expect(() => {
-      checkValidProcessMetadata(processMetadata);
+      checkValidElectionMetadata(electionMetadata);
     }).not.toThrow();
 
-    processMetadata.meta = {};
+    electionMetadata.meta = {};
     expect(() => {
-      checkValidProcessMetadata(processMetadata);
+      checkValidElectionMetadata(electionMetadata);
     }).not.toThrow();
 
-    processMetadata.meta = { a: '1234', b: 2345 };
+    electionMetadata.meta = { a: '1234', b: 2345 };
     expect(() => {
-      checkValidProcessMetadata(processMetadata);
+      checkValidElectionMetadata(electionMetadata);
     }).not.toThrow();
 
-    processMetadata.meta = { a: ['a', 3, null, false] };
+    electionMetadata.meta = { a: ['a', 3, null, false] };
     expect(() => {
-      checkValidProcessMetadata(processMetadata);
+      checkValidElectionMetadata(electionMetadata);
     }).not.toThrow();
   });
 });

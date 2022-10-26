@@ -1,7 +1,6 @@
 import { CensusOrigin, NewProcessTx, ProcessStatus, Tx, TxType } from '../dvote-protobuf/build/ts/vochain/vochain';
-import { Election } from '../types/election';
+import { checkValidElectionMetadata, Election, ElectionMetadata, ElectionMetadataTemplate } from '../types';
 import { AccountData, ChainData } from '../client';
-import { ProcessMetadataTemplate, ProcessMetadata, checkValidProcessMetadata } from '../types/metadata';
 import { TransactionCore } from './transaction';
 
 export abstract class ElectionCore extends TransactionCore {
@@ -91,8 +90,8 @@ export abstract class ElectionCore extends TransactionCore {
     });
   }
 
-  private static async generateMetadata(election: Election): Promise<{ id: string; metadata: ProcessMetadata }> {
-    const metadata = ProcessMetadataTemplate;
+  private static async generateMetadata(election: Election): Promise<{ id: string; metadata: ElectionMetadata }> {
+    const metadata = ElectionMetadataTemplate;
 
     metadata.title = election.title;
     metadata.description = election.description;
@@ -113,7 +112,7 @@ export abstract class ElectionCore extends TransactionCore {
       };
     });
 
-    checkValidProcessMetadata(metadata);
+    checkValidElectionMetadata(metadata);
 
     return require('ipfs-only-hash')
       .of(JSON.stringify(metadata))
