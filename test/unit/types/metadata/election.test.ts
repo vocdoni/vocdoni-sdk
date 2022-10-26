@@ -6,7 +6,7 @@ beforeEach(() => {
   electionMetadata = ElectionMetadataTemplate;
 });
 
-describe('Metadata validation', () => {
+describe('Election metadata', () => {
   it('Should accept a valid Process Metadata JSON', () => {
     expect(() => {
       checkValidElectionMetadata(electionMetadata);

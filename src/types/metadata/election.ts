@@ -1,6 +1,6 @@
 import { MultiLanguage } from '../../util/common';
 import { object, array, string, number } from 'yup';
-import { by639_1 } from 'iso-language-codes';
+import { multiLanguageStringKeys } from '../../util/lang';
 
 /**
  * Asserts that the given metadata is valid.
@@ -20,17 +20,6 @@ export function checkValidElectionMetadata(electionMetadata: ElectionMetadata): 
     throw err;
   }
 }
-
-// Like { en: string(), fr: string, it: string, ... }
-const strLangCodes = Object.keys(by639_1).reduce((prev, cur) => {
-  prev[cur] = string().optional();
-  return prev;
-}, {});
-
-const multiLanguageStringKeys = {
-  ...strLangCodes,
-  default: string().optional(),
-};
 
 export interface IChoice {
   title: MultiLanguage<string>;
