@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant';
-import { IChoice, IQuestion } from './metadata';
+import { IChoice, IQuestion } from './metadata/election';
 import { MultiLanguage } from '../util/common';
 import { PublishedCensus } from './census/published';
 import { PlainCensus } from './census/plain';
