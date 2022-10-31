@@ -1,6 +1,8 @@
 import { CollectFaucetTx, SetAccountInfoTx, Tx } from '../dvote-protobuf/build/ts/vochain/vochain';
 import { TransactionCore } from './transaction';
 import { AccountData } from '../client';
+import { Account } from '../types/account';
+import { AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from '../types/metadata/account';
 
 export abstract class AccountCore extends TransactionCore {
   /**
@@ -10,12 +12,22 @@ export abstract class AccountCore extends TransactionCore {
     super();
   }
 
-  public static generateSetAccountTransaction(address: string, faucetPackage): Uint8Array {
-    const txData = this.prepareSetAccountData(address, faucetPackage);
-    const setAccountInfo = SetAccountInfoTx.fromPartial(txData);
-    return Tx.encode({
-      payload: { $case: 'setAccountInfo', setAccountInfo },
-    }).finish();
+  public static generateSetAccountTransaction(
+    address: string,
+    account: Account,
+    faucetPackage
+  ): Promise<{ tx: Uint8Array; metadata: string }> {
+    return this.prepareSetAccountData(address, account, faucetPackage).then(txData => {
+      const setAccountInfo = SetAccountInfoTx.fromPartial({
+        ...txData.accountData,
+      });
+      return {
+        tx: Tx.encode({
+          payload: { $case: 'setAccountInfo', setAccountInfo },
+        }).finish(),
+        metadata: txData.metadata,
+      };
+    });
   }
 
   public static generateCollectFaucetTransaction(accountData: AccountData, faucetPackage): Uint8Array {
@@ -26,15 +38,49 @@ export abstract class AccountCore extends TransactionCore {
     }).finish();
   }
 
-  private static prepareSetAccountData(address: string, faucetPackage) {
-    return {
-      account: Uint8Array.from(Buffer.from(address)),
-      infoURI: 'ipfs://xyz', // TODO
-      faucetPackage: {
-        payload: Uint8Array.from(Buffer.from(faucetPackage.payload, 'base64')),
-        signature: Uint8Array.from(Buffer.from(faucetPackage.signature, 'hex')),
-      },
+  private static async prepareSetAccountData(
+    address: string,
+    account: Account,
+    faucetPackage
+  ): Promise<{ metadata: string; accountData: object }> {
+    return this.generateMetadata(account).then(metadata => {
+      return {
+        metadata: Buffer.from(JSON.stringify(metadata.metadata), 'binary').toString('base64'),
+        accountData: {
+          account: Uint8Array.from(Buffer.from(address)),
+          infoURI: 'ipfs://' + metadata.id,
+          faucetPackage: faucetPackage
+            ? {
+                payload: Uint8Array.from(Buffer.from(faucetPackage.payload, 'base64')),
+                signature: Uint8Array.from(Buffer.from(faucetPackage.signature, 'hex')),
+              }
+            : null,
+        },
+      };
+    });
+  }
+
+  private static async generateMetadata(account: Account): Promise<{ id: string; metadata: AccountMetadata }> {
+    const metadata = AccountMetadataTemplate;
+
+    metadata.languages = account.languages;
+    metadata.name = account.name;
+    metadata.description = account.description;
+    metadata.newsFeed = account.feed;
+    metadata.media = {
+      avatar: account.avatar,
+      header: account.header,
+      logo: account.logo,
     };
+    metadata.meta = account.meta.reduce((a, v) => ({ ...a, [v.key]: v.value }), {});
+
+    checkValidAccountMetadata(metadata);
+
+    return require('ipfs-only-hash')
+      .of(JSON.stringify(metadata))
+      .then(id => {
+        return { id, metadata };
+      });
   }
 
   private static prepareCollectFaucetData(accountData: AccountData, faucetPackage) {

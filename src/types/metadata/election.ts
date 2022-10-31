@@ -1,6 +1,5 @@
-import { MultiLanguage } from '../../util/common';
 import { object, array, string, number } from 'yup';
-import { multiLanguageStringKeys } from '../../util/lang';
+import { MultiLanguage, multiLanguageStringKeys } from '../../util/lang';
 
 /**
  * Asserts that the given metadata is valid.
