@@ -1,6 +1,5 @@
-import { MultiLanguage } from '../../util/common';
 import { object, array, string } from 'yup';
-import { multiLanguageStringKeys } from '../../util/lang';
+import { MultiLanguage, multiLanguageStringKeys } from '../../util/lang';
 
 /**
  * Asserts that the given metadata is valid.
@@ -29,18 +28,18 @@ const accountMetadataSchema = object()
       .required(), // TODO: remove default
     name: object()
       .shape(multiLanguageStringKeys)
-      .required(),
+      .optional(),
     description: object()
       .shape(multiLanguageStringKeys)
-      .required(),
+      .optional(),
 
     newsFeed: object()
       .shape(multiLanguageStringKeys)
-      .required(),
+      .optional(),
     media: object().shape({
-      avatar: string().required(),
-      header: string().required(),
-      logo: string(),
+      avatar: string().optional(),
+      header: string().optional(),
+      logo: string().optional(),
     }),
     meta: object().optional(),
   })
@@ -54,8 +53,7 @@ type ProtocolVersion = '1.0';
  */
 export interface AccountMetadata {
   version: ProtocolVersion; // Protocol version
-  languages: ['default']; // FIXME: Remove in favor of actual language codes
-  // languages: string[],                  // Two character language code (en, fr, it, ...)
+  languages: string[];
 
   name: MultiLanguage<string>;
   description: MultiLanguage<string>;
@@ -65,7 +63,7 @@ export interface AccountMetadata {
   media: {
     avatar: string;
     header: string;
-    logo?: string;
+    logo: string;
   };
   meta?: {
     [key: string]: any;
@@ -74,23 +72,20 @@ export interface AccountMetadata {
 
 export const AccountMetadataTemplate: AccountMetadata = {
   version: '1.0',
-  languages: ['default'],
+  languages: [],
   name: {
-    default: 'My account',
-    // fr: "Ma communauté"
+    default: '',
   },
   description: {
-    default: 'The description of my account goes here',
-    // fr: "La description officielle de ma communauté est ici"
+    default: '',
   },
   newsFeed: {
-    default: 'ipfs://QmWybQwdBwF81Dt71bNTDDr8PBpW9kNbWtQ64arswaBz1C',
-    // fr: "https://feed2json.org/convert?url=http://www.intertwingly.net/blog/index.atom"
+    default: '',
   },
   media: {
-    avatar: 'https://source.unsplash.com/random/800x600',
-    header: 'https://source.unsplash.com/random/800x600',
-    logo: 'https://source.unsplash.com/random/800x600',
+    avatar: '',
+    header: '',
+    logo: '',
   },
   meta: {},
 };

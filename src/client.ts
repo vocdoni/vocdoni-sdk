@@ -15,6 +15,7 @@ import invariant from 'tiny-invariant';
 import { AccountCore } from './core/account';
 import { delay } from './util/common';
 import dotenv from 'dotenv';
+import { Account } from './types';
 dotenv.config();
 
 export type ChainData = {
@@ -29,7 +30,7 @@ export type AccountData = {
   balance: number;
   nonce: number;
   electionIndex: number;
-  infoURI?: string;
+  infoURL?: string;
 };
 
 type AccountToken = {
@@ -50,10 +51,6 @@ export class VocdoniSDKClient {
   private election: IElection | null = null;
   private authToken: AccountToken | null = null;
 
-  private static readonly FAUCET_LIMIT = parseInt(process.env.FAUCET_TOKEN_LIMIT);
-  private static readonly FAUCET_URL = process.env.FAUCET_URL;
-  private static readonly FAUCET_TOKEN = process.env.FAUCET_AUTH_TOKEN;
-
   constructor(public url: string, public wallet?: Wallet | Signer, public electionId?: string) {}
 
   setElectionId(electionId: string) {
@@ -73,7 +70,7 @@ export class VocdoniSDKClient {
   async fetchFaucetPayload(): Promise<{ payload: string; signature: string }> {
     return this.wallet
       .getAddress()
-      .then(address => FaucetAPI.collect(VocdoniSDKClient.FAUCET_URL, VocdoniSDKClient.FAUCET_TOKEN, address))
+      .then(address => FaucetAPI.collect(process.env.FAUCET_URL, process.env.FAUCET_AUTH_TOKEN, address))
       .then(data => {
         return {
           payload: data.faucetPayload,
@@ -119,29 +116,36 @@ export class VocdoniSDKClient {
     });
   }
 
-  async ensureAccount(): Promise<boolean> {
+  async setAccountInfo(options: { account: Account; getTokens?: boolean }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
-    return this.fetchAccountInfo()
-      .then(accountInfo => {
-        if (accountInfo.balance >= VocdoniSDKClient.FAUCET_LIMIT) return true;
-        return this.collectFaucetTokens();
-      })
-      .catch(() => this.setAccount());
+    invariant(options.account, 'No account');
+
+    const faucetPackage = options.getTokens ? await this.fetchFaucetPayload() : null;
+
+    const accountData = Promise.all([this.wallet.getAddress(), this.fetchChainId()]).then(data =>
+      AccountCore.generateSetAccountTransaction(data[0], options.account, faucetPackage)
+    );
+
+    const accountTx = accountData.then(setAccountInfoTx =>
+      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData, this.wallet)
+    );
+
+    return Promise.all([accountData, accountTx])
+      .then(accountInfo =>
+        AccountAPI.setInfo(this.url, { txPayload: accountInfo[1], metadata: accountInfo[0].metadata })
+      )
+      .then(txData => this.waitForTransaction(txData.txHash))
+      .then(() => this.fetchAccountInfo());
   }
 
-  async setAccount(): Promise<boolean> {
+  async createAccount(options?: { account?: Account; getTokens?: boolean }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
-    return Promise.all([this.wallet.getAddress(), this.fetchFaucetPayload(), this.fetchChainId()])
-      .then(data => {
-        const setAccountInfoTx = AccountCore.generateSetAccountTransaction(data[0], data[1]);
-        return AccountCore.signTransaction(setAccountInfoTx, data[2], this.wallet);
-      })
-      .then(signedTx => ChainAPI.submitTx(this.url, { payload: signedTx }))
-      .then(txData => this.waitForTransaction(txData.hash))
-      .then(() => true);
+    return this.fetchAccountInfo().catch(() =>
+      this.setAccountInfo({ account: options?.account ?? new Account(), getTokens: options?.getTokens })
+    );
   }
 
-  async collectFaucetTokens(): Promise<boolean> {
+  async collectFaucetTokens(): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return Promise.all([this.fetchAccountInfo(), this.fetchFaucetPayload(), this.fetchChainId()])
       .then(data => {
@@ -150,7 +154,7 @@ export class VocdoniSDKClient {
       })
       .then(signedTx => ChainAPI.submitTx(this.url, { payload: signedTx }))
       .then(txData => this.waitForTransaction(txData.hash))
-      .then(() => true);
+      .then(() => this.fetchAccountInfo());
   }
 
   async createCensus(election: Election): Promise<void> {

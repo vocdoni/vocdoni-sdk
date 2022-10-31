@@ -6,11 +6,6 @@ export function strip0x(value: string): string {
   return value.startsWith('0x') ? value.substring(2) : value;
 }
 
-export declare type MultiLanguage<T> = {
-  default: T;
-  [lang: string]: T;
-};
-
 export function getBytes(count: number): Buffer {
   if (typeof window != 'undefined' && typeof window?.crypto?.getRandomValues === 'function') {
     // browser

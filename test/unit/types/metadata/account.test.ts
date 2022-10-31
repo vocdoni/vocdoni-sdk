@@ -36,9 +36,6 @@ describe('Account metadata', () => {
       checkValidAccountMetadata(Object.assign({}, accountMetadata, { description: null }));
     }).toThrow();
     expect(() => {
-      checkValidAccountMetadata(Object.assign({}, accountMetadata, { votingProcesses: [] }));
-    }).not.toThrow();
-    expect(() => {
       checkValidAccountMetadata(Object.assign({}, accountMetadata, { newsFeed: null }));
     }).toThrow();
     expect(() => {

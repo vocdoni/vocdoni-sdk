@@ -10,3 +10,8 @@ export const multiLanguageStringKeys = {
   ...strLangCodes,
   default: string().optional(),
 };
+
+export declare type MultiLanguage<T> = {
+  default: T;
+  [lang: string]: T;
+};
