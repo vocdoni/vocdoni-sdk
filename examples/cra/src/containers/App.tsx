@@ -30,9 +30,9 @@ export const App = () => {
     (async () => {
       if (account.length || balance > 0 || provider.length === 0) return
       // client instance
-      const client = new VocdoniSDKClient('https://gw2.dev.vocdoni.net/v2', (providers[provider] as Web3Provider).getSigner())
+      const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', (providers[provider] as Web3Provider).getSigner())
       // fetch info
-      const acc = await client.fetchAccountInfo()
+      const acc = await client.createAccount()
       if (!acc) {
         throw new Error('fetch account failed')
       }
@@ -58,7 +58,7 @@ export const App = () => {
               setCreating(true)
               const signer = (providers[provider] as Web3Provider).getSigner()
               // client instance
-              const client = new VocdoniSDKClient('https://gw2.dev.vocdoni.net/v2', signer)
+              const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
               // await client.fetchChainId()
 
               // create a census for the voting process
