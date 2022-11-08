@@ -25,7 +25,6 @@
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "react": "^18.1.0",
-    "react-app-rewired": "^2.2.1",
     "react-dom": "^18.1.0",
     "react-icons": "^3.0.0",
     "react-if": "^4.1.4",
@@ -38,9 +37,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "eject": "react-app-rewired eject"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
