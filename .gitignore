@@ -5,3 +5,7 @@ node_modules
 dist
 .env
 *.tgz
+
+# lockfiles
+/package-lock.json
+/yarn.lock
