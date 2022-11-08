@@ -1,8 +1,9 @@
-import { CollectFaucetTx, SetAccountInfoTx, Tx } from '../dvote-protobuf/build/ts/vochain/vochain';
-import { TransactionCore } from './transaction';
+import Hash from 'ipfs-only-hash';
 import { AccountData } from '../client';
+import { CollectFaucetTx, SetAccountInfoTx, Tx } from '../dvote-protobuf/build/ts/vochain/vochain';
 import { Account } from '../types/account';
 import { AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from '../types/metadata/account';
+import { TransactionCore } from './transaction';
 
 export abstract class AccountCore extends TransactionCore {
   /**
@@ -76,7 +77,7 @@ export abstract class AccountCore extends TransactionCore {
 
     checkValidAccountMetadata(metadata);
 
-    return require('ipfs-only-hash')
+    return Hash
       .of(JSON.stringify(metadata))
       .then(id => {
         return { id, metadata };

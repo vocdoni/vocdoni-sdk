@@ -1,6 +1,6 @@
+import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
 import { Election, PlainCensus, VocdoniSDKClient, Vote } from '../../src';
-import { computePublicKey } from '@ethersproject/signing-key';
 import { delay } from '../../src/util/common';
 
 let client: VocdoniSDKClient;
@@ -9,7 +9,6 @@ let creator: Wallet;
 beforeEach(async () => {
   creator = Wallet.createRandom();
   client = new VocdoniSDKClient(process.env.API_URL, creator);
-  await client.ensureAccount();
 }, 15000);
 
 const createElection = census => {
