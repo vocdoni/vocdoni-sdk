@@ -20,16 +20,16 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install deps
-        run: npm install
+        run: yarn
 
       - name: Build
-        run: npm run build
+        run: yarn build
 
       - name: Lint
-        run: npm run lint
+        run: yarn lint
 
       - name: Unit tests
-        run: npm run test test/unit --ci --coverage --maxWorkers=2
+        run: yarn test --coverage
         env:
           API_URL: ${{ secrets.API_URL }}
           FAUCET_URL: ${{ secrets.FAUCET_URL }}
