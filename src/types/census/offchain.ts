@@ -26,10 +26,10 @@ export abstract class OffchainCensus extends Census {
     this.participants = this.participants
       .concat(
         Array.isArray(participants)
-          ? participants.map(participant => this.checkParticipant(participant))
+          ? participants.map((participant) => this.checkParticipant(participant))
           : [this.checkParticipant(participants)]
       )
-      .filter((elem, index, self) => index === self.findIndex(p => p.key === elem.key));
+      .filter((elem, index, self) => index === self.findIndex((p) => p.key === elem.key));
   }
 
   protected checkParticipant(participant: ICensusParticipant) {
@@ -43,7 +43,7 @@ export abstract class OffchainCensus extends Census {
   }
 
   protected removeParticipant(key: string) {
-    this.participants = this.participants.filter(elem => elem.key !== key);
+    this.participants = this.participants.filter((elem) => elem.key !== key);
   }
 
   get participants(): ICensusParticipant[] {

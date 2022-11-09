@@ -62,8 +62,8 @@ export abstract class FaucetAPI {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }

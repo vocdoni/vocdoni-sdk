@@ -8,7 +8,7 @@ import { MultiLanguage, multiLanguageStringKeys } from '../../util/lang';
 export function checkValidElectionMetadata(electionMetadata: ElectionMetadata): ElectionMetadata {
   if (typeof electionMetadata != 'object') throw new Error('The metadata must be a JSON object');
   else if (electionMetadata.questions.length < 1) throw new Error('The metadata needs to have at least one question');
-  else if (electionMetadata.questions.some(q => !Array.isArray(q.choices) || q.choices.length < 2))
+  else if (electionMetadata.questions.some((q) => !Array.isArray(q.choices) || q.choices.length < 2))
     throw new Error('All questions need to have at least two choices');
 
   try {
@@ -36,12 +36,8 @@ const electionMetadataSchema = object()
     version: string()
       .matches(/^[0-9]\.[0-9]$/)
       .required(),
-    title: object()
-      .shape(multiLanguageStringKeys)
-      .required(),
-    description: object()
-      .shape(multiLanguageStringKeys)
-      .required(),
+    title: object().shape(multiLanguageStringKeys).required(),
+    description: object().shape(multiLanguageStringKeys).required(),
     media: object().shape({
       header: string().required(),
       streamUri: string().optional(),
@@ -50,21 +46,13 @@ const electionMetadataSchema = object()
     questions: array()
       .of(
         object().shape({
-          title: object()
-            .shape(multiLanguageStringKeys)
-            .required(),
-          description: object()
-            .shape(multiLanguageStringKeys)
-            .optional(),
+          title: object().shape(multiLanguageStringKeys).required(),
+          description: object().shape(multiLanguageStringKeys).optional(),
           choices: array()
             .of(
               object().shape({
-                title: object()
-                  .shape(multiLanguageStringKeys)
-                  .required(),
-                value: number()
-                  .integer()
-                  .required(),
+                title: object().shape(multiLanguageStringKeys).required(),
+                value: number().integer().required(),
               })
             )
             .required(),
@@ -73,9 +61,7 @@ const electionMetadataSchema = object()
       .required(),
     results: object()
       .shape({
-        aggregation: string()
-          .required()
-          .oneOf(['index-weighted', 'discrete-counting']),
+        aggregation: string().required().oneOf(['index-weighted', 'discrete-counting']),
         display: string()
           .required()
           .oneOf([

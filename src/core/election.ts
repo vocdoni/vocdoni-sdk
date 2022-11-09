@@ -19,7 +19,7 @@ export abstract class ElectionCore extends TransactionCore {
     chainData: ChainData,
     accountData: AccountData
   ): Promise<{ tx: Uint8Array; metadata: string }> {
-    return this.prepareElectionData(election, chainData, accountData).then(txData => {
+    return this.prepareElectionData(election, chainData, accountData).then((txData) => {
       const newProcess = NewProcessTx.fromPartial({
         txtype: TxType.NEW_PROCESS,
         ...txData.electionData,
@@ -47,7 +47,7 @@ export abstract class ElectionCore extends TransactionCore {
     }
     const endBlock = this.estimateBlockAtDateTime(election.endDate, chainData);
 
-    return this.generateMetadata(election).then(metadata => {
+    return this.generateMetadata(election).then((metadata) => {
       return {
         metadata: Buffer.from(JSON.stringify(metadata.metadata), 'binary').toString('base64'),
         electionData: {
@@ -100,11 +100,11 @@ export abstract class ElectionCore extends TransactionCore {
       header: election.header,
       streamUri: election.streamUri,
     };
-    metadata.questions = election.questions.map(question => {
+    metadata.questions = election.questions.map((question) => {
       return {
         title: question.title,
         description: question.description,
-        choices: question.choices.map(choice => {
+        choices: question.choices.map((choice) => {
           return {
             title: choice.title,
             value: choice.value,
@@ -115,11 +115,9 @@ export abstract class ElectionCore extends TransactionCore {
 
     checkValidElectionMetadata(metadata);
 
-    return Hash
-      .of(JSON.stringify(metadata))
-      .then(id => {
-        return { id, metadata };
-      });
+    return Hash.of(JSON.stringify(metadata)).then((id) => {
+      return { id, metadata };
+    });
   }
 
   /**

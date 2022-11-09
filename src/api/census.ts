@@ -60,8 +60,8 @@ export abstract class CensusAPI {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }
@@ -89,8 +89,8 @@ export abstract class CensusAPI {
           },
         }
       )
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }
@@ -105,8 +105,8 @@ export abstract class CensusAPI {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }
@@ -117,8 +117,8 @@ export abstract class CensusAPI {
   public static proof(url: string, censusId: string, key: string): Promise<ICensusProofResponse> {
     return axios
       .get<ICensusProofResponse>(url + CensusAPIMethods.PROOF.replace('{id}', censusId) + '/' + strip0x(key))
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }

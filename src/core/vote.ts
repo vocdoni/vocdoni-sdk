@@ -231,7 +231,7 @@ export abstract class VoteCore extends TransactionCore {
       const publicKeys: string[] = [];
       const publicKeysIdx: number[] = [];
       // NOTE: Using all keys by now
-      processKeys.encryptionPubKeys.forEach(entry => {
+      processKeys.encryptionPubKeys.forEach((entry) => {
         publicKeys.push(strip0x(entry.key));
         publicKeysIdx.push(entry.idx);
       });

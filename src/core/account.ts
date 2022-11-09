@@ -18,7 +18,7 @@ export abstract class AccountCore extends TransactionCore {
     account: Account,
     faucetPackage
   ): Promise<{ tx: Uint8Array; metadata: string }> {
-    return this.prepareSetAccountData(address, account, faucetPackage).then(txData => {
+    return this.prepareSetAccountData(address, account, faucetPackage).then((txData) => {
       const setAccountInfo = SetAccountInfoTx.fromPartial({
         ...txData.accountData,
       });
@@ -44,7 +44,7 @@ export abstract class AccountCore extends TransactionCore {
     account: Account,
     faucetPackage
   ): Promise<{ metadata: string; accountData: object }> {
-    return this.generateMetadata(account).then(metadata => {
+    return this.generateMetadata(account).then((metadata) => {
       return {
         metadata: Buffer.from(JSON.stringify(metadata.metadata), 'binary').toString('base64'),
         accountData: {
@@ -77,11 +77,9 @@ export abstract class AccountCore extends TransactionCore {
 
     checkValidAccountMetadata(metadata);
 
-    return Hash
-      .of(JSON.stringify(metadata))
-      .then(id => {
-        return { id, metadata };
-      });
+    return Hash.of(JSON.stringify(metadata)).then((id) => {
+      return { id, metadata };
+    });
   }
 
   private static prepareCollectFaucetData(accountData: AccountData, faucetPackage) {
