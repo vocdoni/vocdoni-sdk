@@ -10,7 +10,7 @@ export function checkValidAccountMetadata(accountMetadata: AccountMetadata) {
 
   try {
     accountMetadataSchema.validateSync(accountMetadata);
-    return (accountMetadataSchema.cast(accountMetadata) as unknown) as AccountMetadata;
+    return accountMetadataSchema.cast(accountMetadata) as unknown as AccountMetadata;
   } catch (err) {
     if (Array.isArray(err.errors)) throw new Error('ValidationError: ' + err.errors.join(', '));
     throw err;
@@ -26,16 +26,10 @@ const accountMetadataSchema = object()
     languages: array()
       .of(string().matches(/^([a-z]{2}|default)$/))
       .required(), // TODO: remove default
-    name: object()
-      .shape(multiLanguageStringKeys)
-      .optional(),
-    description: object()
-      .shape(multiLanguageStringKeys)
-      .optional(),
+    name: object().shape(multiLanguageStringKeys).optional(),
+    description: object().shape(multiLanguageStringKeys).optional(),
 
-    newsFeed: object()
-      .shape(multiLanguageStringKeys)
-      .optional(),
+    newsFeed: object().shape(multiLanguageStringKeys).optional(),
     media: object().shape({
       avatar: string().optional(),
       header: string().optional(),

@@ -16,7 +16,7 @@ export abstract class TransactionCore {
     chainData: ChainData,
     walletOrSigner: Wallet | Signer
   ): Promise<string> {
-    return Signing.signTransaction(tx, chainData.chainId, walletOrSigner).then(hexSignature => {
+    return Signing.signTransaction(tx, chainData.chainId, walletOrSigner).then((hexSignature) => {
       const signature = new Uint8Array(Buffer.from(strip0x(hexSignature), 'hex'));
       const signedTx = SignedTx.encode({ tx, signature }).finish();
       return Buffer.from(signedTx).toString('base64');

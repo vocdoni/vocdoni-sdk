@@ -63,15 +63,15 @@ export class VocdoniSDKClient {
   }
 
   async fetchAccountInfo(): Promise<AccountData> {
-    this.accountData = await this.wallet.getAddress().then(address => AccountAPI.info(this.url, address));
+    this.accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
     return this.accountData;
   }
 
   async fetchFaucetPayload(): Promise<{ payload: string; signature: string }> {
     return this.wallet
       .getAddress()
-      .then(address => FaucetAPI.collect(process.env.FAUCET_URL, process.env.FAUCET_AUTH_TOKEN, address))
-      .then(data => {
+      .then((address) => FaucetAPI.collect(process.env.FAUCET_URL, process.env.FAUCET_AUTH_TOKEN, address))
+      .then((data) => {
         return {
           payload: data.faucetPayload,
           signature: data.signature,
@@ -89,7 +89,7 @@ export class VocdoniSDKClient {
       wallet: Wallet.createRandom(),
     };
 
-    return WalletAPI.add(this.url, this.authToken.wallet.privateKey).then(addWalletResponse => {
+    return WalletAPI.add(this.url, this.authToken.wallet.privateKey).then((addWalletResponse) => {
       this.authToken.identifier = addWalletResponse.token;
     });
   }
@@ -111,7 +111,7 @@ export class VocdoniSDKClient {
   }
 
   async fetchProof(censusId: string, key: string, type: CensusProofType): Promise<CensusProof> {
-    return CensusAPI.proof(this.url, censusId, key).then(censusProof => {
+    return CensusAPI.proof(this.url, censusId, key).then((censusProof) => {
       return { ...censusProof, type };
     });
   }
@@ -122,19 +122,19 @@ export class VocdoniSDKClient {
 
     const faucetPackage = options.getTokens ? await this.fetchFaucetPayload() : null;
 
-    const accountData = Promise.all([this.wallet.getAddress(), this.fetchChainId()]).then(data =>
+    const accountData = Promise.all([this.wallet.getAddress(), this.fetchChainId()]).then((data) =>
       AccountCore.generateSetAccountTransaction(data[0], options.account, faucetPackage)
     );
 
-    const accountTx = accountData.then(setAccountInfoTx =>
+    const accountTx = accountData.then((setAccountInfoTx) =>
       AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData, this.wallet)
     );
 
     return Promise.all([accountData, accountTx])
-      .then(accountInfo =>
+      .then((accountInfo) =>
         AccountAPI.setInfo(this.url, { txPayload: accountInfo[1], metadata: accountInfo[0].metadata })
       )
-      .then(txData => this.waitForTransaction(txData.txHash))
+      .then((txData) => this.waitForTransaction(txData.txHash))
       .then(() => this.fetchAccountInfo());
   }
 
@@ -148,12 +148,12 @@ export class VocdoniSDKClient {
   async collectFaucetTokens(): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return Promise.all([this.fetchAccountInfo(), this.fetchFaucetPayload(), this.fetchChainId()])
-      .then(data => {
+      .then((data) => {
         const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(data[0], data[1]);
         return AccountCore.signTransaction(collectFaucetTx, data[2], this.wallet);
       })
-      .then(signedTx => ChainAPI.submitTx(this.url, { payload: signedTx }))
-      .then(txData => this.waitForTransaction(txData.hash))
+      .then((signedTx) => ChainAPI.submitTx(this.url, { payload: signedTx }))
+      .then((txData) => this.waitForTransaction(txData.hash))
       .then(() => this.fetchAccountInfo());
   }
 
@@ -168,9 +168,9 @@ export class VocdoniSDKClient {
       CensusAPI.create(this.url, this.authToken.identifier, census.type)
     );
 
-    const censusAdding = censusCreation.then(censusCreateResponse =>
+    const censusAdding = censusCreation.then((censusCreateResponse) =>
       Promise.all(
-        census.participants.map(participant =>
+        census.participants.map((participant) =>
           CensusAPI.add(
             this.url,
             this.authToken.identifier,
@@ -183,25 +183,23 @@ export class VocdoniSDKClient {
     );
 
     return Promise.all([censusCreation, censusAdding])
-      .then(censusData => CensusAPI.publish(this.url, this.authToken.identifier, censusData[0].censusID))
-      .then(censusPublish => {
+      .then((censusData) => CensusAPI.publish(this.url, this.authToken.identifier, censusData[0].censusID))
+      .then((censusPublish) => {
         election.census.censusId = censusPublish.censusID;
         election.census.censusURI = censusPublish.uri;
       });
   }
 
   async createElection(election: Election): Promise<string> {
-    const electionData = Promise.all([
-      this.fetchChainId(),
-      this.fetchAccountInfo(),
-      this.createCensus(election),
-    ]).then(data => ElectionCore.generateNewElectionTransaction(election, data[0], data[1]));
+    const electionData = Promise.all([this.fetchChainId(), this.fetchAccountInfo(), this.createCensus(election)]).then(
+      (data) => ElectionCore.generateNewElectionTransaction(election, data[0], data[1])
+    );
 
-    const electionPackage = electionData.then(newElectionData =>
+    const electionPackage = electionData.then((newElectionData) =>
       ElectionCore.signTransaction(newElectionData.tx, this.chainData, this.wallet)
     );
 
-    const electionTx = await Promise.all([electionData, electionPackage]).then(election =>
+    const electionTx = await Promise.all([electionData, electionPackage]).then((election) =>
       ElectionAPI.create(this.url, {
         txPayload: election[1],
         metadata: election[0].metadata,
@@ -212,7 +210,7 @@ export class VocdoniSDKClient {
   }
 
   async submitVote(vote: Vote): Promise<string> {
-    const voteData = Promise.all([this.fetchChainId(), this.fetchElection(), this.wallet.getAddress()]).then(data => {
+    const voteData = Promise.all([this.fetchChainId(), this.fetchElection(), this.wallet.getAddress()]).then((data) => {
       if (this.wallet instanceof Wallet) {
         return promiseAny([
           this.fetchProof(data[1].census.censusRoot, data[2], CensusProofType.ADDRESS),
@@ -230,12 +228,12 @@ export class VocdoniSDKClient {
     });
 
     const voteHash = await voteData
-      .then(censusProof => {
+      .then((censusProof) => {
         const voteTx = VoteCore.generateVoteTransaction(this.election, censusProof, vote);
         return VoteCore.signTransaction(voteTx, this.chainData, this.wallet);
       })
-      .then(signedTx => ChainAPI.submitTx(this.url, { payload: signedTx }))
-      .then(data => data.hash);
+      .then((signedTx) => ChainAPI.submitTx(this.url, { payload: signedTx }))
+      .then((data) => data.hash);
 
     return this.waitForTransaction(voteHash).then(() => voteHash);
   }

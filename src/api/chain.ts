@@ -73,8 +73,8 @@ export abstract class ChainAPI {
   public static info(url: string): Promise<IChainGetInfoResponse> {
     return axios
       .get<IChainGetInfoResponse>(url + ChainAPIMethods.INFO)
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }
@@ -85,8 +85,8 @@ export abstract class ChainAPI {
   public static txInfo(url: string, txHash: string): Promise<IChainGetTransactionReferenceResponse> {
     return axios
       .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }
@@ -97,8 +97,8 @@ export abstract class ChainAPI {
   public static submitTx(url: string, data: IChainSubmitTxRequest): Promise<IChainSubmitTxResponse> {
     return axios
       .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify(data))
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }

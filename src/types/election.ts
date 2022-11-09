@@ -74,7 +74,7 @@ export class Election {
     this._questions.push({
       title: typeof title === 'string' ? { default: title } : title,
       description: typeof description === 'string' ? { default: description } : description,
-      choices: choices.map(choice => {
+      choices: choices.map((choice) => {
         return {
           title: typeof choice.title === 'string' ? { default: choice.title } : choice.title,
           value: choice.value,

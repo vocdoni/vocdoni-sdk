@@ -105,8 +105,8 @@ export abstract class ElectionAPI {
   public static info(url: string, request: IElectionInfoRequest): Promise<IElection> {
     return axios
       .get<IElection>(url + ElectionAPIMethods.INFO + '/' + request.electionId)
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }
@@ -117,8 +117,8 @@ export abstract class ElectionAPI {
   public static create(url: string, data: IElectionCreateRequest): Promise<IElectionCreateResponse> {
     return axios
       .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, JSON.stringify(data))
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }

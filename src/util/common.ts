@@ -1,6 +1,6 @@
 import { keccak256 } from '@ethersproject/keccak256';
 
-export const delay = ms => new Promise(res => setTimeout(res, ms));
+export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export function strip0x(value: string): string {
   return value.startsWith('0x') ? value.substring(2) : value;

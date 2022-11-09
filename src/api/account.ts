@@ -65,8 +65,8 @@ export abstract class AccountAPI {
   public static info(url: string, address: string): Promise<IAccountInfoResponse> {
     return axios
       .get<IAccountInfoResponse>(url + AccountAPIMethods.INFO + '/' + address)
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }
@@ -77,8 +77,8 @@ export abstract class AccountAPI {
   public static setInfo(url: string, data: IAccountSetInfoRequest): Promise<IAccountSetInfoResponse> {
     return axios
       .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, JSON.stringify(data))
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }

@@ -32,8 +32,8 @@ export abstract class VoteAPI {
   public static submit(request: VoteAPIRequest): Promise<VoteAPIResponse> {
     return axios
       .post<VoteAPIResponse>(VoteAPIMethods.VOTE, JSON.stringify(request))
-      .then(response => response.data)
-      .catch(error => {
+      .then((response) => response.data)
+      .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
         }

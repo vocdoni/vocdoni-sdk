@@ -16,7 +16,7 @@ export class PlainCensus extends OffchainCensus {
   public add(participants: string | string[]) {
     super.addParticipants(
       Array.isArray(participants)
-        ? participants.map(participant => {
+        ? participants.map((participant) => {
             return {
               key: participant,
               weight: BigInt(1),
