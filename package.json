@@ -18,7 +18,7 @@
     "build": "rimraf dist && ts-node esbuild.ts && yarn ts-types",
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
     "test": "jest",
-    "lint": "eslint 'src/**/*.ts'",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lintfix": "yarn lint --fix",
     "prepare": "yarn build",
     "size": "size-limit",
