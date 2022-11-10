@@ -29,9 +29,4 @@ jobs:
         run: yarn lint
 
       - name: Unit tests
-        run: yarn test --coverage
-        env:
-          API_URL: ${{ secrets.API_URL }}
-          FAUCET_URL: ${{ secrets.FAUCET_URL }}
-          FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
-          FAUCET_TOKEN_LIMIT: 100
+        run: yarn test test/unit --ci --coverage
