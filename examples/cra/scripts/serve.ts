@@ -12,11 +12,11 @@ const createEsBuildServer = async () => {
 
   const result = await serve({ servedir: 'public' }, {})
 
-  console.log(`⚡ esbuild serving on ${result.host}:${result.port}`)
+  console.log(`⚡ esbuild serving on ${result.host}:${result.port} access it via http://localhost:${result.port}`)
 }
 
 const createTscServer = () => {
-  const tsc = spawn('npx tsc', ['--noEmit --watch --skipLibCheck --pretty --project tsconfig.json'], {
+  const tsc = spawn('npx tsc', ['--noEmit --watch --skipLibCheck --pretty --preserveWatchOutput'], {
     shell: true
   })
   tsc.stdout.on('data', data => {
@@ -29,8 +29,8 @@ const createTscServer = () => {
 }
 
 const main = async () => {
-  createEsBuildServer()
   createTscServer()
+  createEsBuildServer()
 }
 
 main()
