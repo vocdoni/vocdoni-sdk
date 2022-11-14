@@ -8,6 +8,7 @@ const createEsBuildServer = async () => {
     minify: false,
     incremental: true,
     sourcemap: true,
+    watch: true,
   }).catch(() => process.exit(1))
 
   const result = await serve({ servedir: 'public' }, {})
