@@ -122,7 +122,7 @@ export const App = () => {
                   const signer = (providers[provider] as Web3Provider).getSigner()
                   const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
                   client.setElectionId(election)
-                  let vote : string
+                  let vote = ''
                   // vote to the very first option, for the sake of the example
                   try {
                     vote = await client.submitVote([0] as any)
