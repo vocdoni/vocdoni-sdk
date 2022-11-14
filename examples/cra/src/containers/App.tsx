@@ -32,7 +32,7 @@ export const App = () => {
       // client instance
       const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', (providers[provider] as Web3Provider).getSigner())
       // fetch info
-      const acc = await client.createAccount()
+      const acc = await client.createAccount({getTokens: true})
       if (!acc) {
         throw new Error('fetch account failed')
       }
