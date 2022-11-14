@@ -1,22 +1,19 @@
+import { Signer } from '@ethersproject/abstract-signer';
+import { computePublicKey } from '@ethersproject/signing-key';
+import { Wallet } from '@ethersproject/wallet';
+import invariant from 'tiny-invariant';
+import { AccountAPI } from './api/account';
+import { CensusAPI } from './api/census';
 import { ChainAPI } from './api/chain';
 import { ElectionAPI, IElection } from './api/election';
-import { Election, PlainCensus, Vote, WeightedCensus } from './types';
-import { ElectionCore } from './core/election';
-import { Wallet } from '@ethersproject/wallet';
-import { AccountAPI } from './api/account';
-import { CensusProofType, VoteCore } from './core/vote';
-import { CensusAPI } from './api/census';
-import { WalletAPI } from './api/wallet';
-import { computePublicKey } from '@ethersproject/signing-key';
-import { Signer } from '@ethersproject/abstract-signer';
-import { promiseAny } from './util/promise';
 import { FaucetAPI } from './api/faucet';
-import invariant from 'tiny-invariant';
+import { WalletAPI } from './api/wallet';
 import { AccountCore } from './core/account';
+import { ElectionCore } from './core/election';
+import { CensusProofType, VoteCore } from './core/vote';
+import { Account, Election, PlainCensus, Vote, WeightedCensus } from './types';
 import { delay } from './util/common';
-import dotenv from 'dotenv';
-import { Account } from './types';
-dotenv.config();
+import { promiseAny } from './util/promise';
 
 export type ChainData = {
   chainId: string;
