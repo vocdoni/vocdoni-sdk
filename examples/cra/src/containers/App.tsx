@@ -14,16 +14,18 @@ export const App = () => {
   const [balance, setBalance] = useState<number>(0)
   const [election, setElection] = useState<string>('')
   const [creating, setCreating] = useState<boolean>(false)
-  // const [voting, setVoting] = useState<boolean>(false)
+  const [metadata, setMetadata] = useState<any>()
+  const [voting, setVoting] = useState<boolean>(false)
+  const [voteHash, setVoteHash] = useState<string>('')
 
   const mprovider = mhooks.useProvider()
   const wprovider = whooks.useProvider()
+  const isMMActive = mhooks.useIsActive()
+  const isWCActive = whooks.useIsActive()
   const providers : {[key: string]: Web3Provider|undefined} = {
     'metamask': mprovider,
     'walletconnect': wprovider,
   }
-  const isMMActive = mhooks.useIsActive()
-  const isWCActive = whooks.useIsActive()
 
   // get user account when a provider is defined (aka user has logged in)
   useEffect(() => {
@@ -31,7 +33,7 @@ export const App = () => {
       if (account.length || balance > 0 || provider.length === 0) return
       // client instance
       const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', (providers[provider] as Web3Provider).getSigner())
-      // fetch info
+      // fetch info or create account if does not exist
       const acc = await client.createAccount({getTokens: true})
       if (!acc) {
         throw new Error('fetch account failed')
@@ -43,6 +45,20 @@ export const App = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account.length, balance, provider])
 
+  // when the election is created, fetch its info
+  useEffect(() => {
+    if (!election.length || metadata) return
+
+    ;(async () => {
+      const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2')
+      client.setElectionId(election)
+      const meta = await client.fetchElection()
+
+      setMetadata(meta)
+    })()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [election, metadata, provider])
+
   return (
     <Box textAlign='center' fontSize='xl' m={20}>
       <If condition={isMMActive || isWCActive}>
@@ -53,7 +69,7 @@ export const App = () => {
             </When>
             <Button
               isLoading={creating}
-              disabled={creating}
+              disabled={creating || election.length > 0}
               onClick={async () => {
               setCreating(true)
               const signer = (providers[provider] as Web3Provider).getSigner()
@@ -97,9 +113,32 @@ export const App = () => {
             }}>
               Create election
             </Button>
-            <Button>
-              Vote {election}
-            </Button>
+            <When condition={election.length > 0}>
+              <Button
+                isLoading={voting}
+                disabled={voting}
+                onClick={async () => {
+                  setVoting(true)
+                  const signer = (providers[provider] as Web3Provider).getSigner()
+                  const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
+                  client.setElectionId(election)
+                  let vote : string
+                  // vote to the very first option, for the sake of the example
+                  try {
+                    vote = await client.submitVote([0] as any)
+                  } catch (e) {
+                    console.debug('could not vote:', e)
+                  }
+
+                  setVoteHash(vote)
+                  setVoting(false)
+              }}>
+                Vote {election}
+              </Button>
+            </When>
+            <When condition={voteHash.length > 0}>
+              <p>Your vote hash is {voteHash}</p>
+            </When>
           </Stack>
         </Then>
         <Else>
