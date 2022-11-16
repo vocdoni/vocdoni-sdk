@@ -1,0 +1,46 @@
+name: Deploy examples to GH pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: yarn
+      - name: Build SDK
+        run: yarn build
+
+      - name: Install example dependencies
+        working-directory: examples/cra
+        run: yarn
+      - name: Build CRA example
+        working-directory: examples/cra
+        run: yarn build
+
+      - name: Update asset routes for gh-pages
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: (href|src)="\/
+          replace: $1="/vocdoni-sdk/
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          folder: examples/cra/public
