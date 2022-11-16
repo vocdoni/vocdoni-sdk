@@ -34,9 +34,15 @@ export const App = () => {
       // client instance
       const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', (providers[provider] as Web3Provider).getSigner())
       // fetch info or create account if does not exist
-      const acc = await client.createAccount({getTokens: true})
+      let acc = await client.createAccount({getTokens: true})
       if (!acc) {
         throw new Error('fetch account failed')
+      }
+
+      // only for development purposes, request more tokens if balance is zero
+      if (acc.balance <= 0) {
+        await client.collectFaucetTokens()
+        acc = await client.fetchAccountInfo()
       }
 
       setAccount(acc.address)
@@ -69,13 +75,12 @@ export const App = () => {
             </When>
             <Button
               isLoading={creating}
-              disabled={creating || election.length > 0}
+              disabled={creating || election.length > 0 || balance <= 0}
               onClick={async () => {
               setCreating(true)
               const signer = (providers[provider] as Web3Provider).getSigner()
               // client instance
               const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
-              // await client.fetchChainId()
 
               // create a census for the voting process
               const census = new PlainCensus()
@@ -114,27 +119,25 @@ export const App = () => {
               Create election
             </Button>
             <When condition={election.length > 0}>
-              <Button
-                isLoading={voting}
-                disabled={voting}
-                onClick={async () => {
-                  setVoting(true)
-                  const signer = (providers[provider] as Web3Provider).getSigner()
-                  const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
-                  client.setElectionId(election)
-                  let vote = ''
-                  // vote to the very first option, for the sake of the example
-                  try {
-                    vote = await client.submitVote([0] as any)
-                  } catch (e) {
-                    console.debug('could not vote:', e)
-                  }
+              <>
+                <p>Election created! <a href={`https://dev.explorer.vote/processes/show/#/${election}`}>Check it out in the explorer</a></p>
+                <Button
+                  isLoading={voting}
+                  disabled={voting}
+                  onClick={async () => {
+                    setVoting(true)
+                    const signer = (providers[provider] as Web3Provider).getSigner()
+                    const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
+                    client.setElectionId(election)
+                    // vote to the very first option, for the sake of the example
+                    const vote = await client.submitVote([0] as any)
 
-                  setVoteHash(vote)
-                  setVoting(false)
-              }}>
-                Vote {election}
-              </Button>
+                    setVoteHash(vote)
+                    setVoting(false)
+                }}>
+                  Vote {election}
+                </Button>
+              </>
             </When>
             <When condition={voteHash.length > 0}>
               <p>Your vote hash is {voteHash}</p>
