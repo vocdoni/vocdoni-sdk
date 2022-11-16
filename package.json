@@ -17,7 +17,7 @@
     "prebuild": "yarn submodule",
     "build": "rimraf dist && ts-node esbuild.ts && yarn ts-types",
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
-    "test": "jest",
+    "test": "jest --setupFiles dotenv/config",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lintfix": "yarn lint --fix",
     "prepare": "yarn build",
