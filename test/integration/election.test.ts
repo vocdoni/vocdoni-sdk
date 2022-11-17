@@ -17,7 +17,6 @@ const createElection = (census) => {
     description: 'Election description',
     header: 'https://source.unsplash.com/random',
     streamUri: 'https://source.unsplash.com/random',
-    startDate: new Date().getTime() + 25000,
     endDate: new Date().getTime() + 10000000,
     census,
   });

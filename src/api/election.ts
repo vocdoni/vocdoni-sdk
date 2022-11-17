@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 enum ElectionAPIMethods {
-  INFO = '/election',
-  CREATE = '/election/create',
+  INFO = '/elections',
+  CREATE = '/elections',
 }
 
 export interface IResults {
