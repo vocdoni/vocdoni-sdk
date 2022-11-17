@@ -28,7 +28,7 @@ describe('Account integration tests', () => {
 
     await client
       .collectFaucetTokens()
-      .then(finalAccountInfo => expect(finalAccountInfo.balance).toBeGreaterThan(accountInfo.balance));
+      .then((finalAccountInfo) => expect(finalAccountInfo.balance).toBeGreaterThan(accountInfo.balance));
   }, 75000);
   it('should bootstrap a new account and do nothing when creating it twice', async () => {
     const client = new VocdoniSDKClient(process.env.API_URL, Wallet.createRandom());
