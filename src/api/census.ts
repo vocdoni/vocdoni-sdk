@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { CensusType } from '../types/census/census';
+import { CensusType } from '../types';
 import { strip0x } from '../util/common';
 
 enum CensusAPIMethods {
-  CREATE = '/census/create',
-  ADD = '/census/{id}/add',
-  PUBLISH = '/census/{id}/publish',
-  PROOF = '/census/{id}/proof',
+  CREATE = '/censuses',
+  ADD = '/censuses/{id}/participants',
+  PUBLISH = '/censuses/{id}/publish',
+  PROOF = '/censuses/{id}/proof',
 }
 
 interface ICensusCreateResponse {
@@ -55,7 +55,7 @@ export abstract class CensusAPI {
 
   public static create(url: string, authToken: string, type: CensusType): Promise<ICensusCreateResponse> {
     return axios
-      .get<ICensusCreateResponse>(url + CensusAPIMethods.CREATE + '/' + type, {
+      .post<ICensusCreateResponse>(url + CensusAPIMethods.CREATE + '/' + type, null, {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },
@@ -77,12 +77,16 @@ export abstract class CensusAPI {
     weight?: BigInt
   ): Promise<ICensusAddResponse> {
     return axios
-      .get<ICensusAddResponse>(
-        url +
-          CensusAPIMethods.ADD.replace('{id}', censusId) +
-          '/' +
-          key +
-          (typeof weight !== 'undefined' ? '/' + weight.toString() : ''),
+      .post<ICensusAddResponse>(
+        url + CensusAPIMethods.ADD.replace('{id}', censusId),
+        {
+          participants: [
+            {
+              key,
+              weight: typeof weight !== 'undefined' ? weight.toString() : '1',
+            },
+          ],
+        },
         {
           headers: {
             Authorization: 'Bearer ' + authToken,
@@ -100,7 +104,7 @@ export abstract class CensusAPI {
 
   public static publish(url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
     return axios
-      .get<ICensusPublishResponse>(url + CensusAPIMethods.PUBLISH.replace('{id}', censusId), {
+      .post<ICensusPublishResponse>(url + CensusAPIMethods.PUBLISH.replace('{id}', censusId), null, {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },

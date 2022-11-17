@@ -25,7 +25,7 @@ export abstract class WalletAPI {
 
   public static add(url: string, privateKey: string): Promise<IWalletAddResponse> {
     return axios
-      .get<IWalletAddResponse>(url + WalletAPIMethods.ADD + '/' + strip0x(privateKey))
+      .post<IWalletAddResponse>(url + WalletAPIMethods.ADD + '/' + strip0x(privateKey))
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {

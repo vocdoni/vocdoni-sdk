@@ -1,8 +1,7 @@
 import Hash from 'ipfs-only-hash';
 import { AccountData } from '../client';
-import { CollectFaucetTx, SetAccountInfoTx, Tx } from '../dvote-protobuf/build/ts/vochain/vochain';
-import { Account } from '../types/account';
-import { AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from '../types/metadata/account';
+import { CollectFaucetTx, SetAccountTx, Tx, TxType } from '../dvote-protobuf/build/ts/vochain/vochain';
+import { Account, AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
 
 export abstract class AccountCore extends TransactionCore {
@@ -19,12 +18,12 @@ export abstract class AccountCore extends TransactionCore {
     faucetPackage
   ): Promise<{ tx: Uint8Array; metadata: string }> {
     return this.prepareSetAccountData(address, account, faucetPackage).then((txData) => {
-      const setAccountInfo = SetAccountInfoTx.fromPartial({
+      const setAccount = SetAccountTx.fromPartial({
         ...txData.accountData,
       });
       return {
         tx: Tx.encode({
-          payload: { $case: 'setAccountInfo', setAccountInfo },
+          payload: { $case: 'setAccount', setAccount },
         }).finish(),
         metadata: txData.metadata,
       };
@@ -48,6 +47,7 @@ export abstract class AccountCore extends TransactionCore {
       return {
         metadata: Buffer.from(JSON.stringify(metadata.metadata), 'binary').toString('base64'),
         accountData: {
+          txtype: TxType.CREATE_ACCOUNT,
           account: Uint8Array.from(Buffer.from(address)),
           infoURI: 'ipfs://' + metadata.id,
           faucetPackage: faucetPackage

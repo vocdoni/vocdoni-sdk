@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 enum AccountAPIMethods {
-  INFO = '/account',
-  SET_INFO = '/account',
+  INFO = '/accounts',
+  SET_INFO = '/accounts',
 }
 
 interface IAccountInfoResponse {

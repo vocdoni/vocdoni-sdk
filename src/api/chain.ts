@@ -2,8 +2,8 @@ import axios from 'axios';
 
 enum ChainAPIMethods {
   INFO = '/chain/info',
-  TX_INFO = '/chain/transaction/reference',
-  SUBMIT_TX = '/chain/transaction/submit',
+  TX_INFO = '/chain/transactions/reference',
+  SUBMIT_TX = '/chain/transactions',
 }
 
 interface IChainGetInfoResponse {
