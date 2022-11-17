@@ -46,7 +46,7 @@ describe('Plain census tests', () => {
       computePublicKey(Wallet.createRandom().publicKey, true),
       computePublicKey(Wallet.createRandom().publicKey, true),
     ]);
-    census.participants.forEach(participant => expect(participant.weight).toEqual(BigInt(1)));
+    census.participants.forEach((participant) => expect(participant.weight).toEqual(BigInt(1)));
   });
   it('should remove participants correctly', () => {
     const wallet = Wallet.createRandom();

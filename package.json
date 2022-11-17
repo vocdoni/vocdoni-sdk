@@ -19,7 +19,7 @@
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
     "test:unit": "jest test/unit --setupFiles dotenv/config",
     "test:integration": "jest test/integration --setupFiles dotenv/config",
-    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint": "eslint src test --ext .js,.jsx,.ts,.tsx",
     "lintfix": "yarn lint --fix",
     "prepare": "yarn build",
     "size": "size-limit",
