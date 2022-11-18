@@ -46,7 +46,7 @@ describe('Election integration tests', () => {
 
     const election = createElection(census);
 
-    await client.createAccount({ getTokens: true });
+    await client.createAccount();
 
     await client
       .createElection(election)
@@ -73,7 +73,7 @@ describe('Election integration tests', () => {
 
     const election = createElection(census);
 
-    await client.createAccount({ getTokens: true });
+    await client.createAccount();
 
     await client
       .createElection(election)

@@ -1,40 +1,36 @@
 import { Wallet } from '@ethersproject/wallet';
 import { VocdoniSDKClient } from '../../src';
 import { Account } from '../../src';
+import { strip0x } from '../../src/util/common';
 
 describe('Account integration tests', () => {
-  /*it('should bootstrap a new account', async () => {
+  it('should bootstrap a new account and have the correct data', async () => {
     const wallet = Wallet.createRandom();
     const walletAddress = await wallet.getAddress();
     const client = new VocdoniSDKClient(process.env.API_URL, wallet);
-    expect(await client.createAccount()).toStrictEqual({
-      address: strip0x(walletAddress).toLowerCase(),
-      balance: 0,
-      electionIndex: 0,
-      infoURL: 'ipfs://QmcjaM3MPrMVkoekEZU7ysuvR1qUNN3u56t79uXHR5CmpF',
-      nonce: 0,
-    });
-  }, 75000);*/
-  it('should bootstrap a new account and fetch tokens from faucet', async () => {
-    const client = new VocdoniSDKClient(process.env.API_URL, Wallet.createRandom());
-    const accountInfo = await client.createAccount({ getTokens: true });
+    const accountInfo = await client.createAccount();
+
+    expect(accountInfo.address).toEqual(strip0x(walletAddress).toLowerCase());
     expect(accountInfo.balance).toBeGreaterThan(0);
+    expect(accountInfo.electionIndex).toEqual(0);
+    expect(accountInfo.infoURL).toEqual('ipfs://QmcjaM3MPrMVkoekEZU7ysuvR1qUNN3u56t79uXHR5CmpF');
+    expect(accountInfo.nonce).toEqual(0);
   }, 75000);
   it('should bootstrap a new account and fetch tokens from faucet more than once', async () => {
     const client = new VocdoniSDKClient(process.env.API_URL, Wallet.createRandom());
-    const accountInfo = await client.createAccount({ getTokens: true });
+    const accountInfo = await client.createAccount();
     expect(accountInfo.balance).toBeGreaterThan(0);
 
     await client
       .collectFaucetTokens()
       .then((finalAccountInfo) => expect(finalAccountInfo.balance).toBeGreaterThan(accountInfo.balance));
   }, 75000);
-  /*it('should bootstrap a new account and do nothing when creating it twice', async () => {
+  it('should bootstrap a new account and do nothing when creating it twice', async () => {
     const client = new VocdoniSDKClient(process.env.API_URL, Wallet.createRandom());
     const accountInfo = await client.createAccount();
     const accountInfoAfter = await client.createAccount();
     expect(accountInfo).toStrictEqual(accountInfoAfter);
-  }, 75000);*/
+  }, 75000);
   it('should set information for an account', async () => {
     const client = new VocdoniSDKClient(process.env.API_URL, Wallet.createRandom());
 
@@ -58,7 +54,6 @@ describe('Account integration tests', () => {
           { key: 'test4', value: {} },
         ],
       }),
-      getTokens: true,
     });
     expect(account.infoURL).toEqual('ipfs://Qmcedb8V9zb4qkQvQdc8LjNhKrHbiQaoBEcgLsmDoTNXi1');
   }, 75000);
