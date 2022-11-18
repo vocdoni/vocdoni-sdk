@@ -166,17 +166,7 @@ export class VocdoniSDKClient {
     );
 
     const censusAdding = censusCreation.then((censusCreateResponse) =>
-      Promise.all(
-        census.participants.map((participant) =>
-          CensusAPI.add(
-            this.url,
-            this.authToken.identifier,
-            censusCreateResponse.censusID,
-            participant.key,
-            participant.weight
-          )
-        )
-      )
+      CensusAPI.add(this.url, this.authToken.identifier, censusCreateResponse.censusID, census.participants)
     );
 
     return Promise.all([censusCreation, censusAdding])
