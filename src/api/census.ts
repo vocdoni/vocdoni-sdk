@@ -73,19 +73,19 @@ export abstract class CensusAPI {
     url: string,
     authToken: string,
     censusId: string,
-    key: string,
-    weight?: BigInt
+    participants: Array<{
+      key: string;
+      weight?: BigInt;
+    }>
   ): Promise<ICensusAddResponse> {
     return axios
       .post<ICensusAddResponse>(
         url + CensusAPIMethods.ADD.replace('{id}', censusId),
         {
-          participants: [
-            {
-              key,
-              weight: typeof weight !== 'undefined' ? weight.toString() : '1',
-            },
-          ],
+          participants: participants.map((participant) => ({
+            key: participant.key,
+            weight: typeof participant.weight == 'bigint' ? participant.weight.toString() : '1',
+          })),
         },
         {
           headers: {
