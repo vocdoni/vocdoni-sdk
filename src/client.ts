@@ -113,11 +113,11 @@ export class VocdoniSDKClient {
     });
   }
 
-  async setAccountInfo(options: { account: Account; getTokens?: boolean }): Promise<AccountData> {
+  async setAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(options.account, 'No account');
 
-    const faucetPackage = options.getTokens ? await this.fetchFaucetPayload() : null;
+    const faucetPackage = options.faucetPackage ?? (await this.fetchFaucetPayload());
 
     const accountData = Promise.all([this.wallet.getAddress(), this.fetchChainId()]).then((data) =>
       AccountCore.generateSetAccountTransaction(data[0], options.account, faucetPackage)
@@ -135,10 +135,10 @@ export class VocdoniSDKClient {
       .then(() => this.fetchAccountInfo());
   }
 
-  async createAccount(options?: { account?: Account; getTokens?: boolean }): Promise<AccountData> {
+  async createAccount(options?: { account?: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return this.fetchAccountInfo().catch(() =>
-      this.setAccountInfo({ account: options?.account ?? new Account(), getTokens: options?.getTokens })
+      this.setAccountInfo({ account: options?.account ?? new Account(), faucetPackage: options?.faucetPackage })
     );
   }
 
