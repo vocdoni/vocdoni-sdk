@@ -89,4 +89,39 @@ describe('Election integration tests', () => {
       })
       .then((voteHash) => expect(voteHash).toMatch(/^[0-9a-fA-F]{64}$/));
   }, 85000);
+  it('should create an election with 100 participants and each of them should vote correctly', async () => {
+    const numVotes = 100;
+    const census = new PlainCensus();
+
+    const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
+
+    const election = createElection(census);
+
+    await client.createAccount();
+
+    let electionIdentifier;
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        electionIdentifier = electionId;
+        return delay(12000);
+      })
+      .then(() =>
+        Promise.all(
+          participants.map(async (participant, index) => {
+            client = new VocdoniSDKClient(process.env.API_URL, participant, electionIdentifier);
+            return client.submitVote(new Vote([index % 2]));
+          })
+        )
+      )
+      .then(() => client.fetchElection())
+      .then((electionData) => {
+        expect(electionData.voteCount).toEqual(numVotes);
+        expect(electionData.result[0][0]).toEqual(electionData.result[0][1]);
+      });
+  }, 285000);
 });
