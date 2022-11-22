@@ -1,5 +1,5 @@
 import { MultiLanguage } from '../util/lang';
-import { AccountMetadataTemplate, checkValidAccountMetadata } from './metadata/account';
+import { AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from './metadata/account';
 
 export interface IAccount {
   languages?: string[];
@@ -53,7 +53,7 @@ export class Account {
     this.meta = params?.meta ?? [];
   }
 
-  public generateMetadata() {
+  public generateMetadata(): AccountMetadata {
     const metadata = AccountMetadataTemplate;
 
     metadata.languages = this.languages;
