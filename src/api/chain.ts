@@ -70,6 +70,12 @@ export abstract class ChainAPI {
    */
   private constructor() {}
 
+  /**
+   * Fetches info about the blokchain status.
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IChainGetInfoResponse>}
+   */
   public static info(url: string): Promise<IChainGetInfoResponse> {
     return axios
       .get<IChainGetInfoResponse>(url + ChainAPIMethods.INFO)
@@ -82,6 +88,13 @@ export abstract class ChainAPI {
       });
   }
 
+  /**
+   * Fetches information about a transaction from the blockchain.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} txHash The transaction hash which we want to retrieve the info from
+   * @returns {Promise<IChainGetTransactionReferenceResponse>}
+   */
   public static txInfo(url: string, txHash: string): Promise<IChainGetTransactionReferenceResponse> {
     return axios
       .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
@@ -94,6 +107,13 @@ export abstract class ChainAPI {
       });
   }
 
+  /**
+   * Submits a transaction to the blockchain
+   *
+   * @param {string} url API endpoint URL
+   * @param {IChainSubmitTxResponse} data The transaction data
+   * @returns {Promise<IChainSubmitTxResponse>}
+   */
   public static submitTx(url: string, data: IChainSubmitTxRequest): Promise<IChainSubmitTxResponse> {
     return axios
       .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify(data))

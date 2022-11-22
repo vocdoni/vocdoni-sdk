@@ -62,6 +62,13 @@ export abstract class AccountAPI {
    */
   private constructor() {}
 
+  /**
+   * Fetches an Account information
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} address The one we want the info from
+   * @returns {Promise<IAccountInfoResponse>}
+   */
   public static info(url: string, address: string): Promise<IAccountInfoResponse> {
     return axios
       .get<IAccountInfoResponse>(url + AccountAPIMethods.INFO + '/' + address)
@@ -74,6 +81,13 @@ export abstract class AccountAPI {
       });
   }
 
+  /**
+   * Sets Account information
+   *
+   * @param {string} url API endpoint URL
+   * @param {IAccountSetInfoRequest} data Account's creation txn data
+   * @returns {Promise<IAccountSetInfoResponse>}
+   */
   public static setInfo(url: string, data: IAccountSetInfoRequest): Promise<IAccountSetInfoResponse> {
     return axios
       .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, JSON.stringify(data))

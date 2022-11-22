@@ -17,6 +17,13 @@ export abstract class FileAPI {
    */
   private constructor() {}
 
+  /**
+   * CID generator method via API.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} payload Full payload string of which we want the CID of
+   * @returns Promise<IFileCIDResponse>
+   */
   public static cid(url: string, payload: string): Promise<IFileCIDResponse> {
     return axios
       .post<IFileCIDResponse>(url + FileAPIMethods.CID, JSON.stringify({ payload }))

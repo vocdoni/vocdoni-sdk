@@ -29,6 +29,12 @@ export abstract class VoteAPI {
    */
   private constructor() {}
 
+  /**
+   * Voting
+   *
+   * @param {VoteAPIRequest} request Voting request object
+   * @returns {Promise<VoteAPIResponse>}
+   */
   public static submit(request: VoteAPIRequest): Promise<VoteAPIResponse> {
     return axios
       .post<VoteAPIResponse>(VoteAPIMethods.VOTE, JSON.stringify(request))
