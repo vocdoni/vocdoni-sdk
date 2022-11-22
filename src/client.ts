@@ -7,6 +7,7 @@ import { CensusAPI } from './api/census';
 import { ChainAPI } from './api/chain';
 import { ElectionAPI, IElection } from './api/election';
 import { FaucetAPI } from './api/faucet';
+import { FileAPI } from './api/file';
 import { WalletAPI } from './api/wallet';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
@@ -14,7 +15,6 @@ import { CensusProofType, VoteCore } from './core/vote';
 import { Account, Election, PlainCensus, Vote, WeightedCensus } from './types';
 import { delay } from './util/common';
 import { promiseAny } from './util/promise';
-import { FileAPI } from './api/file';
 
 export type ChainData = {
   chainId: string;
@@ -43,6 +43,11 @@ export type CensusProof = {
   type: CensusProofType;
 };
 
+/**
+ * Main Vocdoni client object. It's a wrapper for all the methods in api, core
+ * and types, allowing you to easily use the vocdoni API from a single entry
+ * point.
+ */
 export class VocdoniSDKClient {
   private chainData: ChainData | null = null;
   private accountData: AccountData | null = null;
@@ -51,24 +56,50 @@ export class VocdoniSDKClient {
 
   constructor(public url: string, public wallet?: Wallet | Signer, public electionId?: string) {}
 
+  /**
+   * Sets an election id. Required by other methods like submitVote or createElection.
+   *
+   * @param {string} electionId Election id string
+   */
   setElectionId(electionId: string) {
     this.electionId = electionId;
   }
 
+  /**
+   * Fetches blockchain information.
+   *
+   * @returns {Promise<ChainData>}
+   */
   async fetchChainId(): Promise<ChainData> {
     this.chainData = await ChainAPI.info(this.url);
     return this.chainData;
   }
 
+  /**
+   * Fetches account information.
+   *
+   * @returns {Promise<AccountData>}
+   */
   async fetchAccountInfo(): Promise<AccountData> {
     this.accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
     return this.accountData;
   }
 
+  /**
+   * Fetches the CID expected for the specified data content.
+   *
+   * @param {string} data The data of which we want the CID of
+   * @returns {Promise<string>} Resulting CID
+   */
   async calculateCID(data: string): Promise<string> {
     return FileAPI.cid(this.url, data).then((data) => data.cid);
   }
 
+  /**
+   * Fetches a faucet payload. Only for development.
+   *
+   * @returns {Promise<{payload: string, signature: string}>}
+   */
   async fetchFaucetPayload(): Promise<{ payload: string; signature: string }> {
     return this.wallet
       .getAddress()
@@ -81,6 +112,11 @@ export class VocdoniSDKClient {
       });
   }
 
+  /**
+   * Fetches the specific account token auth and sets it to the current instance.
+   *
+   * @returns {Promise<void>}
+   */
   async fetchAccountToken(): Promise<void> {
     if (this.authToken) {
       return Promise.resolve();
@@ -96,6 +132,11 @@ export class VocdoniSDKClient {
     });
   }
 
+  /**
+   * Fetches info about an election.
+   *
+   * @returns {Promise<IElection>}
+   */
   async fetchElection(): Promise<IElection> {
     if (!this.electionId) {
       throw Error('No election set');
@@ -106,18 +147,42 @@ export class VocdoniSDKClient {
     return this.election;
   }
 
+  /**
+   * A convenience method to wait for a transaction to be executed. It will
+   * loop trying to get the transaction information, and will retry every time
+   * it fails.
+   *
+   * @param {string} tx Transaction to wait for
+   * @param {number} wait The delay between tries
+   * @returns {Promise<void>}
+   */
   async waitForTransaction(tx: string, wait: number = 1000): Promise<void> {
     return ChainAPI.txInfo(this.url, tx)
       .then(() => Promise.resolve())
       .catch(() => delay(wait).then(() => this.waitForTransaction(tx, wait)));
   }
 
+  /**
+   * Fetches proof that an address is part of the specified census.
+   *
+   * @param {string} censusId Census we want to check the address against
+   * @param {string} key The address to be found
+   * @param {CensusProofType} type Type of census
+   * @returns {Promise<CensusProof>}
+   */
   async fetchProof(censusId: string, key: string, type: CensusProofType): Promise<CensusProof> {
     return CensusAPI.proof(this.url, censusId, key).then((censusProof) => {
       return { ...censusProof, type };
     });
   }
 
+  /**
+   * Sets account information.
+   *
+   * @param {{account: Account, faucetPackage?: string}} options Additional options,
+   * like extra information of the account, or the faucet package string.
+   * @returns {Promise<AccountData>}
+   */
   async setAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(options.account, 'No account');
@@ -142,6 +207,13 @@ export class VocdoniSDKClient {
       .then(() => this.fetchAccountInfo());
   }
 
+  /**
+   * Registers an account against vochain, so it can create new processes.
+   *
+   * @param {{account?: Account; faucetPackage?: string}} options Additional
+   * options, like extra information of the account, or the faucet package string
+   * @returns {Promise<AccountData>}
+   */
   async createAccount(options?: { account?: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return this.fetchAccountInfo().catch(() =>
@@ -149,6 +221,11 @@ export class VocdoniSDKClient {
     );
   }
 
+  /**
+   * Calls the faucet to get new tokens. Only under development.
+   *
+   * @returns {Promise<AccountData>} Account data information updated with new balance
+   */
   async collectFaucetTokens(): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return Promise.all([this.fetchAccountInfo(), this.fetchFaucetPayload(), this.fetchChainId()])
@@ -161,6 +238,12 @@ export class VocdoniSDKClient {
       .then(() => this.fetchAccountInfo());
   }
 
+  /**
+   * Creates the census of the specified election.
+   *
+   * @param {Election} election The process with the census linked to it.
+   * @returns {Promise<void>}
+   */
   async createCensus(election: Election): Promise<void> {
     if (election.census.isPublished) {
       return Promise.resolve();
@@ -184,6 +267,12 @@ export class VocdoniSDKClient {
       });
   }
 
+  /**
+   * Creates a new voting process.
+   *
+   * @param {Election} election The election object to be created.
+   * @returns {Promise<string>} Resulting election id.
+   */
   async createElection(election: Election): Promise<string> {
     const electionData = Promise.all([
       this.fetchChainId(),
@@ -206,6 +295,12 @@ export class VocdoniSDKClient {
     return this.waitForTransaction(electionTx.txHash).then(() => electionTx.electionID);
   }
 
+  /**
+   * Submits a vote to the current instance election id.
+   *
+   * @param {Vote} vote The vote (or votes) to be sent.
+   * @returns {Promise<string>} Vote confirmation id.
+   */
   async submitVote(vote: Vote): Promise<string> {
     const voteData = Promise.all([this.fetchChainId(), this.fetchElection(), this.wallet.getAddress()]).then((data) => {
       if (this.wallet instanceof Wallet) {

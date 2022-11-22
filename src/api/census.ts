@@ -53,6 +53,14 @@ export abstract class CensusAPI {
    */
   private constructor() {}
 
+  /**
+   * Create's a new census in the API.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} authToken Authentication token
+   * @param {CensusType} type Type of census to be created
+   * @returns {Promise<ICensusCreateResponse>}
+   */
   public static create(url: string, authToken: string, type: CensusType): Promise<ICensusCreateResponse> {
     return axios
       .post<ICensusCreateResponse>(url + CensusAPIMethods.CREATE + '/' + type, null, {
@@ -69,6 +77,15 @@ export abstract class CensusAPI {
       });
   }
 
+  /**
+   * Adds participants to a census
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} authToken Authentication token
+   * @param {string} censusId The id of the census to which participants are being added
+   * @param {Array.<{key: string, weight?: BigInt}>} participants An array of participants
+   * @returns {Promise<ICensusAddResponse>}
+   */
   public static add(
     url: string,
     authToken: string,
@@ -102,6 +119,14 @@ export abstract class CensusAPI {
       });
   }
 
+  /**
+   * Publishes the census, so it can be used in processes
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} authToken Authentication token
+   * @param {string} censusId The census ID we're publishing
+   * @returns {Promise<ICensusPublishResponse>} on success
+   */
   public static publish(url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
     return axios
       .post<ICensusPublishResponse>(url + CensusAPIMethods.PUBLISH.replace('{id}', censusId), null, {
@@ -118,6 +143,14 @@ export abstract class CensusAPI {
       });
   }
 
+  /**
+   * Checks if the specified address is in the specified census
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} censusId The census ID of which we want the proof from
+   * @param {string} key The address to be checked
+   * @returns {Promise<ICensusProofResponse>} on success
+   */
   public static proof(url: string, censusId: string, key: string): Promise<ICensusProofResponse> {
     return axios
       .get<ICensusProofResponse>(url + CensusAPIMethods.PROOF.replace('{id}', censusId) + '/' + strip0x(key))

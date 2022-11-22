@@ -55,6 +55,14 @@ export abstract class FaucetAPI {
    */
   private constructor() {}
 
+  /**
+   * Calls the collect tokens method. Only works under development.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} authToken Authentication token
+   * @param {string} address Address to send the tokens to
+   * @returns {Promise<IFaucetCollectResponse>}
+   */
   public static collect(url: string, authToken: string, address: string): Promise<IFaucetCollectResponse> {
     return axios
       .get<IFaucetCollectResponse>(url + '/' + address, {

@@ -102,6 +102,12 @@ export abstract class ElectionAPI {
    */
   private constructor() {}
 
+  /**
+   * Fetches info about the specified process.
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IElectionInfoRequest>}
+   */
   public static info(url: string, request: IElectionInfoRequest): Promise<IElection> {
     return axios
       .get<IElection>(url + ElectionAPIMethods.INFO + '/' + request.electionId)
@@ -114,6 +120,12 @@ export abstract class ElectionAPI {
       });
   }
 
+  /**
+   * Creates a new election.
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IElectionCreateRequest>}
+   */
   public static create(url: string, data: IElectionCreateRequest): Promise<IElectionCreateResponse> {
     return axios
       .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, JSON.stringify(data))
