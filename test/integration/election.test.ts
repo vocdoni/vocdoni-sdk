@@ -90,7 +90,7 @@ describe('Election integration tests', () => {
       .then((voteHash) => expect(voteHash).toMatch(/^[0-9a-fA-F]{64}$/));
   }, 85000);
   it('should create an election with 100 participants and each of them should vote correctly', async () => {
-    const numVotes = 100;
+    const numVotes = 100; // should be even number
     const census = new PlainCensus();
 
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
