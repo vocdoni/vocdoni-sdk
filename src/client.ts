@@ -14,6 +14,7 @@ import { CensusProofType, VoteCore } from './core/vote';
 import { Account, Election, PlainCensus, Vote, WeightedCensus } from './types';
 import { delay } from './util/common';
 import { promiseAny } from './util/promise';
+import { FileAPI } from './api/file';
 
 export type ChainData = {
   chainId: string;
@@ -62,6 +63,10 @@ export class VocdoniSDKClient {
   async fetchAccountInfo(): Promise<AccountData> {
     this.accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
     return this.accountData;
+  }
+
+  async calculateCID(data: string): Promise<string> {
+    return FileAPI.cid(this.url, data).then((data) => data.cid);
   }
 
   async fetchFaucetPayload(): Promise<{ payload: string; signature: string }> {
@@ -119,9 +124,11 @@ export class VocdoniSDKClient {
 
     const faucetPackage = options.faucetPackage ?? (await this.fetchFaucetPayload());
 
-    const accountData = Promise.all([this.wallet.getAddress(), this.fetchChainId()]).then((data) =>
-      AccountCore.generateSetAccountTransaction(data[0], options.account, faucetPackage)
-    );
+    const accountData = Promise.all([
+      this.wallet.getAddress(),
+      this.fetchChainId(),
+      this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'binary').toString('base64')),
+    ]).then((data) => AccountCore.generateSetAccountTransaction(data[0], options.account, data[2], faucetPackage));
 
     const accountTx = accountData.then((setAccountInfoTx) =>
       AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData, this.wallet)

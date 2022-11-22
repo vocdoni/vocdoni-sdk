@@ -1,4 +1,5 @@
 import { MultiLanguage } from '../util/lang';
+import { AccountMetadataTemplate, checkValidAccountMetadata } from './metadata/account';
 
 export interface IAccount {
   languages?: string[];
@@ -50,6 +51,25 @@ export class Account {
     this.avatar = params?.avatar ?? '';
     this.logo = params?.logo ?? '';
     this.meta = params?.meta ?? [];
+  }
+
+  public generateMetadata() {
+    const metadata = AccountMetadataTemplate;
+
+    metadata.languages = this.languages;
+    metadata.name = this.name;
+    metadata.description = this.description;
+    metadata.newsFeed = this.feed;
+    metadata.media = {
+      avatar: this.avatar,
+      header: this.header,
+      logo: this.logo,
+    };
+    metadata.meta = this.meta.reduce((a, v) => ({ ...a, [v.key]: v.value }), {});
+
+    checkValidAccountMetadata(metadata);
+
+    return metadata;
   }
 
   get name(): MultiLanguage<string> {
