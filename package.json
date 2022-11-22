@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "rimraf node_modules dist",
     "start": "ts-node esbuild.ts --watch",
-    "submodule": "git submodule update --init",
+    "submodule": "git submodule update --init && yarn --cwd src/dvote-protobuf/",
     "prebuild": "yarn submodule",
     "build": "rimraf dist && ts-node esbuild.ts && yarn ts-types",
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
