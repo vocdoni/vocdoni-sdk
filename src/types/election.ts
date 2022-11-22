@@ -1,5 +1,11 @@
 import invariant from 'tiny-invariant';
-import { IChoice, IQuestion } from './metadata/election';
+import {
+  checkValidElectionMetadata,
+  ElectionMetadata,
+  ElectionMetadataTemplate,
+  IChoice,
+  IQuestion,
+} from './metadata/election';
 import { PublishedCensus } from './census/published';
 import { PlainCensus } from './census/plain';
 import { WeightedCensus } from './census/weighted';
@@ -108,6 +114,33 @@ export class Election {
       costFromWeight: typeof value?.costFromWeight === 'boolean' ? value.costFromWeight === true : false,
       costExponent: typeof value?.costExponent === 'number' ? value.costExponent : 10000,
     };
+  }
+
+  public generateMetadata(): ElectionMetadata {
+    const metadata = ElectionMetadataTemplate;
+
+    metadata.title = this.title;
+    metadata.description = this.description;
+    metadata.media = {
+      header: this.header,
+      streamUri: this.streamUri,
+    };
+    metadata.questions = this.questions.map((question) => {
+      return {
+        title: question.title,
+        description: question.description,
+        choices: question.choices.map((choice) => {
+          return {
+            title: choice.title,
+            value: choice.value,
+          };
+        }),
+      };
+    });
+
+    checkValidElectionMetadata(metadata);
+
+    return metadata;
   }
 
   get title(): MultiLanguage<string> {

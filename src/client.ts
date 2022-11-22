@@ -185,9 +185,12 @@ export class VocdoniSDKClient {
   }
 
   async createElection(election: Election): Promise<string> {
-    const electionData = Promise.all([this.fetchChainId(), this.fetchAccountInfo(), this.createCensus(election)]).then(
-      (data) => ElectionCore.generateNewElectionTransaction(election, data[0], data[1])
-    );
+    const electionData = Promise.all([
+      this.fetchChainId(),
+      this.fetchAccountInfo(),
+      this.createCensus(election),
+      this.calculateCID(Buffer.from(JSON.stringify(election.generateMetadata()), 'binary').toString('base64')),
+    ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[3], data[0], data[1]));
 
     const electionPackage = electionData.then((newElectionData) =>
       ElectionCore.signTransaction(newElectionData.tx, this.chainData, this.wallet)
