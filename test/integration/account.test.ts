@@ -13,7 +13,7 @@ describe('Account integration tests', () => {
     expect(accountInfo.address).toEqual(strip0x(walletAddress).toLowerCase());
     expect(accountInfo.balance).toBeGreaterThan(0);
     expect(accountInfo.electionIndex).toEqual(0);
-    expect(accountInfo.infoURL).toEqual('ipfs://QmcjaM3MPrMVkoekEZU7ysuvR1qUNN3u56t79uXHR5CmpF');
+    expect(accountInfo.infoURL).toEqual('ipfs://bagaaierag4icyuk3jcbabriqrjicorifpqeewjtblycdzghsgh2zqkek7mxq');
     expect(accountInfo.nonce).toEqual(0);
   }, 75000);
   it('should bootstrap a new account and fetch tokens from faucet more than once', async () => {
@@ -55,6 +55,6 @@ describe('Account integration tests', () => {
         ],
       }),
     });
-    expect(account.infoURL).toEqual('ipfs://Qmcedb8V9zb4qkQvQdc8LjNhKrHbiQaoBEcgLsmDoTNXi1');
+    expect(account.infoURL).toEqual('ipfs://bagaaiera6sovylckaf45zt7blj7pr62ju2cmtk33hcq76vr3tteqncxyguka');
   }, 75000);
 });
