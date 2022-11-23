@@ -217,11 +217,9 @@ export class VocdoniSDKClient {
             CensusProofType.PUBKEY
           ),
         ]);
-      } else if (this.wallet instanceof Signer) {
+      } else {
         return this.fetchProof(data[1].census.censusRoot, data[2], CensusProofType.ADDRESS);
       }
-
-      return Promise.reject('No valid wallet or signer');
     });
 
     const voteHash = await voteData
