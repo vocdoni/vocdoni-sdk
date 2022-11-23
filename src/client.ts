@@ -319,9 +319,14 @@ export class VocdoniSDKClient {
 
     const voteHash = await voteData
       .then((censusProof) => {
-        const voteTx = VoteCore.generateVoteTransaction(this.election, censusProof, vote);
-        return VoteCore.signTransaction(voteTx, this.chainData, this.wallet);
+        if (this.election?.voteMode?.encryptedVotes) {
+          return ElectionAPI.keys(this.url, this.election.electionId).then((encryptionKeys) =>
+            VoteCore.generateVoteTransaction(this.election, censusProof, vote, { encryptionPubKeys: encryptionKeys })
+          );
+        }
+        return VoteCore.generateVoteTransaction(this.election, censusProof, vote);
       })
+      .then((voteTx) => VoteCore.signTransaction(voteTx, this.chainData, this.wallet))
       .then((signedTx) => ChainAPI.submitTx(this.url, { payload: signedTx }))
       .then((data) => data.hash);
 
