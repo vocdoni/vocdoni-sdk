@@ -1,10 +1,11 @@
-import { Box, Button, Code, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Code, Heading, ListItem, Stack, Text, UnorderedList } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
-import { Election, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk'
+import { Election, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk'
 import Connect from '../components/Connect'
+import Vote from '../components/VoteOptions'
 import { connector as metamask, hooks as mhooks } from '../connectors/metamask'
 import { connector as walletconnect, hooks as whooks } from '../connectors/walletconnect'
 
@@ -14,9 +15,10 @@ export const App = () => {
   const [balance, setBalance] = useState<number>(0)
   const [election, setElection] = useState<string>('')
   const [creating, setCreating] = useState<boolean>(false)
-  const [metadata, setMetadata] = useState<any>()
+  const [metadata, setMetadata] = useState<IElection>()
   const [voting, setVoting] = useState<boolean>(false)
   const [voteHash, setVoteHash] = useState<string>('')
+  const [signers, setSigners] = useState<Wallet[]>([])
 
   const mprovider = mhooks.useProvider()
   const wprovider = whooks.useProvider()
@@ -34,15 +36,19 @@ export const App = () => {
       // client instance
       const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', (providers[provider] as Web3Provider).getSigner())
       // fetch info or create account if does not exist
-      let acc = await client.createAccount({getTokens: true})
-      if (!acc) {
-        throw new Error('fetch account failed')
-      }
+      let acc = await client.createAccount()
+      try {
+        if (!acc) {
+          throw new Error('fetch account failed')
+        }
 
-      // only for development purposes, request more tokens if balance is zero
-      if (acc.balance <= 0) {
-        await client.collectFaucetTokens()
-        acc = await client.fetchAccountInfo()
+        // only for development purposes, request more tokens if balance is zero
+        if (acc.balance <= 0) {
+          await client.collectFaucetTokens()
+          acc = await client.fetchAccountInfo()
+        }
+      } catch (e) {
+        console.error('failed account creation', e)
       }
 
       setAccount(acc.address)
@@ -60,7 +66,7 @@ export const App = () => {
       client.setElectionId(election)
       const meta = await client.fetchElection()
 
-      setMetadata(meta)
+      setMetadata(meta as any)
     })()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [election, metadata, provider])
@@ -73,6 +79,29 @@ export const App = () => {
             <When condition={account.length > 0}>
               <Text>Logged in with <Code>{account}</Code> ({balance} vocdoni tokens)</Text>
             </When>
+            <p>
+              Your current wallet will be added to the census, but you can add
+              some random wallets here for testing purposes:
+            </p>
+            <Button
+              onClick={() => {
+              setSigners([
+                ...signers,
+                Wallet.createRandom(),
+              ])
+            }}>
+              Create random wallet
+            </Button>
+            <Box>
+              <Heading size='md'>Census</Heading>
+              <UnorderedList>
+                <ListItem>0x{account}</ListItem>
+                {
+                  signers.map((w, k) => <ListItem key={k}>{w.address}</ListItem>)
+                }
+              </UnorderedList>
+            </Box>
+            <p>Once you've finished, you can create the election:</p>
             <Button
               isLoading={creating}
               disabled={creating || election.length > 0 || balance <= 0}
@@ -84,9 +113,12 @@ export const App = () => {
 
               // create a census for the voting process
               const census = new PlainCensus()
-              // here we create three random wallets, just for demonstration purposes
-              census.add(await Wallet.createRandom().getAddress())
-              census.add(await Wallet.createRandom().getAddress())
+              // here we add any of the random wallets we created in the previous action
+              for (const w of signers) {
+                census.add(await w.getAddress())
+              }
+              // census.add(await Wallet.createRandom().getAddress())
+              // and here we add ourselves, so we can vote in the next step
               census.add(await signer.getAddress())
 
               const now = new Date().getTime()
@@ -96,7 +128,6 @@ export const App = () => {
                   description: 'Election description',
                   header: 'https://source.unsplash.com/random',
                   streamUri: 'https://source.unsplash.com/random',
-                  startDate: now + 25000,
                   endDate: now + 100000000000,
                   census,
               })
@@ -116,28 +147,36 @@ export const App = () => {
               setElection(await client.createElection(election))
               setCreating(false)
             }}>
-              Create election
+              Create election with {signers.length + 1} people in census
             </Button>
-            <When condition={election.length > 0}>
-              <>
-                <p>Election created! <a href={`https://dev.explorer.vote/processes/show/#/${election}`}>Check it out in the explorer</a></p>
-                <Button
-                  isLoading={voting}
-                  disabled={voting}
-                  onClick={async () => {
-                    setVoting(true)
-                    const signer = (providers[provider] as Web3Provider).getSigner()
-                    const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
-                    client.setElectionId(election)
-                    // vote to the very first option, for the sake of the example
-                    const vote = await client.submitVote([0] as any)
-
-                    setVoteHash(vote)
-                    setVoting(false)
-                }}>
-                  Vote {election}
-                </Button>
-              </>
+            <When condition={election.length > 0 && typeof (metadata as any)?.metadata.questions !== 'undefined'}>
+              {() => (
+                <>
+                  <p>
+                    Election created!&nbsp;
+                    <a target='_blank' href={`https://dev.explorer.vote/processes/show/#/${election}`}>
+                      Check it out in the explorer
+                    </a>
+                  </p>
+                  <Vote
+                    questions={(metadata as any)?.metadata.questions}
+                    address={`0x${account}`}
+                    election={election}
+                    signer={(providers[provider] as Web3Provider).getSigner()}
+                  />
+                  {
+                    signers.map((s, k) => (
+                      <Vote
+                        key={k}
+                        questions={(metadata as any)?.metadata.questions}
+                        address={s.address}
+                        election={election}
+                        signer={s}
+                      />
+                    ))
+                  }
+                </>
+              )}
             </When>
             <When condition={voteHash.length > 0}>
               <p>Your vote hash is {voteHash}</p>
