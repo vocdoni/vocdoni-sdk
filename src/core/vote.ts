@@ -30,10 +30,10 @@ export type IProofEVM = {
 };
 
 export type ProcessKeys = {
-  encryptionPubKeys: { idx: number; key: string }[];
-  encryptionPrivKeys?: { idx: number; key: string }[];
-  commitmentKeys?: { idx: number; key: string }[];
-  revealKeys?: { idx: number; key: string }[];
+  encryptionPubKeys: { index: number; key: string }[];
+  encryptionPrivKeys?: { index: number; key: string }[];
+  commitmentKeys?: { index: number; key: string }[];
+  revealKeys?: { index: number; key: string }[];
 };
 
 export type VoteValues = Array<number | bigint>;
@@ -226,14 +226,14 @@ export abstract class VoteCore extends TransactionCore {
 
     if (processKeys && processKeys.encryptionPubKeys && processKeys.encryptionPubKeys.length) {
       // Sort key indexes
-      processKeys.encryptionPubKeys.sort((a, b) => a.idx - b.idx);
+      processKeys.encryptionPubKeys.sort((a, b) => a.index - b.index);
 
       const publicKeys: string[] = [];
       const publicKeysIdx: number[] = [];
       // NOTE: Using all keys by now
       processKeys.encryptionPubKeys.forEach((entry) => {
         publicKeys.push(strip0x(entry.key));
-        publicKeysIdx.push(entry.idx);
+        publicKeysIdx.push(entry.index);
       });
 
       let votePackage = Asymmetric.encryptRaw(Buffer.from(strPayload), publicKeys[0]);

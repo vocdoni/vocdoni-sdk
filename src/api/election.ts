@@ -2,6 +2,7 @@ import axios from 'axios';
 
 enum ElectionAPIMethods {
   INFO = '/elections',
+  KEYS = '/elections/{id}/keys',
   CREATE = '/elections',
 }
 
@@ -96,6 +97,25 @@ interface IElectionCreateResponse {
   metadataURL: number;
 }
 
+interface IEncryptionPublicKey {
+  /**
+   * The index of the encryption key
+   */
+  index: number;
+
+  /**
+   * The encryption key
+   */
+  key: string;
+}
+
+interface IElectionKeysResponse {
+  /**
+   * The hash of the transaction
+   */
+  publicKeys: IEncryptionPublicKey[];
+}
+
 export abstract class ElectionAPI {
   /**
    * Cannot be constructed.
@@ -112,6 +132,25 @@ export abstract class ElectionAPI {
     return axios
       .get<IElection>(url + ElectionAPIMethods.INFO + '/' + request.electionId)
       .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Fetches the encryption keys from the specified process.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} electionId The election id
+   * @returns {Promise<Array<IEncryptionPublicKey>>}
+   */
+  public static keys(url: string, electionId: string): Promise<Array<IEncryptionPublicKey>> {
+    return axios
+      .get<IElectionKeysResponse>(url + ElectionAPIMethods.KEYS.replace('{id}', electionId))
+      .then((response) => response.data.publicKeys)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);

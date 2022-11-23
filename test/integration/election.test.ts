@@ -11,7 +11,7 @@ beforeEach(async () => {
   client = new VocdoniSDKClient(process.env.API_URL, creator);
 }, 15000);
 
-const createElection = (census) => {
+const createElection = (census, electionType?) => {
   const election = new Election({
     title: 'Election title',
     description: 'Election description',
@@ -19,6 +19,7 @@ const createElection = (census) => {
     streamUri: 'https://source.unsplash.com/random',
     endDate: new Date().getTime() + 10000000,
     census,
+    electionType: electionType ?? null,
   });
 
   election.addQuestion('This is a title', 'This is a description', [
@@ -164,6 +165,43 @@ describe('Election integration tests', () => {
         expect(+electionData.result[0][0]).toBeLessThan(+electionData.result[0][1]);
         expect(+electionData.result[0][0] + +electionData.result[0][1]).toEqual((numVotes * (numVotes + 1)) / 2);
         expect(+electionData.result[0][0]).toEqual(+electionData.result[0][1] - numVotes / 2);
+      });
+  }, 285000);
+  it('should create an encrypted election with 100 participants and each of them should vote correctly', async () => {
+    const numVotes = 100; // should be even number
+    const census = new PlainCensus();
+
+    const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
+
+    const election = createElection(census, {
+      secretUntilTheEnd: true,
+    });
+
+    await client.createAccount();
+
+    let electionIdentifier;
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        electionIdentifier = electionId;
+        return delay(12000);
+      })
+      .then(() =>
+        Promise.all(
+          participants.map(async (participant, index) => {
+            client = new VocdoniSDKClient(process.env.API_URL, participant, electionIdentifier);
+            return client.submitVote(new Vote([index % 2]));
+          })
+        )
+      )
+      .then(() => client.fetchElection())
+      .then((electionData) => {
+        expect(electionData.voteCount).toEqual(numVotes);
+        expect(electionData.finalResults).toBeFalsy();
       });
   }, 285000);
 });
