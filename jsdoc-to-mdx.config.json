@@ -1,0 +1,8 @@
+{
+  "locales": [],
+  "outDir": "./docs",
+  "localesDir": "./docs/i18n/{locale}/docusaurus-plugin-content-docs/current/sdk",
+  "sidebar": "./docs",
+  "prefix": "sdk/",
+  "jsdoc": "./jsdoc.json"
+}
