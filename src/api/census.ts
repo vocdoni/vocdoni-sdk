@@ -83,7 +83,7 @@ export abstract class CensusAPI {
    * @param {string} url API endpoint URL
    * @param {string} authToken Authentication token
    * @param {string} censusId The id of the census to which participants are being added
-   * @param {Array.<{key: string, weight?: BigInt}>} participants An array of participants
+   * @param {Array.<{key: string, weight: BigInt | null}>} participants An array of participants
    * @returns {Promise<ICensusAddResponse>}
    */
   public static add(

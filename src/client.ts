@@ -179,7 +179,7 @@ export class VocdoniSDKClient {
   /**
    * Sets account information.
    *
-   * @param {{account: Account, faucetPackage?: string}} options Additional options,
+   * @param {{account: Account, faucetPackage: string | null}} options Additional options,
    * like extra information of the account, or the faucet package string.
    * @returns {Promise<AccountData>}
    */
@@ -210,7 +210,7 @@ export class VocdoniSDKClient {
   /**
    * Registers an account against vochain, so it can create new processes.
    *
-   * @param {{account?: Account; faucetPackage?: string}} options Additional
+   * @param {{account: Account | null, faucetPackage: string | null}} options Additional
    * options, like extra information of the account, or the faucet package string
    * @returns {Promise<AccountData>}
    */
