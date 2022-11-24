@@ -22,7 +22,7 @@ export abstract class FileAPI {
    *
    * @param {string} url API endpoint URL
    * @param {string} payload Full payload string of which we want the CID of
-   * @returns Promise<IFileCIDResponse>
+   * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
    */
   public static cid(url: string, payload: string): Promise<IFileCIDResponse> {
     return axios
