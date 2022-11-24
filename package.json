@@ -32,7 +32,8 @@
     "lintfix": "yarn lint --fix",
     "prepare": "yarn build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "build:doc": "jsdoc-to-mdx -c jsdoc-to-mdx.config.json"
   },
   "husky": {
     "hooks": {
