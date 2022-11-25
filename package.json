@@ -1,5 +1,9 @@
 {
-  "version": "0.1.0",
+  "name": "@vocdoni/sdk",
+  "author": "Vocdoni",
+  "version": "0.0.1-alpha",
+  "description": "⚒️An SDK for building applications on top of Vocdoni API",
+  "repository": "https://github.com/vocdoni/vocdoni-sdk.git",
   "license": " AGPL-3.0-or-later",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -10,6 +14,11 @@
   "engines": {
     "node": ">=14"
   },
+  "keywords": [
+    "voting",
+    "blockchain",
+    "vocdoni"
+  ],
   "scripts": {
     "clean": "rimraf node_modules dist",
     "start": "ts-node esbuild.ts --watch",
@@ -45,8 +54,6 @@
     "preset": "ts-jest",
     "testEnvironment": "node"
   },
-  "name": "vocdoni-sdk",
-  "author": "Vocdoni",
   "module": "dist/vocdoni-sdk.esm.js",
   "size-limit": [
     {
