@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.12",
     "@chakra-ui/react": "^2.4.0",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
@@ -49,6 +50,7 @@
     ]
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "esbuild": "^0.15.13",
     "esbuild-plugin-inline-image": "^0.0.8",
     "react-scripts": "5.0.1",
