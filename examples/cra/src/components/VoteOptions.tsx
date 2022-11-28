@@ -1,4 +1,4 @@
-import { Button, Heading, Stack } from '@chakra-ui/react'
+import { Box, Button, Code, Heading, Stack, Text } from '@chakra-ui/react'
 import { Signer } from '@ethersproject/abstract-signer'
 import { Wallet } from '@ethersproject/wallet'
 import { useState } from 'react'
@@ -17,32 +17,40 @@ const VoteOptions = ({questions, signer, election, address} : VoteProps) => {
   const [voteId, setVoteId] = useState<string>('')
 
   return (
-    <>
-      <Heading size='sm'>Voting process for {address}</Heading>
+    <Box padding={3} backgroundColor='gray.100'>
+      <Text fontSize='sm'>Voting process for <Code>{address}</Code></Text>
+      <hr />
       <If condition={voteId.length === 0}>
         <Then>
         {
           questions.map((q, i) => (
             <div key={i}>
-              <Heading size='xs'>{q.title.default}</Heading>
+              <Heading size='xs' mt={3} mb={2}>
+                {q.title.default}
+              </Heading>
               <Stack direction='row'>
               {
                 q.choices.map((c, k) => (
                   <Button
                     key={k}
+                    size='sm'
                     isLoading={voting}
                     onClick={async () => {
                       setVoting(true)
                       const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
+                      // set election id to be voted
+                      client.setElectionId(election)
+                      // define vote object
+                      const vote = new Vote([c.value])
+                      // vote, retrieving that vote id as response
                       try {
-                        client.setElectionId(election)
-                        // vote to the very first option, for the sake of the example
-                        const vote = new Vote([c.value])
                         const vid = await client.submitVote(vote)
+
                         setVoteId(vid)
                       } catch (e) {
-                        console.error('could not vote:', e)
+                        console.error('could not commit vote', e)
                       }
+
                       setVoting(false)
                     }}
                   >
@@ -56,10 +64,12 @@ const VoteOptions = ({questions, signer, election, address} : VoteProps) => {
         }
         </Then>
         <Else>
-          You already voted! Vote id: {voteId}
+          <Text fontSize='sm'>
+            You already voted! Vote id: <Code>{voteId}</Code>
+          </Text>
         </Else>
       </If>
-    </>
+    </Box>
   )
 }
 
