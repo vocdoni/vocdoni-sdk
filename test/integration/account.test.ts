@@ -2,6 +2,7 @@ import { Wallet } from '@ethersproject/wallet';
 import { VocdoniSDKClient } from '../../src';
 import { Account } from '../../src';
 import { strip0x } from '../../src/util/common';
+import { FaucetAPI } from '../../src/api/faucet';
 
 describe('Account integration tests', () => {
   it('should bootstrap a new account and have the correct data', async () => {
@@ -15,6 +16,17 @@ describe('Account integration tests', () => {
     expect(accountInfo.electionIndex).toEqual(0);
     expect(accountInfo.infoURL).toEqual('ipfs://bagaaierag4icyuk3jcbabriqrjicorifpqeewjtblycdzghsgh2zqkek7mxq');
     expect(accountInfo.nonce).toEqual(0);
+  }, 75000);
+  it('should bootstrap a new account using a raw faucet package payload', async () => {
+    const wallet = Wallet.createRandom();
+    const client = new VocdoniSDKClient(process.env.API_URL, wallet);
+    const faucetPackage = await FaucetAPI.collect(
+      process.env.FAUCET_URL,
+      process.env.FAUCET_AUTH_TOKEN,
+      await wallet.getAddress()
+    );
+    const accountInfo = await client.createAccount({ faucetPackage: faucetPackage.faucetPackage });
+    expect(accountInfo.balance).toBeGreaterThan(0);
   }, 75000);
   it('should bootstrap a new account and fetch tokens from faucet more than once', async () => {
     const client = new VocdoniSDKClient(process.env.API_URL, Wallet.createRandom());

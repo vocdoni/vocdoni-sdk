@@ -43,6 +43,11 @@ export type CensusProof = {
   type: CensusProofType;
 };
 
+export type FaucetPackage = {
+  payload: string;
+  signature: string;
+};
+
 /**
  * Main Vocdoni client object. It's a wrapper for all the methods in api, core
  * and types, allowing you to easily use the vocdoni API from a single entry
@@ -98,18 +103,27 @@ export class VocdoniSDKClient {
   /**
    * Fetches a faucet payload. Only for development.
    *
-   * @returns {Promise<{payload: string, signature: string}>}
+   * @returns {Promise<{string}>}
    */
-  async fetchFaucetPayload(): Promise<{ payload: string; signature: string }> {
+  async fetchFaucetPayload(): Promise<string> {
     return this.wallet
       .getAddress()
       .then((address) => FaucetAPI.collect(process.env.FAUCET_URL, process.env.FAUCET_AUTH_TOKEN, address))
-      .then((data) => {
-        return {
-          payload: data.faucetPayload,
-          signature: data.signature,
-        };
-      });
+      .then((data) => data.faucetPackage);
+  }
+
+  /**
+   * Parses a faucet package.
+   *
+   * @returns {FaucetPackage}
+   */
+  parseFaucetPackage(faucetPackage: string): FaucetPackage {
+    try {
+      const jsonFaucetPackage = JSON.parse(Buffer.from(faucetPackage, 'base64').toString());
+      return { payload: jsonFaucetPackage.faucetPayload, signature: jsonFaucetPackage.signature };
+    } catch (e) {
+      throw new Error('Invalid faucet package');
+    }
   }
 
   /**
@@ -187,7 +201,7 @@ export class VocdoniSDKClient {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(options.account, 'No account');
 
-    const faucetPackage = options.faucetPackage ?? (await this.fetchFaucetPayload());
+    const faucetPackage = this.parseFaucetPackage(options.faucetPackage ?? (await this.fetchFaucetPayload()));
 
     const accountData = Promise.all([
       this.wallet.getAddress(),
@@ -230,7 +244,8 @@ export class VocdoniSDKClient {
     invariant(this.wallet, 'No wallet or signer set');
     return Promise.all([this.fetchAccountInfo(), this.fetchFaucetPayload(), this.fetchChainId()])
       .then((data) => {
-        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(data[0], data[1]);
+        const faucetPackage = this.parseFaucetPackage(data[1]);
+        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(data[0], faucetPackage);
         return AccountCore.signTransaction(collectFaucetTx, data[2], this.wallet);
       })
       .then((signedTx) => ChainAPI.submitTx(this.url, { payload: signedTx }))

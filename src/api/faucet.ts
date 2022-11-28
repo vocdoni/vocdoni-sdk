@@ -1,52 +1,15 @@
 import axios from 'axios';
 
-export interface IFaucetPackage {
-  /**
-   * The payload of the transaction
-   */
-  payload: {
-    /**
-     * The amount of tokens
-     */
-    amount: number;
-
-    /**
-     * The identifier of the faucet payload
-     */
-    identifier: number;
-
-    /**
-     * The account where the tokens are transferred
-     */
-    to: string;
-  };
-
-  /**
-   * The signature of the transaction
-   */
-  signature: string;
-}
-
 interface IFaucetCollectResponse {
   /**
    * The amount of tokens.
    */
-  amount: number;
+  amount: string;
 
   /**
-   * The raw payload of the faucet transaction
+   * The base64 JSON containing the payload and the signature
    */
-  faucetPayload: string;
-
-  /**
-   * The json package of the faucet transaction
-   */
-  JSONFaucetPackage: IFaucetPackage;
-
-  /**
-   * The signature of the transaction
-   */
-  signature: string;
+  faucetPackage: string;
 }
 
 export abstract class FaucetAPI {
