@@ -111,14 +111,17 @@ export const App = () => {
                     // and here we add ourselves, so we can vote in the next step
                     census.add(await signer.getAddress())
 
-                    const now = new Date().getTime()
+                    const endDate = new Date()
+                    endDate.setHours(
+                      endDate.getHours() + 10,
+                    )
                     // fill basic election metadata
                     const election = new Election({
                         title: 'Election title',
                         description: 'Election description',
                         header: 'https://source.unsplash.com/random',
                         streamUri: 'https://source.unsplash.com/random',
-                        endDate: now + 100000000000,
+                        endDate: endDate.getTime(),
                         census,
                     })
 
