@@ -1,4 +1,4 @@
-import { AccountData } from '../client';
+import { AccountData, FaucetPackage } from '../client';
 import { CollectFaucetTx, SetAccountTx, Tx, TxType } from '../dvote-protobuf/build/ts/vochain/vochain';
 import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
@@ -15,7 +15,7 @@ export abstract class AccountCore extends TransactionCore {
     address: string,
     account: Account,
     cid: string,
-    faucetPackage
+    faucetPackage: FaucetPackage
   ): { tx: Uint8Array; metadata: string } {
     const txData = this.prepareSetAccountData(address, account.generateMetadata(), cid, faucetPackage);
     const setAccount = SetAccountTx.fromPartial({
@@ -29,7 +29,7 @@ export abstract class AccountCore extends TransactionCore {
     };
   }
 
-  public static generateCollectFaucetTransaction(accountData: AccountData, faucetPackage): Uint8Array {
+  public static generateCollectFaucetTransaction(accountData: AccountData, faucetPackage: FaucetPackage): Uint8Array {
     const txData = this.prepareCollectFaucetData(accountData, faucetPackage);
     const collectFaucet = CollectFaucetTx.fromPartial(txData);
     return Tx.encode({
@@ -41,7 +41,7 @@ export abstract class AccountCore extends TransactionCore {
     address: string,
     metadata: AccountMetadata,
     cid: string,
-    faucetPackage
+    faucetPackage: FaucetPackage
   ): { metadata: string; accountData: object } {
     return {
       metadata: Buffer.from(JSON.stringify(metadata), 'binary').toString('base64'),
@@ -49,23 +49,22 @@ export abstract class AccountCore extends TransactionCore {
         txtype: TxType.CREATE_ACCOUNT,
         account: Uint8Array.from(Buffer.from(address)),
         infoURI: cid,
-        faucetPackage: faucetPackage
-          ? {
-              payload: Uint8Array.from(Buffer.from(faucetPackage.payload, 'base64')),
-              signature: Uint8Array.from(Buffer.from(faucetPackage.signature, 'hex')),
-            }
-          : null,
+        faucetPackage: faucetPackage ? this.prepareFaucetPackage(faucetPackage) : null,
       },
     };
   }
 
-  private static prepareCollectFaucetData(accountData: AccountData, faucetPackage) {
+  private static prepareCollectFaucetData(accountData: AccountData, faucetPackage: FaucetPackage) {
     return {
       nonce: accountData.nonce,
-      faucetPackage: {
-        payload: Uint8Array.from(Buffer.from(faucetPackage.payload, 'base64')),
-        signature: Uint8Array.from(Buffer.from(faucetPackage.signature, 'hex')),
-      },
+      faucetPackage: this.prepareFaucetPackage(faucetPackage),
+    };
+  }
+
+  private static prepareFaucetPackage(faucetPackage: FaucetPackage) {
+    return {
+      payload: Uint8Array.from(Buffer.from(faucetPackage.payload, 'base64')),
+      signature: Uint8Array.from(Buffer.from(faucetPackage.signature, 'base64')),
     };
   }
 }
