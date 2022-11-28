@@ -2,7 +2,13 @@
 
 The Vocdoni SDK is a convenient way to interact with the Vocdoni Protocol
 through [the new API][Vocdoni API], allowing anyone to create, manage and
-participate in voting processes and collective decision making.
+participate in voting processes and collective decision-making.
+
+## Disclaimer
+
+The Vocdoni SDK and the underlying API is WIP. Please beware that it can be broken
+at any time if the release is `alpha` or `beta`. We encourage to review this
+repository for any change.
 
 ## Prerequisites
 
@@ -12,18 +18,18 @@ adding the SDK to your project:
 
 ~~~bash
 # with yarn
-yarn add vocdoni-sdk
+yarn add @vocdoni/sdk
 # with npm
-npm i vocdoni-sdk
+npm i @vocdoni/sdk
 # with pnpm
-pnpm add vocdoni-sdk
+pnpm add @vocdoni/sdk
 ~~~
 
 For creating elections or vote on them, blockchain transactions need to be
 build, thus a signer is required. Any kind of standard [ethers] signer should
 work.
 
-For this readme examples, the signer bootstraping will be ignored and you'll
+For this readme examples, the signer bootstrapping will be ignored and you'll
 just see a `signer` constant.
 
 ## SDK Usage
@@ -74,7 +80,7 @@ for a byte64 string faucet, and specify it when creating your account:
 ~~~ts
 (async () => {
   const info = await client.createAccount({
-    faucetPayload: "<b64string>"
+    faucetPackage: "<b64string>"
   })
 })();
 ~~~
@@ -138,7 +144,7 @@ const election = new Election({
 
 Check out the [election interface] to see all the allowed params.
 
-Of course you will also need some questions in this voting process, how would people
+Of course, you will also need some questions in this voting process, how would people
 vote otherwise?
 
 ~~~ts
@@ -252,5 +258,5 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [dev vochain explorer]: https://dev.explorer.vote
 [election interface]: ./src/types/election.ts#L23
 [examples]: ./examples
-[full featured CRA]: ./examples/cra/readme.md
+[full featured CRA]: ./examples/cra/README.md
 [license]: ./LICENSE
