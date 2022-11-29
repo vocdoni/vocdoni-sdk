@@ -35,11 +35,13 @@ just see a `signer` constant.
 ## SDK Usage
 
 The entry point is the SDK constructor, it will instantiate a new client
-connected to the specified API endpoint:
+connected to the API endpoint corresponding to `dev` or `prod:
 
 ~~~ts
-//                                   api endpoint URL                 signer
-const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
+const client = new VocdoniSDKClient({
+  env: EnvironmentInitialitzationOptions.DEV, // mandatory, can be 'dev' or 'prod'
+  wallet: signer, // optional, the signer used (Metamask, Walletconnect)
+})
 ~~~
 
 ### Registering account
@@ -256,7 +258,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [ethers]: https://github.com/ethers-io/ethers.js
 [vochain explorer]: https://explorer.vote
 [dev vochain explorer]: https://dev.explorer.vote
-[election interface]: ./src/types/election.ts#L23
+[election interface]: ./src/types/election.ts#L29
 [examples]: ./examples
 [full featured CRA]: ./examples/cra/README.md
 [license]: ./LICENSE
