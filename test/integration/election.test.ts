@@ -1,6 +1,13 @@
 import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
-import { Election, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
+import {
+  Election,
+  EnvironmentInitialitzationOptions,
+  PlainCensus,
+  VocdoniSDKClient,
+  Vote,
+  WeightedCensus,
+} from '../../src';
 import { delay } from '../../src/util/common';
 
 let client: VocdoniSDKClient;
@@ -8,7 +15,10 @@ let creator: Wallet;
 
 beforeEach(async () => {
   creator = Wallet.createRandom();
-  client = new VocdoniSDKClient(process.env.API_URL, creator);
+  client = new VocdoniSDKClient({
+    env: EnvironmentInitialitzationOptions.DEV,
+    wallet: creator,
+  });
 }, 15000);
 
 const createElection = (census, electionType?) => {
@@ -114,7 +124,11 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            client = new VocdoniSDKClient(process.env.API_URL, participant, electionIdentifier);
+            client = new VocdoniSDKClient({
+              env: EnvironmentInitialitzationOptions.DEV,
+              wallet: participant,
+              electionId: electionIdentifier,
+            });
             return client.submitVote(new Vote([index % 2]));
           })
         )
@@ -154,7 +168,11 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            client = new VocdoniSDKClient(process.env.API_URL, participant, electionIdentifier);
+            client = new VocdoniSDKClient({
+              env: EnvironmentInitialitzationOptions.DEV,
+              wallet: participant,
+              electionId: electionIdentifier,
+            });
             return client.submitVote(new Vote([index % 2]));
           })
         )
@@ -193,7 +211,11 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            client = new VocdoniSDKClient(process.env.API_URL, participant, electionIdentifier);
+            client = new VocdoniSDKClient({
+              env: EnvironmentInitialitzationOptions.DEV,
+              wallet: participant,
+              electionId: electionIdentifier,
+            });
             return client.submitVote(new Vote([index % 2]));
           })
         )

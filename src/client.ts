@@ -15,6 +15,7 @@ import { CensusProofType, VoteCore } from './core/vote';
 import { Account, Election, PlainCensus, Vote, WeightedCensus } from './types';
 import { delay } from './util/common';
 import { promiseAny } from './util/promise';
+import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 
 export type ChainData = {
   chainId: string;
@@ -48,6 +49,25 @@ export type FaucetPackage = {
   signature: string;
 };
 
+export enum EnvironmentInitialitzationOptions {
+  DEV = 'dev',
+  PROD = 'prod',
+}
+
+export type FaucetInitialitzationOptions = {
+  url: string;
+  auth_token?: string;
+  token_limit?: number;
+};
+
+export type InitialitzationOptions = {
+  env: EnvironmentInitialitzationOptions;
+  api_url?: string;
+  wallet?: Wallet | Signer;
+  electionId?: string;
+  faucet?: FaucetInitialitzationOptions;
+};
+
 /**
  * Main Vocdoni client object. It's a wrapper for all the methods in api, core
  * and types, allowing you to easily use the vocdoni API from a single entry
@@ -59,7 +79,21 @@ export class VocdoniSDKClient {
   private election: IElection | null = null;
   private authToken: AccountToken | null = null;
 
-  constructor(public url: string, public wallet?: Wallet | Signer, public electionId?: string) {}
+  public url: string;
+  public wallet: Wallet | Signer | null;
+  public electionId: string | null;
+  public faucet: FaucetInitialitzationOptions | null;
+
+  constructor(opts: InitialitzationOptions) {
+    this.url = opts.api_url ?? API_URL[opts.env];
+    this.wallet = opts.wallet;
+    this.electionId = opts.electionId;
+    this.faucet = {
+      url: opts.faucet?.url ?? FAUCET_URL[opts.env] ?? undefined,
+      auth_token: opts.faucet?.auth_token ?? FAUCET_AUTH_TOKEN[opts.env] ?? undefined,
+      token_limit: opts.faucet?.token_limit,
+    };
+  }
 
   /**
    * Sets an election id. Required by other methods like submitVote or createElection.
@@ -86,6 +120,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<AccountData>}
    */
   async fetchAccountInfo(): Promise<AccountData> {
+    invariant(this.wallet, 'No wallet or signer set');
     this.accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
     return this.accountData;
   }
@@ -106,9 +141,12 @@ export class VocdoniSDKClient {
    * @returns {Promise<{string}>}
    */
   async fetchFaucetPayload(): Promise<string> {
+    invariant(this.wallet, 'No wallet or signer set');
+    invariant(this.faucet.url, 'No faucet URL');
+    invariant(this.faucet.auth_token, 'No faucet auth token');
     return this.wallet
       .getAddress()
-      .then((address) => FaucetAPI.collect(process.env.FAUCET_URL, process.env.FAUCET_AUTH_TOKEN, address))
+      .then((address) => FaucetAPI.collect(this.faucet.url, this.faucet.auth_token, address))
       .then((data) => data.faucetPackage);
   }
 
@@ -222,7 +260,7 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Registers an account against vochain, so it can create new processes.
+   * Registers an account against vochain, so it can create new elections.
    *
    * @param {{account: Account | null, faucetPackage: string | null}} options Additional
    * options, like extra information of the account, or the faucet package string
@@ -256,7 +294,7 @@ export class VocdoniSDKClient {
   /**
    * Creates the census of the specified election.
    *
-   * @param {Election} election The process with the census linked to it.
+   * @param {Election} election The election with the census linked to it.
    * @returns {Promise<void>}
    */
   async createCensus(election: Election): Promise<void> {
@@ -283,7 +321,7 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Creates a new voting process.
+   * Creates a new voting election.
    *
    * @param {Election} election The election object to be created.
    * @returns {Promise<string>} Resulting election id.
