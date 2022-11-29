@@ -3,7 +3,7 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { Wallet } from '@ethersproject/wallet'
 import { useState } from 'react'
 import { Else, If, Then } from 'react-if'
-import { IQuestion, VocdoniSDKClient, Vote } from 'vocdoni-sdk'
+import { IQuestion, VocdoniSDKClient, Vote, EnvironmentInitialitzationOptions } from 'vocdoni-sdk'
 
 type VoteProps = {
   signer: Signer | Wallet,
@@ -37,9 +37,11 @@ const VoteOptions = ({questions, signer, election, address} : VoteProps) => {
                     isLoading={voting}
                     onClick={async () => {
                       setVoting(true)
-                      const client = new VocdoniSDKClient('https://api-dev.vocdoni.net/v2', signer)
-                      // set election id to be voted
-                      client.setElectionId(election)
+                      const client = new VocdoniSDKClient({
+                        env: EnvironmentInitialitzationOptions.DEV,
+                        wallet: signer,
+                        electionId: election, // set election id to be voted
+                      })
                       // define vote object
                       const vote = new Vote([c.value])
                       // vote, retrieving that vote id as response

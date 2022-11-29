@@ -4,14 +4,12 @@ import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
-import { Election, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk'
+import { Election, EnvironmentInitialitzationOptions, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk';
 import Census from '../components/Census'
 import Connect from '../components/Connect'
 import Vote from '../components/VoteOptions'
 import { connector as metamask, hooks as mhooks } from '../connectors/metamask'
 import { connector as walletconnect, hooks as whooks } from '../connectors/walletconnect'
-
-const ApiBase = (process.env.VOCDONI_API_BASE as string)
 
 export const App = () => {
   const [provider, setProvider] = useState<string>('')
@@ -36,7 +34,10 @@ export const App = () => {
     (async () => {
       if (account.length || balance > 0 || provider.length === 0) return
       // client instance
-      const client = new VocdoniSDKClient(ApiBase, (providers[provider] as Web3Provider).getSigner())
+      const client = new VocdoniSDKClient({
+        env: EnvironmentInitialitzationOptions.DEV,
+        wallet: (providers[provider] as Web3Provider).getSigner()
+      })
       // fetch info or create account if does not exist
       let acc = await client.createAccount()
       try {
@@ -64,8 +65,10 @@ export const App = () => {
     if (!election.length || metadata) return
 
     ;(async () => {
-      const client = new VocdoniSDKClient(ApiBase)
-      client.setElectionId(election)
+      const client = new VocdoniSDKClient({
+        env: EnvironmentInitialitzationOptions.DEV,
+        electionId: election
+      })
       const meta = await client.fetchElection()
 
       setMetadata(meta as any)
@@ -100,7 +103,10 @@ export const App = () => {
                     setCreating(true)
                     const signer = (providers[provider] as Web3Provider).getSigner()
                     // client instance
-                    const client = new VocdoniSDKClient(ApiBase, signer)
+                    const client = new VocdoniSDKClient({
+                      env: EnvironmentInitialitzationOptions.DEV,
+                      wallet: signer
+                    })
 
                     // create a census for the voting process
                     const census = new PlainCensus()
