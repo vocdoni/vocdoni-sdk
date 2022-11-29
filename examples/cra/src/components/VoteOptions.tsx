@@ -3,18 +3,20 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { Wallet } from '@ethersproject/wallet'
 import { useState } from 'react'
 import { Else, If, Then } from 'react-if'
-import { IQuestion, VocdoniSDKClient, Vote, EnvironmentInitialitzationOptions } from 'vocdoni-sdk'
+import { EnvironmentInitialitzationOptions, IQuestion, VocdoniSDKClient, Vote } from 'vocdoni-sdk'
 
 type VoteProps = {
   signer: Signer | Wallet,
   election: string,
   address: string,
   questions: IQuestion[],
+  update: () => void,
 }
 
-const VoteOptions = ({questions, signer, election, address} : VoteProps) => {
-  const [voting, setVoting] = useState<boolean>(false)
+const VoteOptions = ({questions, signer, election, address, update} : VoteProps) => {
+  const [voting, setVoting] = useState<{[key: number]: boolean}>({0: false, 1: false})
   const [voteId, setVoteId] = useState<string>('')
+  const [disabled, setDisabled] = useState<boolean>(false)
 
   return (
     <Box padding={3} backgroundColor='gray.100'>
@@ -34,26 +36,31 @@ const VoteOptions = ({questions, signer, election, address} : VoteProps) => {
                   <Button
                     key={k}
                     size='sm'
-                    isLoading={voting}
+                    isLoading={voting[k]}
+                    disabled={disabled}
                     onClick={async () => {
-                      setVoting(true)
+                      setVoting({...voting, [k]: true})
+                      setDisabled(true)
                       const client = new VocdoniSDKClient({
                         env: EnvironmentInitialitzationOptions.DEV,
                         wallet: signer,
-                        electionId: election, // set election id to be voted
                       })
+                      // set election id to be voted
+                      client.setElectionId(election)
                       // define vote object
                       const vote = new Vote([c.value])
                       // vote, retrieving that vote id as response
                       try {
                         const vid = await client.submitVote(vote)
 
+                        update()
                         setVoteId(vid)
                       } catch (e) {
                         console.error('could not commit vote', e)
                       }
 
-                      setVoting(false)
+                      setVoting({...voting, [k]: false})
+                      setDisabled(false)
                     }}
                   >
                     {c.title.default}

@@ -1,10 +1,10 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Alert, Box, Button, Link, Stack, Text } from '@chakra-ui/react'
+import { Alert, Box, Button, Link, Stack, Tag, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
-import { Election, EnvironmentInitialitzationOptions, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk';
+import { Election, EnvironmentInitialitzationOptions, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk'
 import Census from '../components/Census'
 import Connect from '../components/Connect'
 import Vote from '../components/VoteOptions'
@@ -27,6 +27,16 @@ export const App = () => {
   const providers : {[key: string]: Web3Provider|undefined} = {
     'metamask': mprovider,
     'walletconnect': wprovider,
+  }
+
+  const update = async () => {
+    const client = new VocdoniSDKClient({
+      env: EnvironmentInitialitzationOptions.DEV,
+      electionId: election
+    })
+    const meta = await client.fetchElection()
+
+    setMetadata(meta as any)
   }
 
   // get user account when a provider is defined (aka user has logged in)
@@ -63,18 +73,9 @@ export const App = () => {
   // when the election is created, fetch its info
   useEffect(() => {
     if (!election.length || metadata) return
-
-    ;(async () => {
-      const client = new VocdoniSDKClient({
-        env: EnvironmentInitialitzationOptions.DEV,
-        electionId: election
-      })
-      const meta = await client.fetchElection()
-
-      setMetadata(meta as any)
-    })()
+    update()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [election, metadata, provider])
+  }, [election, metadata])
 
   return (
     <Box fontSize='xl' m={20}>
@@ -179,6 +180,7 @@ export const App = () => {
                 address={`0x${account}`}
                 election={election}
                 signer={(providers[provider] as Web3Provider).getSigner()}
+                update={update}
               />
               {
                 signers.map((s, k) => (
@@ -188,9 +190,16 @@ export const App = () => {
                     address={s.address}
                     election={election}
                     signer={s}
+                    update={update}
                   />
                 ))
               }
+              <Tag colorScheme='green'>
+                Received votes: {(metadata as any)?.voteCount}
+              </Tag>
+              <Tag colorScheme='blue'>
+                Votes (raw): {JSON.stringify((metadata as any).result)}
+              </Tag>
             </Stack>
           )}
         </When>
