@@ -1,26 +1,32 @@
 import GlobalsPolyfills from '@esbuild-plugins/node-globals-polyfill';
 import NodeModulesPolyfills from '@esbuild-plugins/node-modules-polyfill';
 import esbuild from 'esbuild';
-import { readdirSync, statSync } from 'fs';
-import { join } from 'path';
 
 const watch = process.argv.slice(2, 3).pop() === '--watch';
 
-// Select all typescript files of src directory as entry points
-const entryPoints = readdirSync(join(process.cwd(), 'src'))
-  .filter((file) => file.endsWith('.ts') && statSync(join(process.cwd(), 'src', file)).isFile())
-  .map((file) => `src/${file}`);
+const common : esbuild.BuildOptions = {
+  entryPoints: ['src/index.ts'],
+  bundle: true,
+  sourcemap: true,
+  minify: true,
+  watch,
+}
 
 esbuild
   .build({
-    entryPoints,
-    outdir: 'dist',
-    bundle: true,
-    sourcemap: true,
-    minify: true,
-    watch,
-    format: 'esm',
+    ...common,
+    outfile: 'dist/index.js',
+    platform: 'node',
+    target: ['node14'],
+  })
+  .catch(() => process.exit(1));
+
+esbuild
+  .build({
+    ...common,
+    outfile: 'dist/index.browser.js',
     platform: 'browser',
+    format: 'esm',
     target: ['esnext'],
     plugins: [
       NodeModulesPolyfills(),
