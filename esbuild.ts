@@ -10,7 +10,7 @@ const common : esbuild.BuildOptions = {
   sourcemap: true,
   minify: true,
   watch,
-}
+};
 
 esbuild
   .build({
