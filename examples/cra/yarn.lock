@@ -4347,10 +4347,10 @@ axios@^0.21.0:
   dependencies:
     follow-redirects "^1.14.0"
 
-axios@^1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.1.3.tgz#8274250dada2edf53814ed7db644b9c2866c1e35"
-  integrity sha512-00tXVRwKx/FZr/IDVFt4C+f9FYairX517WoGCL6dpOntqLkZofjhu43F/Xl44UOpqa+9sLFDrG/XAnFsUYgkDA==
+axios@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.2.0.tgz#1cb65bd75162c70e9f8d118a905126c4a201d383"
+  integrity sha512-zT7wZyNYu3N5Bu0wuZ6QccIf93Qk1eV8LOewxgjOZFd2DenOs98cJ7+Y6703d0wkaXGY6/nZd4EweJaHz9uzQw==
   dependencies:
     follow-redirects "^1.15.0"
     form-data "^4.0.0"
@@ -11492,8 +11492,9 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-"vocdoni-sdk@file:../..":
-  version "0.0.1-alpha"
+"vocdoni-sdk@file:../../vocdoni-sdk-v0.0.1-beta34.tgz":
+  version "0.0.1-beta34"
+  resolved "file:../../vocdoni-sdk-v0.0.1-beta34.tgz#ee6bcd30d2e09e0f13eb7726a54e8d1388872c2f"
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/address" "^5.7.0"
@@ -11501,7 +11502,7 @@ vary@~1.1.2:
     "@ethersproject/providers" "^5.7.1"
     "@ethersproject/signing-key" "^5.7.0"
     "@ethersproject/wallet" "^5.7.0"
-    axios "^1.1.3"
+    axios "^1.2.0"
     dvote-solidity "^1.4.0"
     eslint-plugin-prettier "^4.2.1"
     iso-language-codes "^1.1.0"
