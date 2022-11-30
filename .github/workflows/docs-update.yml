@@ -1,0 +1,79 @@
+name: Docs update
+
+on:
+  workflow_call:
+  push:
+    branches:
+      - main
+      - 'f/DOPS-405-*'
+
+jobs:
+  job_docs_update:
+    if: github.actor != 'vocdonibot-1'
+    permissions: read-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout vocdoni-sdk repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.VOCDONIBOT_PAT }}
+
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          #cache: 'npm'
+          node-version: 16
+
+      - name: Install docs dependencies
+        run: npm install --save-dev jsdoc-babel @babel/cli @babel/core @babel/preset-env @babel/preset-typescript jsdoc-to-markdown jsdoc-to-mdx
+
+      - name: Generate Vocdoni SDK Docs
+        run: npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json
+
+      - name: Get short commit hash
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Push updated docs
+        run: |
+          git fetch
+          git pull
+          git config --global user.name "Vocdonibot-1"
+          git config --global user.email "vocdonibot-1@users.noreply.github.com"
+          git add -A ./docs/
+          if [ $(git diff-index HEAD ./docs | wc -l) -gt 0 ]; then
+            git commit -am "Updates docs from commit $SHA_SHORT"
+            git push
+          fi
+        env:
+          SHA_SHORT: ${{ steps.vars.outputs.sha_short }}
+
+      - name: Checkout developer-portal repo
+        uses: actions/checkout@v3
+        with:
+          repository: vocdoni/developer-portal
+          ref: main
+          path: developer-portal
+          token: ${{ secrets.VOCDONIBOT_PAT }}
+
+      - name: Copy generated docs
+        run: |
+          rm -rf ./developer-portal/docs/sdk/
+          mkdir -p ./developer-portal/docs/sdk/
+          cp -R ./docs/* ./developer-portal/docs/sdk/
+          rm -rf ./developer-portal/docs/sdk/sdk.md
+          cp -R ./README.md ./developer-portal/docs/sdk/sdk.md
+
+      - name: Create PR to developer-portal repo
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.VOCDONIBOT_PAT }}
+          path: developer-portal
+          commit-message: "Update vocdoni-sdk docs by commit ${{ steps.vars.outputs.sha_short }}"
+          committer: "Vocdonibot-1 <vocdonibot-1@users.noreply.github.com>"
+          branch: patch/sdk-docs
+          delete-branch: true
+          title: Updates docs for vocdoni-sdk
+          body: "Automated update by Github actions (Run: [${{ github.run_id }}](https://github.com/vocdoni/vocdoni-sdk/actions/runs/${{ github.run_id }}))"
+          reviewers: ${{ github.actor }}
+          team-reviewers: DevRel
