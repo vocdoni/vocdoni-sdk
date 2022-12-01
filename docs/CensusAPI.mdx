@@ -1,0 +1,96 @@
+---
+custom_edit_url: null
+---
+
+```ts
+class CensusAPI
+```
+
+<div>
+
+</div>
+
+<div className="container">
+  <div className="row mb-2"><div className="col col--12"><strong>Methods</strong></div></div>
+  <div className="row"><div className="col col--12"><a href="#create">create</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#add">add</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#publish">publish</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#proof">proof</a><span className="badge badge--info margin-left--sm">static</span></div></div>
+</div>
+
+## constructor
+```ts
+new CensusAPI()
+```
+
+<div>
+
+</div>
+
+Cannot be constructed.
+
+## Methods
+### create {#create}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Create's a new census in the API.
+
+**Returns**: Promise&lt;ICensusCreateResponse&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|authToken|string|||Authentication token|
+|type|CensusType|||Type of census to be created|
+
+### add {#add}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Adds participants to a census
+
+**Returns**: Promise&lt;ICensusAddResponse&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|authToken|string|||Authentication token|
+|censusId|string|||The id of the census to which participants are being added|
+|participants|Array&lt;{key: string, weight: (BigInt\|null)}&gt;|||An array of participants|
+
+### publish {#publish}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Publishes the census, so it can be used in processes
+
+**Returns**: Promise&lt;ICensusPublishResponse&gt;
+- on success
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|authToken|string|||Authentication token|
+|censusId|string|||The census ID we're publishing|
+
+### proof {#proof}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Checks if the specified address is in the specified census
+
+**Returns**: Promise&lt;ICensusProofResponse&gt;
+- on success
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|censusId|string|||The census ID of which we want the proof from|
+|key|string|||The address to be checked|
+

@@ -1,0 +1,44 @@
+---
+custom_edit_url: null
+---
+
+```ts
+class Asymmetric
+```
+
+<div>
+
+</div>
+
+<div className="container">
+  <div className="row mb-2"><div className="col col--12"><strong>Methods</strong></div></div>
+  <div className="row"><div className="col col--12"><a href="#encryptRaw">encryptRaw</a><span className="badge badge--info margin-left--sm">static</span></div></div>
+</div>
+
+## constructor
+```ts
+new Asymmetric()
+```
+
+<div>
+
+</div>
+
+Cannot be constructed.
+
+## Methods
+### encryptRaw {#encryptRaw}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Encrypts the given buffer with NaCl SealedBox using the given hex public key.<br />Returns a buffer with the encrypted payload.
+
+**Returns**: Buffer
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|messageBytes|Uint8Array \| Buffer|||The payload to encrypt|
+|hexPublicKey|string|||32 byte public key in hex format|
+

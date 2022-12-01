@@ -1,0 +1,73 @@
+---
+custom_edit_url: null
+---
+
+```ts
+class ChainAPI
+```
+
+<div>
+
+</div>
+
+<div className="container">
+  <div className="row mb-2"><div className="col col--12"><strong>Methods</strong></div></div>
+  <div className="row"><div className="col col--12"><a href="#info">info</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#txInfo">txInfo</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#submitTx">submitTx</a><span className="badge badge--info margin-left--sm">static</span></div></div>
+</div>
+
+## constructor
+```ts
+new ChainAPI()
+```
+
+<div>
+
+</div>
+
+Cannot be constructed.
+
+## Methods
+### info {#info}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Fetches info about the blokchain status.
+
+**Returns**: Promise&lt;IChainGetInfoResponse&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+
+### txInfo {#txInfo}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Fetches information about a transaction from the blockchain.
+
+**Returns**: Promise&lt;IChainGetTransactionReferenceResponse&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|txHash|string|||The transaction hash which we want to retrieve the info from|
+
+### submitTx {#submitTx}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Submits a transaction to the blockchain
+
+**Returns**: Promise&lt;IChainSubmitTxResponse&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|data|IChainSubmitTxResponse|||The transaction data|
+
