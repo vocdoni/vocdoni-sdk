@@ -35,7 +35,7 @@ just see a `signer` constant.
 ## SDK Usage
 
 The entry point is the SDK constructor, it will instantiate a new client
-connected to the API endpoint corresponding to `dev` or `prod:
+connected to the API endpoint corresponding to `dev` or `prod`:
 
 ~~~ts
 const client = new VocdoniSDKClient({
@@ -260,5 +260,5 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [dev vochain explorer]: https://dev.explorer.vote
 [election interface]: ./src/types/election.ts#L29
 [examples]: ./examples
-[full featured CRA]: ./examples/cra/README.md
+[full featured CRA]: ./examples/cra
 [license]: ./LICENSE
