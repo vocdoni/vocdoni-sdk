@@ -1,0 +1,74 @@
+---
+custom_edit_url: null
+---
+
+```ts
+class ElectionAPI
+```
+
+<div>
+
+</div>
+
+<div className="container">
+  <div className="row mb-2"><div className="col col--12"><strong>Methods</strong></div></div>
+  <div className="row"><div className="col col--12"><a href="#info">info</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#keys">keys</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#create">create</a><span className="badge badge--info margin-left--sm">static</span></div></div>
+</div>
+
+## constructor
+```ts
+new ElectionAPI()
+```
+
+<div>
+
+</div>
+
+Cannot be constructed.
+
+## Methods
+### info {#info}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Fetches info about the specified process.
+
+**Returns**: Promise&lt;IElectionInfoRequest&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|request|IElectionInfoRequest||||
+
+### keys {#keys}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Fetches the encryption keys from the specified process.
+
+**Returns**: Promise&lt;Array&lt;IEncryptionPublicKey&gt;&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|electionId|string|||The election id|
+
+### create {#create}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Creates a new election.
+
+**Returns**: Promise&lt;IElectionCreateRequest&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|data|IElectionCreateRequest||||
+

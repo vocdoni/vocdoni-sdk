@@ -1,0 +1,60 @@
+---
+custom_edit_url: null
+---
+
+```ts
+class Signing
+```
+
+<div>
+
+</div>
+
+<div className="container">
+  <div className="row mb-2"><div className="col col--12"><strong>Methods</strong></div></div>
+  <div className="row"><div className="col col--12"><a href="#signTransaction">signTransaction</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#signRaw">signRaw</a><span className="badge badge--info margin-left--sm">static</span></div></div>
+</div>
+
+## constructor
+```ts
+new Signing()
+```
+
+<div>
+
+</div>
+
+Cannot be constructed.
+
+## Methods
+### signTransaction {#signTransaction}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Prefix and Sign a binary payload using the given Ethers wallet or signer.
+
+**Returns**: Promise&lt;string&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|messageBytes|Uint8Array||||
+|chainId|string|||The ID of the Vocdoni blockchain deployment for which the message is intended to|
+|walletOrSigner|Wallet \| Signer||||
+
+### signRaw {#signRaw}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Sign a binary payload using the given Ethers wallet or signer.
+
+**Returns**: Promise&lt;string&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|request|Uint8Array||||
+|walletOrSigner|Wallet \| Signer||||
+

@@ -1,0 +1,59 @@
+---
+custom_edit_url: null
+---
+
+```ts
+class ElectionCore
+```
+
+<div>
+
+</div>
+
+<div className="container">
+  <div className="row mb-2"><div className="col col--12"><strong>Methods</strong></div></div>
+  <div className="row"><div className="col col--12"><a href="#estimateDateAtBlock">estimateDateAtBlock</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#estimateBlockAtDateTime">estimateBlockAtDateTime</a><span className="badge badge--info margin-left--sm">static</span></div></div>
+</div>
+
+## constructor
+```ts
+new ElectionCore()
+```
+
+<div>
+
+</div>
+
+Cannot be constructed.
+
+## Methods
+### estimateDateAtBlock {#estimateDateAtBlock}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Returns the DateTime at which the given block number is expected to be mined
+
+**Returns**: Date
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|blockNumber|number|||The desired block number|
+|chainData|ChainData|||The block status information from the chain to use for the estimation|
+
+### estimateBlockAtDateTime {#estimateBlockAtDateTime}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Returns the block number that is expected to be current at the given date and time
+
+**Returns**: number
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|dateTime|Date|||The desired date time|
+|chainData|ChainData|||The block status information from the chain to use for the estimation|
+

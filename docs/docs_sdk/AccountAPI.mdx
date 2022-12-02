@@ -1,0 +1,59 @@
+---
+custom_edit_url: null
+---
+
+```ts
+class AccountAPI
+```
+
+<div>
+
+</div>
+
+<div className="container">
+  <div className="row mb-2"><div className="col col--12"><strong>Methods</strong></div></div>
+  <div className="row"><div className="col col--12"><a href="#info">info</a><span className="badge badge--info margin-left--sm">static</span><br/><a href="#setInfo">setInfo</a><span className="badge badge--info margin-left--sm">static</span></div></div>
+</div>
+
+## constructor
+```ts
+new AccountAPI()
+```
+
+<div>
+
+</div>
+
+Cannot be constructed.
+
+## Methods
+### info {#info}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Fetches an Account information
+
+**Returns**: Promise&lt;IAccountInfoResponse&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|address|string|||The one we want the info from|
+
+### setInfo {#setInfo}
+
+<div>
+  <span className="badge badge--info">static</span>
+</div>
+
+Sets Account information
+
+**Returns**: Promise&lt;IAccountSetInfoResponse&gt;
+
+|PARAMETER|TYPE|OPTIONAL|DEFAULT|DESCRIPTION|
+|:---:|:---:|:---:|:---:|:---:|
+|url|string|||API endpoint URL|
+|data|IAccountSetInfoRequest|||Account's creation txn data|
+
