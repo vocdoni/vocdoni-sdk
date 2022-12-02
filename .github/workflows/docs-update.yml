@@ -9,7 +9,7 @@ on:
 
 jobs:
   job_docs_update:
-    if: github.actor != 'vocdonibot-1'
+    if: github.actor != 'arabot-1'
     permissions: read-all
     runs-on: ubuntu-latest
     steps:
@@ -20,17 +20,20 @@ jobs:
 
       - name: Install node
         uses: actions/setup-node@v3
+        #working-directory: ./docs
         with:
-          cache: 'npm'
+          #cache: 'npm'
           node-version: 16
 
       - name: Install docs dependencies
-        working-directory: ./docs
-        run: npm install
+        run: |
+          cd ./docs
+          npm install
 
       - name: Generate Vocdoni SDK Docs
-        working-directory: ./docs
-        run: npm run build:docs:sdk
+        run: |
+          cd ./docs
+          npm run build:docs:sdk
 
       - name: Get short commit hash
         id: vars
@@ -40,8 +43,8 @@ jobs:
         run: |
           git fetch
           git pull
-          git config --global user.name "Vocdonibot-1"
-          git config --global user.email "vocdonibot-1@users.noreply.github.com"
+          git config --global user.name "Arabot-1"
+          git config --global user.email "arabot-1@users.noreply.github.com"
           git add -A ./docs/docs_sdk/
           if [ $(git diff-index HEAD ./docs/docs_sdk | wc -l) -gt 0 ]; then
             git commit -am "Updates docs from commit $SHA_SHORT"
@@ -70,7 +73,7 @@ jobs:
           token: ${{ secrets.VOCDONIBOT_PAT }}
           path: developer-portal
           commit-message: "Update vocdoni-sdk docs by commit ${{ steps.vars.outputs.sha_short }}"
-          committer: "Vocdonibot-1 <vocdonibot-1@users.noreply.github.com>"
+          committer: "Arabot-1 <arabot-1@users.noreply.github.com>"
           branch: patch/sdk-docs
           delete-branch: true
           title: Updates docs for vocdoni-sdk
