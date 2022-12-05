@@ -33,7 +33,7 @@ jobs:
       - name: Generate Vocdoni SDK Docs
         run: |
           cd ./docs
-          npm run build:docs:sdk
+          npm run build
 
       - name: Get short commit hash
         id: vars

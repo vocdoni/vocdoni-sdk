@@ -13,16 +13,10 @@ Run:
 npm install
 ```
 
-Or:
-
-```bash
-npm install --save-dev jsdoc-babel @babel/cli @babel/core @babel/preset-env @babel/preset-typescript jsdoc-to-markdown jsdoc-to-mdx
-```
-
 Then you can just run the npm script:
 
 ```bash
-npm run build:docs:sdk
+npm run build
 ```
 
 This will generate a `docs_sdk` folder with all generated documentation. It also copies de `../README.md` into 

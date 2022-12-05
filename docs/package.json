@@ -2,7 +2,7 @@
   "name": "@vocdoni/sdk",
   "author": "Vocdoni",
   "version": "0.0.1-alpha",
-  "description": "⚒️An SDK for building applications on top of Vocdoni API",
+  "description": "An SDK for building applications on top of Vocdoni API",
   "repository": "https://github.com/vocdoni/vocdoni-sdk.git",
   "license": " AGPL-3.0-or-later",
   "engines": {
@@ -14,7 +14,7 @@
     "vocdoni"
   ],
   "scripts": {
-    "build:docs:sdk": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json && cp ../README.md docs_sdk/sdk.md"
+    "build": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json && cp ../README.md docs_sdk/sdk.md"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",
