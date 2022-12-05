@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 enum VoteAPIMethods {
-  VOTE = 'https://gw1-azeno.vocdoni.net/v2/vote/submit',
+  VOTE = '/votes',
 }
 
 export interface VoteAPIResponse {
@@ -32,12 +32,14 @@ export abstract class VoteAPI {
   /**
    * Voting
    *
-   * @param {VoteAPIRequest} request Voting request object
+   * @param {string} url API endpoint URL
+   * @param {string} payload The base64 encoded vote transaction
+   *
    * @returns {Promise<VoteAPIResponse>}
    */
-  public static submit(request: VoteAPIRequest): Promise<VoteAPIResponse> {
+  public static submit(url: string, payload: string): Promise<VoteAPIResponse> {
     return axios
-      .post<VoteAPIResponse>(VoteAPIMethods.VOTE, JSON.stringify(request))
+      .post<VoteAPIResponse>(url + VoteAPIMethods.VOTE, JSON.stringify({ txPayload: payload }))
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {

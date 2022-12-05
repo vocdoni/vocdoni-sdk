@@ -17,6 +17,7 @@ import { delay } from './util/common';
 import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 import { isWallet } from './util/signing';
+import { VoteAPI } from './api/vote';
 
 export type ChainData = {
   chainId: string;
@@ -378,8 +379,8 @@ export class VocdoniSDKClient {
         return VoteCore.generateVoteTransaction(this.election, censusProof, vote);
       })
       .then((voteTx) => VoteCore.signTransaction(voteTx, this.chainData, this.wallet))
-      .then((signedTx) => ChainAPI.submitTx(this.url, { payload: signedTx }))
-      .then((data) => data.hash);
+      .then((signedTx) => VoteAPI.submit(this.url, signedTx))
+      .then((data) => data.txHash);
 
     return this.waitForTransaction(voteHash).then(() => voteHash);
   }
