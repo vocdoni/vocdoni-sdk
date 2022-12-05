@@ -16,6 +16,7 @@ import { Account, Election, PlainCensus, Vote, WeightedCensus } from './types';
 import { delay } from './util/common';
 import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
+import { isWallet } from './util/signing';
 
 export type ChainData = {
   chainId: string;
@@ -356,14 +357,11 @@ export class VocdoniSDKClient {
    */
   async submitVote(vote: Vote): Promise<string> {
     const voteData = Promise.all([this.fetchChainId(), this.fetchElection(), this.wallet.getAddress()]).then((data) => {
-      if (this.wallet instanceof Wallet) {
+      if (isWallet(this.wallet)) {
+        const { publicKey } = this.wallet as Wallet;
         return promiseAny([
           this.fetchProof(data[1].census.censusRoot, data[2], CensusProofType.ADDRESS),
-          this.fetchProof(
-            data[1].census.censusRoot,
-            computePublicKey(this.wallet.publicKey, true),
-            CensusProofType.PUBKEY
-          ),
+          this.fetchProof(data[1].census.censusRoot, computePublicKey(publicKey, true), CensusProofType.PUBKEY),
         ]);
       } else {
         return this.fetchProof(data[1].census.censusRoot, data[2], CensusProofType.ADDRESS);

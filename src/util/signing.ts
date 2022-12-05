@@ -4,6 +4,11 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Signer } from '@ethersproject/abstract-signer';
 import { JsonRpcSigner } from '@ethersproject/providers';
 
+export function isWallet(wallet: Wallet | Signer) {
+  // @ts-ignore
+  return typeof wallet.publicKey !== undefined && typeof wallet.publicKey === 'string' && wallet.publicKey.length > 0;
+}
+
 export class Signing {
   /**
    * Cannot be constructed.
