@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed proof check using public key when signer is from type `Wallet`
 
+### Changed
+
+- Use voting endpoint instead of generic submitTx.
+
 ## [0.0.1-alpha] - 2022-12-01
 
 ### Added
