@@ -14,7 +14,7 @@
     "vocdoni"
   ],
   "scripts": {
-    "build": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json && cp ../README.md docs_sdk/sdk.md"
+    "build": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json && cp ../README.md temp_docs/sdk.md"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",

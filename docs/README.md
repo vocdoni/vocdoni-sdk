@@ -19,5 +19,5 @@ Then you can just run the npm script:
 npm run build
 ```
 
-This will generate a `docs_sdk` folder with all generated documentation. It also copies de `../README.md` into 
-`docs_sdk/sdk.md` to use it as docusaurus main page.
+This will generate a `temp_docs` folder with all generated documentation. It also copies de `../README.md` into 
+`temp_docs/sdk.md` to use it as docusaurus main page.
