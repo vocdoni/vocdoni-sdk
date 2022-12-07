@@ -1,18 +1,11 @@
 {
-  "name": "@vocdoni/sdk",
+  "name": "vocdoni-sdk-docs",
   "author": "Vocdoni",
-  "version": "0.0.1-alpha",
-  "description": "An SDK for building applications on top of Vocdoni API",
-  "repository": "https://github.com/vocdoni/vocdoni-sdk.git",
+  "description": "Generate docs from vocdoni-sdk",
   "license": " AGPL-3.0-or-later",
   "engines": {
     "node": ">=14"
   },
-  "keywords": [
-    "voting",
-    "blockchain",
-    "vocdoni"
-  ],
   "scripts": {
     "build": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json && cp ../README.md temp_docs/sdk.md"
   },
