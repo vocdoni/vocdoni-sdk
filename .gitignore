@@ -10,4 +10,4 @@ dist
 /yarn.lock
 
 # ignore mdx temp files
-docs/docs_sdk/*.mdx
+docs/temp_docs/

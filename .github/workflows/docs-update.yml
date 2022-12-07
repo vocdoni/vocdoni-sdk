@@ -44,8 +44,8 @@ jobs:
           git pull
           git config --global user.name "Arabot-1"
           git config --global user.email "arabot-1@users.noreply.github.com"
-          git add -A ./docs/docs_sdk/
-          if [ $(git diff-index HEAD ./docs/docs_sdk | wc -l) -gt 0 ]; then
+          git add -A ./docs/temp_docs/
+          if [ $(git diff-index HEAD ./docs/temp_docs | wc -l) -gt 0 ]; then
             git commit -am "Updates docs from commit $SHA_SHORT"
             git push
           fi
@@ -64,7 +64,7 @@ jobs:
         run: |
           rm -rf ./developer-portal/docs/sdk/
           mkdir -p ./developer-portal/docs/sdk/
-          cp -R ./docs/docs_sdk/* ./developer-portal/docs/sdk/
+          cp -R ./docs/temp_docs/* ./developer-portal/docs/sdk/
 
       - name: Create PR to developer-portal repo
         uses: peter-evans/create-pull-request@v4
