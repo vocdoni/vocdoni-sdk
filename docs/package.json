@@ -7,7 +7,9 @@
     "node": ">=14"
   },
   "scripts": {
-    "build": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json && cp ../README.md temp_docs/sdk.md"
+    "copy-readme": "cp ../README.md temp_docs/sdk.md && sed -i 's;]: ./;]: https://github.com/vocdoni/vocdoni-sdk/blob/main/;g' temp_docs/sdk.md",
+    "gen-docs": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json",
+    "build": "npm run gen-docs && npm run copy-readme"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",
