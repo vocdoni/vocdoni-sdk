@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Staging environment options for API and Faucet
+
 ### Fixed
 
 - Fixed proof check using public key when signer is from type `Wallet`
@@ -14,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use voting endpoint instead of generic submitTx.
+- Naming for client initialization options changed
 
 ## [0.0.1-alpha] - 2022-12-01
 

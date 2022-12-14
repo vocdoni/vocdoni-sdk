@@ -4,7 +4,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
-import { Election, EnvironmentInitialitzationOptions, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk'
+import { Election, EnvOptions, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk'
 import Census from '../components/Census'
 import Connect from '../components/Connect'
 import Vote from '../components/VoteOptions'
@@ -31,7 +31,7 @@ export const App = () => {
 
   const update = async () => {
     const client = new VocdoniSDKClient({
-      env: EnvironmentInitialitzationOptions.DEV,
+      env: EnvOptions.DEV,
       electionId: election
     })
     const meta = await client.fetchElection()
@@ -45,7 +45,7 @@ export const App = () => {
       if (account.length || balance > 0 || provider.length === 0) return
       // client instance
       const client = new VocdoniSDKClient({
-        env: EnvironmentInitialitzationOptions.DEV,
+        env: EnvOptions.DEV,
         wallet: (providers[provider] as Web3Provider).getSigner()
       })
       // fetch info or create account if does not exist
@@ -105,7 +105,7 @@ export const App = () => {
                     const signer = (providers[provider] as Web3Provider).getSigner()
                     // client instance
                     const client = new VocdoniSDKClient({
-                      env: EnvironmentInitialitzationOptions.DEV,
+                      env: EnvOptions.DEV,
                       wallet: signer
                     })
 

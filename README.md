@@ -39,7 +39,7 @@ connected to the API endpoint corresponding to `dev` or `prod`:
 
 ~~~ts
 const client = new VocdoniSDKClient({
-  env: EnvironmentInitialitzationOptions.DEV, // mandatory, can be 'dev' or 'prod'
+  env: EnvOptions.DEV, // mandatory, can be 'dev' or 'prod'
   wallet: signer, // optional, the signer used (Metamask, Walletconnect)
 })
 ~~~

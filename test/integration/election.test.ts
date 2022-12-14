@@ -1,13 +1,6 @@
 import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
-import {
-  Election,
-  EnvironmentInitialitzationOptions,
-  PlainCensus,
-  VocdoniSDKClient,
-  Vote,
-  WeightedCensus,
-} from '../../src';
+import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
 import { delay } from '../../src/util/common';
 
 let client: VocdoniSDKClient;
@@ -16,7 +9,7 @@ let creator: Wallet;
 beforeEach(async () => {
   creator = Wallet.createRandom();
   client = new VocdoniSDKClient({
-    env: EnvironmentInitialitzationOptions.DEV,
+    env: EnvOptions.DEV,
     wallet: creator,
   });
 }, 15000);
@@ -125,7 +118,7 @@ describe('Election integration tests', () => {
         Promise.all(
           participants.map(async (participant, index) => {
             client = new VocdoniSDKClient({
-              env: EnvironmentInitialitzationOptions.DEV,
+              env: EnvOptions.DEV,
               wallet: participant,
               electionId: electionIdentifier,
             });
@@ -169,7 +162,7 @@ describe('Election integration tests', () => {
         Promise.all(
           participants.map(async (participant, index) => {
             client = new VocdoniSDKClient({
-              env: EnvironmentInitialitzationOptions.DEV,
+              env: EnvOptions.DEV,
               wallet: participant,
               electionId: electionIdentifier,
             });
@@ -212,7 +205,7 @@ describe('Election integration tests', () => {
         Promise.all(
           participants.map(async (participant, index) => {
             client = new VocdoniSDKClient({
-              env: EnvironmentInitialitzationOptions.DEV,
+              env: EnvOptions.DEV,
               wallet: participant,
               electionId: electionIdentifier,
             });
