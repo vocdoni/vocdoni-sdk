@@ -1,5 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Election, EnvironmentInitialitzationOptions, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
 import chalk from 'chalk';
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -37,7 +37,7 @@ async function main() {
 
   const creator = Wallet.createRandom();
   const client = new VocdoniSDKClient({
-    env: EnvironmentInitialitzationOptions.DEV,
+    env: EnvOptions.DEV,
     wallet: creator,
   });
 

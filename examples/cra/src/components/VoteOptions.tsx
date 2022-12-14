@@ -3,7 +3,7 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { Wallet } from '@ethersproject/wallet'
 import { useState } from 'react'
 import { Else, If, Then } from 'react-if'
-import { EnvironmentInitialitzationOptions, IQuestion, VocdoniSDKClient, Vote } from 'vocdoni-sdk'
+import { EnvOptions, IQuestion, VocdoniSDKClient, Vote } from 'vocdoni-sdk'
 
 type VoteProps = {
   signer: Signer | Wallet,
@@ -42,7 +42,7 @@ const VoteOptions = ({questions, signer, election, address, update} : VoteProps)
                       setVoting({...voting, [k]: true})
                       setDisabled(true)
                       const client = new VocdoniSDKClient({
-                        env: EnvironmentInitialitzationOptions.DEV,
+                        env: EnvOptions.DEV,
                         wallet: signer,
                       })
                       // set election id to be voted

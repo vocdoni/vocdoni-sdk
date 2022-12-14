@@ -1,5 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Account, EnvironmentInitialitzationOptions, VocdoniSDKClient } from '../../src';
+import { Account, EnvOptions, VocdoniSDKClient } from '../../src';
 import { strip0x } from '../../src/util/common';
 import { FaucetAPI } from '../../src/api/faucet';
 import { FAUCET_AUTH_TOKEN, FAUCET_URL } from '../../src/util/constants';
@@ -9,7 +9,7 @@ describe('Account integration tests', () => {
     const wallet = Wallet.createRandom();
     const walletAddress = await wallet.getAddress();
     const client = new VocdoniSDKClient({
-      env: EnvironmentInitialitzationOptions.DEV,
+      env: EnvOptions.DEV,
       wallet,
     });
     const accountInfo = await client.createAccount();
@@ -23,7 +23,7 @@ describe('Account integration tests', () => {
   it('should bootstrap a new account using a raw faucet package payload', async () => {
     const wallet = Wallet.createRandom();
     const client = new VocdoniSDKClient({
-      env: EnvironmentInitialitzationOptions.DEV,
+      env: EnvOptions.DEV,
       wallet,
     });
     const faucetPackage = await FaucetAPI.collect(FAUCET_URL.dev, FAUCET_AUTH_TOKEN.dev, await wallet.getAddress());
@@ -32,7 +32,7 @@ describe('Account integration tests', () => {
   }, 75000);
   it('should bootstrap a new account and fetch tokens from faucet more than once', async () => {
     const client = new VocdoniSDKClient({
-      env: EnvironmentInitialitzationOptions.DEV,
+      env: EnvOptions.DEV,
       wallet: Wallet.createRandom(),
     });
     const accountInfo = await client.createAccount();
@@ -44,7 +44,7 @@ describe('Account integration tests', () => {
   }, 75000);
   it('should bootstrap a new account and do nothing when creating it twice', async () => {
     const client = new VocdoniSDKClient({
-      env: EnvironmentInitialitzationOptions.DEV,
+      env: EnvOptions.DEV,
       wallet: Wallet.createRandom(),
     });
     const accountInfo = await client.createAccount();
@@ -53,7 +53,7 @@ describe('Account integration tests', () => {
   }, 75000);
   it('should set information for an account', async () => {
     const client = new VocdoniSDKClient({
-      env: EnvironmentInitialitzationOptions.DEV,
+      env: EnvOptions.DEV,
       wallet: Wallet.createRandom(),
     });
 

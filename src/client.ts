@@ -51,23 +51,24 @@ export type FaucetPackage = {
   signature: string;
 };
 
-export enum EnvironmentInitialitzationOptions {
+export enum EnvOptions {
   DEV = 'dev',
+  STG = 'stg',
   PROD = 'prod',
 }
 
-export type FaucetInitialitzationOptions = {
+type FaucetOptions = {
   url: string;
   auth_token?: string;
   token_limit?: number;
 };
 
-export type InitialitzationOptions = {
-  env: EnvironmentInitialitzationOptions;
+export type ClientOptions = {
+  env: EnvOptions;
   api_url?: string;
   wallet?: Wallet | Signer;
   electionId?: string;
-  faucet?: FaucetInitialitzationOptions;
+  faucet?: FaucetOptions;
 };
 
 /**
@@ -84,9 +85,9 @@ export class VocdoniSDKClient {
   public url: string;
   public wallet: Wallet | Signer | null;
   public electionId: string | null;
-  public faucet: FaucetInitialitzationOptions | null;
+  public faucet: FaucetOptions | null;
 
-  constructor(opts: InitialitzationOptions) {
+  constructor(opts: ClientOptions) {
     this.url = opts.api_url ?? API_URL[opts.env];
     this.wallet = opts.wallet;
     this.electionId = opts.electionId;
