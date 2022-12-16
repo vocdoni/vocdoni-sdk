@@ -40,13 +40,6 @@ interface IChainGetTransactionReferenceResponse {
   transactionIndex: number;
 }
 
-interface IChainSubmitTxRequest {
-  /**
-   * The raw payload to be submitted to the chain
-   */
-  payload: string;
-}
-
 interface IChainSubmitTxResponse {
   /**
    * The hash of the transaction
@@ -111,12 +104,12 @@ export abstract class ChainAPI {
    * Submits a transaction to the blockchain
    *
    * @param {string} url API endpoint URL
-   * @param {IChainSubmitTxResponse} data The transaction data
+   * @param {string} payload The transaction data payload
    * @returns {Promise<IChainSubmitTxResponse>}
    */
-  public static submitTx(url: string, data: IChainSubmitTxRequest): Promise<IChainSubmitTxResponse> {
+  public static submitTx(url: string, payload: string): Promise<IChainSubmitTxResponse> {
     return axios
-      .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify(data))
+      .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify({ payload }))
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
