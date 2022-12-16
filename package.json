@@ -37,6 +37,7 @@
     "prebuild": "yarn submodule",
     "build": "rimraf dist && ts-node esbuild.ts && yarn ts-types",
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
+    "test": "yarn test:unit && yarn test:integration",
     "test:unit": "jest test/unit",
     "test:integration": "jest test/integration",
     "lint": "eslint src test --ext .js,.jsx,.ts,.tsx",
