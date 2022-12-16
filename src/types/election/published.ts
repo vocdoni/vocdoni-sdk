@@ -1,4 +1,7 @@
-import { Election, IElectionParameters } from './election';
+import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
+import { MultiLanguage } from '../../util/lang';
+import { IQuestion } from '../metadata/election';
+import { PublishedCensus } from '../census/published';
 
 export interface IPublishedElectionParameters extends IElectionParameters {
   id: string;
@@ -62,6 +65,46 @@ export class PublishedElection extends Election {
    */
   public static build(params: IPublishedElectionParameters) {
     return new PublishedElection(params);
+  }
+
+  get title(): MultiLanguage<string> {
+    return super.title;
+  }
+
+  get description(): MultiLanguage<string> {
+    return super.description;
+  }
+
+  get header(): string {
+    return super.header;
+  }
+
+  get streamUri(): string {
+    return super.streamUri;
+  }
+
+  get startDate(): Date {
+    return super.startDate;
+  }
+
+  get endDate(): Date {
+    return super.endDate;
+  }
+
+  get electionType(): IElectionType {
+    return super.electionType;
+  }
+
+  get voteType(): IVoteType {
+    return super.voteType;
+  }
+
+  get questions(): IQuestion[] {
+    return super.questions;
+  }
+
+  get census(): PublishedCensus {
+    return super.census;
   }
 
   get id(): string {
