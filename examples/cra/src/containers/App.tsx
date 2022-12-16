@@ -4,7 +4,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
-import { Election, EnvOptions, IElection, PlainCensus, VocdoniSDKClient } from 'vocdoni-sdk'
+import { Election, EnvOptions, PlainCensus, PublishedElection, VocdoniSDKClient } from 'vocdoni-sdk';
 import Census from '../components/Census'
 import Connect from '../components/Connect'
 import Vote from '../components/VoteOptions'
@@ -15,9 +15,9 @@ export const App = () => {
   const [provider, setProvider] = useState<string>('')
   const [account, setAccount] = useState<string>('')
   const [balance, setBalance] = useState<number>(0)
-  const [election, setElection] = useState<string>('')
+  const [electionId, setElectionId] = useState<string>('')
   const [creating, setCreating] = useState<boolean>(false)
-  const [metadata, setMetadata] = useState<IElection>()
+  const [election, setElection] = useState<PublishedElection>()
   const [signers, setSigners] = useState<Wallet[]>([])
 
   const mprovider = mhooks.useProvider()
@@ -32,11 +32,11 @@ export const App = () => {
   const update = async () => {
     const client = new VocdoniSDKClient({
       env: EnvOptions.DEV,
-      electionId: election
+      electionId: electionId
     })
-    const meta = await client.fetchElection()
+    const publishedElection = await client.fetchElection()
 
-    setMetadata(meta as any)
+    setElection(publishedElection)
   }
 
   // get user account when a provider is defined (aka user has logged in)
@@ -72,10 +72,10 @@ export const App = () => {
 
   // when the election is created, fetch its info
   useEffect(() => {
-    if (!election.length || metadata) return
+    if (!electionId.length || election) return
     update()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [election, metadata])
+  }, [electionId, election])
 
   return (
     <Box fontSize='xl' m={20}>
@@ -99,7 +99,7 @@ export const App = () => {
                   <p>Once you've finished, you can create the election:</p>
                   <Button
                     isLoading={creating}
-                    disabled={creating || election.length > 0 || balance <= 0}
+                    disabled={creating || electionId.length > 0 || balance <= 0}
                     onClick={async () => {
                     setCreating(true)
                     const signer = (providers[provider] as Web3Provider).getSigner()
@@ -123,7 +123,7 @@ export const App = () => {
                       endDate.getHours() + 10,
                     )
                     // fill basic election metadata
-                    const election = new Election({
+                    const election = Election.from({
                         title: 'Election title',
                         description: 'Election description',
                         header: 'https://source.unsplash.com/random',
@@ -144,7 +144,7 @@ export const App = () => {
                         },
                     ])
 
-                    setElection(await client.createElection(election))
+                    setElectionId(await client.createElection(election))
                     setCreating(false)
                   }}>
                     Create election with {signers.length + 1} people in census
@@ -164,21 +164,21 @@ export const App = () => {
             </Stack>
           </Else>
         </If>
-        <When condition={election.length > 0 && typeof (metadata as any)?.metadata.questions !== 'undefined'}>
+        <When condition={electionId.length > 0 && typeof election?.questions !== 'undefined'}>
           {() => (
             <Stack direction='column' textAlign='left'>
               <Alert status='success'>
                 <Text fontSize='sm'>
                   Election created!&nbsp;
-                  <Link href={`https://dev.explorer.vote/processes/show/#/${election}`} isExternal>
+                  <Link href={`https://dev.explorer.vote/processes/show/#/${electionId}`} isExternal>
                     Check it out in the explorer <ExternalLinkIcon mx='2px' />
                   </Link>
                 </Text>
               </Alert>
               <Vote
-                questions={(metadata as any)?.metadata.questions}
+                questions={election?.questions ?? []}
                 address={`0x${account}`}
-                election={election}
+                election={electionId}
                 signer={(providers[provider] as Web3Provider).getSigner()}
                 update={update}
               />
@@ -186,19 +186,19 @@ export const App = () => {
                 signers.map((s, k) => (
                   <Vote
                     key={k}
-                    questions={(metadata as any)?.metadata.questions}
+                    questions={election?.questions ?? []}
                     address={s.address}
-                    election={election}
+                    election={electionId}
                     signer={s}
                     update={update}
                   />
                 ))
               }
               <Tag colorScheme='green'>
-                Received votes: {(metadata as any)?.voteCount}
+                Received votes: {election?.voteCount}
               </Tag>
               <Tag colorScheme='blue'>
-                Votes (raw): {JSON.stringify((metadata as any).result)}
+                Votes (raw): {JSON.stringify(election?.results)}
               </Tag>
             </Stack>
           )}

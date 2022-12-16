@@ -134,7 +134,7 @@ After you got all the addresses for your census, you may as well create the
 process instance:
 
 ~~~ts
-const election = new Election({
+const election = Election.from({
   title: 'Election title',
   description: 'Election description',
   // a header image for your process (this is for example purposes; avoid using random sources)

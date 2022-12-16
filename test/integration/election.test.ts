@@ -15,7 +15,7 @@ beforeEach(async () => {
 }, 15000);
 
 const createElection = (census, electionType?) => {
-  const election = new Election({
+  const election = Election.from({
     title: 'Election title',
     description: 'Election description',
     header: 'https://source.unsplash.com/random',
@@ -127,9 +127,9 @@ describe('Election integration tests', () => {
         )
       )
       .then(() => client.fetchElection())
-      .then((electionData) => {
-        expect(electionData.voteCount).toEqual(numVotes);
-        expect(electionData.result[0][0]).toEqual(electionData.result[0][1]);
+      .then((election) => {
+        expect(election.voteCount).toEqual(numVotes);
+        expect(election.results[0][0]).toEqual(election.results[0][1]);
       });
   }, 285000);
   it('should create an election with 100 weighted participants and each of them should vote correctly', async () => {
@@ -171,11 +171,11 @@ describe('Election integration tests', () => {
         )
       )
       .then(() => client.fetchElection())
-      .then((electionData) => {
-        expect(electionData.voteCount).toEqual(numVotes);
-        expect(+electionData.result[0][0]).toBeLessThan(+electionData.result[0][1]);
-        expect(+electionData.result[0][0] + +electionData.result[0][1]).toEqual((numVotes * (numVotes + 1)) / 2);
-        expect(+electionData.result[0][0]).toEqual(+electionData.result[0][1] - numVotes / 2);
+      .then((election) => {
+        expect(election.voteCount).toEqual(numVotes);
+        expect(+election.results[0][0]).toBeLessThan(+election.results[0][1]);
+        expect(+election.results[0][0] + +election.results[0][1]).toEqual((numVotes * (numVotes + 1)) / 2);
+        expect(+election.results[0][0]).toEqual(+election.results[0][1] - numVotes / 2);
       });
   }, 285000);
   it('should create an encrypted election with 100 participants and each of them should vote correctly', async () => {
@@ -214,9 +214,9 @@ describe('Election integration tests', () => {
         )
       )
       .then(() => client.fetchElection())
-      .then((electionData) => {
-        expect(electionData.voteCount).toEqual(numVotes);
-        expect(electionData.finalResults).toBeFalsy();
+      .then((election) => {
+        expect(election.voteCount).toEqual(numVotes);
+        expect(election.finalResults).toBeFalsy();
       });
   }, 285000);
 });

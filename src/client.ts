@@ -5,14 +5,23 @@ import invariant from 'tiny-invariant';
 import { AccountAPI } from './api/account';
 import { CensusAPI } from './api/census';
 import { ChainAPI } from './api/chain';
-import { ElectionAPI, IElection } from './api/election';
+import { ElectionAPI } from './api/election';
 import { FaucetAPI } from './api/faucet';
 import { FileAPI } from './api/file';
 import { WalletAPI } from './api/wallet';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
-import { Account, Election, PlainCensus, Vote, WeightedCensus } from './types';
+import {
+  Account,
+  Census,
+  UnpublishedElection,
+  PlainCensus,
+  PublishedCensus,
+  Vote,
+  WeightedCensus,
+  PublishedElection,
+} from './types';
 import { delay } from './util/common';
 import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
@@ -79,7 +88,7 @@ export type ClientOptions = {
 export class VocdoniSDKClient {
   private chainData: ChainData | null = null;
   private accountData: AccountData | null = null;
-  private election: IElection | null = null;
+  private election: UnpublishedElection | PublishedElection | null = null;
   private authToken: AccountToken | null = null;
 
   public url: string;
@@ -190,16 +199,63 @@ export class VocdoniSDKClient {
   /**
    * Fetches info about an election.
    *
-   * @returns {Promise<IElection>}
+   * @returns {Promise<UnpublishedElection>}
    */
-  async fetchElection(): Promise<IElection> {
+  async fetchElection(): Promise<PublishedElection> {
     if (!this.electionId) {
       throw Error('No election set');
     }
     this.election = await ElectionAPI.info(this.url, {
       electionId: this.electionId,
+    }).then((electionInfo) => {
+      const census = new PublishedCensus(
+        electionInfo.census.censusRoot,
+        electionInfo.census.censusURL,
+        Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin)
+      );
+
+      return PublishedElection.build({
+        id: electionInfo.electionId,
+        title: electionInfo.metadata.title,
+        description: electionInfo.metadata.description,
+        header: electionInfo.metadata.media.header,
+        streamUri: electionInfo.metadata.media.streamUri,
+        startDate: electionInfo.startDate,
+        endDate: electionInfo.endDate,
+        census,
+        status: electionInfo.status,
+        voteCount: electionInfo.voteCount,
+        finalResults: electionInfo.finalResults,
+        results: electionInfo.result,
+        electionCount: electionInfo.electionCount,
+        metadataURL: electionInfo.metadataURL,
+        creationTime: electionInfo.creationTime,
+        electionType: {
+          autoStart: electionInfo.electionMode.autoStart,
+          interruptible: electionInfo.electionMode.interruptible,
+          dynamicCensus: electionInfo.electionMode.dynamicCensus,
+          secretUntilTheEnd: electionInfo.voteMode.encryptedVotes,
+          anonymous: electionInfo.voteMode.anonymous,
+        },
+        voteType: {
+          uniqueChoices: electionInfo.voteMode.uniqueValues,
+          maxVoteOverwrites: electionInfo.tallyMode.maxVoteOverwrites,
+          costFromWeight: electionInfo.voteMode.costFromWeight,
+          costExponent: electionInfo.tallyMode.costExponent,
+        },
+        questions: electionInfo.metadata.questions.map((question, qIndex) => ({
+          title: question.title,
+          description: question.description,
+          choices: question.choices.map((choice, cIndex) => ({
+            title: choice.title,
+            value: choice.value,
+            results: electionInfo.result ? electionInfo.result[qIndex][cIndex] : null,
+          })),
+        })),
+        raw: electionInfo,
+      });
     });
-    return this.election;
+    return this.election as PublishedElection;
   }
 
   /**
@@ -297,10 +353,10 @@ export class VocdoniSDKClient {
   /**
    * Creates the census of the specified election.
    *
-   * @param {Election} election The election with the census linked to it.
+   * @param {UnpublishedElection} election The election with the census linked to it.
    * @returns {Promise<void>}
    */
-  async createCensus(election: Election): Promise<void> {
+  async createCensus(election: UnpublishedElection): Promise<void> {
     if (election.census.isPublished) {
       return Promise.resolve();
     }
@@ -326,14 +382,14 @@ export class VocdoniSDKClient {
   /**
    * Creates a new voting election.
    *
-   * @param {Election} election The election object to be created.
+   * @param {UnpublishedElection} election The election object to be created.
    * @returns {Promise<string>} Resulting election id.
    */
-  async createElection(election: Election): Promise<string> {
+  async createElection(election: UnpublishedElection): Promise<string> {
     const electionData = Promise.all([
       this.fetchChainId(),
       this.fetchAccountInfo(),
-      this.createCensus(election),
+      this.createCensus(election), // TODO: Pass a census, not election
       this.calculateCID(Buffer.from(JSON.stringify(election.generateMetadata()), 'binary').toString('base64')),
     ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[3], data[0], data[1]));
 
@@ -358,31 +414,40 @@ export class VocdoniSDKClient {
    * @returns {Promise<string>} Vote confirmation id.
    */
   async submitVote(vote: Vote): Promise<string> {
-    const voteData = Promise.all([this.fetchChainId(), this.fetchElection(), this.wallet.getAddress()]).then((data) => {
+    if (this.election instanceof UnpublishedElection) {
+      throw Error('Election is not published');
+    }
+
+    const election = await this.fetchElection();
+
+    // Census proof
+    const voteData = Promise.all([this.fetchChainId(), this.wallet.getAddress()]).then((data) => {
       if (isWallet(this.wallet)) {
         const { publicKey } = this.wallet as Wallet;
         return promiseAny([
-          this.fetchProof(data[1].census.censusRoot, data[2], CensusProofType.ADDRESS),
-          this.fetchProof(data[1].census.censusRoot, computePublicKey(publicKey, true), CensusProofType.PUBKEY),
+          this.fetchProof(election.census.censusId, data[1], CensusProofType.ADDRESS),
+          this.fetchProof(election.census.censusId, computePublicKey(publicKey, true), CensusProofType.PUBKEY),
         ]);
       } else {
-        return this.fetchProof(data[1].census.censusRoot, data[2], CensusProofType.ADDRESS);
+        return this.fetchProof(election.census.censusId, data[1], CensusProofType.ADDRESS);
       }
     });
 
+    // Vote
     const voteHash = await voteData
       .then((censusProof) => {
-        if (this.election?.voteMode?.encryptedVotes) {
-          return ElectionAPI.keys(this.url, this.election.electionId).then((encryptionKeys) =>
-            VoteCore.generateVoteTransaction(this.election, censusProof, vote, { encryptionPubKeys: encryptionKeys })
+        if (election?.electionType.secretUntilTheEnd) {
+          return ElectionAPI.keys(this.url, election.id).then((encryptionKeys) =>
+            VoteCore.generateVoteTransaction(election, censusProof, vote, { encryptionPubKeys: encryptionKeys })
           );
         }
-        return VoteCore.generateVoteTransaction(this.election, censusProof, vote);
+        return VoteCore.generateVoteTransaction(election, censusProof, vote);
       })
       .then((voteTx) => VoteCore.signTransaction(voteTx, this.chainData, this.wallet))
       .then((signedTx) => VoteAPI.submit(this.url, signedTx))
       .then((data) => data.txHash);
 
+    // Wait for tx
     return this.waitForTransaction(voteHash).then(() => voteHash);
   }
 }

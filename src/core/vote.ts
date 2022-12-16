@@ -10,8 +10,7 @@ import { getHex, strip0x } from '../util/common';
 import { IProcessCensusOrigin, ProcessCensusOrigin } from 'dvote-solidity'; // check dvote-protobuf!
 import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
-import { IElection } from '../api/election';
-import { Vote } from '../types';
+import { PublishedElection, Vote } from '../types';
 import { CensusProof } from '../client';
 import { TransactionCore } from './transaction';
 
@@ -56,7 +55,7 @@ export abstract class VoteCore extends TransactionCore {
   }
 
   public static generateVoteTransaction(
-    election: IElection,
+    election: PublishedElection,
     censusProof: CensusProof,
     votePackage: Vote,
     processKeys?: ProcessKeys
@@ -69,7 +68,7 @@ export abstract class VoteCore extends TransactionCore {
   }
 
   private static prepareVoteData(
-    election: IElection,
+    election: PublishedElection,
     censusProof: CensusProof,
     vote: Vote,
     processKeys?: ProcessKeys
@@ -90,14 +89,14 @@ export abstract class VoteCore extends TransactionCore {
     );
 
     try {
-      const proof = this.packageSignedProof(election.electionId, processCensusOrigin, censusProof);
+      const proof = this.packageSignedProof(election.id, processCensusOrigin, censusProof);
       // const nonce = hexStringToBuffer(Random.getHex());
       const nonce = Buffer.from(strip0x(getHex()), 'hex');
       const { votePackage, keyIndexes } = this.packageVoteContent(vote.votes, processKeys);
 
       return {
         proof,
-        processId: new Uint8Array(Buffer.from(strip0x(election.electionId), 'hex')),
+        processId: new Uint8Array(Buffer.from(strip0x(election.id), 'hex')),
         nonce: new Uint8Array(nonce),
         votePackage: new Uint8Array(votePackage),
         encryptionKeyIndexes: keyIndexes || [],

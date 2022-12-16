@@ -23,6 +23,8 @@ export function checkValidElectionMetadata(electionMetadata: ElectionMetadata): 
 export interface IChoice {
   title: MultiLanguage<string>;
   value: number;
+  results?: string;
+  answer?: number;
 }
 
 export interface IQuestion {

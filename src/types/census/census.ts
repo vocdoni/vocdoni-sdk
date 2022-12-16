@@ -7,9 +7,9 @@ export enum CensusType {
  * Represents a generic census
  */
 export abstract class Census {
-  private _censusId: string | null;
-  private _censusURI: string | null;
-  private _type: CensusType;
+  protected _censusId: string | null;
+  protected _censusURI: string | null;
+  protected _type: CensusType;
 
   /**
    * Constructs a generic census
@@ -52,5 +52,23 @@ export abstract class Census {
     return (
       typeof this.censusId !== 'undefined' && typeof this.censusURI !== 'undefined' && typeof this.type !== 'undefined'
     );
+  }
+
+  get censusOrigin(): string {
+    switch (this.type) {
+      case CensusType.WEIGHTED:
+        return 'OFF_CHAIN_TREE_WEIGHTED';
+      default:
+        throw new Error('Census origin not defined by internal census type');
+    }
+  }
+
+  static censusTypeFromCensusOrigin(censusOrigin: string): CensusType {
+    switch (censusOrigin) {
+      case 'OFF_CHAIN_TREE_WEIGHTED':
+        return CensusType.WEIGHTED;
+      default:
+        throw new Error('Census type not defined by the census origin');
+    }
   }
 }

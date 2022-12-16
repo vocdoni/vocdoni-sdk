@@ -1,4 +1,4 @@
-import { CensusType, Election, PublishedCensus } from '../../../src';
+import { CensusType, Election, UnpublishedElection, PublishedCensus } from '../../../src';
 
 const validCensusId = '43cbda11b9d1a322c03eac325eb8a7b72779b46a76f8a727cff94b539ed9b903';
 const validCensusURI = 'ipfs://QmeowUvr4Q9SMBSB942QVzFAqQQYukbjLYXxwANH3oTxbf';
@@ -26,12 +26,13 @@ beforeEach(() => {
 
 describe('Election tests', () => {
   it('should have the correct type', () => {
-    const election = new Election(electionData);
-    expect(election).toBeInstanceOf(Election);
+    const election = Election.from(electionData);
+    expect(election).toBeInstanceOf(UnpublishedElection);
     expect(election.census).toBeInstanceOf(PublishedCensus);
+    expect(election['id']).toBeUndefined();
   });
   it('should have the correct default values', () => {
-    const election = new Election(electionData);
+    const election = Election.from(electionData);
     expect(election.electionType).toEqual({
       autoStart: true,
       interruptible: true,
@@ -47,11 +48,11 @@ describe('Election tests', () => {
     });
   });
   it('should have no questions', () => {
-    const election = new Election(electionData);
+    const election = Election.from(electionData);
     expect(election.questions).toEqual([]);
   });
   it('should have the correct default language property even if not set explicitly', () => {
-    const election = new Election(electionData);
+    const election = Election.from(electionData);
     expect(election.description).toEqual({
       default: 'Test',
     });
@@ -59,37 +60,37 @@ describe('Election tests', () => {
   it('should throw when start date is invalid', () => {
     electionData.startDate = 'invalid';
     expect(() => {
-      new Election(electionData);
+      Election.from(electionData);
     }).toThrow('Invalid start date');
   });
   it('should throw when end date is invalid', () => {
     electionData.endDate = 'invalid';
     expect(() => {
-      new Election(electionData);
+      Election.from(electionData);
     }).toThrow('Invalid end date');
   });
   it('should throw when end date is before start date', () => {
     electionData.endDate = new Date().getTime();
     expect(() => {
-      new Election(electionData);
+      Election.from(electionData);
     }).toThrow('The end date cannot be prior to the start date');
   });
   it('should throw when no title is set', () => {
     electionData.title = null;
     expect(() => {
-      new Election(electionData);
+      Election.from(electionData);
     }).toThrow('Title is not set');
   });
   it('should throw when no description is set', () => {
     electionData.description = null;
     expect(() => {
-      new Election(electionData);
+      Election.from(electionData);
     }).toThrow('Description is not set');
   });
   it('should throw when no census is set', () => {
     electionData.census = null;
     expect(() => {
-      new Election(electionData);
+      Election.from(electionData);
     }).toThrow('Invalid census');
   });
 });
