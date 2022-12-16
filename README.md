@@ -205,13 +205,19 @@ You can always access a process information and metadata using `fetchElection`:
 
 ~~~ts
 (async () => {
+  const info = await client.fetchElection(id)
+  console.log(info) // shows election information and metadata
+})();
+
+// or...
+(async () => {
   client.setElectionId(id)
   const info = await client.fetchElection()
   console.log(info) // shows election information and metadata
 })();
 ~~~
 
-See the [Election interface][election interface] details for more information
+See the [PublishedElection class][publishedelection class] details for more information
 about the returning object.
 
 ### Voting to a process
@@ -262,7 +268,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [ethers]: https://github.com/ethers-io/ethers.js
 [vochain explorer]: https://explorer.vote
 [dev vochain explorer]: https://dev.explorer.vote
-[election interface]: ./src/types/election.ts#L29
+[publishedelection class]: ./src/types/election/published.ts
 [examples]: ./examples
 [full featured CRA]: ./examples/cra
 [license]: ./LICENSE
