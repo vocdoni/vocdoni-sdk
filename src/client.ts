@@ -117,13 +117,19 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Fetches blockchain information.
+   * Fetches blockchain information if needed and returns the chain id.
    *
-   * @returns {Promise<ChainData>}
+   * @returns {Promise<string>}
    */
-  async fetchChainId(): Promise<ChainData> {
-    this.chainData = await ChainAPI.info(this.url);
-    return this.chainData;
+  async fetchChainId(): Promise<string> {
+    if (this.chainData?.chainId) {
+      return Promise.resolve(this.chainData.chainId);
+    }
+
+    return ChainAPI.info(this.url).then((chainData) => {
+      this.chainData = chainData;
+      return chainData.chainId;
+    });
   }
 
   /**
@@ -307,7 +313,7 @@ export class VocdoniSDKClient {
     ]).then((data) => AccountCore.generateSetAccountTransaction(data[0], options.account, data[2], faucetPackage));
 
     const accountTx = accountData.then((setAccountInfoTx) =>
-      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData, this.wallet)
+      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData.chainId, this.wallet)
     );
 
     return Promise.all([accountData, accountTx])
@@ -391,10 +397,10 @@ export class VocdoniSDKClient {
       this.fetchAccountInfo(),
       this.createCensus(election), // TODO: Pass a census, not election
       this.calculateCID(Buffer.from(JSON.stringify(election.generateMetadata()), 'binary').toString('base64')),
-    ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[3], data[0], data[1]));
+    ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[3], this.chainData, data[1]));
 
     const electionPackage = electionData.then((newElectionData) =>
-      ElectionCore.signTransaction(newElectionData.tx, this.chainData, this.wallet)
+      ElectionCore.signTransaction(newElectionData.tx, this.chainData.chainId, this.wallet)
     );
 
     const electionTx = await Promise.all([electionData, electionPackage]).then((election) =>
@@ -443,7 +449,7 @@ export class VocdoniSDKClient {
         }
         return VoteCore.generateVoteTransaction(election, censusProof, vote);
       })
-      .then((voteTx) => VoteCore.signTransaction(voteTx, this.chainData, this.wallet))
+      .then((voteTx) => VoteCore.signTransaction(voteTx, this.chainData.chainId, this.wallet))
       .then((signedTx) => VoteAPI.submit(this.url, signedTx))
       .then((data) => data.txHash);
 
