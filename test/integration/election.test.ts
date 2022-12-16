@@ -100,14 +100,14 @@ describe('Election integration tests', () => {
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
     census.add(participants.map((participant) => participant.address));
 
-    const election = createElection(census);
+    const unpublishedElection = createElection(census);
 
     await client.createAccount();
 
     let electionIdentifier;
 
     await client
-      .createElection(election)
+      .createElection(unpublishedElection)
       .then((electionId) => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
@@ -128,6 +128,8 @@ describe('Election integration tests', () => {
       )
       .then(() => client.fetchElection())
       .then((election) => {
+        expect(election.id).toEqual(electionIdentifier);
+        expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.results[0][0]).toEqual(election.results[0][1]);
       });
@@ -144,14 +146,14 @@ describe('Election integration tests', () => {
       }))
     );
 
-    const election = createElection(census);
+    const unpublishedElection = createElection(census);
 
     await client.createAccount();
 
     let electionIdentifier;
 
     await client
-      .createElection(election)
+      .createElection(unpublishedElection)
       .then((electionId) => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
@@ -172,6 +174,8 @@ describe('Election integration tests', () => {
       )
       .then(() => client.fetchElection())
       .then((election) => {
+        expect(election.id).toEqual(electionIdentifier);
+        expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(+election.results[0][0]).toBeLessThan(+election.results[0][1]);
         expect(+election.results[0][0] + +election.results[0][1]).toEqual((numVotes * (numVotes + 1)) / 2);
@@ -185,7 +189,7 @@ describe('Election integration tests', () => {
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
     census.add(participants.map((participant) => participant.address));
 
-    const election = createElection(census, {
+    const unpublishedElection = createElection(census, {
       secretUntilTheEnd: true,
     });
 
@@ -194,7 +198,7 @@ describe('Election integration tests', () => {
     let electionIdentifier;
 
     await client
-      .createElection(election)
+      .createElection(unpublishedElection)
       .then((electionId) => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
@@ -215,6 +219,8 @@ describe('Election integration tests', () => {
       )
       .then(() => client.fetchElection())
       .then((election) => {
+        expect(election.id).toEqual(electionIdentifier);
+        expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.finalResults).toBeFalsy();
       });
