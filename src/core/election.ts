@@ -1,6 +1,6 @@
 import { AccountData, ChainData } from '../client';
 import { CensusOrigin, NewProcessTx, ProcessStatus, Tx, TxType } from '../dvote-protobuf/build/ts/vochain/vochain';
-import { Election } from '../types';
+import { UnpublishedElection } from '../types';
 import { TransactionCore } from './transaction';
 
 export abstract class ElectionCore extends TransactionCore {
@@ -14,7 +14,7 @@ export abstract class ElectionCore extends TransactionCore {
   }
 
   public static async generateNewElectionTransaction(
-    election: Election,
+    election: UnpublishedElection,
     cid: string,
     chainData: ChainData,
     accountData: AccountData
@@ -34,7 +34,7 @@ export abstract class ElectionCore extends TransactionCore {
   }
 
   private static prepareElectionData(
-    election: Election,
+    election: UnpublishedElection,
     cid: string,
     chainData: ChainData,
     accountData: AccountData

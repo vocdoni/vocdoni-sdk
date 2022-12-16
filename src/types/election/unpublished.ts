@@ -1,65 +1,28 @@
-import invariant from 'tiny-invariant';
+import { MultiLanguage } from '../../util/lang';
 import {
   checkValidElectionMetadata,
   ElectionMetadata,
   ElectionMetadataTemplate,
   IChoice,
   IQuestion,
-} from './metadata/election';
-import { PublishedCensus } from './census/published';
-import { PlainCensus } from './census/plain';
-import { WeightedCensus } from './census/weighted';
-import { MultiLanguage } from '../util/lang';
-
-export interface IVoteType {
-  uniqueChoices: boolean;
-  maxVoteOverwrites: number;
-  costFromWeight: boolean;
-  costExponent: number;
-}
-
-export interface IElectionType {
-  autoStart?: boolean;
-  interruptible?: boolean;
-  dynamicCensus?: boolean;
-  secretUntilTheEnd?: boolean;
-  anonymous?: boolean;
-}
-
-export interface IElection {
-  title: string | MultiLanguage<string>;
-  description: string | MultiLanguage<string>;
-  header: string;
-  streamUri: string;
-  startDate?: string | number | Date;
-  endDate: string | number | Date;
-  census: PublishedCensus | PlainCensus | WeightedCensus;
-  voteType?: IVoteType;
-  electionType?: IElectionType;
-  questions?: IQuestion[];
-}
+} from '../metadata/election';
+import invariant from 'tiny-invariant';
+import { PublishedCensus } from '../census/published';
+import { PlainCensus } from '../census/plain';
+import { WeightedCensus } from '../census/weighted';
+import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
 
 /**
- * Represents an election
+ * Represents an unpublished election
  */
-export class Election {
-  private _title: MultiLanguage<string>;
-  private _description: MultiLanguage<string>;
-  private _header: string;
-  private _streamUri: string;
-  private _startDate: Date;
-  private _endDate: Date;
-  private _census: PublishedCensus | PlainCensus | WeightedCensus;
-  private _electionType: IElectionType;
-  private _voteType: IVoteType;
-  private _questions: IQuestion[];
-
+export class UnpublishedElection extends Election {
   /**
-   * Constructs an election
+   * Constructs an unpublished election
    *
    * @param params Election parameters
    */
-  public constructor(params: IElection) {
+  public constructor(params: IElectionParameters) {
+    super();
     this.title = typeof params.title === 'string' ? { default: params.title } : params.title;
     this.description = typeof params.description === 'string' ? { default: params.description } : params.description;
     this.header = params.header;
@@ -67,8 +30,8 @@ export class Election {
     this.startDate = params.startDate ? new Date(params.startDate) : null;
     this.endDate = new Date(params.endDate);
     this.census = params.census;
-    this.electionType = Election.fullElectionType(params.electionType);
-    this.voteType = Election.fullVoteType(params.voteType);
+    this.electionType = UnpublishedElection.fullElectionType(params.electionType);
+    this.voteType = UnpublishedElection.fullVoteType(params.voteType);
     this.questions = params.questions ?? [];
   }
 
@@ -76,7 +39,7 @@ export class Election {
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
     choices: Array<{ title: string; value: number } | { title: MultiLanguage<string>; value: number }>
-  ): Election {
+  ): UnpublishedElection {
     this._questions.push({
       title: typeof title === 'string' ? { default: title } : title,
       description: typeof description === 'string' ? { default: description } : description,
@@ -91,7 +54,7 @@ export class Election {
     return this;
   }
 
-  public removeQuestion(questionNumber: number): Election {
+  public removeQuestion(questionNumber: number): UnpublishedElection {
     invariant(this._questions[questionNumber - 1], 'Question cannot be removed');
     this._questions.splice(questionNumber - 1, 1);
     return this;
@@ -144,7 +107,7 @@ export class Election {
   }
 
   get title(): MultiLanguage<string> {
-    return this._title;
+    return super.title;
   }
 
   set title(value: MultiLanguage<string>) {
@@ -153,7 +116,7 @@ export class Election {
   }
 
   get description(): MultiLanguage<string> {
-    return this._description;
+    return super.description;
   }
 
   set description(value: MultiLanguage<string>) {
@@ -162,7 +125,7 @@ export class Election {
   }
 
   get header(): string {
-    return this._header;
+    return super.header;
   }
 
   set header(value: string) {
@@ -170,7 +133,7 @@ export class Election {
   }
 
   get streamUri(): string {
-    return this._streamUri;
+    return super.streamUri;
   }
 
   set streamUri(value: string) {
@@ -178,7 +141,7 @@ export class Election {
   }
 
   get startDate(): Date {
-    return this._startDate;
+    return super.startDate;
   }
 
   set startDate(value: Date) {
@@ -187,33 +150,33 @@ export class Election {
   }
 
   get endDate(): Date {
-    return this._endDate;
+    return super.endDate;
   }
 
   set endDate(value: Date) {
     invariant(!isNaN(value.getTime()), 'Invalid end date');
-    invariant(value > this.startDate, 'The end date cannot be prior to the start date');
+    invariant(value.getTime() > (this._startDate?.getTime() ?? 0), 'The end date cannot be prior to the start date');
     this._endDate = value;
   }
 
   get electionType(): IElectionType {
-    return this._electionType;
+    return super.electionType;
   }
 
   set electionType(value: IElectionType) {
-    this._electionType = Election.fullElectionType(value);
+    this._electionType = UnpublishedElection.fullElectionType(value);
   }
 
   get voteType(): IVoteType {
-    return this._voteType;
+    return super.voteType;
   }
 
   set voteType(value: IVoteType) {
-    this._voteType = Election.fullVoteType(value);
+    this._voteType = UnpublishedElection.fullVoteType(value);
   }
 
   get questions(): IQuestion[] {
-    return this._questions;
+    return super.questions;
   }
 
   set questions(value: IQuestion[]) {
@@ -221,7 +184,7 @@ export class Election {
   }
 
   get census(): PublishedCensus | PlainCensus | WeightedCensus {
-    return this._census;
+    return super.census;
   }
 
   set census(value: PublishedCensus | PlainCensus | WeightedCensus) {

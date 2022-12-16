@@ -8,7 +8,7 @@ const createElection = (census, electionType?) => {
   const endDate = new Date();
   endDate.setHours(endDate.getHours() + 10);
 
-  const election = new Election({
+  const election = Election.from({
     title: 'Election title',
     description: 'Election description',
     header: 'https://source.unsplash.com/random',
