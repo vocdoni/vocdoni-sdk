@@ -16,13 +16,6 @@ export interface VoteAPIResponse {
   voteID: string;
 }
 
-export interface VoteAPIRequest {
-  /**
-   * The payload of the vote
-   */
-  TxPayload: string;
-}
-
 export abstract class VoteAPI {
   /**
    * Cannot be constructed.

@@ -32,18 +32,6 @@ interface IAccountInfoResponse {
   infoURI?: string;
 }
 
-interface IAccountSetInfoRequest {
-  /**
-   * The set information info raw payload to be submitted to the chain
-   */
-  txPayload: string;
-
-  /**
-   * The base64 encoded metadata JSON object
-   */
-  metadata: string;
-}
-
 interface IAccountSetInfoResponse {
   /**
    * The hash of the transaction
@@ -85,12 +73,13 @@ export abstract class AccountAPI {
    * Sets Account information
    *
    * @param {string} url API endpoint URL
-   * @param {IAccountSetInfoRequest} data Account's creation txn data
+   * @param {string} payload The set information info raw payload to be submitted to the chain
+   * @param {string} metadata The base64 encoded metadata JSON object
    * @returns {Promise<IAccountSetInfoResponse>}
    */
-  public static setInfo(url: string, data: IAccountSetInfoRequest): Promise<IAccountSetInfoResponse> {
+  public static setInfo(url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
-      .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, JSON.stringify(data))
+      .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, JSON.stringify({ txPayload: payload, metadata }))
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {

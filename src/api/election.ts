@@ -60,25 +60,6 @@ export interface IElection {
   tallyMode: ITallyMode;
 }
 
-export interface IElectionInfoRequest {
-  /**
-   * The identifier of the election
-   */
-  electionId: string;
-}
-
-interface IElectionCreateRequest {
-  /**
-   * The create process raw payload to be submitted to the chain
-   */
-  txPayload: string;
-
-  /**
-   * The base64 encoded metadata JSON object
-   */
-  metadata: string;
-}
-
 interface IElectionCreateResponse {
   /**
    * The hash of the transaction
@@ -297,12 +278,12 @@ export abstract class ElectionAPI {
    * Fetches info about the specified process.
    *
    * @param {string} url API endpoint URL
-   * @param {IElectionInfoRequest} request The request information
-   * @returns {Promise<IElectionInfoRequest>}
+   * @param {string} electionId The identifier of the election
+   * @returns {Promise<IElectionInfoResponse>}
    */
-  public static info(url: string, request: IElectionInfoRequest): Promise<IElectionInfoResponse> {
+  public static info(url: string, electionId: string): Promise<IElectionInfoResponse> {
     return axios
-      .get<IElectionInfoResponse>(url + ElectionAPIMethods.INFO + '/' + request.electionId)
+      .get<IElectionInfoResponse>(url + ElectionAPIMethods.INFO + '/' + electionId)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
@@ -316,7 +297,7 @@ export abstract class ElectionAPI {
    * Fetches the encryption keys from the specified process.
    *
    * @param {string} url API endpoint URL
-   * @param {string} electionId The election id
+   * @param {string} electionId The identifier of the election
    * @returns {Promise<Array<IEncryptionPublicKey>>}
    */
   public static keys(url: string, electionId: string): Promise<Array<IEncryptionPublicKey>> {
@@ -335,11 +316,13 @@ export abstract class ElectionAPI {
    * Creates a new election.
    *
    * @param {string} url API endpoint URL
-   * @returns {Promise<IElectionCreateRequest>}
+   * @param {string} payload The set information info raw payload to be submitted to the chain
+   * @param {string} metadata The base64 encoded metadata JSON object
+   * @returns {Promise<IElectionCreateResponse>}
    */
-  public static create(url: string, data: IElectionCreateRequest): Promise<IElectionCreateResponse> {
+  public static create(url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
     return axios
-      .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, JSON.stringify(data))
+      .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, JSON.stringify({ txPayload: payload, metadata }))
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
