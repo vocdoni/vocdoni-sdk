@@ -1,7 +1,19 @@
 import { AccountData, ChainData } from '../client';
-import { CensusOrigin, NewProcessTx, ProcessStatus, Tx, TxType } from '../dvote-protobuf/build/ts/vochain/vochain';
+import {
+  CensusOrigin,
+  NewProcessTx,
+  ProcessStatus as ElectionStatus,
+  processStatusFromJSON,
+  SetProcessTx,
+  Tx,
+  TxType,
+} from '../dvote-protobuf/build/ts/vochain/vochain';
 import { UnpublishedElection } from '../types';
 import { TransactionCore } from './transaction';
+import { Buffer } from 'buffer';
+import { strip0x } from '../util/common';
+
+export { ElectionStatus };
 
 export abstract class ElectionCore extends TransactionCore {
   private static readonly VOCHAIN_BLOCK_TIME_IN_SECONDS = 12;
@@ -11,6 +23,22 @@ export abstract class ElectionCore extends TransactionCore {
    */
   private constructor() {
     super();
+  }
+
+  public static async generateSetElectionStatusTransaction(
+    electionId: string,
+    accountNonce: number,
+    newStatus: ElectionStatus
+  ): Promise<Uint8Array> {
+    const setProcess = SetProcessTx.fromPartial({
+      txtype: TxType.SET_PROCESS_STATUS,
+      nonce: accountNonce,
+      processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
+      status: newStatus,
+    });
+    return Tx.encode({
+      payload: { $case: 'setProcess', setProcess },
+    }).finish();
   }
 
   public static async generateNewElectionTransaction(
@@ -58,7 +86,7 @@ export abstract class ElectionCore extends TransactionCore {
           blockCount: endBlock - (election.startDate ? startBlock : actualBlock),
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),
           censusURI: election.census.censusURI,
-          status: ProcessStatus.READY,
+          status: ElectionStatus.READY,
           envelopeType: {
             serial: false, // TODO
             anonymous: election.electionType.anonymous,
@@ -88,6 +116,10 @@ export abstract class ElectionCore extends TransactionCore {
         },
       },
     };
+  }
+
+  public static electionStatusFromString(status: string): ElectionStatus {
+    return processStatusFromJSON(status);
   }
 
   /**

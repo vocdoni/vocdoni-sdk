@@ -220,6 +220,51 @@ You can always access a process information and metadata using `fetchElection`:
 See the [PublishedElection class][publishedelection class] details for more information
 about the returning object.
 
+### Changing election status
+
+See the [Election lifecycle states][election-lifecycle-states] details for more information
+about the election status and the possible status changes once the election is created.
+
+#### Pause
+
+~~~ts
+(async () => {
+  await client.pauseElection(id)
+  const election = await client.fetchElection(id)
+  console.log(election.status) // Matches ElectionStatus.PAUSED
+})();
+~~~
+
+#### Cancel
+
+~~~ts
+(async () => {
+  await client.cancelElection(id)
+  const election = await client.fetchElection(id)
+  console.log(election.status) // Matches ElectionStatus.CANCELED
+})();
+~~~
+
+#### End
+
+~~~ts
+(async () => {
+  await client.endElection(id)
+  const election = await client.fetchElection(id)
+  console.log(election.status) // Matches ElectionStatus.ENDED
+})();
+~~~
+
+#### Continue
+
+~~~ts
+(async () => {
+  await client.continueElection(id)
+  const election = await client.fetchElection(id)
+  console.log(election.status) // Matches ElectionStatus.READY
+})();
+~~~
+
 ### Voting to a process
 
 To vote a process you only need two things: the process id to vote to, and the
@@ -269,6 +314,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [vochain explorer]: https://explorer.vote
 [dev vochain explorer]: https://dev.explorer.vote
 [publishedelection class]: ./src/types/election/published.ts
+[election-lifecycle-states]: https://developer.vocdoni.io/get-started/intro#election-lifecycle-states
 [examples]: ./examples
 [full featured CRA]: ./examples/cra
 [license]: ./LICENSE

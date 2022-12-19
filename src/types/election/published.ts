@@ -2,10 +2,11 @@ import { Election, IElectionParameters, IElectionType, IVoteType } from './elect
 import { MultiLanguage } from '../../util/lang';
 import { IQuestion } from '../metadata/election';
 import { PublishedCensus } from '../census/published';
+import { ElectionStatus } from '../../core/election';
 
 export interface IPublishedElectionParameters extends IElectionParameters {
   id: string;
-  status: string;
+  status: ElectionStatus;
   voteCount: number;
   finalResults: boolean;
   results: Array<Array<string>>;
@@ -20,7 +21,7 @@ export interface IPublishedElectionParameters extends IElectionParameters {
  */
 export class PublishedElection extends Election {
   private readonly _id: string;
-  private readonly _status: string;
+  private readonly _status: ElectionStatus;
   private readonly _voteCount: number;
   private readonly _finalResults: boolean;
   private readonly _results: Array<Array<string>>;
@@ -111,7 +112,7 @@ export class PublishedElection extends Election {
     return this._id;
   }
 
-  get status(): string {
+  get status(): ElectionStatus {
     return this._status;
   }
 

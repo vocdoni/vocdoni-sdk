@@ -10,7 +10,7 @@ import { FaucetAPI } from './api/faucet';
 import { FileAPI } from './api/file';
 import { WalletAPI } from './api/wallet';
 import { AccountCore } from './core/account';
-import { ElectionCore } from './core/election';
+import { ElectionCore, ElectionStatus } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
 import {
   Account,
@@ -27,6 +27,8 @@ import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 import { isWallet } from './util/signing';
 import { VoteAPI } from './api/vote';
+
+export { ElectionStatus };
 
 export type ChainData = {
   chainId: string;
@@ -228,7 +230,7 @@ export class VocdoniSDKClient {
             electionInfo.census.censusURL,
             Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin)
           ),
-          status: electionInfo.status,
+          status: ElectionCore.electionStatusFromString(electionInfo.status),
           voteCount: electionInfo.voteCount,
           finalResults: electionInfo.finalResults,
           results: electionInfo.result,
@@ -406,6 +408,73 @@ export class VocdoniSDKClient {
     );
 
     return this.waitForTransaction(electionTx.txHash).then(() => electionTx.electionID);
+  }
+
+  /**
+   * Ends an election.
+   *
+   * @param {string} electionId The id of the election
+   * @returns {Promise<void>}
+   */
+  async endElection(electionId?: string): Promise<void> {
+    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.ENDED);
+  }
+
+  /**
+   * Pauses an election.
+   *
+   * @param {string} electionId The id of the election
+   * @returns {Promise<void>}
+   */
+  async pauseElection(electionId?: string): Promise<void> {
+    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.PAUSED);
+  }
+
+  /**
+   * Cancels an election.
+   *
+   * @param {string} electionId The id of the election
+   * @returns {Promise<void>}
+   */
+  async cancelElection(electionId?: string): Promise<void> {
+    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.CANCELED);
+  }
+
+  /**
+   * Continues an election.
+   *
+   * @param {string} electionId The id of the election
+   * @returns {Promise<void>}
+   */
+  async continueElection(electionId?: string): Promise<void> {
+    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.READY);
+  }
+
+  /**
+   * Changes the status of an election.
+   *
+   * @param {string} electionId The id of the election
+   * @param {ElectionStatus} newStatus The new status
+   * @returns {Promise<void>}
+   */
+  private async changeElectionStatus(electionId: string, newStatus: ElectionStatus): Promise<void> {
+    if (!this.electionId && !electionId) {
+      throw Error('No election set');
+    }
+    return this.fetchAccountInfo()
+      .then((accountData) =>
+        Promise.all([
+          ElectionCore.generateSetElectionStatusTransaction(
+            electionId ?? this.electionId,
+            accountData.nonce,
+            newStatus
+          ),
+          this.fetchChainId(),
+        ])
+      )
+      .then((data) => ElectionCore.signTransaction(data[0], data[1], this.wallet))
+      .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
+      .then((data) => this.waitForTransaction(data.hash));
   }
 
   /**
