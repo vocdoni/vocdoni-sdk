@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Staging environment options for API and Faucet
+- Functionality to end, pause, cancel and continue an election
 
 ### Fixed
 

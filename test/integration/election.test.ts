@@ -2,6 +2,7 @@ import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
 import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
 import { delay } from '../../src/util/common';
+import { ElectionStatus } from '../../src/core/election';
 
 let client: VocdoniSDKClient;
 let creator: Wallet;
@@ -225,4 +226,97 @@ describe('Election integration tests', () => {
         expect(election.finalResults).toBeFalsy();
       });
   }, 285000);
+  it('should create an election and end it successfully', async () => {
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+    await client.createAccount();
+
+    const unpublishedElection = createElection(census);
+
+    await client
+      .createElection(unpublishedElection)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.READY);
+        return client.endElection();
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.ENDED);
+      });
+  }, 85000);
+  it('should create an election and pause it successfully', async () => {
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+    await client.createAccount();
+
+    const unpublishedElection = createElection(census);
+
+    await client
+      .createElection(unpublishedElection)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.READY);
+        return client.pauseElection();
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.PAUSED);
+      });
+  }, 85000);
+  it('should create an election and cancel it successfully', async () => {
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+    await client.createAccount();
+
+    const unpublishedElection = createElection(census);
+
+    await client
+      .createElection(unpublishedElection)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.READY);
+        return client.cancelElection();
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.CANCELED);
+      });
+  }, 85000);
+  it('should create an election, pause it and then continue successfully', async () => {
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+    await client.createAccount();
+
+    const unpublishedElection = createElection(census);
+
+    await client
+      .createElection(unpublishedElection)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.READY);
+        return client.pauseElection();
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.PAUSED);
+        return client.continueElection();
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.status).toEqual(ElectionStatus.READY);
+      });
+  }, 85000);
 });
