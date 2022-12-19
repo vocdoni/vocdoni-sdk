@@ -11,6 +11,7 @@ beforeEach(async () => {
   creator = Wallet.createRandom();
   client = new VocdoniSDKClient({
     env: EnvOptions.DEV,
+    api_url: process.env.API_URL,
     wallet: creator,
   });
 }, 15000);
