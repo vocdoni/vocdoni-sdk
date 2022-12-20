@@ -5,11 +5,12 @@ import React from 'react'
 type CensusProps = {
   account: string,
   balance: number,
+  disabled: boolean,
   signers: Wallet[],
   setSigners: React.Dispatch<React.SetStateAction<Wallet[]>>,
 }
 
-const Census = ({account, balance, signers, setSigners} : CensusProps) => (
+const Census = ({account, balance, signers, setSigners, disabled} : CensusProps) => (
   <>
     <Text>Logged in with <Code>{account}</Code> ({balance} vocdoni tokens)</Text>
     <Text>
@@ -17,6 +18,7 @@ const Census = ({account, balance, signers, setSigners} : CensusProps) => (
       some random wallets here for testing purposes:
     </Text>
     <Button
+      disabled={disabled}
       onClick={() => {
       setSigners([
         ...signers,
