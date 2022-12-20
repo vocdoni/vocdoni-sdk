@@ -6,7 +6,7 @@ export const API_URL = {
 
 export const FAUCET_URL = {
   dev: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/dev',
-  stg: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/stg',
+  stg: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/stage',
 };
 
 export const FAUCET_AUTH_TOKEN = {
