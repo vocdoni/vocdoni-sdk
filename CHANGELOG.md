@@ -30,4 +30,5 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.0.2-alpha]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.2-alpha
 [0.0.1-alpha]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.1-alpha
