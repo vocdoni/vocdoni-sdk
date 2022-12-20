@@ -51,7 +51,9 @@ connected to the API endpoint corresponding to `dev` (development) or `stg` (sta
 
 #### Staging
 
-This is the recommended environment for most testing use cases.
+This is the **recommended** environment for most testing use cases, since the 
+`dev` environment is more subject to blockchain resets and downtimes than 
+the `stg` one.
 
 ~~~ts
 const client = new VocdoniSDKClient({
