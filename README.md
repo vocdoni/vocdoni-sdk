@@ -4,6 +4,16 @@ The Vocdoni SDK is a convenient way to interact with the Vocdoni Protocol
 through [the new API][Vocdoni API], allowing anyone to create, manage and
 participate in voting processes and collective decision-making.
 
+## Live preview
+
+You can test the SDK here: https://vocdoni.github.io/vocdoni-sdk/
+
+![Live preview](./docs/images/cra.png)
+
+> **No funds needed in your wallet**: Metamask or Walletconnect are only used for
+> signing transactions that are sent to the Vocdoni chain! Testing tokens in `dev`
+> environment are automatically sent from faucet once the account is created.
+
 ## Disclaimer
 
 The Vocdoni SDK and the underlying API is WIP. Please beware that it can be broken
