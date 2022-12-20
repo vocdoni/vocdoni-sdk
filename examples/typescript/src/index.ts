@@ -70,7 +70,7 @@ async function main() {
       console.log('Voting...');
       return client.submitVote(vote);
     })
-    .then((voteHash) => console.log(chalk.green('Vote sent! Confirmation id:'), chalk.blue(voteHash)));
+    .then((voteId) => console.log(chalk.green('Vote sent! Vote id:'), chalk.blue(voteId)));
 }
 
 main()
