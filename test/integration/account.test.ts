@@ -10,6 +10,7 @@ describe('Account integration tests', () => {
     const walletAddress = await wallet.getAddress();
     const client = new VocdoniSDKClient({
       env: EnvOptions.DEV,
+      api_url: process.env.API_URL,
       wallet,
     });
     const accountInfo = await client.createAccount();
@@ -24,6 +25,7 @@ describe('Account integration tests', () => {
     const wallet = Wallet.createRandom();
     const client = new VocdoniSDKClient({
       env: EnvOptions.DEV,
+      api_url: process.env.API_URL,
       wallet,
     });
     const faucetPackage = await FaucetAPI.collect(FAUCET_URL.dev, FAUCET_AUTH_TOKEN.dev, await wallet.getAddress());
@@ -33,6 +35,7 @@ describe('Account integration tests', () => {
   it('should bootstrap a new account and fetch tokens from faucet more than once', async () => {
     const client = new VocdoniSDKClient({
       env: EnvOptions.DEV,
+      api_url: process.env.API_URL,
       wallet: Wallet.createRandom(),
     });
     const accountInfo = await client.createAccount();
@@ -45,6 +48,7 @@ describe('Account integration tests', () => {
   it('should bootstrap a new account and do nothing when creating it twice', async () => {
     const client = new VocdoniSDKClient({
       env: EnvOptions.DEV,
+      api_url: process.env.API_URL,
       wallet: Wallet.createRandom(),
     });
     const accountInfo = await client.createAccount();
@@ -54,6 +58,7 @@ describe('Account integration tests', () => {
   it('should set information for an account', async () => {
     const client = new VocdoniSDKClient({
       env: EnvOptions.DEV,
+      api_url: process.env.API_URL,
       wallet: Wallet.createRandom(),
     });
 
