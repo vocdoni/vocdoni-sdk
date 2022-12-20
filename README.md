@@ -45,7 +45,22 @@ just see a `signer` constant.
 ## SDK Usage
 
 The entry point is the SDK constructor, it will instantiate a new client
-connected to the API endpoint corresponding to `dev` or `prod`:
+connected to the API endpoint corresponding to `dev` (development) or `stg` (staging).
+
+### Environment
+
+#### Staging
+
+This is the recommended environment for most testing use cases.
+
+~~~ts
+const client = new VocdoniSDKClient({
+  env: EnvOptions.STG, // mandatory, can be 'dev' or 'prod'
+  wallet: signer, // optional, the signer used (Metamask, Walletconnect)
+})
+~~~
+
+#### Development
 
 ~~~ts
 const client = new VocdoniSDKClient({
