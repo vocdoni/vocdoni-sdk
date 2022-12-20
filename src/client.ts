@@ -417,7 +417,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<void>}
    */
   async endElection(electionId?: string): Promise<void> {
-    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.ENDED);
+    return this.changeElectionStatus(electionId, ElectionStatus.ENDED);
   }
 
   /**
@@ -427,7 +427,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<void>}
    */
   async pauseElection(electionId?: string): Promise<void> {
-    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.PAUSED);
+    return this.changeElectionStatus(electionId, ElectionStatus.PAUSED);
   }
 
   /**
@@ -437,7 +437,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<void>}
    */
   async cancelElection(electionId?: string): Promise<void> {
-    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.CANCELED);
+    return this.changeElectionStatus(electionId, ElectionStatus.CANCELED);
   }
 
   /**
@@ -447,7 +447,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<void>}
    */
   async continueElection(electionId?: string): Promise<void> {
-    return this.changeElectionStatus(electionId ?? this.electionId, ElectionStatus.READY);
+    return this.changeElectionStatus(electionId, ElectionStatus.READY);
   }
 
   /**
