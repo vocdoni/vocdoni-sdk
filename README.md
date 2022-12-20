@@ -321,7 +321,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-[Vocdoni API]: https://api.vocdoni.io
+[Vocdoni API]: https://vocdoni.io/api
 [nodejs]: https://nodejs.org
 [ethers]: https://github.com/ethers-io/ethers.js
 [vochain explorer]: https://explorer.vote
