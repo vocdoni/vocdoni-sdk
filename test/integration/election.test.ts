@@ -65,7 +65,7 @@ describe('Election integration tests', () => {
         const vote = new Vote([1]);
         return client.submitVote(vote);
       })
-      .then((voteHash) => expect(voteHash).toMatch(/^[0-9a-fA-F]{64}$/));
+      .then((voteId) => expect(voteId).toMatch(/^[0-9a-fA-F]{64}$/));
   }, 85000);
   it('should create an election with addresses census', async () => {
     const census = new PlainCensus();
@@ -92,7 +92,7 @@ describe('Election integration tests', () => {
         const vote = new Vote([1]);
         return client.submitVote(vote);
       })
-      .then((voteHash) => expect(voteHash).toMatch(/^[0-9a-fA-F]{64}$/));
+      .then((voteId) => expect(voteId).toMatch(/^[0-9a-fA-F]{64}$/));
   }, 85000);
   it('should create an election with 100 participants and each of them should vote correctly', async () => {
     const numVotes = 100; // should be even number

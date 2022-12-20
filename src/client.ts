@@ -504,7 +504,7 @@ export class VocdoniSDKClient {
     });
 
     // Vote
-    const voteHash = await voteData
+    const voteSubmit = await voteData
       .then((censusProof) => {
         if (election?.electionType.secretUntilTheEnd) {
           return ElectionAPI.keys(this.url, election.id).then((encryptionKeys) =>
@@ -514,10 +514,9 @@ export class VocdoniSDKClient {
         return VoteCore.generateVoteTransaction(election, censusProof, vote);
       })
       .then((voteTx) => VoteCore.signTransaction(voteTx, this.chainData.chainId, this.wallet))
-      .then((signedTx) => VoteAPI.submit(this.url, signedTx))
-      .then((data) => data.txHash);
+      .then((signedTx) => VoteAPI.submit(this.url, signedTx));
 
     // Wait for tx
-    return this.waitForTransaction(voteHash).then(() => voteHash);
+    return this.waitForTransaction(voteSubmit.txHash).then(() => voteSubmit.voteID);
   }
 }
