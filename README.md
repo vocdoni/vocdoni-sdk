@@ -6,7 +6,7 @@ participate in voting processes and collective decision-making.
 
 ## Live preview
 
-You can test the SDK here: https://vocdoni.github.io/vocdoni-sdk/
+You can test the SDK [here](https://vocdoni.github.io/vocdoni-sdk/).
 
 ![Live preview](./docs/images/cra.png)
 
