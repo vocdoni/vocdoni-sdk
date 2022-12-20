@@ -4,7 +4,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
-import { Election, EnvOptions, PlainCensus, PublishedElection, VocdoniSDKClient } from 'vocdoni-sdk';
+import { Election, EnvOptions, PlainCensus, PublishedElection, VocdoniSDKClient } from 'vocdoni-sdk'
 import Census from '../components/Census'
 import Connect from '../components/Connect'
 import Vote from '../components/VoteOptions'
@@ -91,6 +91,7 @@ export const App = () => {
                 </Then>
                 <Else>
                   <Census
+                    disabled={creating || electionId.length > 0}
                     account={account}
                     balance={balance}
                     signers={signers}
