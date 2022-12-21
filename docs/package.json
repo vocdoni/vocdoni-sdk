@@ -7,7 +7,7 @@
     "node": ">=14"
   },
   "scripts": {
-    "copy-readme": "cp ../README.md temp_docs/sdk.md && sed -i -e 's;]: ./;]: https://github.com/vocdoni/vocdoni-sdk/blob/main/;g' -e 's;](./;](https://github.com/vocdoni/vocdoni-sdk/blob/main/;g' temp_docs/sdk.md",
+    "copy-readme": "cp ../README.md temp_docs/sdk.md && awk -i inplace 'match($1,/!\\[/){sub(/\\]\\(.\\//, \"](https://raw.githubusercontent.com/vocdoni/vocdoni-sdk/main/\")}1' temp_docs/sdk.md && sed -i -e 's;]: ./;]: https://github.com/vocdoni/vocdoni-sdk/blob/main/;g' -e 's;](./;](https://github.com/vocdoni/vocdoni-sdk/blob/main/;g' temp_docs/sdk.md",
     "gen-docs": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json",
     "build": "npm run gen-docs && npm run copy-readme"
   },
