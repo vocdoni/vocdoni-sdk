@@ -71,7 +71,17 @@
       "path": "dist/index.js",
       "limit": "512 KB",
       "ignore": [
-        "net", "stream", "http", "https", "url", "tty", "assert", "zlib", "events", "tls", "eval"
+        "net",
+        "stream",
+        "http",
+        "https",
+        "url",
+        "tty",
+        "assert",
+        "zlib",
+        "events",
+        "tls",
+        "eval"
       ]
     },
     {
@@ -109,10 +119,11 @@
     "@ethersproject/signing-key": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
     "axios": "^1.2.0",
+    "blakejs": "^1.2.1",
     "dvote-solidity": "^1.4.0",
     "iso-language-codes": "^1.1.0",
     "tiny-invariant": "^1.3.1",
-    "tweetnacl-sealedbox-js": "^1.2.0",
+    "tweetnacl": "^1.0.3",
     "yup": "^0.32.11"
   }
 }
