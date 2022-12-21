@@ -51,8 +51,8 @@ connected to the API endpoint corresponding to `dev` (development) or `stg` (sta
 
 #### Staging
 
-This is the **recommended** environment for most testing use cases, since the 
-`dev` environment is more subject to blockchain resets and downtimes than 
+This is the **recommended** environment for most testing use cases, since the
+`dev` environment is more subject to blockchain resets and downtimes than
 the `stg` one.
 
 ~~~ts
@@ -171,7 +171,7 @@ const election = Election.from({
 })
 ~~~
 
-Check out the [election interface] to see all the allowed params.
+Check out the [election params interface] to see all the allowed params.
 
 Of course, you will also need some questions in this voting process, how would people
 vote otherwise?
@@ -345,6 +345,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [dev vochain explorer]: https://dev.explorer.vote
 [publishedelection class]: ./src/types/election/published.ts
 [election-lifecycle-states]: https://developer.vocdoni.io/get-started/intro#election-lifecycle-states
+[election params interface]: ./src/types/election/election.ts#23
 [examples]: ./examples
 [example-cra]: ./examples/cra
 [example-ts]: ./examples/typescript
