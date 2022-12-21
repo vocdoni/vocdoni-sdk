@@ -94,8 +94,8 @@ describe('Election integration tests', () => {
       })
       .then((voteId) => expect(voteId).toMatch(/^[0-9a-fA-F]{64}$/));
   }, 85000);
-  it('should create an election with 100 participants and each of them should vote correctly', async () => {
-    const numVotes = 100; // should be even number
+  it('should create an election with 10 participants and each of them should vote correctly', async () => {
+    const numVotes = 10; // should be even number
     const census = new PlainCensus();
 
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
@@ -135,8 +135,8 @@ describe('Election integration tests', () => {
         expect(election.results[0][0]).toEqual(election.results[0][1]);
       });
   }, 285000);
-  it('should create an election with 100 weighted participants and each of them should vote correctly', async () => {
-    const numVotes = 100; // should be even number
+  it('should create an election with 10 weighted participants and each of them should vote correctly', async () => {
+    const numVotes = 10; // should be even number
     const census = new WeightedCensus();
 
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
@@ -183,8 +183,8 @@ describe('Election integration tests', () => {
         expect(+election.results[0][0]).toEqual(+election.results[0][1] - numVotes / 2);
       });
   }, 285000);
-  it('should create an encrypted election with 100 participants and each of them should vote correctly', async () => {
-    const numVotes = 100; // should be even number
+  it('should create an encrypted election with 10 participants and each of them should vote correctly', async () => {
+    const numVotes = 10; // should be even number
     const census = new PlainCensus();
 
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());

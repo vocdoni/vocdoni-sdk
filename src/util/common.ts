@@ -1,4 +1,5 @@
 import { keccak256 } from '@ethersproject/keccak256';
+import nacl from 'tweetnacl';
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -6,21 +7,8 @@ export function strip0x(value: string): string {
   return value.startsWith('0x') ? value.substring(2) : value;
 }
 
-export function getBytes(count: number): Buffer {
-  if (typeof window != 'undefined' && typeof window?.crypto?.getRandomValues === 'function') {
-    // browser
-    const buff = new Uint8Array(count);
-    window.crypto.getRandomValues(buff);
-    return Buffer.from(buff);
-  }
-
-  // other environments (fallback)
-  const result: number[] = [];
-  for (let i = 0; i < count; i++) {
-    const val = (Math.random() * 256) | 0;
-    result.push(val);
-  }
-  return Buffer.from(result);
+export function getBytes(count: number): Uint8Array {
+  return nacl.randomBytes(count);
 }
 
 /**
