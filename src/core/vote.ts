@@ -7,10 +7,9 @@ import {
   VoteEnvelope,
 } from '../dvote-protobuf/build/ts/vochain/vochain';
 import { getHex, strip0x } from '../util/common';
-import { IProcessCensusOrigin, ProcessCensusOrigin } from 'dvote-solidity'; // check dvote-protobuf!
 import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
-import { PublishedElection, Vote } from '../types';
+import { CensusType, PublishedElection, Vote } from '../types';
 import { CensusProof } from '../client';
 import { TransactionCore } from './transaction';
 
@@ -82,14 +81,9 @@ export abstract class VoteCore extends TransactionCore {
     //     throw new Error("Some encryption public keys are not valid")
     //   }
     // }
-    const processCensusOrigin = new ProcessCensusOrigin(
-      Object.values(ProcessCensusOrigin)[
-        Object.keys(ProcessCensusOrigin).indexOf(election.census.censusOrigin)
-      ] as IProcessCensusOrigin
-    );
 
     try {
-      const proof = this.packageSignedProof(election.id, processCensusOrigin, censusProof);
+      const proof = this.packageSignedProof(election.id, election.census.type, censusProof);
       // const nonce = hexStringToBuffer(Random.getHex());
       const nonce = Buffer.from(strip0x(getHex()), 'hex');
       const { votePackage, keyIndexes } = this.packageVoteContent(vote.votes, processKeys);
@@ -108,15 +102,11 @@ export abstract class VoteCore extends TransactionCore {
   }
 
   /** Packages the given parameters into a proof that can be submitted to the Vochain */
-  private static packageSignedProof(
-    processId: string,
-    censusOrigin: ProcessCensusOrigin,
-    censusProof: CensusProof
-  ): Proof {
+  private static packageSignedProof(processId: string, type: CensusType, censusProof: CensusProof): Proof {
     const proof = Proof.fromPartial({});
     processId.toString(); // TODO remove
 
-    if (censusOrigin.isOffChain || censusOrigin.isOffChainWeighted) {
+    if (type == CensusType.WEIGHTED) {
       // Check census proof
       if (typeof censusProof?.proof !== 'string' || !censusProof?.proof.match(/^(0x)?[0-9a-zA-Z]+$/)) {
         throw new Error('Invalid census proof (must be a hex string)');

@@ -54,15 +54,6 @@ export abstract class Census {
     );
   }
 
-  get censusOrigin(): string {
-    switch (this.type) {
-      case CensusType.WEIGHTED:
-        return 'OFF_CHAIN_TREE_WEIGHTED';
-      default:
-        throw new Error('Census origin not defined by internal census type');
-    }
-  }
-
   static censusTypeFromCensusOrigin(censusOrigin: string): CensusType {
     switch (censusOrigin) {
       case 'OFF_CHAIN_TREE_WEIGHTED':
