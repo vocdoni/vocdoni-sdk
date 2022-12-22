@@ -30,6 +30,16 @@ interface IChainGetInfoResponse {
 
 interface IChainGetTransactionReferenceResponse {
   /**
+   * The number of the transaction.
+   */
+  transactionNumber: number;
+
+  /**
+   * The hash of the transaction.
+   */
+  transactionHash: string;
+
+  /**
    * The number of the block where the transaction is.
    */
   blockHeight: number;
@@ -38,6 +48,11 @@ interface IChainGetTransactionReferenceResponse {
    * The index of the transaction inside the block.
    */
   transactionIndex: number;
+
+  /**
+   * The type of the transaction.
+   */
+  transactionType: string;
 }
 
 interface IChainSubmitTxResponse {
