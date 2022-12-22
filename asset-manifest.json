@@ -1,9 +1,9 @@
 {
   "files": {
-    "main.js": "/vocdoni-sdk/static/js/main.b7276a15.js",
+    "main.js": "/vocdoni-sdk/static/js/main.29ed28c3.js",
     "index.html": "/vocdoni-sdk/index.html"
   },
   "entrypoints": [
-    "static/js/main.b7276a15.js"
+    "static/js/main.29ed28c3.js"
   ]
 }
