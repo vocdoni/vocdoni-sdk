@@ -8,7 +8,7 @@ let client: VocdoniSDKClient;
 let creator: Wallet;
 
 beforeEach(async () => {
-  creator = Wallet.createRandom();
+  creator = new Wallet('8b254cdf202856f9e2f0a6b493bb8d1598302c33ec3e79b729eb1963358073d5');
   client = new VocdoniSDKClient({
     env: EnvOptions.DEV,
     api_url: process.env.API_URL,
