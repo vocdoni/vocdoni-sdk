@@ -294,6 +294,20 @@ about the election status and the possible status changes once the election is c
 
 ### Voting to a process
 
+#### Check vote
+
+To check if a user can vote in given election using the wallet and election id used
+when initializing the client:
+
+~~~ts
+(async () => {
+  const canVote = await client.isAbleToVote()
+  console.log(canVote) // true or false
+})();
+~~~
+
+#### Vote
+
 To vote a process you only need two things: the process id to vote to, and the
 option (or options) being voted:
 

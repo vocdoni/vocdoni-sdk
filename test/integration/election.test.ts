@@ -118,12 +118,14 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            client = new VocdoniSDKClient({
+            const pClient = new VocdoniSDKClient({
               env: EnvOptions.DEV,
               wallet: participant,
               electionId: electionIdentifier,
             });
-            return client.submitVote(new Vote([index % 2]));
+            const isAbleToVote = await pClient.isAbleToVote();
+            expect(isAbleToVote).toBeTruthy();
+            return pClient.submitVote(new Vote([index % 2]));
           })
         )
       )
@@ -164,12 +166,14 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            client = new VocdoniSDKClient({
+            const pClient = new VocdoniSDKClient({
               env: EnvOptions.DEV,
               wallet: participant,
               electionId: electionIdentifier,
             });
-            return client.submitVote(new Vote([index % 2]));
+            const isAbleToVote = await pClient.isAbleToVote();
+            expect(isAbleToVote).toBeTruthy();
+            return pClient.submitVote(new Vote([index % 2]));
           })
         )
       )
@@ -209,12 +213,14 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            client = new VocdoniSDKClient({
+            const pClient = new VocdoniSDKClient({
               env: EnvOptions.DEV,
               wallet: participant,
               electionId: electionIdentifier,
             });
-            return client.submitVote(new Vote([index % 2]));
+            const isAbleToVote = await pClient.isAbleToVote();
+            expect(isAbleToVote).toBeTruthy();
+            return pClient.submitVote(new Vote([index % 2]));
           })
         )
       )
