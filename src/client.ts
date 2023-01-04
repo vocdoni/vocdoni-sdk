@@ -2,31 +2,24 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
 import invariant from 'tiny-invariant';
-import { AccountAPI } from './api/account';
-import { CensusAPI } from './api/census';
-import { ChainAPI } from './api/chain';
-import { ElectionAPI } from './api/election';
-import { FaucetAPI } from './api/faucet';
-import { FileAPI } from './api/file';
-import { WalletAPI } from './api/wallet';
+import { AccountAPI, CensusAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI, WalletAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore, ElectionStatus } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
 import {
   Account,
   Census,
-  UnpublishedElection,
   PlainCensus,
   PublishedCensus,
+  PublishedElection,
+  UnpublishedElection,
   Vote,
   WeightedCensus,
-  PublishedElection,
 } from './types';
 import { delay } from './util/common';
 import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 import { isWallet } from './util/signing';
-import { VoteAPI } from './api/vote';
 
 export { ElectionStatus };
 
@@ -298,6 +291,27 @@ export class VocdoniSDKClient {
   }
 
   /**
+   * Fetches proof that an address is part of the specified census.
+   *
+   * @param election
+   * @param wallet
+   * @returns {Promise<CensusProof>}
+   */
+  private async fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<CensusProof> {
+    return wallet.getAddress().then((address) => {
+      if (isWallet(this.wallet)) {
+        const { publicKey } = this.wallet as Wallet;
+        return promiseAny([
+          this.fetchProof(election.census.censusId, address, CensusProofType.ADDRESS),
+          this.fetchProof(election.census.censusId, computePublicKey(publicKey, true), CensusProofType.PUBKEY),
+        ]);
+      } else {
+        return this.fetchProof(election.census.censusId, address, CensusProofType.ADDRESS);
+      }
+    });
+  }
+
+  /**
    * Sets account information.
    *
    * @param {{account: Account, faucetPackage: string | null}} options Additional options,
@@ -477,6 +491,28 @@ export class VocdoniSDKClient {
       .then((data) => this.waitForTransaction(data.hash));
   }
 
+  async isAbleToVote(electionId?: string, key?: { id: string; type: CensusProofType }): Promise<boolean> {
+    if (!this.electionId && !electionId) {
+      throw Error('No election set');
+    }
+    if (!this.wallet && !key) {
+      throw Error('No key given or Wallet not found');
+    }
+
+    const election = await this.fetchElection(electionId ?? this.electionId);
+    let proofPromise;
+
+    if (key) {
+      proofPromise = this.fetchProof(election.census.censusId, key.id, key.type);
+    } else if (election) {
+      proofPromise = this.fetchProofForWallet(election, this.wallet);
+    } else {
+      proofPromise = Promise.reject();
+    }
+
+    return proofPromise.then(() => true).catch(() => false);
+  }
+
   /**
    * Submits a vote to the current instance election id.
    *
@@ -488,35 +524,27 @@ export class VocdoniSDKClient {
       throw Error('Election is not published');
     }
 
+    if (!this.wallet) {
+      throw Error('No wallet set');
+    }
+
     const election = await this.fetchElection();
 
-    // Census proof
-    const voteData = Promise.all([this.fetchChainId(), this.wallet.getAddress()]).then((data) => {
-      if (isWallet(this.wallet)) {
-        const { publicKey } = this.wallet as Wallet;
-        return promiseAny([
-          this.fetchProof(election.census.censusId, data[1], CensusProofType.ADDRESS),
-          this.fetchProof(election.census.censusId, computePublicKey(publicKey, true), CensusProofType.PUBKEY),
-        ]);
-      } else {
-        return this.fetchProof(election.census.censusId, data[1], CensusProofType.ADDRESS);
-      }
-    });
-
     // Vote
-    const voteSubmit = await voteData
+    return this.fetchProofForWallet(election, this.wallet)
       .then((censusProof) => {
         if (election?.electionType.secretUntilTheEnd) {
-          return ElectionAPI.keys(this.url, election.id).then((encryptionKeys) =>
-            VoteCore.generateVoteTransaction(election, censusProof, vote, { encryptionPubKeys: encryptionKeys })
+          return ElectionAPI.keys(this.url, election.id).then((encryptionPubKeys) =>
+            Promise.all([
+              VoteCore.generateVoteTransaction(election, censusProof, vote, { encryptionPubKeys }),
+              this.fetchChainId(),
+            ])
           );
         }
-        return VoteCore.generateVoteTransaction(election, censusProof, vote);
+        return Promise.all([VoteCore.generateVoteTransaction(election, censusProof, vote), this.fetchChainId()]);
       })
-      .then((voteTx) => VoteCore.signTransaction(voteTx, this.chainData.chainId, this.wallet))
-      .then((signedTx) => VoteAPI.submit(this.url, signedTx));
-
-    // Wait for tx
-    return this.waitForTransaction(voteSubmit.txHash).then(() => voteSubmit.voteID);
+      .then((data) => VoteCore.signTransaction(data[0], data[1], this.wallet))
+      .then((signedTx) => VoteAPI.submit(this.url, signedTx))
+      .then((apiResponse) => this.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
   }
 }

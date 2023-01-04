@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Functionality to check if a voter is eligible to vote in a given election
+
 ### Fixed
 
 - Return `voteId` when submitting vote instead of the transaction hash.
