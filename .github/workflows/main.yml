@@ -31,6 +31,20 @@ jobs:
       - name: Unit tests
         run: yarn test:unit --ci --coverage
 
+      - name: Integration tests
+        env:
+          API_URL: http://${{ env.voconed_hostport }}/v2
+          FAUCET_URL: ${{ secrets.FAUCET_URL }}
+          FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
+          FAUCET_TOKEN_LIMIT: 100
+        run: |
+          echo COMPOSE_PROJECT_NAME=${RANDOM}${RANDOM}_ci >> $GITHUB_ENV
+          docker-compose -f test/integration/util/docker-compose.yml up -d
+          echo -n "voconed_hostport=" >> $GITHUB_ENV
+          docker-compose -f test/integration/util/docker-compose.yml port voconed 9095 >> $GITHUB_ENV
+          docker-compose -f test/integration/util/docker-compose.yml logs
+          docker-compose -f test/integration/util/docker-compose.yml down -v
+
   integration:
     name: Integration tests on self-hosted
 
