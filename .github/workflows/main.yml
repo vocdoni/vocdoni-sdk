@@ -30,3 +30,58 @@ jobs:
 
       - name: Unit tests
         run: yarn test:unit --ci --coverage
+
+  integration:
+    name: Integration tests on self-hosted
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: ['16.x']
+        os: [self-hosted]
+
+    steps:
+      # TODO: somehow reuse artifact from ubuntu-latest 'build' job?
+      # instead of building from scratch on self-hosted
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install deps
+        run: yarn
+
+      - name: Build
+        run: yarn build
+
+      - name: Set COMPOSE_PROJECT_NAME for voconed
+        run: echo COMPOSE_PROJECT_NAME=${RANDOM}${RANDOM}_ci >> $GITHUB_ENV
+
+      - name: Start voconed (ephemeral vochain for integration test)
+        run: |
+          docker-compose -f test/integration/util/docker-compose.yml up -d
+          echo -n "voconed_hostport=" >> $GITHUB_ENV
+          docker-compose -f test/integration/util/docker-compose.yml port voconed 9095 >> $GITHUB_ENV
+
+      - name: Integration tests
+        run: yarn test:integration --ci --coverage --maxWorkers=2
+        env:
+          API_URL: http://${{ env.voconed_hostport }}/v2
+          FAUCET_URL: ${{ secrets.FAUCET_URL }}
+          FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
+          FAUCET_TOKEN_LIMIT: 100
+
+      - name: Debug voconed logs on failure
+        if: failure()
+        run: docker-compose -f test/integration/util/docker-compose.yml logs
+
+      - name: Stop voconed (ephemeral vochain for integration test)
+        if: success() || failure()
+        run: docker-compose -f test/integration/util/docker-compose.yml down -v

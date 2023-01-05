@@ -1,19 +1,18 @@
 import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
-import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
+import { Election, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
 import { delay } from '../../src/util/common';
 import { ElectionStatus } from '../../src/core/election';
+// @ts-ignore
+import { clientParams } from './util/client.params';
 
 let client: VocdoniSDKClient;
-let creator: Wallet;
+let wallet: Wallet;
 
 beforeEach(async () => {
-  creator = Wallet.createRandom();
-  client = new VocdoniSDKClient({
-    env: EnvOptions.DEV,
-    wallet: creator,
-  });
-}, 15000);
+  wallet = Wallet.createRandom();
+  client = new VocdoniSDKClient(clientParams(wallet));
+});
 
 const createElection = (census, electionType?) => {
   const election = Election.from({
@@ -118,11 +117,8 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            const pClient = new VocdoniSDKClient({
-              env: EnvOptions.DEV,
-              wallet: participant,
-              electionId: electionIdentifier,
-            });
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionIdentifier);
             const isAbleToVote = await pClient.isAbleToVote();
             expect(isAbleToVote).toBeTruthy();
             return pClient.submitVote(new Vote([index % 2]));
@@ -166,11 +162,8 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            const pClient = new VocdoniSDKClient({
-              env: EnvOptions.DEV,
-              wallet: participant,
-              electionId: electionIdentifier,
-            });
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionIdentifier);
             const isAbleToVote = await pClient.isAbleToVote();
             expect(isAbleToVote).toBeTruthy();
             return pClient.submitVote(new Vote([index % 2]));
@@ -213,11 +206,8 @@ describe('Election integration tests', () => {
       .then(() =>
         Promise.all(
           participants.map(async (participant, index) => {
-            const pClient = new VocdoniSDKClient({
-              env: EnvOptions.DEV,
-              wallet: participant,
-              electionId: electionIdentifier,
-            });
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionIdentifier);
             const isAbleToVote = await pClient.isAbleToVote();
             expect(isAbleToVote).toBeTruthy();
             return pClient.submitVote(new Vote([index % 2]));

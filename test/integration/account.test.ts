@@ -1,17 +1,22 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Account, EnvOptions, VocdoniSDKClient } from '../../src';
+import { Account, VocdoniSDKClient } from '../../src';
 import { strip0x } from '../../src/util/common';
-import { FaucetAPI } from '../../src/api/faucet';
+import { FaucetAPI } from '../../src';
 import { FAUCET_AUTH_TOKEN, FAUCET_URL } from '../../src/util/constants';
+// @ts-ignore
+import { clientParams } from './util/client.params';
+
+let client: VocdoniSDKClient;
+let wallet: Wallet;
+
+beforeEach(async () => {
+  wallet = Wallet.createRandom();
+  client = new VocdoniSDKClient(clientParams(wallet));
+});
 
 describe('Account integration tests', () => {
   it('should bootstrap a new account and have the correct data', async () => {
-    const wallet = Wallet.createRandom();
     const walletAddress = await wallet.getAddress();
-    const client = new VocdoniSDKClient({
-      env: EnvOptions.DEV,
-      wallet,
-    });
     const accountInfo = await client.createAccount();
 
     expect(accountInfo.address).toEqual(strip0x(walletAddress).toLowerCase());
@@ -21,20 +26,11 @@ describe('Account integration tests', () => {
     expect(accountInfo.nonce).toEqual(0);
   }, 75000);
   it('should bootstrap a new account using a raw faucet package payload', async () => {
-    const wallet = Wallet.createRandom();
-    const client = new VocdoniSDKClient({
-      env: EnvOptions.DEV,
-      wallet,
-    });
     const faucetPackage = await FaucetAPI.collect(FAUCET_URL.dev, FAUCET_AUTH_TOKEN.dev, await wallet.getAddress());
     const accountInfo = await client.createAccount({ faucetPackage: faucetPackage.faucetPackage });
     expect(accountInfo.balance).toBeGreaterThan(0);
   }, 75000);
   it('should bootstrap a new account and fetch tokens from faucet more than once', async () => {
-    const client = new VocdoniSDKClient({
-      env: EnvOptions.DEV,
-      wallet: Wallet.createRandom(),
-    });
     const accountInfo = await client.createAccount();
     expect(accountInfo.balance).toBeGreaterThan(0);
 
@@ -43,20 +39,11 @@ describe('Account integration tests', () => {
       .then((finalAccountInfo) => expect(finalAccountInfo.balance).toBeGreaterThan(accountInfo.balance));
   }, 75000);
   it('should bootstrap a new account and do nothing when creating it twice', async () => {
-    const client = new VocdoniSDKClient({
-      env: EnvOptions.DEV,
-      wallet: Wallet.createRandom(),
-    });
     const accountInfo = await client.createAccount();
     const accountInfoAfter = await client.createAccount();
     expect(accountInfo).toStrictEqual(accountInfoAfter);
   }, 75000);
   it('should set information for an account', async () => {
-    const client = new VocdoniSDKClient({
-      env: EnvOptions.DEV,
-      wallet: Wallet.createRandom(),
-    });
-
     const account = await client.createAccount({
       account: new Account({
         languages: ['es'],
