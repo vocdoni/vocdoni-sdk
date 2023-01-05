@@ -61,8 +61,8 @@ jobs:
           committer: "Arabot-1 <arabot-1@users.noreply.github.com>"
           base: main
           branch: update-sdk-docs
-          branch-suffix: short-commit-hash
-          delete-branch: true
+          #branch-suffix: short-commit-hash   ## creates temp update-sdk-docs-xyz branches
+          delete-branch: true                 ## true: delete branch after merging
           title: Update docs with vocdoni-sdk repo changes
           body: |
             * This is an automated pull request to upload the updated vocdoni-sdk documentation.
@@ -70,7 +70,7 @@ jobs:
           labels: |
             automated pr
           reviewers: ${{ github.actor }}
-          team-reviewers: DevRel
+          team-reviewers: SdkDocsReviewer
       
       - name: Check PR outputs
         if: ${{ steps.cpr.outputs.pull-request-number }}
