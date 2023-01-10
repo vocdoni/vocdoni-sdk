@@ -2,9 +2,10 @@ import axios from 'axios';
 
 enum VoteAPIMethods {
   VOTE = '/votes',
+  INFO = '/votes',
 }
 
-export interface VoteAPIResponse {
+export interface IVoteSubmitResponse {
   /**
    * The hash of the transaction
    */
@@ -14,6 +15,43 @@ export interface VoteAPIResponse {
    * The identifier of the vote, also called nullifier.
    */
   voteID: string;
+}
+
+export interface IVoteInfoResponse {
+  /**
+   * The hash of the transaction
+   */
+  txHash: string;
+
+  /**
+   * The identifier of the vote, also called nullifier.
+   */
+  voteID: string;
+
+  /**
+   * The stringified vote package JSON.
+   */
+  package: string;
+
+  /**
+   * The weight of the vote.
+   */
+  weight: string;
+
+  /**
+   * The identifier of the election.
+   */
+  electionID: string;
+
+  /**
+   * The block number where the transaction is mined.
+   */
+  blockHeight: number;
+
+  /**
+   * The index inside the block where the transaction is mined.
+   */
+  transactionIndex: number;
 }
 
 export abstract class VoteAPI {
@@ -28,11 +66,31 @@ export abstract class VoteAPI {
    * @param {string} url API endpoint URL
    * @param {string} payload The base64 encoded vote transaction
    *
-   * @returns {Promise<VoteAPIResponse>}
+   * @returns {Promise<IVoteSubmitResponse>}
    */
-  public static submit(url: string, payload: string): Promise<VoteAPIResponse> {
+  public static submit(url: string, payload: string): Promise<IVoteSubmitResponse> {
     return axios
-      .post<VoteAPIResponse>(url + VoteAPIMethods.VOTE, JSON.stringify({ txPayload: payload }))
+      .post<IVoteSubmitResponse>(url + VoteAPIMethods.VOTE, JSON.stringify({ txPayload: payload }))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Vote info
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} voteId The identifier of the vote
+   *
+   * @returns {Promise<IVoteInfoResponse>}
+   */
+  public static info(url: string, voteId: string): Promise<IVoteInfoResponse> {
+    return axios
+      .get<IVoteInfoResponse>(url + VoteAPIMethods.INFO + '/' + voteId)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
