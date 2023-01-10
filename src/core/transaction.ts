@@ -3,6 +3,7 @@ import { Signing } from '../util/signing';
 import { Wallet } from '@ethersproject/wallet';
 import { SignedTx } from '../dvote-protobuf/build/ts/vochain/vochain';
 import { Signer } from '@ethersproject/abstract-signer';
+import { Buffer } from 'buffer';
 
 export abstract class TransactionCore {
   /**
