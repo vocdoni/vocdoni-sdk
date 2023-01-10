@@ -1,16 +1,9 @@
-import {
-  Proof,
-  ProofArbo,
-  ProofArbo_KeyType,
-  ProofArbo_Type,
-  Tx,
-  VoteEnvelope,
-} from '../dvote-protobuf/build/ts/vochain/vochain';
-import { getHex, strip0x } from '../util/common';
+import { Proof, ProofArbo, ProofArbo_KeyType, ProofArbo_Type, Tx, VoteEnvelope } from '@vocdoni/proto/vochain';
 import { Buffer } from 'buffer';
-import { Asymmetric } from '../util/encryption';
-import { CensusType, PublishedElection, Vote } from '../types';
 import { CensusProof } from '../client';
+import { CensusType, PublishedElection, Vote } from '../types';
+import { getHex, strip0x } from '../util/common';
+import { Asymmetric } from '../util/encryption';
 import { TransactionCore } from './transaction';
 
 export type IProofArbo = { siblings: string; weight?: bigint };

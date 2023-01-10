@@ -1,9 +1,9 @@
 import { Box, Button, Code, Heading, Stack, Text } from '@chakra-ui/react'
 import { Signer } from '@ethersproject/abstract-signer'
 import { Wallet } from '@ethersproject/wallet'
+import { EnvOptions, IQuestion, VocdoniSDKClient, Vote } from '@vocdoni/sdk'
 import { useState } from 'react'
 import { Else, If, Then } from 'react-if'
-import { EnvOptions, IQuestion, VocdoniSDKClient, Vote } from 'vocdoni-sdk'
 
 type VoteProps = {
   signer: Signer | Wallet,

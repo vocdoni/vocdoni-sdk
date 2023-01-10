@@ -1,4 +1,3 @@
-import { AccountData, ChainData } from '../client';
 import {
   CensusOrigin,
   NewProcessTx,
@@ -7,11 +6,12 @@ import {
   SetProcessTx,
   Tx,
   TxType,
-} from '../dvote-protobuf/build/ts/vochain/vochain';
-import { UnpublishedElection } from '../types';
-import { TransactionCore } from './transaction';
+} from '@vocdoni/proto/vochain';
 import { Buffer } from 'buffer';
+import { AccountData, ChainData } from '../client';
+import { UnpublishedElection } from '../types';
 import { strip0x } from '../util/common';
+import { TransactionCore } from './transaction';
 
 export { ElectionStatus };
 

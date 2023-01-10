@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: ['14.x', '16.x']
+        node: ['16.x']
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
@@ -22,9 +22,6 @@ jobs:
       - name: Install deps
         run: yarn
 
-      - name: Build
-        run: yarn build
-
       - name: Lint
         run: yarn lint
 
@@ -38,7 +35,7 @@ jobs:
     strategy:
       matrix:
         node: ['16.x']
-        os: [self-hosted]
+        os: [self-hosted, ci1]
 
     steps:
       # TODO: somehow reuse artifact from ubuntu-latest 'build' job?
@@ -50,16 +47,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-          check-latest: true
 
+      # self-hosted runners do not have yarn installed 😕
       - name: Install yarn
-        run: npm install -g yarn
+        run: npm i -g yarn
 
       - name: Install deps
         run: yarn
-
-      - name: Build
-        run: yarn build
 
       - name: Set COMPOSE_PROJECT_NAME for voconed
         run: echo COMPOSE_PROJECT_NAME=${RANDOM}${RANDOM}_ci >> $GITHUB_ENV

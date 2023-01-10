@@ -14,6 +14,7 @@
     "@types/node": "^18.11.9",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.4",
+    "@vocdoni/sdk": "file:../../",
     "@walletconnect/ethereum-provider": "^1.7.5",
     "@web3-react/core": "8.0.35-beta.0",
     "@web3-react/metamask": "8.0.28-beta.0",
@@ -26,7 +27,6 @@
     "react-icons": "^4.6.0",
     "react-if": "^4.1.4",
     "util": "^0.12.5",
-    "vocdoni-sdk": "file:../../",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

@@ -2,9 +2,9 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Alert, Box, Button, Link, Stack, Tag, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
+import { Election, EnvOptions, PlainCensus, PublishedElection, VocdoniSDKClient } from '@vocdoni/sdk'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
-import { Election, EnvOptions, PlainCensus, PublishedElection, VocdoniSDKClient } from 'vocdoni-sdk'
 import Census from '../components/Census'
 import Connect from '../components/Connect'
 import Vote from '../components/VoteOptions'
@@ -49,8 +49,8 @@ export const App = () => {
         wallet: (providers[provider] as Web3Provider).getSigner()
       })
       // fetch info or create account if does not exist
-      let acc = await client.createAccount()
       try {
+        let acc = await client.createAccount()
         if (!acc) {
           throw new Error('fetch account failed')
         }
@@ -60,12 +60,13 @@ export const App = () => {
           await client.collectFaucetTokens()
           acc = await client.fetchAccountInfo()
         }
+
+        setAccount(acc.address)
+        setBalance(acc.balance)
       } catch (e) {
         console.error('failed account creation', e)
       }
 
-      setAccount(acc.address)
-      setBalance(acc.balance)
     })()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account.length, balance, provider])
