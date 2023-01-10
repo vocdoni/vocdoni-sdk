@@ -1,8 +1,8 @@
+import { CollectFaucetTx, SetAccountTx, Tx, TxType } from '@vocdoni/proto/vochain';
+import { Buffer } from 'buffer';
 import { AccountData, FaucetPackage } from '../client';
-import { CollectFaucetTx, SetAccountTx, Tx, TxType } from '../dvote-protobuf/build/ts/vochain/vochain';
 import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
-import { Buffer } from 'buffer';
 
 export abstract class AccountCore extends TransactionCore {
   /**

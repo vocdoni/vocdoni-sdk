@@ -14,6 +14,8 @@ You can test the SDK [here](https://vocdoni.github.io/vocdoni-sdk/).
 > signing transactions that are sent to the Vocdoni chain! Testing tokens in `dev`
 > environment are automatically sent from faucet once the account is created.
 
+See [examples](#examples) for more examples.
+
 ## Disclaimer
 
 The Vocdoni SDK and the underlying API is WIP. Please beware that it can be broken
@@ -39,13 +41,28 @@ For creating elections or vote on them, blockchain transactions need to be
 build, thus a signer is required. Any kind of standard [ethers] signer should
 work.
 
-For this readme examples, the signer bootstrapping will be ignored and you'll
-just see a `signer` constant.
+This project has been bundled into many different formats in order for you to
+import it based on the environment you're using it. When importing it via
+`@vocdoni/sdk` it will chose a version based on your current environment
+(commonjs or esm). There's also another UMD version which can be accessed via
+`@vocdoni/sdk/umd` in case you need it.
+
+~~~js
+// Will use the correct version based on your environment
+import { VocdoniSDKClient } from '@vocdoni/sdk'
+// UMD version
+import SDK from '@vocdoni/sdk/umd'
+~~~
+
+You can see a working ESM example [in the examples folder][example-esm].
 
 ## SDK Usage
 
 The entry point is the SDK constructor, it will instantiate a new client
 connected to the API endpoint corresponding to `dev` (development) or `stg` (staging).
+
+> For this readme examples, the signer bootstrapping will be ignored and you'll
+just see a `signer` constant.
 
 ### Environment
 
@@ -339,8 +356,9 @@ option (or options) being voted:
 
 You can find a [full featured CRA][example-cra] application with all the previous
 steps in the [examples] folder. In that folder you'll also find a
-[simplified Typescript example][example-ts], creating and voting an election
-process.
+[es modules example][example-esm], creating and voting an election process.
+
+![example-esm demo]
 
 ## Docs
 
@@ -377,7 +395,8 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [election params interface]: ./src/types/election/election.ts#23
 [examples]: ./examples
 [example-cra]: ./examples/cra
-[example-ts]: ./examples/typescript
+[example-esm]: ./examples/esm
+[example-esm demo]: ./examples/esm/esm.gif
 [license]: ./LICENSE
 [devportal]: https://developer.vocdoni.io/sdk
 [builddocs]: ./docs/README.md

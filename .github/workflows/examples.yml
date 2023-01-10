@@ -17,9 +17,7 @@ jobs:
           node-version: 16.x
 
       - name: Install deps and build SDK
-        run: |
-          yarn
-          yarn build
+        run: yarn
 
       - name: Install deps and build CRA example
         run: |

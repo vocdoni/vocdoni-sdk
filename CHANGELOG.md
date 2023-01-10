@@ -12,11 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Functionality to check if a user is in census `isInCensus`
 - Functionality to check if a user has already voted `hasAlreadyVoted`
 - Functionality to check if a user is able to vote `isAbleToVote`
+- Export UMD version via `@vocdoni/sdk/umd`
 
 ### Fixed
 
 - Return `voteId` when submitting vote instead of the transaction hash.
 - `Buffer` imports for bundle
+- Bundling & export issues
 
 ### Changed
 
