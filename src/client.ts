@@ -20,6 +20,7 @@ import { delay } from './util/common';
 import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 import { isWallet } from './util/signing';
+import { Buffer } from 'buffer';
 
 export { ElectionStatus };
 
