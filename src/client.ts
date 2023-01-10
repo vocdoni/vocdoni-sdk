@@ -16,10 +16,11 @@ import {
   Vote,
   WeightedCensus,
 } from './types';
-import { delay } from './util/common';
+import { delay, strip0x } from './util/common';
 import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 import { isWallet } from './util/signing';
+import { keccak256 } from '@ethersproject/keccak256';
 import { Buffer } from 'buffer';
 
 export { ElectionStatus };
@@ -492,7 +493,7 @@ export class VocdoniSDKClient {
       .then((data) => this.waitForTransaction(data.hash));
   }
 
-  async isAbleToVote(electionId?: string, key?: { id: string; type: CensusProofType }): Promise<boolean> {
+  async isInCensus(electionId?: string, key?: { id: string; type: CensusProofType }): Promise<boolean> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
@@ -512,6 +513,27 @@ export class VocdoniSDKClient {
     }
 
     return proofPromise.then(() => true).catch(() => false);
+  }
+
+  async hasAlreadyVoted(electionId?: string): Promise<boolean> {
+    if (!this.electionId && !electionId) {
+      throw Error('No election set');
+    }
+    if (!this.wallet) {
+      throw Error('No wallet found');
+    }
+
+    return this.wallet
+      .getAddress()
+      .then((address) => VoteAPI.info(this.url, keccak256(address.toLowerCase() + (electionId ?? this.electionId))))
+      .then((voteInfo) => voteInfo.electionID == strip0x(electionId ?? this.electionId))
+      .catch(() => false);
+  }
+
+  async isAbleToVote(electionId?: string): Promise<boolean> {
+    return Promise.all([this.isInCensus(electionId), this.hasAlreadyVoted(electionId)])
+      .then((res) => res[0] && !res[1])
+      .catch(() => false);
   }
 
   /**
