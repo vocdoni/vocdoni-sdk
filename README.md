@@ -39,13 +39,30 @@ For creating elections or vote on them, blockchain transactions need to be
 build, thus a signer is required. Any kind of standard [ethers] signer should
 work.
 
-For this readme examples, the signer bootstrapping will be ignored and you'll
-just see a `signer` constant.
+This project has been bundled into many different formats in order for you to
+import it based on the environment you're using it. By default, when importing
+the project via `@vocdoni/sdk` you'll be importing the CommonJS version, which
+should work in all environments, but in case you need to use a specific version,
+you can do so by specifying the desired export:
+
+~~~js
+// Will use CommonJS version (recommended)
+import { VocdoniSDKClient } from '@vocdoni/sdk'
+// ESM version
+import { VocdoniSDKClient } from '@vocdoni/sdk/esm'
+// UMD version
+import SDK from '@vocdoni/sdk/umd'
+~~~
+
+You can see a working ESM example [in the examples folder][example-esm].
 
 ## SDK Usage
 
 The entry point is the SDK constructor, it will instantiate a new client
 connected to the API endpoint corresponding to `dev` (development) or `stg` (staging).
+
+> For this readme examples, the signer bootstrapping will be ignored and you'll
+just see a `signer` constant.
 
 ### Environment
 
@@ -377,7 +394,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [election params interface]: ./src/types/election/election.ts#23
 [examples]: ./examples
 [example-cra]: ./examples/cra
-[example-ts]: ./examples/typescript
+[example-esm]: ./examples/esm
 [license]: ./LICENSE
 [devportal]: https://developer.vocdoni.io/sdk
 [builddocs]: ./docs/README.md

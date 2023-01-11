@@ -1,10 +1,10 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk/esm';
 import chalk from 'chalk';
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const createElection = (census, electionType?) => {
+const createElection = (census, electionType = null) => {
   const endDate = new Date();
   endDate.setHours(endDate.getHours() + 10);
 

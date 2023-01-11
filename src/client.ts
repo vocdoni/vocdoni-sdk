@@ -1,6 +1,8 @@
 import { Signer } from '@ethersproject/abstract-signer';
+import { keccak256 } from '@ethersproject/keccak256';
 import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
+import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
 import { AccountAPI, CensusAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI, WalletAPI } from './api';
 import { AccountCore } from './core/account';
@@ -17,11 +19,9 @@ import {
   WeightedCensus,
 } from './types';
 import { delay, strip0x } from './util/common';
-import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
+import { promiseAny } from './util/promise';
 import { isWallet } from './util/signing';
-import { keccak256 } from '@ethersproject/keccak256';
-import { Buffer } from 'buffer';
 
 export { ElectionStatus };
 
