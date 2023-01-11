@@ -497,7 +497,7 @@ export class VocdoniSDKClient {
    * Checks if the user is in census.
    *
    * @param {string} electionId The id of the election
-   * @param {{id: string; type: CensusProofType}} key The key in the census to check
+   * @param {Object} key The key in the census to check
    * @returns {Promise<boolean>}
    */
   async isInCensus(electionId?: string, key?: { id: string; type: CensusProofType }): Promise<boolean> {
