@@ -9,11 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Functionality to check if a voter is eligible to vote in a given election
+- Functionality to check if a user is in census `isInCensus`
+- Functionality to check if a user has already voted `hasAlreadyVoted`
+- Functionality to check if a user is able to vote `isAbleToVote`
 
 ### Fixed
 
 - Return `voteId` when submitting vote instead of the transaction hash.
+- `Buffer` imports for bundle
 
 ### Changed
 
