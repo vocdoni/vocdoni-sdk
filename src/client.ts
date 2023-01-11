@@ -493,6 +493,13 @@ export class VocdoniSDKClient {
       .then((data) => this.waitForTransaction(data.hash));
   }
 
+  /**
+   * Checks if the user is in census.
+   *
+   * @param {string} electionId The id of the election
+   * @param { id: string; type: CensusProofType } key The key in the census to check
+   * @returns {Promise<boolean>}
+   */
   async isInCensus(electionId?: string, key?: { id: string; type: CensusProofType }): Promise<boolean> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
@@ -515,6 +522,12 @@ export class VocdoniSDKClient {
     return proofPromise.then(() => true).catch(() => false);
   }
 
+  /**
+   * Checks if the user has already voted
+   *
+   * @param {string} electionId The id of the election
+   * @returns {Promise<boolean>}
+   */
   async hasAlreadyVoted(electionId?: string): Promise<boolean> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
@@ -530,7 +543,14 @@ export class VocdoniSDKClient {
       .catch(() => false);
   }
 
+  /**
+   * Checks if the user is able to vote
+   *
+   * @param {string} electionId The id of the election
+   * @returns {Promise<boolean>}
+   */
   async isAbleToVote(electionId?: string): Promise<boolean> {
+    // @TODO check if user can overwrite vote
     return Promise.all([this.isInCensus(electionId), this.hasAlreadyVoted(electionId)])
       .then((res) => res[0] && !res[1])
       .catch(() => false);

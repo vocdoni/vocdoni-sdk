@@ -121,13 +121,10 @@ describe('Election integration tests', () => {
             pClient.setElectionId(electionIdentifier);
             const isInCensus = await pClient.isInCensus();
             expect(isInCensus).toBeTruthy();
-            console.log('isInCensus', isInCensus);
             const hasAlreadyVoted = await pClient.hasAlreadyVoted();
             expect(hasAlreadyVoted).toBeFalsy();
-            console.log('hasAlreadyVoted', hasAlreadyVoted);
             const isAbleToVote = await pClient.isAbleToVote();
             expect(isAbleToVote).toBeTruthy();
-            console.log('isAbleToVote', isAbleToVote);
             return pClient.submitVote(new Vote([index % 2]));
           })
         )
@@ -146,13 +143,10 @@ describe('Election integration tests', () => {
             pClient.setElectionId(electionIdentifier);
             const isInCensus = await pClient.isInCensus();
             expect(isInCensus).toBeTruthy();
-            console.log('isInCensus', isInCensus);
             const hasAlreadyVoted = await pClient.hasAlreadyVoted();
             expect(hasAlreadyVoted).toBeTruthy();
-            console.log('hasAlreadyVoted', hasAlreadyVoted);
             const isAbleToVote = await pClient.isAbleToVote();
             expect(isAbleToVote).toBeFalsy();
-            console.log('isAbleToVote', isAbleToVote);
           })
         )
       );
@@ -188,7 +182,11 @@ describe('Election integration tests', () => {
           participants.map(async (participant, index) => {
             const pClient = new VocdoniSDKClient(clientParams(participant));
             pClient.setElectionId(electionIdentifier);
-            const isAbleToVote = await pClient.isInCensus();
+            const isInCensus = await pClient.isInCensus();
+            expect(isInCensus).toBeTruthy();
+            const hasAlreadyVoted = await pClient.hasAlreadyVoted();
+            expect(hasAlreadyVoted).toBeFalsy();
+            const isAbleToVote = await pClient.isAbleToVote();
             expect(isAbleToVote).toBeTruthy();
             return pClient.submitVote(new Vote([index % 2]));
           })
@@ -202,7 +200,21 @@ describe('Election integration tests', () => {
         expect(+election.results[0][0]).toBeLessThan(+election.results[0][1]);
         expect(+election.results[0][0] + +election.results[0][1]).toEqual((numVotes * (numVotes + 1)) / 2);
         expect(+election.results[0][0]).toEqual(+election.results[0][1] - numVotes / 2);
-      });
+      })
+      .then(() =>
+        Promise.all(
+          participants.map(async (participant) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionIdentifier);
+            const isInCensus = await pClient.isInCensus();
+            expect(isInCensus).toBeTruthy();
+            const hasAlreadyVoted = await pClient.hasAlreadyVoted();
+            expect(hasAlreadyVoted).toBeTruthy();
+            const isAbleToVote = await pClient.isAbleToVote();
+            expect(isAbleToVote).toBeFalsy();
+          })
+        )
+      );
   }, 285000);
   it('should create an encrypted election with 10 participants and each of them should vote correctly', async () => {
     const numVotes = 10; // should be even number
@@ -232,7 +244,11 @@ describe('Election integration tests', () => {
           participants.map(async (participant, index) => {
             const pClient = new VocdoniSDKClient(clientParams(participant));
             pClient.setElectionId(electionIdentifier);
-            const isAbleToVote = await pClient.isInCensus();
+            const isInCensus = await pClient.isInCensus();
+            expect(isInCensus).toBeTruthy();
+            const hasAlreadyVoted = await pClient.hasAlreadyVoted();
+            expect(hasAlreadyVoted).toBeFalsy();
+            const isAbleToVote = await pClient.isAbleToVote();
             expect(isAbleToVote).toBeTruthy();
             return pClient.submitVote(new Vote([index % 2]));
           })
@@ -244,7 +260,21 @@ describe('Election integration tests', () => {
         expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.finalResults).toBeFalsy();
-      });
+      })
+      .then(() =>
+        Promise.all(
+          participants.map(async (participant) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionIdentifier);
+            const isInCensus = await pClient.isInCensus();
+            expect(isInCensus).toBeTruthy();
+            const hasAlreadyVoted = await pClient.hasAlreadyVoted();
+            expect(hasAlreadyVoted).toBeTruthy();
+            const isAbleToVote = await pClient.isAbleToVote();
+            expect(isAbleToVote).toBeFalsy();
+          })
+        )
+      );
   }, 285000);
   it('should create an election and end it successfully', async () => {
     const census = new PlainCensus();

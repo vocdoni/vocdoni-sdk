@@ -294,15 +294,30 @@ about the election status and the possible status changes once the election is c
 
 ### Voting to a process
 
-#### Check vote
-
-To check if a user can vote in given election using the wallet and election id used
-when initializing the client:
+#### Check if a user is in census
 
 ~~~ts
 (async () => {
-  const canVote = await client.isAbleToVote()
-  console.log(canVote) // true or false
+  const isInCensus = await client.isInCensus();
+  console.log(isInCensus) // true or false
+})();
+~~~
+
+#### Check if a user has already voted
+
+~~~ts
+(async () => {
+  const hasAlreadyVoted = await client.hasAlreadyVoted();
+  console.log(hasAlreadyVoted) // true or false
+})();
+~~~
+
+#### Check if a user is able to vote
+
+~~~ts
+(async () => {
+  const isAbleToVote = await client.isAbleToVote();
+  console.log(isAbleToVote) // true or false
 })();
 ~~~
 
