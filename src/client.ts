@@ -32,6 +32,14 @@ export type ChainData = {
   blockTimestamp: number;
 };
 
+/**
+ * @typedef AccountData
+ * @property {string} address
+ * @property {number} balance
+ * @property {number} nonce
+ * @property {number} electionIndex
+ * @property {string | null} infoURL
+ */
 export type AccountData = {
   address: string;
   balance: number;
@@ -45,6 +53,13 @@ type AccountToken = {
   wallet: Wallet;
 };
 
+/**
+ * @typedef CensusProof
+ * @property {string} weight
+ * @property {string} proof
+ * @property {string} value
+ * @property {CensusProofType} type
+ */
 export type CensusProof = {
   weight: string;
   proof: string;
@@ -52,10 +67,16 @@ export type CensusProof = {
   type: CensusProofType;
 };
 
+/**
+ * @typedef FaucetPackage
+ * @property {string} payload
+ * @property {string} signature
+ */
 export type FaucetPackage = {
   payload: string;
   signature: string;
 };
+
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -63,12 +84,30 @@ export enum EnvOptions {
   PROD = 'prod',
 }
 
+/**
+ * Specify custom Faucet.
+ *
+ * @typedef FaucetOptions
+ * @property {string} url
+ * @property {string | null} auth_token
+ * @property {number | null} token_limit
+ */
 type FaucetOptions = {
   url: string;
   auth_token?: string;
   token_limit?: number;
 };
 
+/**
+ * Optional VocdoniSDKClient arguments
+ *
+ * @typedef ClientOptions
+ * @property {EnvOptions} env enum with possible values `DEV`, `STG`, `PROD`
+ * @property {string | null } api_url API url location
+ * @property {Wallet | Signer | null} wallet `Wallet` or `Signer` object from `ethersproject` library
+ * @property {string | null} electionId Required by other methods like `submitVote` or `createElection`.
+ * @property {FaucetOptions | null} faucet Specify custom Faucet options
+ */
 export type ClientOptions = {
   env: EnvOptions;
   api_url?: string;
@@ -93,6 +132,15 @@ export class VocdoniSDKClient {
   public electionId: string | null;
   public faucet: FaucetOptions | null;
 
+  /**
+   * Instantiate new VocdoniSDK client.
+   *
+   * To instantiate the client just pass the `ClientOptions` you want or empty object to let defaults.
+   *
+   * `const client = new VocdoniSDKClient({EnvOptions.PROD})`
+   *
+   * @param {ClientOptions} opts optional arguments
+   */
   constructor(opts: ClientOptions) {
     this.url = opts.api_url ?? API_URL[opts.env];
     this.wallet = opts.wallet;
