@@ -77,7 +77,6 @@ export type FaucetPackage = {
   signature: string;
 };
 
-
 export enum EnvOptions {
   DEV = 'dev',
   STG = 'stg',
