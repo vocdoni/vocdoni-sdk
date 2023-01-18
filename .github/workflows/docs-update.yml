@@ -14,24 +14,21 @@ jobs:
     steps:
       - name: Checkout vocdoni-sdk repo
         uses: actions/checkout@v3
-        # with:
-        #   token: ${{ secrets.VOCDONIBOT_PAT }}
 
       - name: Install node
         uses: actions/setup-node@v3
         with:
-          #cache: 'npm'
-          node-version: 16
+          node-version: 18
 
       - name: Install docs dependencies
         run: |
           cd ./docs
-          npm install
+          yarn
 
       - name: Generate Vocdoni SDK Docs
         run: |
           cd ./docs
-          npm run build
+          yarn build
 
       - name: Get short commit hash
         id: vars
@@ -42,8 +39,6 @@ jobs:
         with:
           repository: vocdoni/developer-portal
           ref: main
-          path: developer-portal
-          # token: ${{ secrets.VOCDONIBOT_PAT }}
 
       - name: Copy generated docs
         run: |
@@ -71,7 +66,7 @@ jobs:
             automated pr
           reviewers: ${{ github.actor }}
           team-reviewers: SdkDocsReviewer
-      
+
       - name: Check PR outputs
         if: ${{ steps.cpr.outputs.pull-request-number }}
         run: |
