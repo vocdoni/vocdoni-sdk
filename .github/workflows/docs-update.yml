@@ -39,6 +39,7 @@ jobs:
         with:
           repository: vocdoni/developer-portal
           ref: main
+          path: developer-portal
 
       - name: Copy generated docs
         run: |
