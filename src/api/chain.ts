@@ -6,7 +6,7 @@ enum ChainAPIMethods {
   SUBMIT_TX = '/chain/transactions',
 }
 
-interface IChainGetInfoResponse {
+export interface IChainGetInfoResponse {
   /**
    * The id of the current chain
    */
@@ -28,7 +28,21 @@ interface IChainGetInfoResponse {
   blockTimestamp: number;
 }
 
-interface IChainGetTransactionReferenceResponse {
+export enum TransactionType {
+  VOTE_ENVELOPE = 'vote',
+  NEW_PROCESS_TX = 'newProcess',
+  ADMIN_TX = 'admin',
+  SET_PROCESS_TX = 'setProcess',
+  REGISTER_KEY_TX = 'registerKey',
+  MINT_TOKENS_TX = 'mintTokens',
+  SEND_TOKENS_TX = 'sendTokens',
+  SET_TRANSACTION_COSTS_TX = 'setTransactionCosts',
+  SET_ACCOUNT_TX = 'setAccount',
+  COLLECT_FAUCET_TX = 'collectFaucet',
+  SET_KEYKEEPER_TX = 'setKeykeeper',
+}
+
+export interface IChainGetTransactionReferenceResponse {
   /**
    * The number of the transaction.
    */
@@ -52,10 +66,10 @@ interface IChainGetTransactionReferenceResponse {
   /**
    * The type of the transaction.
    */
-  transactionType: string;
+  transactionType: TransactionType;
 }
 
-interface IChainSubmitTxResponse {
+export interface IChainSubmitTxResponse {
   /**
    * The hash of the transaction
    */
