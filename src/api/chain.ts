@@ -4,6 +4,7 @@ enum ChainAPIMethods {
   INFO = '/chain/info',
   TX_INFO = '/chain/transactions/reference',
   SUBMIT_TX = '/chain/transactions',
+  ORGANIZATION_COUNT = '/chain/organizations/count',
 }
 
 export interface IChainGetInfoResponse {
@@ -86,6 +87,13 @@ export interface IChainSubmitTxResponse {
   code: number;
 }
 
+export interface IChainOrganizationCountResponse {
+  /**
+   * The number of organizations
+   */
+  count: number;
+}
+
 export abstract class ChainAPI {
   /**
    * Cannot be constructed.
@@ -93,7 +101,7 @@ export abstract class ChainAPI {
   private constructor() {}
 
   /**
-   * Fetches info about the blokchain status.
+   * Fetches info about the blockchain status.
    *
    * @param {string} url API endpoint URL
    * @returns {Promise<IChainGetInfoResponse>}
@@ -139,6 +147,24 @@ export abstract class ChainAPI {
   public static submitTx(url: string, payload: string): Promise<IChainSubmitTxResponse> {
     return axios
       .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify({ payload }))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the number of organizations
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IChainSubmitTxResponse>}
+   */
+  public static organizationCount(url: string): Promise<IChainOrganizationCountResponse> {
+    return axios
+      .get<IChainOrganizationCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
