@@ -5,6 +5,7 @@ enum ChainAPIMethods {
   TX_INFO = '/chain/transactions/reference',
   SUBMIT_TX = '/chain/transactions',
   ORGANIZATION_COUNT = '/chain/organizations/count',
+  ORGANIZATION_LIST = '/chain/organizations/page',
 }
 
 export interface IChainGetInfoResponse {
@@ -94,6 +95,25 @@ export interface IChainOrganizationCountResponse {
   count: number;
 }
 
+interface IChainOrganizationResponse {
+  /**
+   * The identifier of the organization
+   */
+  organizationID: string;
+
+  /**
+   * The number of elections
+   */
+  electionCount: number;
+}
+
+export interface IChainOrganizationListResponse {
+  /**
+   * The list of organizations
+   */
+  organizations: Array<IChainOrganizationResponse>;
+}
+
 export abstract class ChainAPI {
   /**
    * Cannot be constructed.
@@ -160,11 +180,30 @@ export abstract class ChainAPI {
    * Returns the number of organizations
    *
    * @param {string} url API endpoint URL
-   * @returns {Promise<IChainSubmitTxResponse>}
+   * @returns {Promise<IChainOrganizationCountResponse>}
    */
   public static organizationCount(url: string): Promise<IChainOrganizationCountResponse> {
     return axios
       .get<IChainOrganizationCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT)
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the list of organizations by page
+   *
+   * @param {string} url API endpoint URL
+   * @param {number} page The page number
+   * @returns {Promise<IChainOrganizationListResponse>}
+   */
+  public static organizationList(url: string, page: number = 0): Promise<IChainOrganizationListResponse> {
+    return axios
+      .get<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST + '/' + page)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
