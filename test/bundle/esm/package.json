@@ -1,18 +1,15 @@
 {
-  "name": "sdk-esm-example",
+  "name": "sdk-esm-bundle-test",
   "private": true,
   "version": "1.0.0",
   "main": "dist/index.js",
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "@ethersproject/wallet": "^5.7.0",
-    "@vocdoni/sdk": "0.0.3-alpha",
-    "chalk": "^5.1.2"
+    "@vocdoni/sdk": "0.0.3-alpha"
   },
   "scripts": {
     "esm": "node --experimental-specifier-resolution=node --experimental-modules --no-warnings",
-    "start": "yarn esm ./src/index.mjs",
-    "check:import": "yarn esm ./src/check-import.mjs"
+    "check:import": "yarn esm ./src/check.mjs"
   }
 }

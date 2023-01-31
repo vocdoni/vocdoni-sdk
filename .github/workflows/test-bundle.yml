@@ -1,0 +1,41 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    name: Check bundle exports/imports
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example: [cjs, esm, umd]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Use Node 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Install deps & build
+        run: yarn
+
+      - name: Create tarball for importing in bundle checks
+        run: yarn pack --filename sdk-bundle-tests.tgz
+
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "\"@vocdoni/sdk\":[^\n]+"
+          replace: "\"@vocdoni/sdk\": \"file:../../../sdk-bundle-tests.tgz\""
+          regex: true
+          include: "test/bundle/${{ matrix.example }}/package.json"
+
+      - name: Yarn install ${{ matrix.example }}
+        working-directory: test/bundle/${{ matrix.example }}
+        run: yarn
+
+      - name: Check ${{ matrix.example }} imports
+        working-directory: test/bundle/${{ matrix.example }}
+        run: yarn check:import
