@@ -352,6 +352,23 @@ option (or options) being voted:
 })();
 ~~~
 
+### Other SDK functionalities
+
+#### Generate deterministic Wallet from data
+
+For some cases where the voters don't have an owned Wallet, we can generate a deterministic
+Wallet based on arbitrary data, like, for example, the user and hash password from a custom CRM.
+
+Here is an example where a Wallet is generated using the username and the hash of the password
+which we would use to identify the user in our platform. This Wallet can then be used for the
+census and for voting purposes.
+
+~~~ts
+// 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 is the sha256 of 'test'
+const userWallet = VocdoniSDKClient.generateWalletFromData(['user1', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08']);
+console.log(userWallet) // address is 0x8AF1b3EDB817b5854e3311d583905a3421F49829
+~~~
+
 ## Examples
 
 You can find a [full featured CRA][example-cra] application with all the previous
