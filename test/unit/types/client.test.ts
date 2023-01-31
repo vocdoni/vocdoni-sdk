@@ -40,4 +40,14 @@ describe('Client tests', () => {
       await client.fetchFaucetPayload();
     }).rejects.toThrow('No faucet URL');
   });
+  it('should calculate the deterministic wallet based on data', async () => {
+    const w1 = VocdoniSDKClient.generateWalletFromData('test');
+    const w2 = VocdoniSDKClient.generateWalletFromData(['test']);
+    const w3 = VocdoniSDKClient.generateWalletFromData('randomtest');
+    const w4 = VocdoniSDKClient.generateWalletFromData(['random', 'test']);
+    expect(w1.address).toEqual('0xC08B5542D177ac6686946920409741463a15dDdB');
+    expect(w1.address).toEqual(w2.address);
+    expect(w3.address).toEqual('0x3b4B77B8B87a9b429929fe4E8C3A6441533d1495');
+    expect(w3.address).toEqual(w4.address);
+  });
 });
