@@ -637,4 +637,16 @@ export class VocdoniSDKClient {
       .then((signedTx) => VoteAPI.submit(this.url, signedTx))
       .then((apiResponse) => this.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
   }
+
+  /**
+   * Returns a Wallet based on the inputs.
+   *
+   * @param {string | string[]} data The data inputs which should generate the Wallet
+   * @returns {Wallet} The deterministic wallet.
+   */
+  public static generateWalletFromData(data: string | string[]): Wallet {
+    const inputs = Array.isArray(data) ? data : [data];
+    const hash = inputs.reduce((acc, curr) => acc + curr, '');
+    return new Wallet(keccak256(Buffer.from(hash)));
+  }
 }
