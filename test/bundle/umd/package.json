@@ -1,0 +1,14 @@
+{
+  "name": "sdk-umd-bundle-test",
+  "private": true,
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "license": "MIT",
+  "dependencies": {
+    "@vocdoni/sdk": "0.0.3-alpha"
+  },
+  "scripts": {
+    "check:import": "node ./src/check.js"
+  }
+}
