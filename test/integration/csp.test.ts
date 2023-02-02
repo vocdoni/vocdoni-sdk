@@ -9,53 +9,6 @@ import { clientParams } from './util/client.params';
 const CSP_URL = 'https://csp-stg.vocdoni.net/v1';
 const CSP_PUBKEY = '0299f6984fddd0fab09c364d18e2759d6b728e933fae848676b8bd9700549a1817';
 
-/*
-const generateProof = async (client: VocdoniSDKClient, address: string) => {
-  //const url = 'https://csp-stg.vocdoni.net/v1';
-  //const info = await CspAPI.info(url);
-  //console.log(info);
-  //const info = await client.cspInfo();
-  //console.log(info);
-
-  const step0 = (await CspAPI.step(url, electionId, info.signatureType[0], info.authType, 0, [
-    'Name Test',
-  ])) as ICspIntermediateStepResponse;
-  console.log(step0);
-
-  const step0 = (await client.cspStep(0, ['Name test'])) as ICspIntermediateStepResponse;
-
-  const step1 = (await CspAPI.step(
-    url,
-    electionId,
-    info.signatureType[0],
-    info.authType,
-    1,
-    [step0.response.reduce((acc, v) => +acc + +v, 0).toString()],
-    step0.authToken
-  )) as ICspFinalStepResponse;
-  console.log(step1);
-
-  const step1 = (await client.cspStep(
-    1,
-    [step0.response.reduce((acc, v) => +acc + +v, 0).toString()],
-    step0.authToken
-  )) as ICspFinalStepResponse;
-
-  const { hexBlinded: blindedPayload, userSecretData } = getBlindedPayload(
-    electionId,
-    step1.token,
-    participant.address
-  );
-  console.log(blindedPayload, userSecretData);
-
-  const signature = await CspAPI.sign(url, electionId, info.signatureType[0], blindedPayload, step1.token);
-  console.log(signature);
-
-  return CensusBlind.unblind(signature.signature, userSecretData);
-
-  return await client.cspSign(address, step1.token);
-};
-*/
 describe('CSP tests', () => {
   it('should create an election with 10 participants and each of them should vote correctly', async () => {
     const numVotes = 10; // should be even number
