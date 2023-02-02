@@ -67,6 +67,7 @@
       "path": "dist/index.js",
       "limit": "512 KB",
       "ignore": [
+        "crypto",
         "buffer",
         "net",
         "stream",
@@ -85,14 +86,38 @@
       "path": "dist/index.mjs",
       "limit": "512 KB",
       "ignore": [
-        "buffer"
+        "crypto",
+        "buffer",
+        "net",
+        "stream",
+        "http",
+        "https",
+        "url",
+        "tty",
+        "assert",
+        "zlib",
+        "events",
+        "tls",
+        "eval"
       ]
     },
     {
       "path": "dist/index.umd.js",
       "limit": "512 KB",
       "ignore": [
-        "buffer"
+        "crypto",
+        "buffer",
+        "net",
+        "stream",
+        "http",
+        "https",
+        "url",
+        "tty",
+        "assert",
+        "zlib",
+        "events",
+        "tls",
+        "eval"
       ]
     }
   ],
