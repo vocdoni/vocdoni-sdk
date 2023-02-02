@@ -74,7 +74,7 @@ the `stg` one.
 
 ~~~ts
 const client = new VocdoniSDKClient({
-  env: EnvOptions.STG, // mandatory, can be 'dev' or 'prod'
+  env: EnvOptions.STG, // mandatory, can be 'dev' or 'stg'
   wallet: signer, // optional, the signer used (Metamask, Walletconnect)
 })
 ~~~
@@ -83,7 +83,7 @@ const client = new VocdoniSDKClient({
 
 ~~~ts
 const client = new VocdoniSDKClient({
-  env: EnvOptions.DEV, // mandatory, can be 'dev' or 'prod'
+  env: EnvOptions.DEV, // mandatory, can be 'dev' or 'stg'
   wallet: signer, // optional, the signer used (Metamask, Walletconnect)
 })
 ~~~
@@ -367,6 +367,58 @@ census and for voting purposes.
 // 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 is the sha256 of 'test'
 const userWallet = VocdoniSDKClient.generateWalletFromData(['user1', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08']);
 console.log(userWallet) // address is 0x8AF1b3EDB817b5854e3311d583905a3421F49829
+~~~
+
+### Advanced
+
+#### Use a CSP to validate participants in an election
+
+The SDK comes with an implementation of the common handler API of a CSP which is explained
+[here](https://github.com/vocdoni/blind-csp#api).
+
+For creating a CSP based election, a `CspCensus` has to be set to the election. This census need the
+CSP public key (`CSP_PUBKEY` in the example) and the CSP Url (`CSP_URL` in the example). 
+
+~~~ts
+const election = Election.from({
+  title: 'Election title',
+  description: 'Election description',
+  // a header image for your process (this is for example purposes; avoid using random sources)
+  header: 'https://source.unsplash.com/random/2048x600',
+  endDate: new Date('2023-01-23 23:23:23'),
+  census: new CspCensus(CSP_PUBKEY, CSP_URL),
+})
+// The election can be created the same way from here...
+~~~
+
+The SDK comes with some wrappers to get a blind signature from the CSP in order to vote.
+The complete flow is shown here:
+
+~~~ts
+// Client initialization
+const client = new VocdoniSDKClient({
+  env: EnvOptions.DEV,
+  wallet: signer, // the signer used (Metamask, Walletconnect)
+  electionId: '934234...', // The election identifier
+  csp_url: CSP_URL // The CSP url defined when creating an election
+})
+
+// Auth steps for the CSP (can vary of the type of the CSP)
+const step0 = (await client.cspStep(0, ['Name test'])) as ICspIntermediateStepResponse;
+const step1 = (await client.cspStep(
+  1,
+  [step0.response.reduce((acc, v) => +acc + +v, 0).toString()],
+  step0.authToken
+)) as ICspFinalStepResponse;
+
+// Get the blind signature
+const signature = await client.cspSign(signer.address, step1.token);
+
+// Get the vote based on the signature
+const vote = client.cspVote(new Vote([index % 2]), signature);
+
+// Vote
+const voteId = await client.submitVote(vote);
 ~~~
 
 ## Examples
