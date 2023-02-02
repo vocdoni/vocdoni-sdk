@@ -1,9 +1,19 @@
-import { Proof, ProofArbo, ProofArbo_KeyType, ProofArbo_Type, Tx, VoteEnvelope } from '@vocdoni/proto/vochain';
-import { Buffer } from 'buffer';
-import { CensusProof } from '../client';
-import { CensusType, PublishedElection, Vote } from '../types';
+import {
+  CAbundle,
+  Proof,
+  ProofArbo,
+  ProofArbo_KeyType,
+  ProofArbo_Type,
+  ProofCA,
+  ProofCA_Type,
+  Tx,
+  VoteEnvelope,
+} from '@vocdoni/proto/vochain';
 import { getHex, strip0x } from '../util/common';
+import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
+import { CensusType, PublishedElection, Vote } from '../types';
+import { CspCensusProof, OffchainCensusProof } from '../client';
 import { TransactionCore } from './transaction';
 
 export type IProofArbo = { siblings: string; weight?: bigint };
@@ -48,7 +58,7 @@ export abstract class VoteCore extends TransactionCore {
 
   public static generateVoteTransaction(
     election: PublishedElection,
-    censusProof: CensusProof,
+    censusProof: OffchainCensusProof | CspCensusProof,
     votePackage: Vote,
     processKeys?: ProcessKeys
   ): Uint8Array {
@@ -61,7 +71,7 @@ export abstract class VoteCore extends TransactionCore {
 
   private static prepareVoteData(
     election: PublishedElection,
-    censusProof: CensusProof,
+    censusProof: OffchainCensusProof | CspCensusProof,
     vote: Vote,
     processKeys?: ProcessKeys
   ): object {
@@ -95,18 +105,20 @@ export abstract class VoteCore extends TransactionCore {
   }
 
   /** Packages the given parameters into a proof that can be submitted to the Vochain */
-  private static packageSignedProof(processId: string, type: CensusType, censusProof: CensusProof): Proof {
-    const proof = Proof.fromPartial({});
-    processId.toString(); // TODO remove
-
+  private static packageSignedProof(
+    electionId: string,
+    type: CensusType,
+    censusProof: OffchainCensusProof | CspCensusProof
+  ): Proof {
     if (type == CensusType.WEIGHTED) {
+      const proof = censusProof as OffchainCensusProof;
       // Check census proof
-      if (typeof censusProof?.proof !== 'string' || !censusProof?.proof.match(/^(0x)?[0-9a-zA-Z]+$/)) {
+      if (typeof proof?.proof !== 'string' || !proof?.proof.match(/^(0x)?[0-9a-zA-Z]+$/)) {
         throw new Error('Invalid census proof (must be a hex string)');
       }
 
       let keyType;
-      switch (censusProof.type) {
+      switch (proof.type) {
         case CensusProofType.ADDRESS:
           keyType = ProofArbo_KeyType.ADDRESS;
           break;
@@ -119,34 +131,31 @@ export abstract class VoteCore extends TransactionCore {
       }
 
       const aProof = ProofArbo.fromPartial({
-        siblings: Uint8Array.from(Buffer.from(censusProof.proof, 'hex')),
+        siblings: Uint8Array.from(Buffer.from(proof.proof, 'hex')),
         type: ProofArbo_Type.BLAKE2B,
-        value: new Uint8Array(Buffer.from(censusProof.value, 'hex')),
+        value: new Uint8Array(Buffer.from(proof.value, 'hex')),
         keyType,
       });
-      proof.payload = { $case: 'arbo', arbo: aProof };
+
+      return Proof.fromPartial({
+        payload: { $case: 'arbo', arbo: aProof },
+      });
+    } else if (type == CensusType.CSP) {
+      const proof = censusProof as CspCensusProof;
+
+      // Populate the proof
+      const caProof = ProofCA.fromPartial({
+        // type: proof.type,
+        type: ProofCA_Type.ECDSA_BLIND_PIDSALTED,
+        signature: new Uint8Array(Buffer.from(strip0x(proof.signature), 'hex')),
+        bundle: this.cspCaBundle(electionId, proof.address),
+        // weight
+      });
+
+      return Proof.fromPartial({
+        payload: { $case: 'ca', ca: caProof },
+      });
     }
-    // else if (censusOrigin.isOffChainCA) {
-    //   // Check census proof
-    //   const resolvedProof = resolveCaProof(censusProof)
-    //   if (!resolvedProof) throw new Error("The proof is not valid")
-    //
-    //   const caBundle = CAbundle.fromPartial({
-    //     processId: new Uint8Array(hexStringToBuffer(processId)),
-    //     address: new Uint8Array(hexStringToBuffer(resolvedProof.voterAddress)),
-    //     // weight
-    //   })
-    //
-    //   // Populate the proof
-    //   const caProof = ProofCA.fromPartial({
-    //     type: resolvedProof.type,
-    //     signature: new Uint8Array(hexStringToBuffer(resolvedProof.signature)),
-    //     bundle: caBundle
-    //     // weight
-    //   })
-    //
-    //   proof.payload = { $case: "ca", ca: caProof }
-    // }
     // else if (censusOrigin.isErc20 || censusOrigin.isErc721 || censusOrigin.isErc1155 || censusOrigin.isErc777) {
     //   // Check census proof
     //   const resolvedProof = resolveEvmProof(censusProof)
@@ -175,7 +184,17 @@ export abstract class VoteCore extends TransactionCore {
     else {
       throw new Error('This process type is not supported yet');
     }
-    return proof;
+  }
+
+  public static cspCaBundle(electionId: string, address: string) {
+    return CAbundle.fromPartial({
+      processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
+      address: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
+    });
+  }
+
+  public static encodeCspCaBundle(bundle: CAbundle) {
+    return CAbundle.encode(bundle).finish();
   }
 
   private static packageVoteContent(votes: VoteValues, processKeys?: ProcessKeys) {

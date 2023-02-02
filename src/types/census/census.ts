@@ -1,6 +1,7 @@
 export enum CensusType {
   WEIGHTED = 'weighted',
   ANONYMOUS = 'zkindexed',
+  CSP = 'csp',
 }
 
 /**
@@ -58,6 +59,8 @@ export abstract class Census {
     switch (censusOrigin) {
       case 'OFF_CHAIN_TREE_WEIGHTED':
         return CensusType.WEIGHTED;
+      case 'OFF_CHAIN_CA':
+        return CensusType.CSP;
       default:
         throw new Error('Census type not defined by the census origin');
     }

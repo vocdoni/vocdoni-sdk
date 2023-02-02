@@ -1,4 +1,5 @@
-export * from './vote';
+export * from './vote/vote';
+export * from './vote/csp';
 export * from './metadata/election';
 export * from './metadata/account';
 // Beware the correct order for avoiding circular dependency
