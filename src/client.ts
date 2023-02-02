@@ -11,17 +11,21 @@ import { CensusProofType, VoteCore } from './core/vote';
 import {
   Account,
   Census,
+  CensusType,
   PlainCensus,
   PublishedCensus,
   PublishedElection,
   UnpublishedElection,
   Vote,
+  CspVote,
   WeightedCensus,
 } from './types';
 import { delay, strip0x } from './util/common';
-import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 import { promiseAny } from './util/promise';
+import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
 import { isWallet } from './util/signing';
+import { CspAPI } from './api/csp';
+import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 
 export { ElectionStatus };
 
@@ -54,17 +58,31 @@ type AccountToken = {
 };
 
 /**
- * @typedef CensusProof
+ * @typedef OffchainCensusProof
  * @property {string} weight
  * @property {string} proof
  * @property {string} value
  * @property {CensusProofType} type
  */
-export type CensusProof = {
+export type OffchainCensusProof = {
   weight: string;
   proof: string;
   value: string;
   type: CensusProofType;
+};
+
+/**
+ * @typedef CspCensusProof
+ * @property {string} type
+ * @property {string} address
+ * @property {string} signature
+ * @property {bigint} weight
+ */
+export type CspCensusProof = {
+  type?: number;
+  address: string;
+  signature: string;
+  weight?: bigint;
 };
 
 /**
@@ -113,6 +131,7 @@ export type ClientOptions = {
   wallet?: Wallet | Signer;
   electionId?: string;
   faucet?: FaucetOptions;
+  csp_url?: string;
 };
 
 /**
@@ -130,6 +149,9 @@ export class VocdoniSDKClient {
   public wallet: Wallet | Signer | null;
   public electionId: string | null;
   public faucet: FaucetOptions | null;
+
+  public csp_url: string | null;
+  private cspInformation;
 
   /**
    * Instantiate new VocdoniSDK client.
@@ -149,6 +171,7 @@ export class VocdoniSDKClient {
       auth_token: opts.faucet?.auth_token ?? FAUCET_AUTH_TOKEN[opts.env] ?? undefined,
       token_limit: opts.faucet?.token_limit,
     };
+    this.csp_url = opts.csp_url ?? null;
   }
 
   /**
@@ -158,6 +181,59 @@ export class VocdoniSDKClient {
    */
   setElectionId(electionId: string) {
     this.electionId = electionId;
+  }
+
+  async cspInfo() {
+    if (!this.csp_url) {
+      throw new Error('Csp URL not set');
+    }
+
+    this.cspInformation = await CspAPI.info(this.csp_url);
+    return this.cspInformation;
+  }
+
+  async cspStep(stepNumber: number, data: any[], authToken?: string) {
+    if (!this.electionId || !this.csp_url) {
+      throw new Error('Csp options not set');
+    }
+    if (!this.cspInformation) {
+      await this.cspInfo();
+    }
+
+    return CspAPI.step(
+      this.csp_url,
+      this.electionId,
+      this.cspInformation.signatureType[0],
+      this.cspInformation.authType,
+      stepNumber,
+      data,
+      authToken
+    );
+  }
+
+  async cspSign(address: string, token: string) {
+    if (!this.electionId || !this.csp_url) {
+      throw new Error('Csp options not set');
+    }
+    if (!this.cspInformation) {
+      await this.cspInfo();
+    }
+
+    const { hexBlinded: blindedPayload, userSecretData } = getBlindedPayload(this.electionId, token, address);
+
+    const signature = await CspAPI.sign(
+      this.csp_url,
+      this.electionId,
+      this.cspInformation.signatureType[0],
+      blindedPayload,
+      token
+    );
+
+    return CensusBlind.unblind(signature.signature, userSecretData);
+  }
+
+  cspVote(vote: Vote, signature: string): CspVote {
+    return new CspVote(vote.votes, signature);
   }
 
   /**
@@ -331,9 +407,9 @@ export class VocdoniSDKClient {
    * @param {string} censusId Census we want to check the address against
    * @param {string} key The address to be found
    * @param {CensusProofType} type Type of census
-   * @returns {Promise<CensusProof>}
+   * @returns {Promise<OffchainCensusProof>}
    */
-  async fetchProof(censusId: string, key: string, type: CensusProofType): Promise<CensusProof> {
+  async fetchProof(censusId: string, key: string, type: CensusProofType): Promise<OffchainCensusProof> {
     return CensusAPI.proof(this.url, censusId, key).then((censusProof) => {
       return { ...censusProof, type };
     });
@@ -344,9 +420,12 @@ export class VocdoniSDKClient {
    *
    * @param election
    * @param wallet
-   * @returns {Promise<CensusProof>}
+   * @returns {Promise<OffchainCensusProof>}
    */
-  private async fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<CensusProof> {
+  private async fetchProofForWallet(
+    election: PublishedElection,
+    wallet: Wallet | Signer
+  ): Promise<OffchainCensusProof> {
     return wallet.getAddress().then((address) => {
       if (isWallet(this.wallet)) {
         const { publicKey } = this.wallet as Wallet;
@@ -606,10 +685,10 @@ export class VocdoniSDKClient {
   /**
    * Submits a vote to the current instance election id.
    *
-   * @param {Vote} vote The vote (or votes) to be sent.
+   * @param {Vote | CspVote} vote The vote (or votes) to be sent.
    * @returns {Promise<string>} Vote confirmation id.
    */
-  async submitVote(vote: Vote): Promise<string> {
+  async submitVote(vote: Vote | CspVote): Promise<string> {
     if (this.election instanceof UnpublishedElection) {
       throw Error('Election is not published');
     }
@@ -620,19 +699,32 @@ export class VocdoniSDKClient {
 
     const election = await this.fetchElection();
 
+    let censusProof: CspCensusProof | OffchainCensusProof;
+    if (election.census.type == CensusType.WEIGHTED) {
+      censusProof = await this.fetchProofForWallet(election, this.wallet);
+    } else if (election.census.type == CensusType.CSP && vote instanceof CspVote) {
+      censusProof = {
+        address: await this.wallet.getAddress(),
+        signature: vote.signature,
+      };
+    } else {
+      throw new Error('No valid vote for this election');
+    }
+
+    let voteTx;
+    if (election?.electionType.secretUntilTheEnd) {
+      voteTx = ElectionAPI.keys(this.url, election.id).then((encryptionPubKeys) =>
+        Promise.all([
+          VoteCore.generateVoteTransaction(election, censusProof, vote, { encryptionPubKeys }),
+          this.fetchChainId(),
+        ])
+      );
+    } else {
+      voteTx = Promise.all([VoteCore.generateVoteTransaction(election, censusProof, vote), this.fetchChainId()]);
+    }
+
     // Vote
-    return this.fetchProofForWallet(election, this.wallet)
-      .then((censusProof) => {
-        if (election?.electionType.secretUntilTheEnd) {
-          return ElectionAPI.keys(this.url, election.id).then((encryptionPubKeys) =>
-            Promise.all([
-              VoteCore.generateVoteTransaction(election, censusProof, vote, { encryptionPubKeys }),
-              this.fetchChainId(),
-            ])
-          );
-        }
-        return Promise.all([VoteCore.generateVoteTransaction(election, censusProof, vote), this.fetchChainId()]);
-      })
+    return voteTx
       .then((data) => VoteCore.signTransaction(data[0], data[1], this.wallet))
       .then((signedTx) => VoteAPI.submit(this.url, signedTx))
       .then((apiResponse) => this.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));

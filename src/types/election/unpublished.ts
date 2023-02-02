@@ -11,6 +11,7 @@ import { PublishedCensus } from '../census/published';
 import { PlainCensus } from '../census/plain';
 import { WeightedCensus } from '../census/weighted';
 import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
+import { CspCensus } from '../census/csp';
 
 /**
  * Represents an unpublished election
@@ -183,13 +184,16 @@ export class UnpublishedElection extends Election {
     this._questions = value;
   }
 
-  get census(): PublishedCensus | PlainCensus | WeightedCensus {
+  get census(): PublishedCensus | PlainCensus | WeightedCensus | CspCensus {
     return super.census;
   }
 
-  set census(value: PublishedCensus | PlainCensus | WeightedCensus) {
+  set census(value: PublishedCensus | PlainCensus | WeightedCensus | CspCensus) {
     invariant(
-      value instanceof PlainCensus || value instanceof PublishedCensus || value instanceof WeightedCensus,
+      value instanceof PlainCensus ||
+        value instanceof PublishedCensus ||
+        value instanceof WeightedCensus ||
+        value instanceof CspCensus,
       'Invalid census'
     );
     this._census = value;

@@ -1,3 +1,4 @@
+import { AccountData, ChainData } from '../client';
 import {
   CensusOrigin,
   NewProcessTx,
@@ -7,11 +8,10 @@ import {
   Tx,
   TxType,
 } from '@vocdoni/proto/vochain';
-import { Buffer } from 'buffer';
-import { AccountData, ChainData } from '../client';
-import { UnpublishedElection } from '../types';
-import { strip0x } from '../util/common';
+import { CensusType, UnpublishedElection } from '../types';
 import { TransactionCore } from './transaction';
+import { Buffer } from 'buffer';
+import { strip0x } from '../util/common';
 
 export { ElectionStatus };
 
@@ -111,7 +111,7 @@ export abstract class ElectionCore extends TransactionCore {
             maxTotalCost: 0, // TODO
             costExponent: election.voteType.costExponent,
           },
-          censusOrigin: CensusOrigin.OFF_CHAIN_TREE_WEIGHTED, //TODO
+          censusOrigin: this.censusOriginFromCensusType(election.census.type),
           metadata: cid,
         },
       },
@@ -120,6 +120,17 @@ export abstract class ElectionCore extends TransactionCore {
 
   public static electionStatusFromString(status: string): ElectionStatus {
     return processStatusFromJSON(status);
+  }
+
+  public static censusOriginFromCensusType(censusType: CensusType): CensusOrigin {
+    switch (censusType) {
+      case CensusType.WEIGHTED:
+        return CensusOrigin.OFF_CHAIN_TREE_WEIGHTED;
+      case CensusType.CSP:
+        return CensusOrigin.OFF_CHAIN_CA;
+      default:
+        throw new Error('Census origin not defined by the census type');
+    }
   }
 
   /**
