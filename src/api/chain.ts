@@ -6,6 +6,7 @@ enum ChainAPIMethods {
   INFO = '/chain/info',
   TX_INFO = '/chain/transactions/reference',
   TX_LIST = '/chain/transactions/page',
+  TX_COUNT = '/chain/transactions/count',
   SUBMIT_TX = '/chain/transactions',
   TX_LIST = '/chain/transactions/page',
   ORGANIZATION_COUNT = '/chain/organizations/count',
@@ -123,6 +124,14 @@ export interface IChainGetTransactionReferenceResponse {
    */
   transactionType: TransactionType;
 }
+
+export interface IChainTransactionCountResponse {
+  /**
+   * The number of transactions
+   */
+  count: number;
+}
+
 
 export interface IChainSubmitTxResponse {
   /**
@@ -280,6 +289,24 @@ export abstract class ChainAPI extends API {
   public static txList(url: string, page: number = 0): Promise<IChainGetTransactionReferenceResponse> {
     return axios
       .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the number of transactions registered on the Vocchain
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IChainOrganizationCountResponse>}
+   */
+  public static txCount(url: string): Promise<IChainTransactionCountResponse> {
+    return axios
+      .get<IChainTransactionCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT )
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
