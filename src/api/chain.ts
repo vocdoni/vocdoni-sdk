@@ -132,7 +132,6 @@ export interface IChainTransactionCountResponse {
   count: number;
 }
 
-
 export interface IChainSubmitTxResponse {
   /**
    * The hash of the transaction
@@ -306,7 +305,7 @@ export abstract class ChainAPI extends API {
    */
   public static txCount(url: string): Promise<IChainTransactionCountResponse> {
     return axios
-      .get<IChainTransactionCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT )
+      .get<IChainTransactionCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
