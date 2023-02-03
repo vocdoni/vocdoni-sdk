@@ -26,6 +26,24 @@ services:
       options:
         max-size: "20m"
         max-file: "10"
+  blind-csp:
+    image: "vocdoni/blind-csp:latest"
+    entrypoint: "/app/blind-csp"
+    command: |
+      --key f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
+    # that's random but hardcoded so the test can create the election, it corresponds to:
+    # address 0xc3E925C7D971601c85eB042032F415852E56A038
+    # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
+    ports:
+      - 127.0.0.1::5000
+    sysctls:
+      net.core.somaxconn: 8128
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "10"
+
 
 volumes:
   run: {}
