@@ -6,6 +6,7 @@ enum ChainAPIMethods {
   SUBMIT_TX = '/chain/transactions',
   ORGANIZATION_COUNT = '/chain/organizations/count',
   ORGANIZATION_LIST = '/chain/organizations/page',
+  VALIDATORS_LIST = '/chain/validators',
 }
 
 export interface IChainGetInfoResponse {
@@ -114,6 +115,35 @@ export interface IChainOrganizationListResponse {
   organizations: Array<IChainOrganizationResponse>;
 }
 
+export interface IChainValidatorsResponse {
+  /**
+   * Current power of the validator
+   */
+  power: number;
+
+  /**
+   * Validator public key
+   */
+  pubKey: string;
+
+  /**
+   * Validator address
+   */
+  address: string;
+
+  /**
+   * Validator name reference. Could be empty.
+   */
+  name: string;
+}
+
+export interface IChainValidatorsListResponse {
+  /**
+   * The list of validators
+   */
+  organizations: Array<IChainValidatorsResponse>;
+}
+
 export abstract class ChainAPI {
   /**
    * Cannot be constructed.
@@ -204,6 +234,24 @@ export abstract class ChainAPI {
   public static organizationList(url: string, page: number = 0): Promise<IChainOrganizationListResponse> {
     return axios
       .get<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST + '/' + page)
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the list of validators
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IChainOrganizationListResponse>}
+   */
+  public static validatorsList(url: string): Promise<IChainValidatorsListResponse> {
+    return axios
+      .get<IChainValidatorsListResponse>(url + ChainAPIMethods.VALIDATORS_LIST)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
