@@ -125,6 +125,13 @@ export interface IChainGetTransactionReferenceResponse {
   transactionType: TransactionType;
 }
 
+export interface IChainTransactionListResponse {
+  /**
+   * The list of transactions
+   */
+  transactions: Array<IChainGetTransactionReferenceResponse>;
+}
+
 export interface IChainTransactionCountResponse {
   /**
    * The number of transactions
@@ -285,9 +292,9 @@ export abstract class ChainAPI extends API {
    * @param {number} page The page number
    * @returns {Promise<IChainGetTransactionReferenceResponse>}
    */
-  public static txList(url: string, page: number = 0): Promise<IChainGetTransactionReferenceResponse> {
+  public static txList(url: string, page: number = 0): Promise<IChainTransactionListResponse> {
     return axios
-      .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
+      .get<IChainTransactionListResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
