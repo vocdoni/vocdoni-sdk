@@ -5,6 +5,7 @@ import { ErrTransactionNotFound } from './errors';
 enum ChainAPIMethods {
   INFO = '/chain/info',
   TX_INFO = '/chain/transactions/reference',
+  TX_LIST = '/chain/transactions/page',
   SUBMIT_TX = '/chain/transactions',
   TX_LIST = '/chain/transactions/page',
   ORGANIZATION_COUNT = '/chain/organizations/count',
@@ -266,6 +267,24 @@ export abstract class ChainAPI extends API {
       .get<IChainGetInfoResponse>(url + ChainAPIMethods.INFO)
       .then((response) => response.data)
       .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of transactions summaries by page
+   * @param {string} url API endpoint URL
+   * @param {number} page The page number
+   * @returns {Promise<IChainGetTransactionReferenceResponse>}
+   */
+  public static txList(url: string, page: number = 0): Promise<IChainGetTransactionReferenceResponse> {
+    return axios
+      .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
   }
 
   /**
