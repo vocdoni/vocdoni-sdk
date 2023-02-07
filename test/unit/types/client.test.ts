@@ -1,5 +1,5 @@
 import { EnvOptions, VocdoniSDKClient } from '../../../src';
-import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from '../../../src/util/constants';
+import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from '../../../src/util/constants';
 import { Wallet } from '@ethersproject/wallet';
 
 describe('Client tests', () => {
@@ -13,6 +13,8 @@ describe('Client tests', () => {
     expect(client.faucet.url).toEqual(FAUCET_URL.dev);
     expect(client.faucet.auth_token).toEqual(FAUCET_AUTH_TOKEN.dev);
     expect(client.faucet.token_limit).toBeUndefined();
+    expect(client.tx_wait.retry_time).toEqual(TX_WAIT_OPTIONS.retry_time);
+    expect(client.tx_wait.attempts).toEqual(TX_WAIT_OPTIONS.attempts);
   });
   it('should have the correct default values for staging environment', () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.STG });
@@ -20,6 +22,8 @@ describe('Client tests', () => {
     expect(client.faucet.url).toEqual(FAUCET_URL.stg);
     expect(client.faucet.auth_token).toEqual(FAUCET_AUTH_TOKEN.stg);
     expect(client.faucet.token_limit).toBeUndefined();
+    expect(client.tx_wait.retry_time).toEqual(TX_WAIT_OPTIONS.retry_time);
+    expect(client.tx_wait.attempts).toEqual(TX_WAIT_OPTIONS.attempts);
   });
   it('should have the correct default values for production environment', () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.PROD });
@@ -27,6 +31,13 @@ describe('Client tests', () => {
     expect(client.faucet.url).toBeUndefined();
     expect(client.faucet.auth_token).toBeUndefined();
     expect(client.faucet.token_limit).toBeUndefined();
+    expect(client.tx_wait.retry_time).toEqual(TX_WAIT_OPTIONS.retry_time);
+    expect(client.tx_wait.attempts).toEqual(TX_WAIT_OPTIONS.attempts);
+  });
+  it('should have the correct given values for transaction waiting options', () => {
+    const client = new VocdoniSDKClient({ env: EnvOptions.DEV, tx_wait: { retry_time: 1000, attempts: 10 } });
+    expect(client.tx_wait.retry_time).toEqual(1000);
+    expect(client.tx_wait.attempts).toEqual(10);
   });
   it('should throw when trying to fetch tokens without wallet or signer', async () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.DEV });
