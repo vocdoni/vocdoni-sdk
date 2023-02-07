@@ -13,3 +13,8 @@ export const FAUCET_AUTH_TOKEN = {
   dev: '158a58ba-bd3e-479e-b230-2814a34fae8f',
   stg: '158a58ba-bd3e-479e-b230-2814a34fae8f',
 };
+
+export const TX_WAIT_OPTIONS = {
+  retry_time: 3000,
+  attempts: 6,
+};

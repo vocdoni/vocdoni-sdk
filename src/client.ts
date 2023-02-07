@@ -22,7 +22,7 @@ import {
 } from './types';
 import { delay, strip0x } from './util/common';
 import { promiseAny } from './util/promise';
-import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL } from './util/constants';
+import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import { isWallet } from './util/signing';
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
@@ -116,6 +116,18 @@ type FaucetOptions = {
 };
 
 /**
+ * Specify custom retry times and attempts when waiting for a transaction.
+ *
+ * @typedef TxWaitOptions
+ * @property {number | null} retry_time
+ * @property {number | null} attempts
+ */
+type TxWaitOptions = {
+  retry_time?: number;
+  attempts?: number;
+};
+
+/**
  * Optional VocdoniSDKClient arguments
  *
  * @typedef ClientOptions
@@ -132,6 +144,7 @@ export type ClientOptions = {
   electionId?: string;
   faucet?: FaucetOptions;
   csp_url?: string;
+  tx_wait?: TxWaitOptions;
 };
 
 /**
@@ -149,6 +162,7 @@ export class VocdoniSDKClient {
   public wallet: Wallet | Signer | null;
   public electionId: string | null;
   public faucet: FaucetOptions | null;
+  public tx_wait: TxWaitOptions | null;
 
   public csp_url: string | null;
   private cspInformation;
@@ -172,6 +186,10 @@ export class VocdoniSDKClient {
       token_limit: opts.faucet?.token_limit,
     };
     this.csp_url = opts.csp_url ?? null;
+    this.tx_wait = {
+      retry_time: opts.tx_wait?.retry_time ?? TX_WAIT_OPTIONS.retry_time,
+      attempts: opts.tx_wait?.attempts ?? TX_WAIT_OPTIONS.attempts,
+    };
   }
 
   /**
@@ -392,13 +410,18 @@ export class VocdoniSDKClient {
    * it fails.
    *
    * @param {string} tx Transaction to wait for
-   * @param {number} wait The delay between tries
+   * @param {number} wait The delay in milliseconds between tries
+   * @param {attempts} attempts The attempts to try before failing
    * @returns {Promise<void>}
    */
-  async waitForTransaction(tx: string, wait: number = 1000): Promise<void> {
-    return ChainAPI.txInfo(this.url, tx)
-      .then(() => Promise.resolve())
-      .catch(() => delay(wait).then(() => this.waitForTransaction(tx, wait)));
+  async waitForTransaction(tx: string, wait?: number, attempts?: number): Promise<void> {
+    const waitTime = wait ?? this.tx_wait.retry_time;
+    const attemptsNum = attempts ?? this.tx_wait.attempts;
+    return attemptsNum === 0
+      ? Promise.reject('Time out waiting for transaction: ' + tx)
+      : ChainAPI.txInfo(this.url, tx)
+          .then(() => Promise.resolve())
+          .catch(() => delay(waitTime).then(() => this.waitForTransaction(tx, waitTime, attemptsNum - 1)));
   }
 
   /**
