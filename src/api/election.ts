@@ -5,6 +5,8 @@ enum ElectionAPIMethods {
   INFO = '/elections',
   KEYS = '/elections/{id}/keys',
   CREATE = '/elections',
+  VOTES = '/elections/{id}/votes/page/{page}',
+  VOTES_COUNT = '/elections/{id}/votes/count',
 }
 
 export interface IResults {
@@ -268,6 +270,40 @@ interface IElectionKeysResponse {
   publicKeys: IEncryptionPublicKey[];
 }
 
+interface IElectionVotesCountResponse {
+  /**
+   * The number of votes
+   */
+  count: number;
+}
+
+interface IElectionVotesListResponse {
+  /**
+   * Containing transaction hash
+   */
+  txHash: string;
+
+  /**
+   * Vote unique identifier also known as vote nullifier
+   */
+  voteID: string;
+
+  /**
+   * Account that emit the vote
+   */
+  voterID: string;
+
+  /**
+   * Block containing the vote transaction
+   */
+  blockHeight: number;
+
+  /**
+   * Transaction number on the block
+   */
+  transactionIndex: number;
+}
+
 export abstract class ElectionAPI {
   /**
    * Cannot be constructed.
@@ -323,6 +359,51 @@ export abstract class ElectionAPI {
   public static create(url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
     return axios
       .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, JSON.stringify({ txPayload: payload, metadata }))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the number of votes of an election
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} electionId The identifier of the election
+   * @returns {Promise<IElectionVotesCountResponse>}
+   */
+  public static organizationCount(url: string, electionId: string): Promise<IElectionVotesCountResponse> {
+    return axios
+      .get<IElectionVotesCountResponse>(url + ElectionAPIMethods.VOTES_COUNT.replace('{id}', electionId))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the list of votes for a process
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} electionId The identifier of the election
+   * @param {number} page The page number
+   * @returns {Promise<IElectionVotesListResponse>}
+   */
+  public static organizationList(
+    url: string,
+    electionId: string,
+    page: number = 0
+  ): Promise<IElectionVotesListResponse> {
+    return axios
+      .get<IElectionVotesListResponse>(
+        url + ElectionAPIMethods.VOTES.replace('{id}', electionId).replace('{page}', String(page))
+      )
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
