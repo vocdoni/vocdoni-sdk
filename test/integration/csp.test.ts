@@ -6,8 +6,8 @@ import { CspCensus } from '../../src/types/census/csp';
 // @ts-ignore
 import { clientParams } from './util/client.params';
 
-const CSP_URL = 'https://csp-stg.vocdoni.net/v1';
-const CSP_PUBKEY = '0299f6984fddd0fab09c364d18e2759d6b728e933fae848676b8bd9700549a1817';
+const CSP_URL = process.env.BLINDCSP_URL ?? 'https://csp-stg.vocdoni.net/v1';
+const CSP_PUBKEY = process.env.BLINDCSP_PUBKEY ?? '0299f6984fddd0fab09c364d18e2759d6b728e933fae848676b8bd9700549a1817';
 
 describe('CSP tests', () => {
   it('should create an election with 10 participants and each of them should vote correctly', async () => {
