@@ -55,10 +55,10 @@ jobs:
       - name: Install deps
         run: yarn
 
-      - name: Set COMPOSE_PROJECT_NAME for voconed
+      - name: Set COMPOSE_PROJECT_NAME for voconed+blind-csp
         run: echo COMPOSE_PROJECT_NAME=${RANDOM}${RANDOM}_ci >> $GITHUB_ENV
 
-      - name: Start voconed (ephemeral vochain for integration test)
+      - name: Start voconed+blind-csp (ephemeral vochain for integration test)
         run: |
           docker-compose -f test/integration/util/docker-compose.yml up -d
           echo -n "voconed_hostport=" >> $GITHUB_ENV
@@ -80,10 +80,10 @@ jobs:
           FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
           FAUCET_TOKEN_LIMIT: 100
 
-      - name: Debug voconed logs on failure
+      - name: Debug voconed+blind-csp logs on failure
         if: failure()
         run: docker-compose -f test/integration/util/docker-compose.yml logs
 
-      - name: Stop voconed (ephemeral vochain for integration test)
+      - name: Stop voconed+blind-csp (ephemeral vochain for integration test)
         if: success() || failure()
         run: docker-compose -f test/integration/util/docker-compose.yml down -v
