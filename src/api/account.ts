@@ -3,6 +3,7 @@ import axios from 'axios';
 enum AccountAPIMethods {
   INFO = '/accounts',
   SET_INFO = '/accounts',
+  TRANSFERS = '/accounts/{accountId}/transfers/page',
 }
 
 interface IAccountInfoResponse {
@@ -44,6 +45,15 @@ interface IAccountSetInfoResponse {
   metadataURL: number;
 }
 
+interface IAccountTransfersResponse {
+  amount: number;
+  from: string;
+  height: number;
+  txHash: string;
+  timestamp: string;
+  to: string;
+}
+
 export abstract class AccountAPI {
   /**
    * Cannot be constructed.
@@ -80,6 +90,26 @@ export abstract class AccountAPI {
   public static setInfo(url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
       .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, JSON.stringify({ txPayload: payload, metadata }))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns paginated list of transfers for a specific account
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} accountId accountId to get transfers
+   * @param {number} page The page number
+   * @returns {Promise<IAccountTransfersResponse>}
+   */
+  public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
+    return axios
+      .get<IAccountTransfersResponse>(url + AccountAPIMethods.TRANSFERS.replace('{accountId}', accountId) + '/' + page)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
