@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { API } from './api';
 import { ErrTransactionNotFound } from './errors';
+import { Tx } from './chain/index';
 
 enum ChainAPIMethods {
   INFO = '/chain/info',
   TX_INFO = '/chain/transactions/reference',
-  TX_LIST = '/chain/transactions/page',
+  TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
   TX_COUNT = '/chain/transactions/count',
   SUBMIT_TX = '/chain/transactions',
   TX_LIST = '/chain/transactions/page',
@@ -98,7 +99,7 @@ export enum TransactionType {
   SET_KEYKEEPER_TX = 'setKeykeeper',
 }
 
-export interface IChainGetTransactionReferenceResponse {
+export interface IChainTxReference {
   /**
    * The number of the transaction.
    */
@@ -125,14 +126,7 @@ export interface IChainGetTransactionReferenceResponse {
   transactionType: TransactionType;
 }
 
-export interface IChainTransactionListResponse {
-  /**
-   * The list of transactions
-   */
-  transactions: Array<IChainGetTransactionReferenceResponse>;
-}
-
-export interface IChainTransactionCountResponse {
+export interface IChainTxCountResponse {
   /**
    * The number of transactions
    */
@@ -160,7 +154,7 @@ export interface IChainTxListResponse {
   /**
    * List of transactions reference
    */
-  transactions: Array<IChainGetTransactionReferenceResponse>;
+  transactions: Array<IChainTxReference>;
 }
 
 export interface IChainOrganizationCountResponse {
@@ -287,39 +281,16 @@ export abstract class ChainAPI extends API {
   }
 
   /**
-   * Returns the list of transactions summaries by page
-   * @param {string} url API endpoint URL
-   * @param {number} page The page number
-   * @returns {Promise<IChainGetTransactionReferenceResponse>}
-   */
-  public static txList(url: string, page: number = 0): Promise<IChainTransactionListResponse> {
-    return axios
-      .get<IChainTransactionListResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
-      .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
-  }
-
-  /**
    * Returns the number of transactions registered on the Vocchain
    *
    * @param {string} url API endpoint URL
    * @returns {Promise<IChainOrganizationCountResponse>}
    */
-  public static txCount(url: string): Promise<IChainTransactionCountResponse> {
+  public static txCount(url: string): Promise<IChainTxCountResponse> {
     return axios
-      .get<IChainTransactionCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT)
+      .get<IChainTxCountResponse>(url + ChainAPIMethods.TX_COUNT)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -327,15 +298,38 @@ export abstract class ChainAPI extends API {
    *
    * @param {string} url API endpoint URL
    * @param {string} txHash The transaction hash which we want to retrieve the info from
-   * @returns {Promise<IChainGetTransactionReferenceResponse>}
+   * @returns {Promise<IChainTxReference>}
    */
-  public static txInfo(url: string, txHash: string): Promise<IChainGetTransactionReferenceResponse> {
+  public static txInfo(url: string, txHash: string): Promise<IChainTxReference> {
     return axios
-      .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
+      .get<IChainTxReference>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
       .then((response) => {
         if (response.status === 204) {
           throw new ErrTransactionNotFound();
         }
+        return response.data;
+      })
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches information about a transaction by its containing block an index on the block.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} blockHeight Block with the containing transaction
+   * @param {string} txIndex Index on the block
+   * @returns {Promise<Tx>}
+   */
+  public static txInfoByBlock(url: string, blockHeight: number, txIndex: number): Promise<Tx> {
+    return axios
+      .get<Tx>(
+        url +
+          ChainAPIMethods.TX_INFO_BLOCK.replace('{blockHeight}', String(blockHeight)).replace(
+            '{txIndex}',
+            String(txIndex)
+          )
+      )
+      .then((response) => {
         return response.data;
       })
       .catch(this.isApiError);
