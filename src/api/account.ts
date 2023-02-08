@@ -3,6 +3,7 @@ import axios from 'axios';
 enum AccountAPIMethods {
   INFO = '/accounts',
   SET_INFO = '/accounts',
+  ELECTIONS = '/accounts/{accountId}/elections/page',
   TRANSFERS = '/accounts/{accountId}/transfers/page',
 }
 
@@ -43,6 +44,17 @@ interface IAccountSetInfoResponse {
    * The metadata URL
    */
   metadataURL: number;
+}
+
+interface IAccountElectionsResponse {
+  elections: Array<{
+    electionId: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+    voteCount: number;
+    finalResults: boolean;
+  }>;
 }
 
 interface IAccountTransfersResponse {
@@ -110,6 +122,26 @@ export abstract class AccountAPI {
   public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
     return axios
       .get<IAccountTransfersResponse>(url + AccountAPIMethods.TRANSFERS.replace('{accountId}', accountId) + '/' + page)
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns paginated list of elections for a specific account
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} accountId accountId to get elections
+   * @param {number} page The page number
+   * @returns {Promise<IAccountElectionsResponse>}
+   */
+  public static electionsList(url: string, accountId: string, page: number = 0): Promise<IAccountElectionsResponse> {
+    return axios
+      .get<IAccountElectionsResponse>(url + AccountAPIMethods.ELECTIONS.replace('{accountId}', accountId) + '/' + page)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
