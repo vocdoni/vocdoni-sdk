@@ -3,6 +3,7 @@ import axios from 'axios';
 enum VoteAPIMethods {
   VOTE = '/votes',
   INFO = '/votes',
+  VERIFY = '/votes/verify',
 }
 
 export interface IVoteSubmitResponse {
@@ -92,6 +93,27 @@ export abstract class VoteAPI {
     return axios
       .get<IVoteInfoResponse>(url + VoteAPIMethods.INFO + '/' + voteId)
       .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Verify vote. A vote exists in a process.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} processId The process identifier
+   * @param {string} voteId The identifier of the vote
+   *
+   * @returns {Promise<boolean>} Return true if response has status 200
+   */
+  public static verify(url: string, processId: string, voteId: string): Promise<boolean> {
+    return axios
+      .get(url + VoteAPIMethods.VERIFY + '/' + processId + '/' + voteId)
+      .then((response) => response.status === 200)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
