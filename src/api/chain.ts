@@ -7,6 +7,7 @@ enum ChainAPIMethods {
   ORGANIZATION_COUNT = '/chain/organizations/count',
   ORGANIZATION_LIST = '/chain/organizations/page',
   VALIDATORS_LIST = '/chain/validators',
+  BLOCK_INFO = '/chain/blocks/',
 }
 
 export interface IChainGetInfoResponse {
@@ -113,6 +114,51 @@ export interface IChainOrganizationListResponse {
    * The list of organizations
    */
   organizations: Array<IChainOrganizationResponse>;
+}
+
+interface BlockID {
+  hash: string;
+  parts: {
+    total: number;
+    hash: string;
+  };
+}
+
+export interface IChainBlockInfoResponse {
+  version: {
+    block: number;
+    app: number;
+  };
+  chainId: string;
+  height: string;
+  time: string;
+  lastBlockId: BlockID;
+  lastCommitHash: string;
+  dataHash: string;
+  validatorsHash: string;
+  nextValidatorsHash: string;
+  consensusHash: string;
+  appHash: string;
+  lastResultsHash: string;
+  evidenceHash: string;
+  proposerAddress: string;
+  data: {
+    txs: Array<string>;
+  };
+  evidence: {
+    evidence: Array<string>;
+  };
+  lastCommit: {
+    height: number;
+    round: number;
+    blockId: BlockID;
+    signatures: Array<{
+      blockIdFlag: number;
+      validatorAddress: string;
+      timestamp: string;
+      signature: string;
+    }>;
+  };
 }
 
 export interface IChainValidatorsResponse {
@@ -234,6 +280,25 @@ export abstract class ChainAPI {
   public static organizationList(url: string, page: number = 0): Promise<IChainOrganizationListResponse> {
     return axios
       .get<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST + '/' + page)
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Get block information by height
+   *
+   * @param {string} url API endpoint URL
+   * @param {number} height block height
+   * @returns {Promise<IChainBlockInfoResponse>}
+   */
+  public static blockByHeight(url: string, height: number): Promise<IChainBlockInfoResponse> {
+    return axios
+      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO + '/' + height)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
