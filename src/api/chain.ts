@@ -8,6 +8,7 @@ enum ChainAPIMethods {
   ORGANIZATION_LIST = '/chain/organizations/page',
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks/',
+  BLOCK_INFO_BY_HASH = '/chain/blocks/',
 }
 
 export interface IChainGetInfoResponse {
@@ -317,6 +318,25 @@ export abstract class ChainAPI {
   public static validatorsList(url: string): Promise<IChainValidatorsListResponse> {
     return axios
       .get<IChainValidatorsListResponse>(url + ChainAPIMethods.VALIDATORS_LIST)
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Get block information by hash
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} hash block hash
+   * @returns {Promise<IChainBlockInfoResponse>}
+   */
+  public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
+    return axios
+      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_BY_HASH + '/' + hash)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
