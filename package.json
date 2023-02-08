@@ -152,6 +152,7 @@
     "@ethersproject/providers": "^5.7.1",
     "@ethersproject/signing-key": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
+    "@supercharge/promise-pool": "^2.3.2",
     "@vocdoni/proto": "1.14.0",
     "axios": "0.27.2",
     "blakejs": "^1.2.1",

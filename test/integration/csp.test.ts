@@ -5,6 +5,7 @@ import { delay } from '../../src/util/common';
 import { CspCensus } from '../../src/types/census/csp';
 // @ts-ignore
 import { clientParams } from './util/client.params';
+import { PromisePool } from '@supercharge/promise-pool';
 
 const CSP_URL = process.env.BLINDCSP_URL ?? 'https://csp-stg.vocdoni.net/v1';
 const CSP_PUBKEY = process.env.BLINDCSP_PUBKEY ?? '0299f6984fddd0fab09c364d18e2759d6b728e933fae848676b8bd9700549a1817';
@@ -51,8 +52,9 @@ describe('CSP tests', () => {
         return delay(12000);
       })
       .then(() => {
-        return Promise.all(
-          participants.map(async (participant, index) => {
+        return PromisePool.withConcurrency(5)
+          .for(participants)
+          .process(async (participant, index) => {
             const sdkParams = clientParams(participant);
             sdkParams.csp_url = CSP_URL;
             const pClient = new VocdoniSDKClient(sdkParams);
@@ -66,8 +68,7 @@ describe('CSP tests', () => {
             const signature = await pClient.cspSign(participant.address, step1.token);
             const vote = pClient.cspVote(new Vote([index % 2]), signature);
             return pClient.submitVote(vote);
-          })
-        );
+          });
       })
       .then(() => client.fetchElection())
       .then((election) => {
