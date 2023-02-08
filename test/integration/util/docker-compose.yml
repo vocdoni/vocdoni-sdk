@@ -30,6 +30,7 @@ services:
     image: "vocdoni/blind-csp:latest"
     entrypoint: "/app/blind-csp"
     command: |
+      --logLevel debug
       --key f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
     # that's random but hardcoded so the test can create the election, it corresponds to:
     # address 0xc3E925C7D971601c85eB042032F415852E56A038
