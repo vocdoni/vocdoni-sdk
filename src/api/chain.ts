@@ -126,38 +126,40 @@ interface BlockID {
 }
 
 export interface IChainBlockInfoResponse {
-  version: {
-    block: number;
-    app: number;
-  };
-  chainId: string;
-  height: string;
-  time: string;
-  lastBlockId: BlockID;
-  lastCommitHash: string;
-  dataHash: string;
-  validatorsHash: string;
-  nextValidatorsHash: string;
-  consensusHash: string;
-  appHash: string;
-  lastResultsHash: string;
-  evidenceHash: string;
-  proposerAddress: string;
   data: {
     txs: Array<string>;
   };
   evidence: {
     evidence: Array<string>;
   };
+  header: {
+    appHash: string;
+    chainId: string;
+    consensusHash: string;
+    dataHash: string;
+    evidenceHash: string;
+    height: string;
+    lastBlockId: BlockID;
+    lastCommitHash: string;
+    lastResultsHash: string;
+    nextValidatorsHash: string;
+    proposerAddress: string;
+    time: string;
+    validatorsHash: string;
+    version: {
+      block: number;
+      app: number;
+    };
+  };
   lastCommit: {
+    blockId: BlockID;
     height: number;
     round: number;
-    blockId: BlockID;
     signatures: Array<{
       blockIdFlag: number;
-      validatorAddress: string;
-      timestamp: string;
       signature: string;
+      timestamp: string;
+      validatorAddress: string;
     }>;
   };
 }
