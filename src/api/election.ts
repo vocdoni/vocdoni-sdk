@@ -375,7 +375,7 @@ export abstract class ElectionAPI {
    * @param {string} electionId The identifier of the election
    * @returns {Promise<IElectionVotesCountResponse>}
    */
-  public static organizationCount(url: string, electionId: string): Promise<IElectionVotesCountResponse> {
+  public static electionVotesCount(url: string, electionId: string): Promise<IElectionVotesCountResponse> {
     return axios
       .get<IElectionVotesCountResponse>(url + ElectionAPIMethods.VOTES_COUNT.replace('{id}', electionId))
       .then((response) => response.data)
@@ -395,7 +395,7 @@ export abstract class ElectionAPI {
    * @param {number} page The page number
    * @returns {Promise<IElectionVotesListResponse>}
    */
-  public static organizationList(
+  public static electionVotesList(
     url: string,
     electionId: string,
     page: number = 0
