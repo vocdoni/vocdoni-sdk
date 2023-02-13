@@ -163,7 +163,7 @@ export interface IChainBlockInfoResponse {
   };
 }
 
-export interface IChainValidatorsResponse {
+export interface IChainValidator {
   /**
    * Current power of the validator
    */
@@ -189,7 +189,7 @@ export interface IChainValidatorsListResponse {
   /**
    * The list of validators
    */
-  validators: Array<IChainValidatorsResponse>;
+  validators: Array<IChainValidator>;
 }
 
 export abstract class ChainAPI {
