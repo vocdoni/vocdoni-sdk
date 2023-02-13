@@ -189,7 +189,7 @@ export interface IChainValidatorsListResponse {
   /**
    * The list of validators
    */
-  organizations: Array<IChainValidatorsResponse>;
+  validators: Array<IChainValidatorsResponse>;
 }
 
 export abstract class ChainAPI {
