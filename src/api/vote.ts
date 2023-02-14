@@ -30,6 +30,11 @@ export interface IVoteInfoResponse {
   voteID: string;
 
   /**
+   * Encryption key indexes used
+   */
+  encryptionKeyIndexes: number[];
+
+  /**
    * The stringified vote package JSON.
    */
   package: string;
