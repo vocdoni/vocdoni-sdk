@@ -277,7 +277,7 @@ interface IElectionVotesCountResponse {
   count: number;
 }
 
-interface IElectionVotesListResponse {
+export interface IElectionVote {
   /**
    * Containing transaction hash
    */
@@ -303,6 +303,8 @@ interface IElectionVotesListResponse {
    */
   transactionIndex: number;
 }
+
+export type IElectionVotesListResponse = IElectionVote[];
 
 export abstract class ElectionAPI {
   /**
