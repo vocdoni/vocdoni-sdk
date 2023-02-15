@@ -16,10 +16,8 @@ beforeEach(async () => {
 
 const createElection = (census, electionType?, voteType?) => {
   const election = Election.from({
-    title: 'Election title',
-    description: 'Election description',
-    header: 'https://source.unsplash.com/random',
-    streamUri: 'https://source.unsplash.com/random',
+    title: 'SDK Testing - Title',
+    description: 'SDK Testing - Description',
     endDate: new Date().getTime() + 10000000,
     census,
     electionType: electionType ?? null,

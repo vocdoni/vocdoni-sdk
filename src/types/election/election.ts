@@ -23,8 +23,8 @@ export interface IElectionType {
 export interface IElectionParameters {
   title: string | MultiLanguage<string>;
   description: string | MultiLanguage<string>;
-  header: string;
-  streamUri: string;
+  header?: string;
+  streamUri?: string;
   startDate?: string | number | Date;
   endDate: string | number | Date;
   census: PublishedCensus | PlainCensus | WeightedCensus;
