@@ -42,7 +42,7 @@ describe('Election tests', () => {
     });
     expect(election.voteType).toEqual({
       uniqueChoices: false,
-      maxVoteOverwrites: 1,
+      maxVoteOverwrites: 0,
       costFromWeight: false,
       costExponent: 10000,
     });

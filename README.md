@@ -329,6 +329,15 @@ about the election status and the possible status changes once the election is c
 })();
 ~~~
 
+#### Get how many times the user can submit a vote (vote rewrite)
+
+~~~ts
+(async () => {
+  const votesLeft = await client.votesLeftCount();
+  console.log(votesLeft) // number of times the user can submit his vote
+})();
+~~~
+
 #### Check if a user is able to vote
 
 ~~~ts
