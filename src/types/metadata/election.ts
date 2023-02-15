@@ -41,7 +41,7 @@ const electionMetadataSchema = object()
     title: object().shape(multiLanguageStringKeys).required(),
     description: object().shape(multiLanguageStringKeys).required(),
     media: object().shape({
-      header: string().required(),
+      header: string().optional(),
       streamUri: string().optional(),
     }),
     meta: object().optional(),
@@ -101,7 +101,7 @@ export interface ElectionMetadata {
   title: MultiLanguage<string>;
   description: MultiLanguage<string>;
   media: {
-    header: string;
+    header?: string;
     streamUri?: string;
   };
   /** Arbitrary key/value data that specific applications can use for their own needs */
@@ -122,7 +122,7 @@ export const ElectionMetadataTemplate: ElectionMetadata = {
     default: '', // ## Markdown text goes here\n### Abstract
   },
   media: {
-    header: 'https://source.unsplash.com/random/800x600', // Content URI
+    header: '', // Content URI
     streamUri: '',
   },
   meta: {},
