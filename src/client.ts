@@ -699,10 +699,32 @@ export class VocdoniSDKClient {
    * @returns {Promise<boolean>}
    */
   async isAbleToVote(electionId?: string): Promise<boolean> {
-    // @TODO check if user can overwrite vote
-    return Promise.all([this.isInCensus(electionId), this.hasAlreadyVoted(electionId)])
-      .then((res) => res[0] && !res[1])
+    return Promise.all([this.isInCensus(electionId), this.votesLeftCount(electionId)])
+      .then((res) => res[0] && res[1] > 0)
       .catch(() => false);
+  }
+
+  /**
+   * Checks how many times a user can submit their vote
+   *
+   * @param {string} electionId The id of the election
+   * @returns {Promise<number>}
+   */
+  async votesLeftCount(electionId?: string): Promise<number> {
+    if (!this.electionId && !electionId) {
+      throw Error('No election set');
+    }
+    if (!this.wallet) {
+      throw Error('No wallet found');
+    }
+
+    const election = await this.fetchElection(electionId ?? this.electionId);
+
+    return this.wallet
+      .getAddress()
+      .then((address) => VoteAPI.info(this.url, keccak256(address.toLowerCase() + election.id)))
+      .then((voteInfo) => election.voteType.maxVoteOverwrites - voteInfo.overwriteCount)
+      .catch(() => election.voteType.maxVoteOverwrites + 1);
   }
 
   /**

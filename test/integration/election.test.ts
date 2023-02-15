@@ -14,7 +14,7 @@ beforeEach(async () => {
   client = new VocdoniSDKClient(clientParams(wallet));
 });
 
-const createElection = (census, electionType?) => {
+const createElection = (census, electionType?, voteType?) => {
   const election = Election.from({
     title: 'Election title',
     description: 'Election description',
@@ -23,6 +23,7 @@ const createElection = (census, electionType?) => {
     endDate: new Date().getTime() + 10000000,
     census,
     electionType: electionType ?? null,
+    voteType: voteType ?? null,
   });
 
   election.addQuestion('This is a title', 'This is a description', [
@@ -260,6 +261,84 @@ describe('Election integration tests', () => {
         expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.finalResults).toBeFalsy();
+      })
+      .then(() =>
+        Promise.all(
+          participants.map(async (participant) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionIdentifier);
+            const isInCensus = await pClient.isInCensus();
+            expect(isInCensus).toBeTruthy();
+            const hasAlreadyVoted = await pClient.hasAlreadyVoted();
+            expect(hasAlreadyVoted).toBeTruthy();
+            const isAbleToVote = await pClient.isAbleToVote();
+            expect(isAbleToVote).toBeFalsy();
+          })
+        )
+      );
+  }, 285000);
+  it('should create an election with overwrite votes allowed 2 times and 4 participants and each of them should vote correctly all times', async () => {
+    const numVotes = 4; // should be even number
+    const resendVoteCount = 2; // number of send vote retries
+    const census = new PlainCensus();
+
+    const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
+
+    const unpublishedElection = createElection(
+      census,
+      {},
+      {
+        maxVoteOverwrites: resendVoteCount,
+      }
+    );
+
+    await client.createAccount();
+
+    let electionIdentifier;
+    let totalNumVotes = 0;
+
+    await client
+      .createElection(unpublishedElection)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        electionIdentifier = electionId;
+        return delay(12000);
+      })
+      .then(async () => {
+        for (let i = 0; i <= resendVoteCount; i++) {
+          await Promise.all(
+            participants.map(async (participant, index) => {
+              const pClient = new VocdoniSDKClient(clientParams(participant));
+              pClient.setElectionId(electionIdentifier);
+              const isInCensus = await pClient.isInCensus();
+              expect(isInCensus).toBeTruthy();
+              const hasAlreadyVoted = await pClient.hasAlreadyVoted();
+              expect(hasAlreadyVoted).toBe(i !== 0);
+              const isAbleToVote = await pClient.isAbleToVote();
+              expect(isAbleToVote).toBeTruthy();
+              const votesLeft = await pClient.votesLeftCount();
+              expect(votesLeft).toBe(resendVoteCount - i + 1);
+
+              await pClient.submitVote(new Vote([index % 2]));
+              totalNumVotes++;
+
+              const isAbleToVoteAfterVote = await pClient.isAbleToVote();
+              expect(isAbleToVoteAfterVote).toBe(i !== resendVoteCount);
+              const votesLeftAfterVote = await pClient.votesLeftCount();
+              expect(votesLeftAfterVote).toBe(resendVoteCount - i);
+            })
+          );
+        }
+        expect(totalNumVotes).toBe((resendVoteCount + 1) * participants.length);
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.id).toEqual(electionIdentifier);
+        expect(election.title).toEqual(unpublishedElection.title);
+        expect(election.voteCount).toEqual(numVotes);
+        expect(election.results[0][0]).toEqual(election.results[0][1]);
       })
       .then(() =>
         Promise.all(

@@ -53,6 +53,11 @@ export interface IVoteInfoResponse {
    * The index inside the block where the transaction is mined.
    */
   transactionIndex: number;
+
+  /**
+   * The number of votes overwrites.
+   */
+  overwriteCount: number;
 }
 
 export abstract class VoteAPI {

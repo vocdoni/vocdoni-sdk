@@ -74,7 +74,7 @@ export class UnpublishedElection extends Election {
   private static fullVoteType(value: IVoteType): IVoteType {
     return {
       uniqueChoices: typeof value?.uniqueChoices === 'boolean' ? value.uniqueChoices === true : false,
-      maxVoteOverwrites: typeof value?.maxVoteOverwrites === 'number' ? value.maxVoteOverwrites : 1,
+      maxVoteOverwrites: typeof value?.maxVoteOverwrites === 'number' ? value.maxVoteOverwrites : 0,
       costFromWeight: typeof value?.costFromWeight === 'boolean' ? value.costFromWeight === true : false,
       costExponent: typeof value?.costExponent === 'number' ? value.costExponent : 10000,
     };
