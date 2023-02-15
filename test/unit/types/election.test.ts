@@ -11,8 +11,8 @@ let electionData;
 beforeEach(() => {
   electionData = {
     title: {
-      es: 'This is a test in english',
-      en: 'Esto es un test en castellano',
+      en: 'This is a test in english',
+      es: 'Esto es un test en castellano',
       default: 'This is the default title',
     },
     description: 'Test',

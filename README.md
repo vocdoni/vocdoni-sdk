@@ -177,18 +177,50 @@ census.add(computePublicKey(Wallet.createRandom().publicKey, true));
 After you got all the addresses for your census, you may as well create the
 process instance:
 
+The simplest form to create an election with the minimum parameters is:
+
 ~~~ts
 const election = Election.from({
   title: 'Election title',
   description: 'Election description',
-  // a header image for your process (this is for example purposes; avoid using random sources)
-  header: 'https://source.unsplash.com/random/2048x600',
   endDate: new Date('2023-01-23 23:23:23'),
   census,
 })
 ~~~
 
-Check out the [election params interface] to see all the allowed params.
+Check out the [election params interface] to see all the allowed params. There are several
+options for creating custom types of elections or voting methods:
+
+~~~ts
+const election = Election.from({
+  title: {
+    en: 'This is a test in english',
+    es: 'Esto es un test en castellano',
+    default: 'This is the default title',
+  },
+  description: 'Election description',
+  // a header image for your election (this is for example purposes; avoid using random sources)
+  header: 'https://source.unsplash.com/random/2048x600',
+  // a stream uri image for your election (this is for example purposes; avoid using random sources)
+  streamUri: 'https://source.unsplash.com/random/2048x600',
+  startDate: new Date('2023-01-23 12:00:00'),
+  endDate: new Date('2023-01-23 23:23:23'),
+  census,
+  electionType: {
+    autoStart: true, // if the election can start automatically at start date
+    interruptible: true, // if the election can be paused or ended
+    dynamicCensus: false, // if the census can be changed
+    secretUntilTheEnd: false, // if the election has to be secret until end date
+    anonymous: false, // if the election is anonymous
+  },
+  voteType: {
+    uniqueChoices: false, // if the choices are unique when voting
+    maxVoteOverwrites: 0, // number of times a vote can be overwritten
+    costFromWeight: false, // for cuadrating voting
+    costExponent: 10000, // for cuadrating voting
+  }
+})
+~~~
 
 Of course, you will also need some questions in this voting process, how would people
 vote otherwise?

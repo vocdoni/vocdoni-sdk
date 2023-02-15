@@ -7,6 +7,6 @@ describe('Other tests', () => {
     const client = new VocdoniSDKClient(clientParams());
     const b64Metadata = Buffer.from(JSON.stringify(ElectionMetadataTemplate), 'binary').toString('base64');
     const cid = await client.calculateCID(b64Metadata);
-    expect(cid).toEqual('ipfs://bagaaiera3vfjf7cowopsmb2xvhx5lhrxhi6ahettmhdcvwwhzteqodrc5eqa');
+    expect(cid).toEqual('ipfs://bagaaieratw2qwvf4mt7qh4mjucqol6542q2t655q3scrx4gc7xtjlrihompq');
   });
 });
