@@ -63,6 +63,11 @@ export interface IVoteInfoResponse {
    * The number of votes overwrites.
    */
   overwriteCount: number;
+
+  /**
+   * Date when the vote was emitted
+   */
+  date: string;
 }
 
 export abstract class VoteAPI {
