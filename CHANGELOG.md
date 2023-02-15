@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Credential service provider integrated
 - Custom retry attempts and time for transactions waiting functionality
+- Added `votesLeftCount` function for checking how many times a user can submit a vote
 
 ## [0.0.3-alpha] - 2023-01-31
 
