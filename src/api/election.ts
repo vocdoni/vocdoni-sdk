@@ -79,7 +79,28 @@ interface IElectionCreateResponse {
   metadataURL: number;
 }
 
-interface IElectionInfoResponse {
+export enum ElectionStatusEnum {
+  PROCESS_UNKNOWN = 'PROCESS_UNKNOWN',
+  READY = 'READY',
+  ENDED = 'ENDED',
+  CANCELED = 'CANCELED',
+  PAUSED = 'PAUSED',
+  RESULTS = 'RESULTS',
+}
+
+export enum CensusTypeEnum {
+  CENSUS_UNKNOWN = 'CENSUS_UNKNOWN',
+  OFF_CHAIN_TREE = 'OFF_CHAIN_TREE',
+  OFF_CHAIN_TREE_WEIGHTED = 'OFF_CHAIN_TREE_WEIGHTED',
+  OFF_CHAIN_CA = 'OFF_CHAIN_CA',
+  ERC20 = 'ERC20',
+  ERC721 = 'ERC721',
+  ERC1155 = 'ERC1155',
+  ERC777 = 'ERC777',
+  MINI_ME = 'MINI_ME',
+}
+
+export interface IElectionInfoResponse {
   /**
    * The id of the election
    */
@@ -88,7 +109,7 @@ interface IElectionInfoResponse {
   /**
    * The status of the election
    */
-  status: string; // @TODO
+  status: ElectionStatusEnum;
 
   /**
    * The start date of the election
@@ -127,7 +148,7 @@ interface IElectionInfoResponse {
     /**
      * The type of the census
      */
-    censusOrigin: string;
+    censusOrigin: CensusTypeEnum;
 
     /**
      * The root of the census
