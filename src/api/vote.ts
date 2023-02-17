@@ -18,7 +18,7 @@ export interface IVoteSubmitResponse {
   voteID: string;
 }
 
-export interface IVoteInfo {
+export interface IVoteInfoResponse {
   /**
    * The hash of the transaction
    */
@@ -28,6 +28,11 @@ export interface IVoteInfo {
    * The identifier of the vote, also called nullifier.
    */
   voteID: string;
+
+  /**
+   * Encryption key indexes used
+   */
+  encryptionKeys?: number[];
 
   /**
    * The stringified vote package JSON.
@@ -64,15 +69,6 @@ export interface IVoteInfo {
    */
   date: string;
 }
-
-export interface IEncryptedVoteInfo extends IVoteInfo {
-  /**
-   * Encryption key indexes used
-   */
-  encryptionKeys: number[];
-}
-
-type IVoteInfoResponse = IEncryptedVoteInfo | IVoteInfo;
 
 export abstract class VoteAPI {
   /**
