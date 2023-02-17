@@ -69,7 +69,7 @@ export interface IEncryptedVoteInfo extends IVoteInfo {
   /**
    * Encryption key indexes used
    */
-  encryptionKeyIndexes: number[];
+  encryptionKeys: number[];
 }
 
 type IVoteInfoResponse = IEncryptedVoteInfo | IVoteInfo;
