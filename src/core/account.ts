@@ -45,7 +45,7 @@ export abstract class AccountCore extends TransactionCore {
     faucetPackage: FaucetPackage
   ): { metadata: string; accountData: object } {
     return {
-      metadata: Buffer.from(JSON.stringify(metadata), 'binary').toString('base64'),
+      metadata: Buffer.from(JSON.stringify(metadata), 'utf8').toString('base64'),
       accountData: {
         txtype: TxType.CREATE_ACCOUNT,
         account: Uint8Array.from(Buffer.from(address)),
