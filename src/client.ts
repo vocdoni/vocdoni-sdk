@@ -490,7 +490,7 @@ export class VocdoniSDKClient {
     const accountData = Promise.all([
       this.wallet.getAddress(),
       this.fetchChainId(),
-      this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'binary').toString('base64')),
+      this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'utf8').toString('base64')),
     ]).then((data) => AccountCore.generateSetAccountTransaction(data[0], options.account, data[2], faucetPackage));
 
     const accountTx = accountData.then((setAccountInfoTx) =>
@@ -591,7 +591,7 @@ export class VocdoniSDKClient {
 
     const electionData = Promise.all([
       this.fetchAccountInfo(),
-      this.calculateCID(Buffer.from(JSON.stringify(election.generateMetadata()), 'binary').toString('base64')),
+      this.calculateCID(Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64')),
     ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[1], this.chainData, data[0]));
 
     const electionPackage = electionData.then((newElectionData) =>
