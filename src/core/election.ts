@@ -77,7 +77,7 @@ export abstract class ElectionCore extends TransactionCore {
     const endBlock = this.estimateBlockAtDateTime(election.endDate, chainData);
 
     return {
-      metadata: Buffer.from(JSON.stringify(election.generateMetadata()), 'binary').toString('base64'),
+      metadata: Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64'),
       electionData: {
         nonce: accountData.nonce,
         process: {
