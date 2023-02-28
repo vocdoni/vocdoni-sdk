@@ -233,7 +233,7 @@ export interface IElectionInfoResponse {
     /**
      * If the election has preregister phase
      */
-    uniqueValues: boolean;
+    preRegister: boolean;
   };
 
   /**
