@@ -12,7 +12,7 @@ const bundle = (config) => ({
   ...config,
   input: 'src/index.ts',
   external: (id) => {
-    if (id === 'blakejs/blake2b') {
+    if (id === 'blakejs/blake2b' || id === 'blindsecp256k1') {
       return false;
     }
     if (process.platform === 'win32') {
@@ -25,6 +25,7 @@ const bundle = (config) => ({
 export default [
   bundle({
     plugins: [
+      // convert esm to commonjs modules (for cjs support)
       commonjs(),
       // resolve node modules
       resolve(),

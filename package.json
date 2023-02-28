@@ -65,70 +65,24 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "512 KB",
-      "ignore": [
-        "crypto",
-        "buffer",
-        "net",
-        "stream",
-        "http",
-        "https",
-        "url",
-        "tty",
-        "assert",
-        "zlib",
-        "events",
-        "tls",
-        "eval"
-      ]
+      "limit": "512 KB"
     },
     {
       "path": "dist/index.mjs",
-      "limit": "512 KB",
-      "ignore": [
-        "crypto",
-        "buffer",
-        "net",
-        "stream",
-        "http",
-        "https",
-        "url",
-        "tty",
-        "assert",
-        "zlib",
-        "events",
-        "tls",
-        "eval"
-      ]
+      "limit": "512 KB"
     },
     {
       "path": "dist/index.umd.js",
-      "limit": "512 KB",
-      "ignore": [
-        "crypto",
-        "buffer",
-        "net",
-        "stream",
-        "http",
-        "https",
-        "url",
-        "tty",
-        "assert",
-        "zlib",
-        "events",
-        "tls",
-        "eval"
-      ]
+      "limit": "512 KB"
     }
   ],
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@size-limit/esbuild": "^8.1.0",
-    "@size-limit/preset-small-lib": "^8.1.0",
     "@types/jest": "^29.2.2",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
+    "esbuild": "^0.17.10",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -152,10 +106,11 @@
     "@ethersproject/providers": "^5.7.1",
     "@ethersproject/signing-key": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
+    "@size-limit/file": "^8.2.4",
     "@vocdoni/proto": "1.14.0",
     "axios": "0.27.2",
     "blakejs": "^1.2.1",
-    "blindsecp256k1": "^0.0.6",
+    "blindsecp256k1": "^0.0.9",
     "iso-language-codes": "^1.1.0",
     "tiny-invariant": "^1.3.1",
     "tweetnacl": "^1.0.3",
