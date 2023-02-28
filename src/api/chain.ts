@@ -226,7 +226,12 @@ export abstract class ChainAPI {
   public static txInfo(url: string, txHash: string): Promise<IChainGetTransactionReferenceResponse> {
     return axios
       .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
-      .then((response) => response.data)
+      .then((response) => {
+        if (response.status === 204) {
+          throw new Error('Transaction not found');
+        }
+        return response.data;
+      })
       .catch((error) => {
         if (axios.isAxiosError(error)) {
           throw new Error('Request error: ' + error.message);
