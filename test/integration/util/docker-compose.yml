@@ -2,7 +2,8 @@ version: "3.4"
 
 services:
   voconed:
-    image: "vocdoni/go-dvote:latest"
+    # pull master tag (instead of latest) to ensure we're testing against bleeding edge
+    image: "vocdoni/go-dvote:master"
     entrypoint: "/app/voconed"
     env_file: voconed.env
     # TODO: the following flags should really go into voconed.env
@@ -27,7 +28,8 @@ services:
         max-size: "20m"
         max-file: "10"
   blind-csp:
-    image: "vocdoni/blind-csp:latest"
+    # pull master tag (instead of latest) to ensure we're testing against bleeding edge
+    image: "vocdoni/blind-csp:master"
     entrypoint: "/app/blind-csp"
     command: |
       --key f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
