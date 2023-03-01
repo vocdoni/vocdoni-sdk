@@ -28,7 +28,9 @@ export default [
       // convert esm to commonjs modules (for cjs support)
       commonjs(),
       // resolve node modules
-      resolve(),
+      resolve({
+        browser: true,
+      }),
       // final transformation
       esbuild(),
     ],
