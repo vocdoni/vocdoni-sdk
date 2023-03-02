@@ -275,9 +275,9 @@ After a few seconds of creating it, you should be able to check it on
 [our explorer][vochain explorer] (or the [dev one][dev vochain explorer] if
 you're using the development environment).
 
-### Fetching process info
+### Fetching election info
 
-You can always access a process information and metadata using `fetchElection`:
+You can always access a election information and metadata using `fetchElection`:
 
 ~~~ts
 (async () => {
@@ -295,6 +295,21 @@ You can always access a process information and metadata using `fetchElection`:
 
 See the [PublishedElection class][publishedelection class] details for more information
 about the returning object.
+
+You can also fetch all the elections created for a given account using `fetchElections`:
+
+~~~ts
+(async () => {
+  const elections = await client.fetchElections('0x3d0380f4dcc8aa87be30ef0e38f56dfefeb1cfad')
+  console.log(elections) // Array of PublishedElection
+})();
+
+// it can be paginated using the second parameter
+(async () => {
+  const elections = await client.fetchElections('0x3d0380f4dcc8aa87be30ef0e38f56dfefeb1cfad', 2)
+  console.log(elections) // Array of PublishedElection
+})();
+~~~
 
 ### Changing election status
 
