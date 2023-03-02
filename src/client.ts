@@ -404,6 +404,16 @@ export class VocdoniSDKClient {
       });
   }
 
+  async fetchElections(account?: string, page: number = 0): Promise<Array<PublishedElection>> {
+    if (!this.wallet && !account) {
+      throw Error('No account set');
+    }
+
+    return AccountAPI.electionsList(this.url, account ?? (await this.wallet.getAddress()), page).then((elections) =>
+      Promise.all(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
+    );
+  }
+
   /**
    * A convenience method to wait for a transaction to be executed. It will
    * loop trying to get the transaction information, and will retry every time
