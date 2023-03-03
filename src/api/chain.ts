@@ -4,6 +4,7 @@ enum ChainAPIMethods {
   INFO = '/chain/info',
   TX_INFO = '/chain/transactions/reference',
   SUBMIT_TX = '/chain/transactions',
+  TX_LIST = '/chain/transactions/page',
   ORGANIZATION_COUNT = '/chain/organizations/count',
   ORGANIZATION_LIST = '/chain/organizations/page',
   VALIDATORS_LIST = '/chain/validators',
@@ -88,6 +89,13 @@ export interface IChainSubmitTxResponse {
    * The response code
    */
   code: number;
+}
+
+export interface IChainTxListResponse {
+  /**
+   * List of transactions reference
+   */
+  transactions: Array<IChainGetTransactionReferenceResponse>;
 }
 
 export interface IChainOrganizationCountResponse {
@@ -250,6 +258,25 @@ export abstract class ChainAPI {
   public static submitTx(url: string, payload: string): Promise<IChainSubmitTxResponse> {
     return axios
       .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify({ payload }))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the list of transactions by page
+   *
+   * @param url {string} url API endpoint URL
+   * @param page {number} page The page number
+   * @returns {Promise<IChainTxListResponse>}
+   */
+  public static txList(url: string, page: number = 0): Promise<IChainTxListResponse> {
+    return axios
+      .get<IChainTxListResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
