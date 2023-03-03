@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { IElectionListResponse } from './election';
 
 enum AccountAPIMethods {
   INFO = '/accounts',
@@ -44,17 +45,6 @@ interface IAccountSetInfoResponse {
    * The metadata URL
    */
   metadataURL: number;
-}
-
-interface IAccountElectionsResponse {
-  elections: Array<{
-    electionId: string;
-    status: string;
-    startDate: string;
-    endDate: string;
-    voteCount: number;
-    finalResults: boolean;
-  }>;
 }
 
 interface IAccountTransfersResponse {
@@ -137,11 +127,11 @@ export abstract class AccountAPI {
    * @param {string} url API endpoint URL
    * @param {string} accountId accountId to get elections
    * @param {number} page The page number
-   * @returns {Promise<IAccountElectionsResponse>}
+   * @returns {Promise<IElectionListResponse>}
    */
-  public static electionsList(url: string, accountId: string, page: number = 0): Promise<IAccountElectionsResponse> {
+  public static electionsList(url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
     return axios
-      .get<IAccountElectionsResponse>(url + AccountAPIMethods.ELECTIONS.replace('{accountId}', accountId) + '/' + page)
+      .get<IElectionListResponse>(url + AccountAPIMethods.ELECTIONS.replace('{accountId}', accountId) + '/' + page)
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
