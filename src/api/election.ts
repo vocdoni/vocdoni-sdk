@@ -326,6 +326,13 @@ export interface IElectionVote {
   transactionIndex: number;
 }
 
+export interface IElectionVoteList {
+  /**
+   * List of votes
+   */
+  votes: Array<IElectionVote>;
+}
+
 export interface IElectionSummaryResponse {
   /**
    * The id of the election
@@ -455,11 +462,11 @@ export abstract class ElectionAPI {
    * @param {string} url API endpoint URL
    * @param {string} electionId The identifier of the election
    * @param {number} page The page number
-   * @returns {Promise<Array<IElectionVote>>>}
+   * @returns {Promise<>}
    */
-  public static votesList(url: string, electionId: string, page: number = 0): Promise<Array<IElectionVote>> {
+  public static votesList(url: string, electionId: string, page: number = 0): Promise<IElectionVoteList> {
     return axios
-      .get<Array<IElectionVote>>(
+      .get<IElectionVoteList>(
         url + ElectionAPIMethods.VOTES.replace('{id}', electionId).replace('{page}', String(page))
       )
       .then((response) => response.data)
