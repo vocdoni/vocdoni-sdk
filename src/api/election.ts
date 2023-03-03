@@ -7,6 +7,7 @@ enum ElectionAPIMethods {
   CREATE = '/elections',
   VOTES = '/elections/{id}/votes/page/{page}',
   VOTES_COUNT = '/elections/{id}/votes/count',
+  LIST = '/elections/page/{page}',
 }
 
 export interface IResults {
@@ -325,6 +326,46 @@ export interface IElectionVote {
   transactionIndex: number;
 }
 
+export interface IElectionSummaryResponse {
+  /**
+   * The id of the election
+   */
+  electionId: string;
+  /**
+   * The id of the organization
+   */
+  organizationId: string;
+
+  /**
+   * The status of the election
+   */
+  status: ElectionStatusEnum;
+
+  /**
+   * The start date of the election
+   */
+  startDate: string;
+
+  /**
+   * The end date of the election
+   */
+  endDate: string;
+
+  /**
+   * The number of votes of the election
+   */
+  voteCount: number;
+
+  /**
+   * If the election has the final results
+   */
+  finalResults: boolean;
+}
+
+export interface IElectionListResponse {
+  elections: Array<IElectionSummaryResponse>;
+}
+
 export abstract class ElectionAPI {
   /**
    * Cannot be constructed.
@@ -421,6 +462,25 @@ export abstract class ElectionAPI {
       .get<Array<IElectionVote>>(
         url + ElectionAPIMethods.VOTES.replace('{id}', electionId).replace('{page}', String(page))
       )
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Return list of elections
+   *
+   * @param {string} url API endpoint URL
+   * @param {number} page The page number
+   * @returns {Promise<IElectionListResponse>}
+   */
+  public static electionsList(url: string, page: number = 0): Promise<IElectionListResponse> {
+    return axios
+      .get<IElectionListResponse>(url + ElectionAPIMethods.LIST.replace('{page}', String(page)))
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
