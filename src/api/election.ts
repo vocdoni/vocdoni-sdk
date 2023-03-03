@@ -338,6 +338,7 @@ export interface IElectionSummaryResponse {
    * The id of the election
    */
   electionId: string;
+
   /**
    * The id of the organization
    */
@@ -370,6 +371,9 @@ export interface IElectionSummaryResponse {
 }
 
 export interface IElectionListResponse {
+  /**
+   * List of election summaries
+   */
   elections: Array<IElectionSummaryResponse>;
 }
 
