@@ -23,14 +23,54 @@ export interface IChainGetInfoResponse {
   blockTime: number[];
 
   /**
+   * The number of elections existing on the Vocchain.
+   */
+  electionCount: number;
+
+  /**
+   * The number of organizations existing on the Vocchain.
+   */
+  organizationCount: number;
+
+  /**
+   * The time of the genesis block.
+   */
+  genesisTime: string;
+
+  /**
    * The height or actual block of the current chain.
    */
   height: number;
 
   /**
+   * Whether the blockchain is syncing.
+   */
+  syncing: boolean;
+
+  /**
    * The timestamp of the actual block.
    */
   blockTimestamp: number;
+
+  /**
+   * The number of transactions.
+   */
+  transactionCount: number;
+
+  /**
+   * The number of validators.
+   */
+  validatorCount: number;
+
+  /**
+   * The number of votes.
+   */
+  voteCount: number;
+
+  /**
+   * The circuit configuration tag.
+   */
+  circuitConfigurationTag: string;
 }
 
 export enum TransactionType {
