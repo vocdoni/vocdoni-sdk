@@ -36,7 +36,7 @@ export abstract class FaucetAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });

@@ -218,7 +218,7 @@ export abstract class ChainAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
@@ -242,7 +242,7 @@ export abstract class ChainAPI {
       })
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
@@ -261,7 +261,7 @@ export abstract class ChainAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
@@ -298,7 +298,7 @@ export abstract class ChainAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
@@ -317,7 +317,7 @@ export abstract class ChainAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
@@ -336,7 +336,7 @@ export abstract class ChainAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
@@ -354,7 +354,7 @@ export abstract class ChainAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
@@ -373,7 +373,7 @@ export abstract class ChainAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          throw new Error('Request error: ' + error.message + ', response: ' + JSON.stringify(error.response.data));
         }
         throw error;
       });
