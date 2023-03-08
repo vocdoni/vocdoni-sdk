@@ -351,8 +351,10 @@ export class VocdoniSDKClient {
       throw Error('No election set');
     }
 
-    return ElectionAPI.info(this.url, electionId ?? this.electionId)
-      .then((electionInfo) =>
+    const electionInfo = await ElectionAPI.info(this.url, electionId ?? this.electionId);
+
+    return this.fetchCensusInfo(electionInfo.census.censusRoot)
+      .then((censusInfo) =>
         PublishedElection.build({
           id: electionInfo.electionId,
           title: electionInfo.metadata.title,
@@ -364,7 +366,9 @@ export class VocdoniSDKClient {
           census: new PublishedCensus(
             electionInfo.census.censusRoot,
             electionInfo.census.censusURL,
-            Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin)
+            Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin),
+            censusInfo.size,
+            censusInfo.weight
           ),
           status: ElectionCore.electionStatusFromString(electionInfo.status),
           voteCount: electionInfo.voteCount,
@@ -554,6 +558,24 @@ export class VocdoniSDKClient {
         census.censusId = censusPublish.censusID;
         census.censusURI = censusPublish.uri;
       });
+  }
+
+  /**
+   * Fetches the information of a given census.
+   *
+   * @param censusId
+   * @returns {Promise<{size: number, weight: BigInt}>}
+   */
+  async fetchCensusInfo(censusId: string): Promise<{ size: number; weight: BigInt }> {
+    return Promise.all([CensusAPI.size(this.url, censusId), CensusAPI.weight(this.url, censusId)])
+      .then((censusInfo) => ({
+        size: censusInfo[0].size,
+        weight: BigInt(censusInfo[1].weight),
+      }))
+      .catch(() => ({
+        size: undefined,
+        weight: undefined,
+      }));
   }
 
   /**

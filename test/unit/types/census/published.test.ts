@@ -37,5 +37,12 @@ describe('Published census tests', () => {
     const census = new PublishedCensus(validCensusId, validCensusURI, validCensusType);
     expect(census.type).toBe(validCensusType);
     expect(census.isPublished).toBeTruthy();
+    expect(census.size).toBeUndefined();
+    expect(census.weight).toBeUndefined();
+  });
+  it('should have the correct size and weight', () => {
+    const census = new PublishedCensus(validCensusId, validCensusURI, validCensusType, 10, BigInt(10));
+    expect(census.size).toBe(10);
+    expect(census.weight).toBe(BigInt(10));
   });
 });

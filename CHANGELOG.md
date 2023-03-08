@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `fetchElections` function to fetch all elections based on a given account
 
+### Changed
+
+- `PublishedCensus` has `size` and `weight` fields for offchain census.
+
 ## [0.0.4-alpha] - 2023-03-01
 
 ### Added

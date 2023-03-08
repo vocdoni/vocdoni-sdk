@@ -7,6 +7,8 @@ enum CensusAPIMethods {
   ADD = '/censuses/{id}/participants',
   PUBLISH = '/censuses/{id}/publish',
   PROOF = '/censuses/{id}/proof',
+  SIZE = '/censuses/{id}/size',
+  WEIGHT = '/censuses/{id}/weight',
 }
 
 interface ICensusCreateResponse {
@@ -45,6 +47,20 @@ interface ICensusProofResponse {
    * The value for the given key
    */
   value: string;
+}
+
+interface ICensusSizeResponse {
+  /**
+   * The size of the census (number of participants)
+   */
+  size: number;
+}
+
+interface ICensusWeightResponse {
+  /**
+   * The weight of the census as a BigInt (sum of all weights)
+   */
+  weight: string;
 }
 
 export abstract class CensusAPI {
@@ -154,6 +170,44 @@ export abstract class CensusAPI {
   public static proof(url: string, censusId: string, key: string): Promise<ICensusProofResponse> {
     return axios
       .get<ICensusProofResponse>(url + CensusAPIMethods.PROOF.replace('{id}', censusId) + '/' + strip0x(key))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the size of a given census
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} censusId The census ID of which we want the proof from
+   * @returns {Promise<ICensusSizeResponse>}
+   */
+  public static size(url: string, censusId: string): Promise<ICensusSizeResponse> {
+    return axios
+      .get<ICensusSizeResponse>(url + CensusAPIMethods.SIZE.replace('{id}', censusId))
+      .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          throw new Error('Request error: ' + error.message);
+        }
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the weight of a given census
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} censusId The census ID of which we want the proof from
+   * @returns {Promise<ICensusWeightResponse>}
+   */
+  public static weight(url: string, censusId: string): Promise<ICensusWeightResponse> {
+    return axios
+      .get<ICensusWeightResponse>(url + CensusAPIMethods.WEIGHT.replace('{id}', censusId))
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {

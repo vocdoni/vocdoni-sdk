@@ -134,6 +134,8 @@ describe('Election integration tests', () => {
         expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.results[0][0]).toEqual(election.results[0][1]);
+        expect(election.census.size).toEqual(numVotes);
+        expect(election.census.weight).toEqual(BigInt(numVotes));
       })
       .then(() =>
         Promise.all(
@@ -199,6 +201,8 @@ describe('Election integration tests', () => {
         expect(+election.results[0][0]).toBeLessThan(+election.results[0][1]);
         expect(+election.results[0][0] + +election.results[0][1]).toEqual((numVotes * (numVotes + 1)) / 2);
         expect(+election.results[0][0]).toEqual(+election.results[0][1] - numVotes / 2);
+        expect(election.census.size).toEqual(numVotes);
+        expect(election.census.weight).toEqual(BigInt((numVotes * (numVotes + 1)) / 2));
       })
       .then(() =>
         Promise.all(
@@ -259,6 +263,8 @@ describe('Election integration tests', () => {
         expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.finalResults).toBeFalsy();
+        expect(election.census.size).toEqual(numVotes);
+        expect(election.census.weight).toEqual(BigInt(numVotes));
       })
       .then(() =>
         Promise.all(
@@ -337,6 +343,8 @@ describe('Election integration tests', () => {
         expect(election.title).toEqual(unpublishedElection.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.results[0][0]).toEqual(election.results[0][1]);
+        expect(election.census.size).toEqual(numVotes);
+        expect(election.census.weight).toEqual(BigInt(numVotes));
       })
       .then(() =>
         Promise.all(
