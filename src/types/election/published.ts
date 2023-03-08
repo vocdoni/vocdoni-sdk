@@ -6,6 +6,7 @@ import { ElectionStatus } from '../../core/election';
 
 export interface IPublishedElectionParameters extends IElectionParameters {
   id: string;
+  organizationId: string;
   status: ElectionStatus;
   voteCount: number;
   finalResults: boolean;
@@ -21,6 +22,7 @@ export interface IPublishedElectionParameters extends IElectionParameters {
  */
 export class PublishedElection extends Election {
   private readonly _id: string;
+  private readonly _organizationId: string;
   private readonly _status: ElectionStatus;
   private readonly _voteCount: number;
   private readonly _finalResults: boolean;
@@ -49,6 +51,7 @@ export class PublishedElection extends Election {
       census: params.census,
     });
     this._id = params.id;
+    this._organizationId = params.organizationId;
     this._status = params.status;
     this._voteCount = params.voteCount;
     this._finalResults = params.finalResults;
@@ -110,6 +113,10 @@ export class PublishedElection extends Election {
 
   get id(): string {
     return this._id;
+  }
+
+  get organizationId(): string {
+    return this._organizationId;
   }
 
   get status(): ElectionStatus {
