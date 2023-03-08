@@ -357,6 +357,7 @@ export class VocdoniSDKClient {
       .then((censusInfo) =>
         PublishedElection.build({
           id: electionInfo.electionId,
+          organizationId: electionInfo.organizationId,
           title: electionInfo.metadata.title,
           description: electionInfo.metadata.description,
           header: electionInfo.metadata.media.header,

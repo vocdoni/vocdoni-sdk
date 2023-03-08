@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `fetchElections` function to fetch all elections based on a given account
+- New `organizationId` property in `PublishedElection`
 
 ### Changed
 

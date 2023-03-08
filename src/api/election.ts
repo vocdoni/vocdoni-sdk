@@ -108,6 +108,11 @@ export interface IElectionInfoResponse {
   electionId: string;
 
   /**
+   * The id of the organization that created the election
+   */
+  organizationId: string;
+
+  /**
    * The status of the election
    */
   status: ElectionStatusEnum;
