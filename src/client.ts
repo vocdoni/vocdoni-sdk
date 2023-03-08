@@ -259,7 +259,7 @@ export class VocdoniSDKClient {
    *
    * @returns {Promise<string>}
    */
-  async fetchChainId(): Promise<string> {
+  fetchChainId(): Promise<string> {
     if (this.chainData?.chainId) {
       return Promise.resolve(this.chainData.chainId);
     }
@@ -287,7 +287,7 @@ export class VocdoniSDKClient {
    * @param {string} data The data of which we want the CID of
    * @returns {Promise<string>} Resulting CID
    */
-  async calculateCID(data: string): Promise<string> {
+  calculateCID(data: string): Promise<string> {
     return FileAPI.cid(this.url, data).then((data) => data.cid);
   }
 
@@ -296,7 +296,7 @@ export class VocdoniSDKClient {
    *
    * @returns {Promise<{string}>}
    */
-  async fetchFaucetPayload(): Promise<string> {
+  fetchFaucetPayload(): Promise<string> {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(this.faucet.url, 'No faucet URL');
     invariant(this.faucet.auth_token, 'No faucet auth token');
@@ -325,7 +325,7 @@ export class VocdoniSDKClient {
    *
    * @returns {Promise<void>}
    */
-  async fetchAccountToken(): Promise<void> {
+  fetchAccountToken(): Promise<void> {
     if (this.authToken) {
       return Promise.resolve();
     }
@@ -428,7 +428,7 @@ export class VocdoniSDKClient {
    * @param {attempts} attempts The attempts to try before failing
    * @returns {Promise<void>}
    */
-  async waitForTransaction(tx: string, wait?: number, attempts?: number): Promise<void> {
+  waitForTransaction(tx: string, wait?: number, attempts?: number): Promise<void> {
     const waitTime = wait ?? this.tx_wait.retry_time;
     const attemptsNum = attempts ?? this.tx_wait.attempts;
     return attemptsNum === 0
@@ -459,10 +459,7 @@ export class VocdoniSDKClient {
    * @param wallet
    * @returns {Promise<OffchainCensusProof>}
    */
-  private async fetchProofForWallet(
-    election: PublishedElection,
-    wallet: Wallet | Signer
-  ): Promise<OffchainCensusProof> {
+  private fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<OffchainCensusProof> {
     return wallet.getAddress().then((address) => {
       if (isWallet(this.wallet)) {
         const { publicKey } = this.wallet as Wallet;
@@ -512,7 +509,7 @@ export class VocdoniSDKClient {
    * options, like extra information of the account, or the faucet package string
    * @returns {Promise<AccountData>}
    */
-  async createAccount(options?: { account?: Account; faucetPackage?: string }): Promise<AccountData> {
+  createAccount(options?: { account?: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return this.fetchAccountInfo().catch(() =>
       this.setAccountInfo({ account: options?.account ?? new Account(), faucetPackage: options?.faucetPackage })
@@ -524,7 +521,7 @@ export class VocdoniSDKClient {
    *
    * @returns {Promise<AccountData>} Account data information updated with new balance
    */
-  async collectFaucetTokens(): Promise<AccountData> {
+  collectFaucetTokens(): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return Promise.all([this.fetchAccountInfo(), this.fetchFaucetPayload(), this.fetchChainId()])
       .then((data) => {
@@ -543,7 +540,7 @@ export class VocdoniSDKClient {
    * @param {PlainCensus | WeightedCensus} census The census to be published.
    * @returns {Promise<void>}
    */
-  async createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
+  createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
     const censusCreation = this.fetchAccountToken().then(() =>
       CensusAPI.create(this.url, this.authToken.identifier, census.type)
     );
@@ -566,7 +563,7 @@ export class VocdoniSDKClient {
    * @param censusId
    * @returns {Promise<{size: number, weight: BigInt}>}
    */
-  async fetchCensusInfo(censusId: string): Promise<{ size: number; weight: BigInt }> {
+  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: BigInt }> {
     return Promise.all([CensusAPI.size(this.url, censusId), CensusAPI.weight(this.url, censusId)])
       .then((censusInfo) => ({
         size: censusInfo[0].size,
@@ -613,7 +610,7 @@ export class VocdoniSDKClient {
    * @param {string} electionId The id of the election
    * @returns {Promise<void>}
    */
-  async endElection(electionId?: string): Promise<void> {
+  endElection(electionId?: string): Promise<void> {
     return this.changeElectionStatus(electionId, ElectionStatus.ENDED);
   }
 
@@ -623,7 +620,7 @@ export class VocdoniSDKClient {
    * @param {string} electionId The id of the election
    * @returns {Promise<void>}
    */
-  async pauseElection(electionId?: string): Promise<void> {
+  pauseElection(electionId?: string): Promise<void> {
     return this.changeElectionStatus(electionId, ElectionStatus.PAUSED);
   }
 
@@ -633,7 +630,7 @@ export class VocdoniSDKClient {
    * @param {string} electionId The id of the election
    * @returns {Promise<void>}
    */
-  async cancelElection(electionId?: string): Promise<void> {
+  cancelElection(electionId?: string): Promise<void> {
     return this.changeElectionStatus(electionId, ElectionStatus.CANCELED);
   }
 
@@ -643,7 +640,7 @@ export class VocdoniSDKClient {
    * @param {string} electionId The id of the election
    * @returns {Promise<void>}
    */
-  async continueElection(electionId?: string): Promise<void> {
+  continueElection(electionId?: string): Promise<void> {
     return this.changeElectionStatus(electionId, ElectionStatus.READY);
   }
 
@@ -654,7 +651,7 @@ export class VocdoniSDKClient {
    * @param {ElectionStatus} newStatus The new status
    * @returns {Promise<void>}
    */
-  private async changeElectionStatus(electionId: string, newStatus: ElectionStatus): Promise<void> {
+  private changeElectionStatus(electionId: string, newStatus: ElectionStatus): Promise<void> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
@@ -709,7 +706,7 @@ export class VocdoniSDKClient {
    * @param {string} electionId The id of the election
    * @returns {Promise<boolean>}
    */
-  async hasAlreadyVoted(electionId?: string): Promise<boolean> {
+  hasAlreadyVoted(electionId?: string): Promise<boolean> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
@@ -730,7 +727,7 @@ export class VocdoniSDKClient {
    * @param {string} electionId The id of the election
    * @returns {Promise<boolean>}
    */
-  async isAbleToVote(electionId?: string): Promise<boolean> {
+  isAbleToVote(electionId?: string): Promise<boolean> {
     return Promise.all([this.isInCensus(electionId), this.votesLeftCount(electionId)])
       .then((res) => res[0] && res[1] > 0)
       .catch(() => false);
