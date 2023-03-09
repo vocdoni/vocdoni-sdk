@@ -6,7 +6,7 @@ import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
 import { AccountAPI, CensusAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI, WalletAPI } from './api';
 import { AccountCore } from './core/account';
-import { ElectionCore, ElectionStatus } from './core/election';
+import { ElectionCore } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
 import {
   Account,
@@ -19,6 +19,9 @@ import {
   Vote,
   CspVote,
   WeightedCensus,
+  ElectionStatus,
+  ElectionStatusReady,
+  AllElectionStatus,
 } from './types';
 import { delay, strip0x } from './util/common';
 import { promiseAny } from './util/promise';
@@ -26,8 +29,6 @@ import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/
 import { isWallet } from './util/signing';
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
-
-export { ElectionStatus };
 
 export type ChainData = {
   chainId: string;
@@ -371,7 +372,7 @@ export class VocdoniSDKClient {
             censusInfo.size,
             censusInfo.weight
           ),
-          status: ElectionCore.electionStatusFromString(electionInfo.status),
+          status: electionInfo.status,
           voteCount: electionInfo.voteCount,
           finalResults: electionInfo.finalResults,
           results: electionInfo.result,
@@ -642,7 +643,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<void>}
    */
   continueElection(electionId?: string): Promise<void> {
-    return this.changeElectionStatus(electionId, ElectionStatus.READY);
+    return this.changeElectionStatus(electionId, ElectionStatusReady.READY);
   }
 
   /**
@@ -652,7 +653,7 @@ export class VocdoniSDKClient {
    * @param {ElectionStatus} newStatus The new status
    * @returns {Promise<void>}
    */
-  private changeElectionStatus(electionId: string, newStatus: ElectionStatus): Promise<void> {
+  private changeElectionStatus(electionId: string, newStatus: AllElectionStatus): Promise<void> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ElectionMetadata } from '../types';
+import { AllElectionStatus, ElectionMetadata, ElectionStatus } from '../types';
 
 enum ElectionAPIMethods {
   INFO = '/elections',
@@ -80,15 +80,6 @@ interface IElectionCreateResponse {
   metadataURL: number;
 }
 
-export enum ElectionStatusEnum {
-  PROCESS_UNKNOWN = 'PROCESS_UNKNOWN',
-  READY = 'READY',
-  ENDED = 'ENDED',
-  CANCELED = 'CANCELED',
-  PAUSED = 'PAUSED',
-  RESULTS = 'RESULTS',
-}
-
 export enum CensusTypeEnum {
   CENSUS_UNKNOWN = 'CENSUS_UNKNOWN',
   OFF_CHAIN_TREE = 'OFF_CHAIN_TREE',
@@ -115,7 +106,7 @@ export interface IElectionInfoResponse {
   /**
    * The status of the election
    */
-  status: ElectionStatusEnum;
+  status: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
 
   /**
    * The start date of the election
@@ -352,7 +343,7 @@ export interface IElectionSummary {
   /**
    * The status of the election
    */
-  status: ElectionStatusEnum;
+  status: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
 
   /**
    * The start date of the election

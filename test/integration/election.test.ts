@@ -1,8 +1,7 @@
 import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
-import { Election, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
+import { Election, ElectionStatus, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
 import { delay } from '../../src/util/common';
-import { ElectionStatus } from '../../src/core/election';
 // @ts-ignore
 import { clientParams } from './util/client.params';
 
@@ -136,6 +135,7 @@ describe('Election integration tests', () => {
         expect(election.results[0][0]).toEqual(election.results[0][1]);
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt(numVotes));
+        expect(election.status).toEqual(ElectionStatus.ONGOING);
       })
       .then(() =>
         Promise.all(
@@ -203,6 +203,7 @@ describe('Election integration tests', () => {
         expect(+election.results[0][0]).toEqual(+election.results[0][1] - numVotes / 2);
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt((numVotes * (numVotes + 1)) / 2));
+        expect(election.status).toEqual(ElectionStatus.ONGOING);
       })
       .then(() =>
         Promise.all(
@@ -265,6 +266,7 @@ describe('Election integration tests', () => {
         expect(election.finalResults).toBeFalsy();
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt(numVotes));
+        expect(election.status).toEqual(ElectionStatus.ONGOING);
       })
       .then(() =>
         Promise.all(
@@ -345,6 +347,7 @@ describe('Election integration tests', () => {
         expect(election.results[0][0]).toEqual(election.results[0][1]);
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt(numVotes));
+        expect(election.status).toEqual(ElectionStatus.ONGOING);
       })
       .then(() =>
         Promise.all(
@@ -375,7 +378,7 @@ describe('Election integration tests', () => {
         return client.fetchElection();
       })
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.READY);
+        expect(election.status).toEqual(ElectionStatus.UPCOMING);
         return client.endElection();
       })
       .then(() => client.fetchElection())
@@ -397,7 +400,7 @@ describe('Election integration tests', () => {
         return client.fetchElection();
       })
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.READY);
+        expect(election.status).toEqual(ElectionStatus.UPCOMING);
         return client.pauseElection();
       })
       .then(() => client.fetchElection())
@@ -419,7 +422,7 @@ describe('Election integration tests', () => {
         return client.fetchElection();
       })
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.READY);
+        expect(election.status).toEqual(ElectionStatus.UPCOMING);
         return client.cancelElection();
       })
       .then(() => client.fetchElection())
@@ -441,7 +444,7 @@ describe('Election integration tests', () => {
         return client.fetchElection();
       })
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.READY);
+        expect(election.status).toEqual(ElectionStatus.UPCOMING);
         return client.pauseElection();
       })
       .then(() => client.fetchElection())
@@ -451,7 +454,7 @@ describe('Election integration tests', () => {
       })
       .then(() => client.fetchElection())
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.READY);
+        expect(election.status).toEqual(ElectionStatus.ONGOING);
       });
   }, 85000);
 });
