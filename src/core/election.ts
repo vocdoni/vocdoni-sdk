@@ -2,18 +2,16 @@ import { AccountData, ChainData } from '../client';
 import {
   CensusOrigin,
   NewProcessTx,
-  ProcessStatus as ElectionStatus,
+  ProcessStatus,
   processStatusFromJSON,
   SetProcessTx,
   Tx,
   TxType,
 } from '@vocdoni/proto/vochain';
-import { CensusType, UnpublishedElection } from '../types';
+import { AllElectionStatus, CensusType, ElectionStatus, UnpublishedElection } from '../types';
 import { TransactionCore } from './transaction';
 import { Buffer } from 'buffer';
 import { strip0x } from '../util/common';
-
-export { ElectionStatus };
 
 export abstract class ElectionCore extends TransactionCore {
   private static readonly VOCHAIN_BLOCK_TIME_IN_SECONDS = 12;
@@ -28,13 +26,13 @@ export abstract class ElectionCore extends TransactionCore {
   public static async generateSetElectionStatusTransaction(
     electionId: string,
     accountNonce: number,
-    newStatus: ElectionStatus
+    newStatus: AllElectionStatus
   ): Promise<Uint8Array> {
     const setProcess = SetProcessTx.fromPartial({
       txtype: TxType.SET_PROCESS_STATUS,
       nonce: accountNonce,
       processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
-      status: newStatus,
+      status: this.processStatusFromElectionStatus(newStatus),
     });
     return Tx.encode({
       payload: { $case: 'setProcess', setProcess },
@@ -86,7 +84,7 @@ export abstract class ElectionCore extends TransactionCore {
           blockCount: endBlock - (election.startDate ? startBlock : actualBlock),
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),
           censusURI: election.census.censusURI,
-          status: ElectionStatus.READY,
+          status: ProcessStatus.READY,
           envelopeType: {
             serial: false, // TODO
             anonymous: election.electionType.anonymous,
@@ -118,7 +116,10 @@ export abstract class ElectionCore extends TransactionCore {
     };
   }
 
-  public static electionStatusFromString(status: string): ElectionStatus {
+  public static processStatusFromElectionStatus(status: AllElectionStatus): ProcessStatus {
+    if (status == ElectionStatus.UPCOMING || status == ElectionStatus.ONGOING) {
+      return ProcessStatus.READY;
+    }
     return processStatusFromJSON(status);
   }
 

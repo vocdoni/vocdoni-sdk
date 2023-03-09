@@ -2,12 +2,27 @@ import { Election, IElectionParameters, IElectionType, IVoteType } from './elect
 import { MultiLanguage } from '../../util/lang';
 import { IQuestion } from '../metadata/election';
 import { PublishedCensus } from '../census/published';
-import { ElectionStatus } from '../../core/election';
+
+export enum ElectionStatus {
+  PROCESS_UNKNOWN = 'PROCESS_UNKNOWN',
+  UPCOMING = 'UPCOMING',
+  ONGOING = 'ONGOING',
+  ENDED = 'ENDED',
+  CANCELED = 'CANCELED',
+  PAUSED = 'PAUSED',
+  RESULTS = 'RESULTS',
+}
+
+export enum ElectionStatusReady {
+  READY = 'READY',
+}
+
+export type AllElectionStatus = ElectionStatus | ElectionStatusReady;
 
 export interface IPublishedElectionParameters extends IElectionParameters {
   id: string;
   organizationId: string;
-  status: ElectionStatus;
+  status: AllElectionStatus;
   voteCount: number;
   finalResults: boolean;
   results: Array<Array<string>>;
@@ -52,7 +67,14 @@ export class PublishedElection extends Election {
     });
     this._id = params.id;
     this._organizationId = params.organizationId;
-    this._status = params.status;
+    switch (params.status) {
+      case ElectionStatusReady.READY:
+        this._status = this.startDate <= new Date() ? ElectionStatus.ONGOING : ElectionStatus.UPCOMING;
+        break;
+      default:
+        this._status = params.status;
+        break;
+    }
     this._voteCount = params.voteCount;
     this._finalResults = params.finalResults;
     this._results = params.results;
