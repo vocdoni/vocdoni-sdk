@@ -116,6 +116,32 @@ also decide to just fetch it, without falling back to an account registration:
 })();
 ~~~
 
+The `createAccount` also accepts some information about the account:
+
+~~~ts
+(async () => {
+  const account = new Account({
+    languages: ['es'],
+    name: {
+      es: 'Nombre de la cuenta',
+      default: 'Account name',
+    },
+    description: 'Description of the account',
+    feed: 'https://feed.io',
+    avatar: 'https://avatar.io',
+    header: 'https://header.io',
+    logo: 'https://logo.io',
+    meta: [
+      { key: 'twitter', value: 'https://twitter.com/@orghandle' },
+      { key: 'someIpfsValue', value: 'ipfs://QmXxgLNRSeK6jtFkJ9TsL8nYxFnJ8RKa2xXHUFKGankX6k' },
+      { key: 'someArbitraryData', value: [123, 456] },
+      { key: 'someEmptyData', value: {} },
+    ],
+  });
+  const info = await client.createAccount({ account })
+})();
+~~~
+
 ### Vocdoni tokens; faucet & balance
 
 Accounts require Vocdoni tokens in order to be able to register against our
