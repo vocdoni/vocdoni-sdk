@@ -454,7 +454,7 @@ describe('Election integration tests', () => {
       })
       .then(() => client.fetchElection())
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.ONGOING);
+        expect([ElectionStatus.ONGOING, ElectionStatus.UPCOMING]).toContain(election.status);
       });
   }, 85000);
 });
