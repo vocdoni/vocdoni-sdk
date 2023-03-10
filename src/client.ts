@@ -565,6 +565,11 @@ export class VocdoniSDKClient {
       .then((censusPublish) => {
         census.censusId = censusPublish.censusID;
         census.censusURI = censusPublish.uri;
+        return this.fetchCensusInfo(census.censusId);
+      })
+      .then((censusInfo) => {
+        census.size = censusInfo.size;
+        census.weight = censusInfo.weight;
       });
   }
 
