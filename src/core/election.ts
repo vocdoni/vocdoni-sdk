@@ -113,6 +113,7 @@ export abstract class ElectionCore extends TransactionCore {
           },
           censusOrigin: this.censusOriginFromCensusType(election.census.type),
           metadata: cid,
+          maxCensusSize: election.census.size ?? undefined,
         },
       },
     };
