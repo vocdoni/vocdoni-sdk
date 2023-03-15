@@ -9,7 +9,7 @@ const createElection = (census, electionType = null) => {
   endDate.setHours(endDate.getHours() + 10);
 
   const election = Election.from({
-    title: 'こんにちは世界',
+    title: 'Election title',
     description: 'Election description',
     header: 'https://source.unsplash.com/random',
     streamUri: 'https://source.unsplash.com/random',
@@ -18,7 +18,7 @@ const createElection = (census, electionType = null) => {
     electionType: electionType ?? null,
   });
 
-  election.addQuestion('これはタイトルです', 'This is a description', [
+  election.addQuestion('This is a title', 'This is a description', [
     {
       title: 'Option 1',
       value: 0,
