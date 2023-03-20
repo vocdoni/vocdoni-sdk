@@ -565,11 +565,11 @@ export class VocdoniSDKClient {
       .then((censusPublish) => {
         census.censusId = censusPublish.censusID;
         census.censusURI = censusPublish.uri;
-        return this.fetchCensusInfo(census.censusId);
-      })
-      .then((censusInfo) => {
-        census.size = censusInfo.size;
-        census.weight = censusInfo.weight;
+        census.size = census.participants.length;
+        census.weight = census.participants.reduce(
+          (currentValue, participant) => currentValue + participant.weight,
+          BigInt(0)
+        );
       });
   }
 
@@ -577,9 +577,9 @@ export class VocdoniSDKClient {
    * Fetches the information of a given census.
    *
    * @param censusId
-   * @returns {Promise<{size: number, weight: BigInt}>}
+   * @returns {Promise<{size: number, weight: bigint}>}
    */
-  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: BigInt }> {
+  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint }> {
     return Promise.all([CensusAPI.size(this.url, censusId), CensusAPI.weight(this.url, censusId)])
       .then((censusInfo) => ({
         size: censusInfo[0].size,
@@ -600,6 +600,11 @@ export class VocdoniSDKClient {
   async createElection(election: UnpublishedElection): Promise<string> {
     if (!election.census.isPublished) {
       await this.createCensus(election.census as PlainCensus | WeightedCensus);
+    } else if (!election.maxCensusSize) {
+      await this.fetchCensusInfo(election.census.censusId).then((censusInfo) => {
+        election.census.size = censusInfo.size;
+        election.census.weight = censusInfo.weight;
+      });
     }
 
     const chainId = await this.fetchChainId();

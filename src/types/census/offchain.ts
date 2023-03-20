@@ -5,7 +5,7 @@ import { isAddress } from '@ethersproject/address';
 
 export interface ICensusParticipant {
   key: string;
-  weight: BigInt;
+  weight: bigint;
 }
 
 /**

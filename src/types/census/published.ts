@@ -14,7 +14,7 @@ export class PublishedCensus extends Census {
    * @param size The size of the census
    * @param weight The weight of the census
    */
-  public constructor(censusId: string, censusURI: string, type: CensusType, size?: number, weight?: BigInt) {
+  public constructor(censusId: string, censusURI: string, type: CensusType, size?: number, weight?: bigint) {
     invariant(/^(0x)?[0-9a-fA-F]+$/.test(censusId), 'Census identifier is missing or invalid');
     try {
       new URL(censusURI);
