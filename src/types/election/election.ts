@@ -31,6 +31,7 @@ export interface IElectionParameters {
   voteType?: IVoteType;
   electionType?: IElectionType;
   questions?: IQuestion[];
+  maxCensusSize?: number;
 }
 
 /**
@@ -47,6 +48,7 @@ export abstract class Election {
   protected _voteType: IVoteType;
   protected _questions: IQuestion[];
   protected _census: PublishedCensus | PlainCensus | WeightedCensus;
+  protected _maxCensusSize: number;
 
   /**
    * Constructs an election
@@ -65,6 +67,7 @@ export abstract class Election {
       this._voteType = params.voteType;
       this._questions = params.questions ?? [];
       this._census = params.census;
+      this._maxCensusSize = params.maxCensusSize;
     }
   }
 
@@ -115,5 +118,9 @@ export abstract class Election {
 
   get census(): PublishedCensus | PlainCensus | WeightedCensus {
     return this._census;
+  }
+
+  get maxCensusSize(): number {
+    return this._maxCensusSize;
   }
 }

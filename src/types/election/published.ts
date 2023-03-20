@@ -64,6 +64,7 @@ export class PublishedElection extends Election {
       voteType: params.voteType,
       questions: params.questions,
       census: params.census,
+      maxCensusSize: params.maxCensusSize,
     });
     this._id = params.id;
     this._organizationId = params.organizationId;
@@ -131,6 +132,10 @@ export class PublishedElection extends Election {
 
   get census(): PublishedCensus {
     return super.census;
+  }
+
+  get maxCensusSize(): number {
+    return super.maxCensusSize;
   }
 
   get id(): string {

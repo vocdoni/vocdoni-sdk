@@ -29,10 +29,11 @@ describe('Election tests', () => {
     const election = Election.from(electionData);
     expect(election).toBeInstanceOf(UnpublishedElection);
     expect(election.census).toBeInstanceOf(PublishedCensus);
-    expect(election['id']).toBeUndefined();
   });
   it('should have the correct default values', () => {
     const election = Election.from(electionData);
+    expect(election['id']).toBeUndefined();
+    expect(election.maxCensusSize).toBeUndefined();
     expect(election.electionType).toEqual({
       autoStart: true,
       interruptible: true,

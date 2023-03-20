@@ -34,6 +34,7 @@ export class UnpublishedElection extends Election {
     this.electionType = UnpublishedElection.fullElectionType(params.electionType);
     this.voteType = UnpublishedElection.fullVoteType(params.voteType);
     this.questions = params.questions ?? [];
+    this.maxCensusSize = params.maxCensusSize;
   }
 
   public addQuestion(
@@ -196,5 +197,13 @@ export class UnpublishedElection extends Election {
       'Invalid census'
     );
     this._census = value;
+  }
+
+  get maxCensusSize(): number {
+    return super.maxCensusSize;
+  }
+
+  set maxCensusSize(value: number) {
+    this._maxCensusSize = value;
   }
 }
