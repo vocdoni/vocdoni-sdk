@@ -12,7 +12,7 @@ export abstract class Census {
   protected _censusURI: string | null;
   protected _type: CensusType;
   private _size: number | null;
-  private _weight: BigInt | null;
+  private _weight: bigint | null;
 
   /**
    * Constructs a generic census
@@ -23,7 +23,7 @@ export abstract class Census {
    * @param size The size of the census
    * @param weight The weight of the census
    */
-  protected constructor(censusId?: string, censusURI?: string, type?: CensusType, size?: number, weight?: BigInt) {
+  protected constructor(censusId?: string, censusURI?: string, type?: CensusType, size?: number, weight?: bigint) {
     this.censusId = censusId;
     this.censusURI = censusURI;
     this.type = type;
@@ -63,11 +63,11 @@ export abstract class Census {
     this._size = value;
   }
 
-  get weight(): BigInt | null {
+  get weight(): bigint | null {
     return this._weight;
   }
 
-  set weight(value: BigInt | null) {
+  set weight(value: bigint | null) {
     this._weight = value;
   }
 

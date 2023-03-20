@@ -108,7 +108,7 @@ export abstract class CensusAPI {
     censusId: string,
     participants: Array<{
       key: string;
-      weight?: BigInt;
+      weight?: bigint;
     }>
   ): Promise<ICensusAddResponse> {
     return axios
