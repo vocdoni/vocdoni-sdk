@@ -116,7 +116,7 @@ export abstract class ElectionCore extends TransactionCore {
     };
   }
 
-  public static processStatusFromElectionStatus(status: AllElectionStatus): ProcessStatus {
+  private static processStatusFromElectionStatus(status: AllElectionStatus): ProcessStatus {
     if (status == ElectionStatus.UPCOMING || status == ElectionStatus.ONGOING) {
       return ProcessStatus.READY;
     }
