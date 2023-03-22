@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `ElectionStatus` includes new values `ONGOING` and `UPCOMING`. `READY` is removed an only used internally.
 - Election description changed from mandatory to optional.
+- `fetchElections` accepts no account and returns all elections in the chain.
+- `fetchAccountInfo` accepts arbitrary account to retrieve information.
 
 ## [0.0.5] - 2023-03-08
 
