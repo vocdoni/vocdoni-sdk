@@ -22,7 +22,7 @@ export interface IElectionType {
 
 export interface IElectionParameters {
   title: string | MultiLanguage<string>;
-  description: string | MultiLanguage<string>;
+  description?: string | MultiLanguage<string>;
   header?: string;
   streamUri?: string;
   startDate?: string | number | Date;

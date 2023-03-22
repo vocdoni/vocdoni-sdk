@@ -81,12 +81,6 @@ describe('Election tests', () => {
       Election.from(electionData);
     }).toThrow('Title is not set');
   });
-  it('should throw when no description is set', () => {
-    electionData.description = null;
-    expect(() => {
-      Election.from(electionData);
-    }).toThrow('Description is not set');
-  });
   it('should throw when no census is set', () => {
     electionData.census = null;
     expect(() => {
