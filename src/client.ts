@@ -274,12 +274,18 @@ export class VocdoniSDKClient {
   /**
    * Fetches account information.
    *
+   * @param {string} account The account to fetch the information
    * @returns {Promise<AccountData>}
    */
-  async fetchAccountInfo(): Promise<AccountData> {
-    invariant(this.wallet, 'No wallet or signer set');
-    this.accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
-    return this.accountData;
+  async fetchAccountInfo(account?: string): Promise<AccountData> {
+    if (!this.wallet && !account) {
+      throw Error('No account set');
+    } else if (account) {
+      return AccountAPI.info(this.url, account);
+    } else {
+      this.accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
+      return this.accountData;
+    }
   }
 
   /**
