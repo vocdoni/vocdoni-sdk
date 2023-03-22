@@ -411,11 +411,14 @@ export class VocdoniSDKClient {
   }
 
   async fetchElections(account?: string, page: number = 0): Promise<Array<PublishedElection>> {
+    let electionList;
     if (!this.wallet && !account) {
-      throw Error('No account set');
+      electionList = ElectionAPI.electionsList(this.url, page);
+    } else {
+      electionList = AccountAPI.electionsList(this.url, account ?? (await this.wallet.getAddress()), page);
     }
 
-    return AccountAPI.electionsList(this.url, account ?? (await this.wallet.getAddress()), page).then((elections) =>
+    return electionList.then((elections) =>
       Promise.all(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
     );
   }
