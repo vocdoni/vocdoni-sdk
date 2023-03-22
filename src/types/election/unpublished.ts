@@ -121,7 +121,6 @@ export class UnpublishedElection extends Election {
   }
 
   set description(value: MultiLanguage<string>) {
-    invariant(value?.default.length > 0, 'Description is not set');
     this._description = value;
   }
 
