@@ -12,12 +12,12 @@ import {
   Account,
   Census,
   CensusType,
+  CspVote,
   PlainCensus,
   PublishedCensus,
   PublishedElection,
   UnpublishedElection,
   Vote,
-  CspVote,
   WeightedCensus,
   ElectionStatus,
   ElectionStatusReady,
@@ -35,6 +35,7 @@ export type ChainData = {
   blockTime: number[];
   height: number;
   blockTimestamp: number;
+  maxCensusSize: number;
 };
 
 /**
@@ -598,6 +599,13 @@ export class VocdoniSDKClient {
    * @returns {Promise<string>} Resulting election id.
    */
   async createElection(election: UnpublishedElection): Promise<string> {
+    invariant(
+      election.maxCensusSize || election.census.type !== CensusType.CSP,
+      'CSP Census needs a max census size set in the election'
+    );
+
+    const chainId = await this.fetchChainId();
+
     if (!election.census.isPublished) {
       await this.createCensus(election.census as PlainCensus | WeightedCensus);
     } else if (!election.maxCensusSize) {
@@ -605,9 +613,9 @@ export class VocdoniSDKClient {
         election.census.size = censusInfo.size;
         election.census.weight = censusInfo.weight;
       });
+    } else if (election.maxCensusSize && election.maxCensusSize > this.chainData.maxCensusSize) {
+      throw new Error('Max census size for the election is greater than allowed size: ' + this.chainData.maxCensusSize);
     }
-
-    const chainId = await this.fetchChainId();
 
     const electionData = Promise.all([
       this.fetchAccountInfo(),
