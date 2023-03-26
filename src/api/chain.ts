@@ -23,12 +23,12 @@ export interface IChainGetInfoResponse {
   blockTime: number[];
 
   /**
-   * The number of elections existing on the Vocchain.
+   * The number of elections existing on the Vochain.
    */
   electionCount: number;
 
   /**
-   * The number of organizations existing on the Vocchain.
+   * The number of organizations existing on the Vochain.
    */
   organizationCount: number;
 
@@ -71,6 +71,11 @@ export interface IChainGetInfoResponse {
    * The circuit configuration tag.
    */
   circuitConfigurationTag: string;
+
+  /**
+   * The maximum size of a census.
+   */
+  maxCensusSize: number;
 }
 
 export enum TransactionType {

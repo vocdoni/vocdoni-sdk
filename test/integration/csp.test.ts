@@ -25,6 +25,7 @@ describe('CSP tests', () => {
       streamUri: 'https://source.unsplash.com/random',
       endDate: new Date().getTime() + 10000000,
       census,
+      maxCensusSize: numVotes,
     });
 
     election.addQuestion('This is a title', 'This is a description', [
