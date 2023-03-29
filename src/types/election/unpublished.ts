@@ -205,6 +205,7 @@ export class UnpublishedElection extends Election {
   }
 
   set maxCensusSize(value: number) {
+    invariant(value > 0, 'Maximum census size cannot be zero or negative');
     this._maxCensusSize = value;
   }
 }

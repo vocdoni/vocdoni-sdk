@@ -94,4 +94,14 @@ describe('Election tests', () => {
       Election.from(electionData);
     }).toThrow('Invalid census');
   });
+  it('should throw when maximum census size is zero or negative', () => {
+    electionData.maxCensusSize = 0;
+    expect(() => {
+      Election.from(electionData);
+    }).toThrow('Maximum census size cannot be zero or negative');
+    electionData.maxCensusSize = -1;
+    expect(() => {
+      Election.from(electionData);
+    }).toThrow('Maximum census size cannot be zero or negative');
+  });
 });
