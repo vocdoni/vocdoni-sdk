@@ -321,7 +321,7 @@ describe('Election integration tests', () => {
               const isInCensus = await pClient.isInCensus();
               expect(isInCensus).toBeTruthy();
               const hasAlreadyVoted = await pClient.hasAlreadyVoted();
-              expect(hasAlreadyVoted).toBe(i !== 0);
+              i !== 0 ? expect(hasAlreadyVoted).toBeTruthy() : expect(hasAlreadyVoted).toBeFalsy();
               const isAbleToVote = await pClient.isAbleToVote();
               expect(isAbleToVote).toBeTruthy();
               const votesLeft = await pClient.votesLeftCount();

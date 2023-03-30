@@ -23,7 +23,7 @@ import {
   ElectionStatusReady,
   AllElectionStatus,
 } from './types';
-import { delay, strip0x } from './util/common';
+import { delay } from './util/common';
 import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import { isWallet } from './util/signing';
@@ -733,9 +733,9 @@ export class VocdoniSDKClient {
    * Checks if the user has already voted
    *
    * @param {string} electionId The id of the election
-   * @returns {Promise<boolean>}
+   * @returns {Promise<string>} The id of the vote
    */
-  hasAlreadyVoted(electionId?: string): Promise<boolean> {
+  hasAlreadyVoted(electionId?: string): Promise<string> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
@@ -746,8 +746,8 @@ export class VocdoniSDKClient {
     return this.wallet
       .getAddress()
       .then((address) => VoteAPI.info(this.url, keccak256(address.toLowerCase() + (electionId ?? this.electionId))))
-      .then((voteInfo) => voteInfo.electionID == strip0x(electionId ?? this.electionId))
-      .catch(() => false);
+      .then((voteInfo) => voteInfo.voteID)
+      .catch(() => null);
   }
 
   /**

@@ -398,7 +398,7 @@ about the election status and the possible status changes once the election is c
 ~~~ts
 (async () => {
   const hasAlreadyVoted = await client.hasAlreadyVoted();
-  console.log(hasAlreadyVoted) // true or false
+  console.log(hasAlreadyVoted) // returns the vote identifier or null
 })();
 ~~~
 
