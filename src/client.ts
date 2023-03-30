@@ -757,8 +757,8 @@ export class VocdoniSDKClient {
    * @returns {Promise<boolean>}
    */
   isAbleToVote(electionId?: string): Promise<boolean> {
-    return Promise.all([this.isInCensus(electionId), this.votesLeftCount(electionId)])
-      .then((res) => res[0] && res[1] > 0)
+    return this.votesLeftCount(electionId)
+      .then((votesLeftCount) => votesLeftCount > 0)
       .catch(() => false);
   }
 
@@ -774,6 +774,11 @@ export class VocdoniSDKClient {
     }
     if (!this.wallet) {
       throw Error('No wallet found');
+    }
+
+    const isInCensus = await this.isInCensus(electionId ?? this.electionId);
+    if (!isInCensus) {
+      throw Error('Not in census');
     }
 
     const election = await this.fetchElection(electionId ?? this.electionId);

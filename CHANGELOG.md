@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `votesLeftCount` checks if user is in census.
 - `hasAlreadyVoted()` returns the vote id or null if the account hasn't voted.
 
 ## [0.0.7] - 2023-03-29
