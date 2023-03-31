@@ -7,7 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@ethersproject/wallet": "^5.7.0",
-    "@vocdoni/sdk": "0.0.4-alpha",
+    "@vocdoni/sdk": "0.0.7",
     "chalk": "^5.1.2"
   },
   "scripts": {
