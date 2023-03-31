@@ -3642,18 +3642,18 @@
     "@typescript-eslint/types" "5.48.1"
     eslint-visitor-keys "^3.3.0"
 
-"@vocdoni/proto@1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@vocdoni/proto/-/proto-1.14.0.tgz#3e6266495b0293436bb5930b175d7894ec08a8c1"
-  integrity sha512-sUyrIL6N20N+SCeOg9tI462UG2BDr2qGe8I3uFuzcJZa/yDXYFMnzEZGMw5fKwCmPAfYqTKs704ONHuOceuo9A==
+"@vocdoni/proto@1.14.1":
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/@vocdoni/proto/-/proto-1.14.1.tgz#19891e5fa84b5ec65058f47652a7af0fe5f99b05"
+  integrity sha512-Fojio2im4JC8YN6x31mA94Z4d7HKK65mzIZLn8bW2+cHS3fS+SEkE8HHF+Q8IuGG+1vY1KIEDj6v+CT8qAlVKw==
   dependencies:
     long "^5.2.1"
     protobufjs "^7.1.2"
 
-"@vocdoni/sdk@0.0.4-alpha":
-  version "0.0.4-alpha"
-  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.0.4-alpha.tgz#1e082b8b31b5be0006955a1d155d5f03d5fe18bf"
-  integrity sha512-EYu1xm/LkOnpOnsLN1gPQibLSGv0ijf9Hqf8xXnifxpwWY2aUYw15FSQMN/QULGUcWV4PlxQGO5la8q+5yFJyw==
+"@vocdoni/sdk@0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.0.7.tgz#cb4e6bdad784f0213d4af96688b298b2667bc23a"
+  integrity sha512-sYoTvRNNXkO6GDi578hRzdXXh9FhloH7BcpDc/i/KEYrUZdtb37TJsolQ6D6XOUPdsD6sRMmMID+eLM3FaJEVA==
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/address" "^5.7.0"
@@ -3663,7 +3663,7 @@
     "@ethersproject/signing-key" "^5.7.0"
     "@ethersproject/wallet" "^5.7.0"
     "@size-limit/file" "^8.2.4"
-    "@vocdoni/proto" "1.14.0"
+    "@vocdoni/proto" "1.14.1"
     axios "0.27.2"
     blakejs "^1.2.1"
     blindsecp256k1 "^0.0.9"
