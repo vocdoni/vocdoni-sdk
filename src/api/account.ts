@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { IElectionListResponse } from './election';
+import { API } from './api';
 
 enum AccountAPIMethods {
   INFO = '/accounts',
@@ -56,11 +57,13 @@ interface IAccountTransfersResponse {
   to: string;
 }
 
-export abstract class AccountAPI {
+export abstract class AccountAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * Fetches an Account information
@@ -75,7 +78,7 @@ export abstract class AccountAPI {
       .then((response) => response.data)
       .catch((error) => {
         if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
+          this.isApiError(error);
         }
         throw error;
       });
