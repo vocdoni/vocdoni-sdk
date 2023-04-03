@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { ErrAccountNotFound, ErrAddressMalformed } from './errors';
 
 export abstract class API {
@@ -7,7 +7,8 @@ export abstract class API {
    */
   protected constructor() {}
 
-  protected static isApiError(error: AxiosError) {
+  protected static isApiError(error: AxiosError): never {
+    if (!axios.isAxiosError(error)) throw error;
     const err = error?.response?.data;
     if (err['code'] && !isNaN(Number(err['code']))) {
       switch (err['code']) {
@@ -19,5 +20,6 @@ export abstract class API {
           throw error;
       }
     }
+    throw error;
   }
 }

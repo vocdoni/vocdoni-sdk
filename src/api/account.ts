@@ -76,12 +76,7 @@ export abstract class AccountAPI extends API {
     return axios
       .get<IAccountInfoResponse>(url + AccountAPIMethods.INFO + '/' + address)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          this.isApiError(error);
-        }
-        throw error;
-      });
+      .catch((error) => this.isApiError(error));
   }
 
   /**
