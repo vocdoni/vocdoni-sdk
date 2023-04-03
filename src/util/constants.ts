@@ -15,6 +15,6 @@ export const FAUCET_AUTH_TOKEN = {
 };
 
 export const TX_WAIT_OPTIONS = {
-  retry_time: 3000,
+  retry_time: 5000,
   attempts: 6,
 };
