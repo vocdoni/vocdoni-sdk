@@ -6,6 +6,6 @@ export class ErrAddressMalformed extends Error {
 
 export class ErrAccountNotFound extends Error {
   constructor(message?: string) {
-    super(message ? message : 'address malformed');
+    super(message ? message : 'account not found');
   }
 }
