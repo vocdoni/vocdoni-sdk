@@ -1,9 +1,10 @@
 import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
 import { Election, ElectionStatus, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
-import { delay } from '../../src/util/common';
 // @ts-ignore
 import { clientParams } from './util/client.params';
+// @ts-ignore
+import { waitForElectionReady } from './util/client.utils';
 
 let client: VocdoniSDKClient;
 let wallet: Wallet;
@@ -55,7 +56,7 @@ describe('Election integration tests', () => {
       .then((electionId) => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
-        return delay(25000);
+        return waitForElectionReady(client, electionId);
       })
       .then(() => {
         client.wallet = voter;
@@ -82,7 +83,7 @@ describe('Election integration tests', () => {
       .then((electionId) => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
-        return delay(25000);
+        return waitForElectionReady(client, electionId);
       })
       .then(() => {
         client.wallet = voter;
@@ -111,7 +112,7 @@ describe('Election integration tests', () => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
         electionIdentifier = electionId;
-        return delay(12000);
+        return waitForElectionReady(client, electionId);
       })
       .then(() =>
         Promise.all(
@@ -192,7 +193,7 @@ describe('Election integration tests', () => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
         electionIdentifier = electionId;
-        return delay(12000);
+        return waitForElectionReady(client, electionId);
       })
       .then(() =>
         Promise.all(
@@ -272,7 +273,7 @@ describe('Election integration tests', () => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
         electionIdentifier = electionId;
-        return delay(12000);
+        return waitForElectionReady(client, electionId);
       })
       .then(() =>
         Promise.all(
@@ -355,7 +356,7 @@ describe('Election integration tests', () => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
         electionIdentifier = electionId;
-        return delay(12000);
+        return waitForElectionReady(client, electionId);
       })
       .then(async () => {
         for (let i = 0; i <= resendVoteCount; i++) {
