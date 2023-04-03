@@ -1,10 +1,11 @@
 import { ICspFinalStepResponse, ICspIntermediateStepResponse } from '../../src/api/csp';
 import { Wallet } from '@ethersproject/wallet';
 import { Election, VocdoniSDKClient, Vote } from '../../src';
-import { delay } from '../../src/util/common';
 import { CspCensus } from '../../src/types/census/csp';
 // @ts-ignore
 import { clientParams } from './util/client.params';
+// @ts-ignore
+import { waitForElectionReady } from './util/client.utils';
 
 const CSP_URL = process.env.BLINDCSP_URL ?? 'https://csp-stg.vocdoni.net/v1';
 const CSP_PUBKEY = process.env.BLINDCSP_PUBKEY ?? '0299f6984fddd0fab09c364d18e2759d6b728e933fae848676b8bd9700549a1817';
@@ -49,7 +50,7 @@ describe('CSP tests', () => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
         electionIdentifier = electionId;
-        return delay(12000);
+        return waitForElectionReady(client, electionId);
       })
       .then(() => {
         return Promise.all(
