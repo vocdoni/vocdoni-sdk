@@ -5,7 +5,7 @@ import { ErrAccountNotFound, ErrAddressMalformed } from '../../src';
 import { Wallet } from '@ethersproject/wallet';
 
 describe('Account API tests', () => {
-  it('should throw when asking for a invalid account', async () => {
+  it('should throw when asking for an invalid account', async () => {
     await expect(async () => {
       await AccountAPI.info(URL, '0x1234');
     }).rejects.toThrow(ErrAddressMalformed);

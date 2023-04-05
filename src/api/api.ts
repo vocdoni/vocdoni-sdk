@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { ErrAccountNotFound, ErrAddressMalformed, ErrElectionNotStarted } from './errors';
+import { ErrAccountNotFound, ErrAddressMalformed, ErrAPI, ErrElectionNotStarted } from './errors';
 
 export abstract class API {
   /**
@@ -21,6 +21,8 @@ export abstract class API {
         default:
           throw error;
       }
+    } else if (err) {
+      throw new ErrAPI(error.response.status + ' ' + error.response.statusText + ': ' + err);
     }
     throw error;
   }
