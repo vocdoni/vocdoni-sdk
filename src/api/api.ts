@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { ErrAccountNotFound, ErrAddressMalformed } from './errors';
+import { ErrAccountNotFound, ErrAddressMalformed, ErrElectionNotStarted } from './errors';
 
 export abstract class API {
   /**
@@ -16,10 +16,21 @@ export abstract class API {
           throw new ErrAddressMalformed(err['error']);
         case 4003:
           throw new ErrAccountNotFound(err['error']);
+        case 5003:
+          return this.isVochainError(err['error']);
         default:
           throw error;
       }
     }
     throw error;
+  }
+
+  private static isVochainError(error: string): never {
+    switch (true) {
+      case error.includes('starts at height') && error.includes('current height is'):
+        throw new ErrElectionNotStarted(error);
+      default:
+        throw error;
+    }
   }
 }
