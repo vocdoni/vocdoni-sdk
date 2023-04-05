@@ -17,7 +17,7 @@ export abstract class API {
         case 4003:
           throw new ErrAccountNotFound(err['error']);
         case 5003:
-          return this.isVochainError(err['error']);
+          return API.isVochainError(err['error']);
         default:
           throw error;
       }
