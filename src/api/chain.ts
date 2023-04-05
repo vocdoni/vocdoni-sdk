@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API } from './api';
 
 enum ChainAPIMethods {
   INFO = '/chain/info',
@@ -245,11 +246,13 @@ export interface IChainValidatorsListResponse {
   validators: Array<IChainValidator>;
 }
 
-export abstract class ChainAPI {
+export abstract class ChainAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * Fetches info about the blockchain status.
@@ -261,12 +264,7 @@ export abstract class ChainAPI {
     return axios
       .get<IChainGetInfoResponse>(url + ChainAPIMethods.INFO)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -285,12 +283,7 @@ export abstract class ChainAPI {
         }
         return response.data;
       })
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -304,12 +297,7 @@ export abstract class ChainAPI {
     return axios
       .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify({ payload }))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -323,12 +311,7 @@ export abstract class ChainAPI {
     return axios
       .get<IChainTxListResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -341,12 +324,7 @@ export abstract class ChainAPI {
     return axios
       .get<IChainOrganizationCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -360,12 +338,7 @@ export abstract class ChainAPI {
     return axios
       .get<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST + '/' + page)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -379,12 +352,7 @@ export abstract class ChainAPI {
     return axios
       .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO + '/' + height)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -397,12 +365,7 @@ export abstract class ChainAPI {
     return axios
       .get<IChainValidatorsListResponse>(url + ChainAPIMethods.VALIDATORS_LIST)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -416,11 +379,6 @@ export abstract class ChainAPI {
     return axios
       .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO + '/' + hash)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 }

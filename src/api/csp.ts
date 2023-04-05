@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { strip0x } from '../util/common';
+import { API } from './api';
 
 enum CspAPIMethods {
   INFO = '/auth/elections/info',
@@ -67,11 +68,13 @@ export interface ICspSignResponse {
   signature: string;
 }
 
-export abstract class CspAPI {
+export abstract class CspAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * CSP info
@@ -84,12 +87,7 @@ export abstract class CspAPI {
     return axios
       .get<ICspInfoResponse>(url + CspAPIMethods.INFO)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -120,12 +118,7 @@ export abstract class CspAPI {
         JSON.stringify(authToken ? { authToken, authData: data } : { authData: data })
       )
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -152,11 +145,6 @@ export abstract class CspAPI {
         JSON.stringify({ payload, token })
       )
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 }

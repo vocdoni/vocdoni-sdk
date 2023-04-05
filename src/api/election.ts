@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { AllElectionStatus, ElectionMetadata, ElectionStatus } from '../types';
+import { API } from './api';
 
 enum ElectionAPIMethods {
   INFO = '/elections',
@@ -373,11 +374,13 @@ export interface IElectionListResponse {
   elections: Array<IElectionSummary>;
 }
 
-export abstract class ElectionAPI {
+export abstract class ElectionAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * Fetches info about the specified process.
@@ -390,12 +393,7 @@ export abstract class ElectionAPI {
     return axios
       .get<IElectionInfoResponse>(url + ElectionAPIMethods.INFO + '/' + electionId)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -409,12 +407,7 @@ export abstract class ElectionAPI {
     return axios
       .get<IElectionKeysResponse>(url + ElectionAPIMethods.KEYS.replace('{id}', electionId))
       .then((response) => response.data.publicKeys)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -429,12 +422,7 @@ export abstract class ElectionAPI {
     return axios
       .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, JSON.stringify({ txPayload: payload, metadata }))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -448,12 +436,7 @@ export abstract class ElectionAPI {
     return axios
       .get<IElectionVotesCountResponse>(url + ElectionAPIMethods.VOTES_COUNT.replace('{id}', electionId))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -470,12 +453,7 @@ export abstract class ElectionAPI {
         url + ElectionAPIMethods.VOTES.replace('{id}', electionId).replace('{page}', String(page))
       )
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -489,11 +467,6 @@ export abstract class ElectionAPI {
     return axios
       .get<IElectionListResponse>(url + ElectionAPIMethods.LIST.replace('{page}', String(page)))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 }

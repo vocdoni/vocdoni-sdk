@@ -1,7 +1,7 @@
 import { AccountAPI } from '../../src';
 // @ts-ignore
 import { URL } from './util/client.params';
-import { ErrAccountNotFound, ErrAddressMalformed } from '../../src/api/errors';
+import { ErrAccountNotFound, ErrAddressMalformed } from '../../src';
 import { Wallet } from '@ethersproject/wallet';
 
 describe('Account API tests', () => {
