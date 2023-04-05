@@ -5,12 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.0.8] - 2023-04-05
+
+### Added
+
+- Custom error handling (WIP)
 
 ### Changed
 
 - `votesLeftCount` checks if user is in census.
 - `hasAlreadyVoted()` returns the vote id or null if the account hasn't voted.
+
+### Fixed
+
+- Increased time for transaction confirmation due to block time increase.
 
 ## [0.0.7] - 2023-03-29
 
@@ -102,6 +110,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.0.8]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.8
 [0.0.7]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.7
 [0.0.6]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.6
 [0.0.5]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.5
