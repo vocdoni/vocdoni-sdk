@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API } from './api';
 
 enum VoteAPIMethods {
   VOTE = '/votes',
@@ -70,11 +71,13 @@ export interface IVoteInfoResponse {
   date: string;
 }
 
-export abstract class VoteAPI {
+export abstract class VoteAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * Voting
@@ -88,12 +91,7 @@ export abstract class VoteAPI {
     return axios
       .post<IVoteSubmitResponse>(url + VoteAPIMethods.VOTE, JSON.stringify({ txPayload: payload }))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch((error) => this.isApiError(error));
   }
 
   /**

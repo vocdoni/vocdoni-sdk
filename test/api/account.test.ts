@@ -1,19 +1,19 @@
 import { AccountAPI } from '../../src';
 // @ts-ignore
 import { URL } from './util/client.params';
-import { ErrAddressMalformed } from '../../src/api/errors';
+import { ErrAccountNotFound, ErrAddressMalformed } from '../../src/api/errors';
 import { Wallet } from '@ethersproject/wallet';
 
 describe('Account API tests', () => {
   it('should throw when asking for a invalid account', async () => {
     await expect(async () => {
       await AccountAPI.info(URL, '0x1234');
-    }).rejects.toThrow(new ErrAddressMalformed('address malformed'));
+    }).rejects.toThrow(ErrAddressMalformed);
   }, 5000);
   it('should throw when asking for a non existent account', async () => {
     const wallet = Wallet.createRandom();
     await expect(async () => {
       await AccountAPI.info(URL, wallet.address);
-    }).rejects.toThrow(new ErrAddressMalformed('account not found: ' + wallet.address));
+    }).rejects.toThrow(ErrAccountNotFound);
   }, 5000);
 });

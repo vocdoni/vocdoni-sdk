@@ -37,7 +37,7 @@
     "start": "yarn watch",
     "build": "rollup -c",
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
-    "test": "yarn test:unit && yarn test:integration",
+    "test": "yarn test:unit && yarn test:api && yarn test:integration",
     "test:unit": "jest test/unit",
     "test:integration": "jest test/integration",
     "test:api": "jest test/api",
