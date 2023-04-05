@@ -91,7 +91,7 @@ export abstract class VoteAPI extends API {
     return axios
       .post<IVoteSubmitResponse>(url + VoteAPIMethods.VOTE, JSON.stringify({ txPayload: payload }))
       .then((response) => response.data)
-      .catch((error) => this.isApiError(error));
+      .catch(this.isApiError);
   }
 
   /**
