@@ -1,7 +1,7 @@
 import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote } from '../../src';
 // @ts-ignore
 import { URL } from './util/client.params';
-import { ErrElectionNotStarted } from '../../src/api/errors';
+import { ErrElectionNotStarted } from '../../src';
 import { Wallet } from '@ethersproject/wallet';
 
 let client: VocdoniSDKClient;

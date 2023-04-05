@@ -6,3 +6,4 @@ export * from './faucet';
 export * from './file';
 export * from './vote';
 export * from './wallet';
+export * from './errors';

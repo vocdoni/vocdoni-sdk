@@ -106,12 +106,7 @@ export abstract class VoteAPI extends API {
     return axios
       .get<IVoteInfoResponse>(url + VoteAPIMethods.INFO + '/' + voteId)
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -127,11 +122,6 @@ export abstract class VoteAPI extends API {
     return axios
       .get(url + VoteAPIMethods.VERIFY + '/' + processId + '/' + voteId)
       .then((response) => response.status === 200)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 }

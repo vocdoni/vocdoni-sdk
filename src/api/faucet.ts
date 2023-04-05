@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API } from './api';
 
 interface IFaucetCollectResponse {
   /**
@@ -12,11 +13,13 @@ interface IFaucetCollectResponse {
   faucetPackage: string;
 }
 
-export abstract class FaucetAPI {
+export abstract class FaucetAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * Calls the collect tokens method. Only works under development.
@@ -34,11 +37,6 @@ export abstract class FaucetAPI {
         },
       })
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 }

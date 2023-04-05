@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { CensusType } from '../types';
 import { strip0x } from '../util/common';
+import { API } from './api';
 
 enum CensusAPIMethods {
   CREATE = '/censuses',
@@ -63,11 +64,13 @@ interface ICensusWeightResponse {
   weight: string;
 }
 
-export abstract class CensusAPI {
+export abstract class CensusAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * Create's a new census in the API.
@@ -85,12 +88,7 @@ export abstract class CensusAPI {
         },
       })
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -127,12 +125,7 @@ export abstract class CensusAPI {
         }
       )
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -151,12 +144,7 @@ export abstract class CensusAPI {
         },
       })
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -171,12 +159,7 @@ export abstract class CensusAPI {
     return axios
       .get<ICensusProofResponse>(url + CensusAPIMethods.PROOF.replace('{id}', censusId) + '/' + strip0x(key))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -190,12 +173,7 @@ export abstract class CensusAPI {
     return axios
       .get<ICensusSizeResponse>(url + CensusAPIMethods.SIZE.replace('{id}', censusId))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 
   /**
@@ -209,11 +187,6 @@ export abstract class CensusAPI {
     return axios
       .get<ICensusWeightResponse>(url + CensusAPIMethods.WEIGHT.replace('{id}', censusId))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 }

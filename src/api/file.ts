@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API } from './api';
 
 enum FileAPIMethods {
   CID = '/files/cid',
@@ -11,11 +12,13 @@ interface IFileCIDResponse {
   cid: string;
 }
 
-export abstract class FileAPI {
+export abstract class FileAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   /**
    * CID generator method via API.
@@ -28,11 +31,6 @@ export abstract class FileAPI {
     return axios
       .post<IFileCIDResponse>(url + FileAPIMethods.CID, JSON.stringify({ payload }))
       .then((response) => response.data)
-      .catch((error) => {
-        if (axios.isAxiosError(error)) {
-          throw new Error('Request error: ' + error.message);
-        }
-        throw error;
-      });
+      .catch(this.isApiError);
   }
 }
