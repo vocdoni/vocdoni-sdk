@@ -1,5 +1,12 @@
 import axios, { AxiosError } from 'axios';
-import { ErrAccountNotFound, ErrAddressMalformed, ErrAPI, ErrElectionNotStarted } from './errors';
+import {
+  ErrAccountNotFound,
+  ErrAddressMalformed,
+  ErrAPI,
+  ErrCantParseElectionID,
+  ErrElectionNotFound,
+  ErrElectionNotStarted,
+} from './errors';
 
 export abstract class API {
   /**
@@ -16,15 +23,19 @@ export abstract class API {
           throw new ErrAddressMalformed(err['error']);
         case 4003:
           throw new ErrAccountNotFound(err['error']);
+        case 4017:
+          throw new ErrCantParseElectionID(err['error']);
+        case 4046:
+          throw new ErrElectionNotFound(err['error']);
         case 5003:
           return API.isVochainError(err['error']);
         default:
-          throw error;
+          return API.isUndefinedError(error, err['error']);
       }
     } else if (err) {
-      throw new ErrAPI(error.response.status + ' ' + error.response.statusText + ': ' + err);
+      return API.isUndefinedError(error, err as string);
     }
-    throw error;
+    return API.isUndefinedError(error);
   }
 
   private static isVochainError(error: string): never {
@@ -34,5 +45,9 @@ export abstract class API {
       default:
         throw error;
     }
+  }
+
+  private static isUndefinedError(error: AxiosError, message?: string): never {
+    throw new ErrAPI(error.response.status + ' ' + error.response.statusText + ': ' + message, error);
   }
 }
