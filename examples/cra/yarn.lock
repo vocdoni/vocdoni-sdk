@@ -3650,10 +3650,10 @@
     long "^5.2.1"
     protobufjs "^7.1.2"
 
-"@vocdoni/sdk@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.0.7.tgz#cb4e6bdad784f0213d4af96688b298b2667bc23a"
-  integrity sha512-sYoTvRNNXkO6GDi578hRzdXXh9FhloH7BcpDc/i/KEYrUZdtb37TJsolQ6D6XOUPdsD6sRMmMID+eLM3FaJEVA==
+"@vocdoni/sdk@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.0.8.tgz#478e1c4c6433cf61c9158d5068fd180f28c3dc9f"
+  integrity sha512-kN75jD9xOg/VnVHX53AEkbmERPGOhk2cbMPif5sslRmQRxOmzGUKUlVpjaiB+mcrtV/tiQZ08HTxl8WyrSIjGg==
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/address" "^5.7.0"

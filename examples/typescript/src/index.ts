@@ -61,8 +61,8 @@ async function main() {
       client.setElectionId(electionId);
       console.log(chalk.green('Election created!'), chalk.blue(electionId));
       console.log('Waiting a bit to ensure we can vote...');
-      // blocks take ~10s to get confirmed
-      return delay(14000);
+      // blocks take ~13s to get confirmed
+      return delay(28000);
     })
     .then(() => {
       client.wallet = voter;
