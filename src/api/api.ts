@@ -19,7 +19,7 @@ export abstract class API {
   protected static isApiError(error: AxiosError): never {
     if (!axios.isAxiosError(error)) throw error;
     const err = error?.response?.data;
-    if (err['code'] && !isNaN(Number(err['code']))) {
+    if (err && err['code'] && !isNaN(Number(err['code']))) {
       switch (err['code']) {
         case 4000:
           throw new ErrAddressMalformed(err['error']);
