@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API } from './api';
+import { ErrTransactionNotFound } from './errors';
 
 enum ChainAPIMethods {
   INFO = '/chain/info',
@@ -279,7 +280,7 @@ export abstract class ChainAPI extends API {
       .get<IChainGetTransactionReferenceResponse>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
       .then((response) => {
         if (response.status === 204) {
-          throw new Error('Transaction not found');
+          throw new ErrTransactionNotFound();
         }
         return response.data;
       })
