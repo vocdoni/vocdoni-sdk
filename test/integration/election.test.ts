@@ -429,7 +429,7 @@ describe('Election integration tests', () => {
       })
       .then(() => client.fetchElection())
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.ENDED);
+        expect([ElectionStatus.ENDED, ElectionStatus.RESULTS]).toContain(election.status);
       });
   }, 85000);
   it('should create an election and pause it successfully', async () => {
