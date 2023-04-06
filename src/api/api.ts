@@ -6,6 +6,7 @@ import {
   ErrCantParseElectionID,
   ErrElectionNotFound,
   ErrElectionNotStarted,
+  ErrNoElectionKeys,
 } from './errors';
 
 export abstract class API {
@@ -27,6 +28,8 @@ export abstract class API {
           throw new ErrCantParseElectionID(err['error']);
         case 4046:
           throw new ErrElectionNotFound(err['error']);
+        case 4048:
+          throw new ErrNoElectionKeys(err['error']);
         case 5003:
           return API.isVochainError(err['error']);
         default:
