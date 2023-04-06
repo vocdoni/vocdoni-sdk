@@ -4,6 +4,7 @@ import {
   ErrAddressMalformed,
   ErrAPI,
   ErrCantParseElectionID,
+  ErrCantParsePayloadAsJSON,
   ErrElectionNotFound,
   ErrElectionNotStarted,
   ErrNoElectionKeys,
@@ -26,6 +27,8 @@ export abstract class API {
           throw new ErrAccountNotFound(err['error']);
         case 4017:
           throw new ErrCantParseElectionID(err['error']);
+        case 4020:
+          throw new ErrCantParsePayloadAsJSON(err['error']);
         case 4046:
           throw new ErrElectionNotFound(err['error']);
         case 4048:
