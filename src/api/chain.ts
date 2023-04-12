@@ -9,6 +9,7 @@ enum ChainAPIMethods {
   TX_LIST = '/chain/transactions/page',
   ORGANIZATION_COUNT = '/chain/organizations/count',
   ORGANIZATION_LIST = '/chain/organizations/page',
+  ORGANIZATION_LIST_FILTERED = '/chain/organizations/filter/page',
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks/',
 }
@@ -333,9 +334,22 @@ export abstract class ChainAPI extends API {
    *
    * @param {string} url API endpoint URL
    * @param {number} page The page number
+   * @param {string} organizationId Organization id or partial id to search. It has to be a valid hex string.
    * @returns {Promise<IChainOrganizationListResponse>}
    */
-  public static organizationList(url: string, page: number = 0): Promise<IChainOrganizationListResponse> {
+  public static organizationList(
+    url: string,
+    page: number = 0,
+    organizationId?: string
+  ): Promise<IChainOrganizationListResponse> {
+    if (organizationId) {
+      return axios
+        .post<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST_FILTERED + '/' + page, {
+          organizationId: organizationId,
+        })
+        .then((response) => response.data)
+        .catch(this.isApiError);
+    }
     return axios
       .get<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST + '/' + page)
       .then((response) => response.data)
