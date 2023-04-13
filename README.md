@@ -436,6 +436,16 @@ option (or options) being voted:
 
 ### Other SDK functionalities
 
+#### Generate a random Wallet
+
+You can use the `generateRandomWallet` function to generate a random Wallet and assign it to the client.
+This function returns the private key of the Wallet.
+
+~~~ts
+const privateKey = client.generateRandomWallet();
+console.log(privateKey) // the private key of the wallet
+~~~
+
 #### Generate deterministic Wallet from data
 
 For some cases where the voters don't have an owned Wallet, we can generate a deterministic

@@ -839,6 +839,17 @@ export class VocdoniSDKClient {
   }
 
   /**
+   * Assigns a random Wallet to the client and returns its private key.
+   *
+   * @returns {string} The private key.
+   */
+  public generateRandomWallet(): string {
+    const wallet = Wallet.createRandom();
+    this.wallet = wallet;
+    return wallet.privateKey;
+  }
+
+  /**
    * Returns a Wallet based on the inputs.
    *
    * @param {string | string[]} data The data inputs which should generate the Wallet

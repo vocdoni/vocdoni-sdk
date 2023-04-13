@@ -61,4 +61,12 @@ describe('Client tests', () => {
     expect(w3.address).toEqual('0x3b4B77B8B87a9b429929fe4E8C3A6441533d1495');
     expect(w3.address).toEqual(w4.address);
   });
+  it('should assign a random Wallet to the client and return the private key', async () => {
+    const client = new VocdoniSDKClient({ env: EnvOptions.DEV });
+    const privateKey = client.generateRandomWallet();
+    expect(client.wallet).toBeInstanceOf(Wallet);
+    if (client.wallet instanceof Wallet) {
+      expect(privateKey).toEqual(client.wallet.privateKey);
+    }
+  });
 });
