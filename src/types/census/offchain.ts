@@ -1,6 +1,5 @@
 import { Census } from './census';
 import invariant from 'tiny-invariant';
-import { strip0x } from '../../util/common';
 import { isAddress } from '@ethersproject/address';
 
 export interface ICensusParticipant {
@@ -34,11 +33,7 @@ export abstract class OffchainCensus extends Census {
 
   protected checkParticipant(participant: ICensusParticipant) {
     invariant(typeof participant.weight === 'bigint', 'Added incorrect weight to census');
-    const key = strip0x(participant.key);
-    invariant(
-      (key.length === 66 && (key.startsWith('02') || key.startsWith('03'))) || isAddress(participant.key),
-      'Added incorrect key to census'
-    );
+    invariant(isAddress(participant.key), 'Added incorrect key to census');
     return participant;
   }
 

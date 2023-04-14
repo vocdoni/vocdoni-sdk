@@ -1,4 +1,3 @@
-import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
 import { Election, ElectionStatus, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
 // @ts-ignore
@@ -39,32 +38,6 @@ const createElection = (census, electionType?, voteType?) => {
 };
 
 describe('Election integration tests', () => {
-  it('should create an election with public keys census', async () => {
-    const census = new PlainCensus();
-    census.add(computePublicKey(Wallet.createRandom().publicKey, true));
-    census.add(computePublicKey(Wallet.createRandom().publicKey, true));
-    census.add(computePublicKey(Wallet.createRandom().publicKey, true));
-    const voter = Wallet.createRandom();
-    census.add(computePublicKey(voter.publicKey, true));
-
-    const election = createElection(census);
-
-    await client.createAccount();
-
-    await client
-      .createElection(election)
-      .then((electionId) => {
-        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
-        client.setElectionId(electionId);
-        return waitForElectionReady(client, electionId);
-      })
-      .then(() => {
-        client.wallet = voter;
-        const vote = new Vote([1]);
-        return client.submitVote(vote);
-      })
-      .then((voteId) => expect(voteId).toMatch(/^[0-9a-fA-F]{64}$/));
-  }, 85000);
   it('should create an election with addresses census', async () => {
     const census = new PlainCensus();
 

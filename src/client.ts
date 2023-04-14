@@ -1,6 +1,5 @@
 import { Signer } from '@ethersproject/abstract-signer';
 import { keccak256 } from '@ethersproject/keccak256';
-import { computePublicKey } from '@ethersproject/signing-key';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
@@ -10,23 +9,21 @@ import { ElectionCore } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
 import {
   Account,
+  AllElectionStatus,
   Census,
   CensusType,
   CspVote,
+  ElectionStatus,
+  ElectionStatusReady,
   PlainCensus,
   PublishedCensus,
   PublishedElection,
   UnpublishedElection,
   Vote,
   WeightedCensus,
-  ElectionStatus,
-  ElectionStatusReady,
-  AllElectionStatus,
 } from './types';
 import { delay } from './util/common';
-import { promiseAny } from './util/promise';
 import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
-import { isWallet } from './util/signing';
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 
@@ -472,17 +469,9 @@ export class VocdoniSDKClient {
    * @returns {Promise<OffchainCensusProof>}
    */
   private fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<OffchainCensusProof> {
-    return wallet.getAddress().then((address) => {
-      if (isWallet(this.wallet)) {
-        const { publicKey } = this.wallet as Wallet;
-        return promiseAny([
-          this.fetchProof(election.census.censusId, address, CensusProofType.ADDRESS),
-          this.fetchProof(election.census.censusId, computePublicKey(publicKey, true), CensusProofType.PUBKEY),
-        ]);
-      } else {
-        return this.fetchProof(election.census.censusId, address, CensusProofType.ADDRESS);
-      }
-    });
+    return wallet
+      .getAddress()
+      .then((address) => this.fetchProof(election.census.censusId, address, CensusProofType.ADDRESS));
   }
 
   /**
@@ -707,7 +696,7 @@ export class VocdoniSDKClient {
    * @param {Object} key The key in the census to check
    * @returns {Promise<boolean>}
    */
-  async isInCensus(electionId?: string, key?: { id: string; type: CensusProofType }): Promise<boolean> {
+  async isInCensus(electionId?: string, key?: string): Promise<boolean> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
@@ -719,7 +708,7 @@ export class VocdoniSDKClient {
     let proofPromise;
 
     if (key) {
-      proofPromise = this.fetchProof(election.census.censusId, key.id, key.type);
+      proofPromise = this.fetchProof(election.census.censusId, key, CensusProofType.ADDRESS);
     } else if (election) {
       proofPromise = this.fetchProofForWallet(election, this.wallet);
     } else {

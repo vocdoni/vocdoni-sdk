@@ -1,6 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
 import { CensusType, WeightedCensus } from '../../../../src';
-import { computePublicKey } from '@ethersproject/signing-key';
 
 let census: WeightedCensus;
 
@@ -19,19 +18,19 @@ describe('Weighted census tests', () => {
     expect(census.type).toBe(CensusType.WEIGHTED);
   });
   it('should add participants correctly', () => {
-    census.add({ key: computePublicKey(Wallet.createRandom().publicKey, true), weight: BigInt(1) });
+    census.add({ key: Wallet.createRandom().address, weight: BigInt(1) });
     expect(census.participants.length).toEqual(1);
 
     census.add([
-      { key: computePublicKey(Wallet.createRandom().publicKey, true), weight: BigInt(1) },
-      { key: computePublicKey(Wallet.createRandom().publicKey, true), weight: BigInt(2) },
+      { key: Wallet.createRandom().address, weight: BigInt(1) },
+      { key: Wallet.createRandom().address, weight: BigInt(2) },
     ]);
     expect(census.participants.length).toEqual(3);
 
     const wallet = Wallet.createRandom();
     census.add([
-      { key: computePublicKey(wallet.publicKey, true), weight: BigInt(1) },
-      { key: computePublicKey(wallet.publicKey, true), weight: BigInt(2) },
+      { key: wallet.address, weight: BigInt(1) },
+      { key: wallet.address, weight: BigInt(2) },
     ]);
     expect(census.participants.length).toEqual(4);
   });
@@ -42,24 +41,24 @@ describe('Weighted census tests', () => {
   });
   it('should add participants weights correctly', () => {
     census.add([
-      { key: computePublicKey(Wallet.createRandom().publicKey, true), weight: BigInt(1) },
-      { key: computePublicKey(Wallet.createRandom().publicKey, true), weight: BigInt(2) },
+      { key: Wallet.createRandom().address, weight: BigInt(1) },
+      { key: Wallet.createRandom().address, weight: BigInt(2) },
     ]);
     expect(census.participants[0].weight).toEqual(BigInt(1));
     expect(census.participants[1].weight).toEqual(BigInt(2));
   });
   it('should remove participants correctly', () => {
     const wallet = Wallet.createRandom();
-    census.add({ key: computePublicKey(wallet.publicKey, true), weight: BigInt(1) });
+    census.add({ key: wallet.address, weight: BigInt(1) });
     expect(census.participants.length).toEqual(1);
 
     census.remove('');
     expect(census.participants.length).toEqual(1);
 
-    census.remove(computePublicKey(wallet.publicKey, true));
+    census.remove(wallet.address);
     expect(census.participants.length).toEqual(0);
 
-    census.remove(computePublicKey(wallet.publicKey, true));
+    census.remove(wallet.address);
     expect(census.participants.length).toEqual(0);
   });
 });
