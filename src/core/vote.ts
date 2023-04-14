@@ -44,7 +44,7 @@ export type VotePackage = {
 };
 
 export enum CensusProofType {
-  PUBKEY = 'pubkey',
+  PUBKEY = 'pubkey', // This is deprecated, left for backward type compatibility
   ADDRESS = 'address',
 }
 

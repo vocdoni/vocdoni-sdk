@@ -1,6 +1,5 @@
 import { CensusType, PlainCensus } from '../../../../src';
 import { Wallet } from '@ethersproject/wallet';
-import { computePublicKey } from '@ethersproject/signing-key';
 
 let census: PlainCensus;
 
@@ -22,14 +21,11 @@ describe('Plain census tests', () => {
     census.add(await Wallet.createRandom().getAddress());
     expect(census.participants.length).toEqual(1);
 
-    census.add([
-      computePublicKey(Wallet.createRandom().publicKey, true),
-      computePublicKey(Wallet.createRandom().publicKey, true),
-    ]);
+    census.add([Wallet.createRandom().address, Wallet.createRandom().address]);
     expect(census.participants.length).toEqual(3);
 
     const wallet = Wallet.createRandom();
-    census.add([computePublicKey(wallet.publicKey, true), computePublicKey(wallet.publicKey, true)]);
+    census.add([wallet.address, wallet.address]);
     expect(census.participants.length).toEqual(4);
   });
   it('should throw when key is invalid', () => {
@@ -41,25 +37,21 @@ describe('Plain census tests', () => {
     }).toThrow('Added incorrect key to census');
   });
   it('should add participants weights correctly', () => {
-    census.add([
-      computePublicKey(Wallet.createRandom().publicKey, true),
-      computePublicKey(Wallet.createRandom().publicKey, true),
-      computePublicKey(Wallet.createRandom().publicKey, true),
-    ]);
+    census.add([Wallet.createRandom().address, Wallet.createRandom().address, Wallet.createRandom().address]);
     census.participants.forEach((participant) => expect(participant.weight).toEqual(BigInt(1)));
   });
   it('should remove participants correctly', () => {
     const wallet = Wallet.createRandom();
-    census.add(computePublicKey(wallet.publicKey, true));
+    census.add(wallet.address);
     expect(census.participants.length).toEqual(1);
 
     census.remove('');
     expect(census.participants.length).toEqual(1);
 
-    census.remove(computePublicKey(wallet.publicKey, true));
+    census.remove(wallet.address);
     expect(census.participants.length).toEqual(0);
 
-    census.remove(computePublicKey(wallet.publicKey, true));
+    census.remove(wallet.address);
     expect(census.participants.length).toEqual(0);
   });
 });

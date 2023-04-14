@@ -194,12 +194,6 @@ census.add('0x0000000000000000000000000000000000000000')
 })();
 ~~~
 
-Note you can also use compressed public keys when adding them to the census:
-
-~~~ts
-census.add(computePublicKey(Wallet.createRandom().publicKey, true));
-~~~
-
 After you got all the addresses for your census, you may as well create the
 process instance:
 

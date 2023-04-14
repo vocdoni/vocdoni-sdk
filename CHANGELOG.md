@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `generateRandomWallet` function for assigning a random Wallet to the client
 
+### Changed
+
+- `isInCensus` doesn't accept census type because censuses with public keys are removed
+
+### Removed
+
+- Ability to create censuses using public keys
+
 ## [0.0.8] - 2023-04-05
 
 ### Added
