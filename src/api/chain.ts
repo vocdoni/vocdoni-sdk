@@ -7,7 +7,6 @@ enum ChainAPIMethods {
   INFO = '/chain/info',
   TX_INFO = '/chain/transactions/reference',
   TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
-  TX_COUNT = '/chain/transactions/count',
   SUBMIT_TX = '/chain/transactions',
   TX_LIST = '/chain/transactions/page',
   ORGANIZATION_COUNT = '/chain/organizations/count',
@@ -274,19 +273,6 @@ export abstract class ChainAPI extends API {
   public static info(url: string): Promise<IChainGetInfoResponse> {
     return axios
       .get<IChainGetInfoResponse>(url + ChainAPIMethods.INFO)
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the number of transactions registered on the Vocchain
-   *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<IChainOrganizationCountResponse>}
-   */
-  public static txCount(url: string): Promise<IChainTxCountResponse> {
-    return axios
-      .get<IChainTxCountResponse>(url + ChainAPIMethods.TX_COUNT)
       .then((response) => response.data)
       .catch(this.isApiError);
   }
