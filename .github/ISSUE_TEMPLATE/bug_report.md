@@ -6,10 +6,15 @@ labels: bug
 assignees: ""
 ---
 
-**Describe the bug**
-A short summary of what the bug is. Please be clear and concise.
+### Describe the bug
+<!--
+A short summary of what the bug is.
+Please be clear and concise.
+-->
 
-**To Reproduce (please complete the following information)**
+### To Reproduce
+
+<!-- Please complete or edit the following information -->
 
 - Config and flags
 - Steps to reproduce the behavior:
@@ -18,17 +23,18 @@ A short summary of what the bug is. Please be clear and concise.
   3. '...'
   4. See error
 
-**Current behavior**
-In depth explanation, if required, or a clear and concise description of what actually happens.
+### Current behavior
+<!-- In depth explanation, if required, or a clear and concise description of what actually happens. -->
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+### Expected behavior
+<!-- A clear and concise description of what you expected to happen. -->
 
-**System (please complete the following information):**
+### System:
+<!-- Please complete the following information -->
 
-- OS: [e.g. Manjaro 20.1]
-- Software version [e.g. Docker 8, Golang 1.15.1]
-- Commit hash [e.g. e84617d]
+- OS: <!-- e.g. Manjaro 20.1 -->
+- Software version: <!-- e.g. Docker 8, Golang 1.15.1 -->
+- Commit hash or tag: <!-- e.g. e84617d or 0.0.8 -->
 
-**Additional context**
-Add any other context about the problem here.
+### Additional context
+<!-- Add any other context about the problem here. -->
