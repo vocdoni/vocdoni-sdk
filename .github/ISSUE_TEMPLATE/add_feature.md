@@ -6,22 +6,24 @@ labels: enhancement
 assignees: ""
 ---
 
-**Describe the feature**
-A short summary of what the feature is. Please be clear and concise.
+### Describe the feature
+<!--
+A short summary of what the bug is.
+Please be clear and concise.
+-->
 
-**Motivation**
+### Motivation
 
-**Proposal**
-In depth explanation, if required, or a clear and concise description of what the feature actually is.
+### Proposal
+<!-- In depth explanation, if required, or a clear and concise description of what the feature actually is. -->
 
-**Components affected**
+### Components affected
 
-**Constraints & Assumptions**
+### Constraints & Assumptions
+<!-- Call out any constraint and/or assumption relevant for the development and use of this feature. -->
 
-Call out any constraint and/or assumption relevant for the development and use of this feature.
-
-**Additional information (if required)**
-
+### Additional information
+<!-- Edit or remove if required -->
 - Infrastucture needed (e.g. web3 endpoint)
 - Drawbacks
 - Alternatives
