@@ -9,6 +9,7 @@ import { ElectionCore } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
 import {
   Account,
+  AccountMetadata,
   AllElectionStatus,
   Census,
   CensusType,
@@ -42,6 +43,7 @@ export type ChainData = {
  * @property {number} nonce
  * @property {number} electionIndex
  * @property {string | null} infoURL
+ * @property {AccountMetadata} metadata
  */
 export type AccountData = {
   address: string;
@@ -49,6 +51,7 @@ export type AccountData = {
   nonce: number;
   electionIndex: number;
   infoURL?: string;
+  metadata: AccountMetadata;
 };
 
 type AccountToken = {
@@ -492,6 +495,35 @@ export class VocdoniSDKClient {
       this.fetchChainId(),
       this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'utf8').toString('base64')),
     ]).then((data) => AccountCore.generateSetAccountTransaction(data[0], options.account, data[2], faucetPackage));
+
+    const accountTx = accountData.then((setAccountInfoTx) =>
+      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData.chainId, this.wallet)
+    );
+
+    return Promise.all([accountData, accountTx])
+      .then((accountInfo) => AccountAPI.setInfo(this.url, accountInfo[1], accountInfo[0].metadata))
+      .then((txData) => this.waitForTransaction(txData.txHash))
+      .then(() => this.fetchAccountInfo());
+  }
+
+  /**
+   * Sets account information.
+   *
+   * @param {{account: Account, faucetPackage: string | null}} options Additional options,
+   * like extra information of the account, or the faucet package string.
+   * @returns {Promise<AccountData>}
+   */
+  async updateAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
+    invariant(this.wallet, 'No wallet or signer set');
+    invariant(options.account, 'No account');
+
+    //const faucetPackage = this.parseFaucetPackage(options.faucetPackage ?? (await this.fetchFaucetPayload()));
+
+    const accountData = Promise.all([
+      this.wallet.getAddress(),
+      this.fetchChainId(),
+      this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'utf8').toString('base64')),
+    ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0], options.account, data[2]));
 
     const accountTx = accountData.then((setAccountInfoTx) =>
       AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData.chainId, this.wallet)

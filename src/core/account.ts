@@ -30,6 +30,23 @@ export abstract class AccountCore extends TransactionCore {
     };
   }
 
+  public static generateUpdateAccountTransaction(
+    address: string,
+    account: Account,
+    cid: string
+  ): { tx: Uint8Array; metadata: string } {
+    const txData = this.prepareSetAccountData(address, account.generateMetadata(), cid, null, false);
+    const setAccount = SetAccountTx.fromPartial({
+      ...txData.accountData,
+    });
+    return {
+      tx: Tx.encode({
+        payload: { $case: 'setAccount', setAccount },
+      }).finish(),
+      metadata: txData.metadata,
+    };
+  }
+
   public static generateCollectFaucetTransaction(accountData: AccountData, faucetPackage: FaucetPackage): Uint8Array {
     const txData = this.prepareCollectFaucetData(accountData, faucetPackage);
     const collectFaucet = CollectFaucetTx.fromPartial(txData);
@@ -42,12 +59,13 @@ export abstract class AccountCore extends TransactionCore {
     address: string,
     metadata: AccountMetadata,
     cid: string,
-    faucetPackage: FaucetPackage
+    faucetPackage: FaucetPackage,
+    create: boolean = true
   ): { metadata: string; accountData: object } {
     return {
       metadata: Buffer.from(JSON.stringify(metadata), 'utf8').toString('base64'),
       accountData: {
-        txtype: TxType.CREATE_ACCOUNT,
+        txtype: create ? TxType.CREATE_ACCOUNT : TxType.SET_ACCOUNT_INFO_URI,
         account: Uint8Array.from(Buffer.from(address)),
         infoURI: cid,
         faucetPackage: faucetPackage ? this.prepareFaucetPackage(faucetPackage) : null,

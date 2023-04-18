@@ -1,4 +1,4 @@
-import { AccountMetadataTemplate, checkValidAccountMetadata } from '../../../../src/types/metadata/account';
+import { AccountMetadataTemplate, checkValidAccountMetadata } from '../../../../src';
 
 describe('Account metadata', () => {
   it('Should accept a valid account metadata JSON', () => {
