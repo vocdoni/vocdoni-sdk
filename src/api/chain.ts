@@ -192,7 +192,7 @@ export interface IChainBlockInfoResponse {
     consensusHash: string;
     dataHash: string;
     evidenceHash: string;
-    height: string;
+    height: number;
     lastBlockId: BlockID;
     lastCommitHash: string;
     lastResultsHash: string;
