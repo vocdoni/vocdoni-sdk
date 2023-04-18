@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { IElectionListResponse } from './election';
 import { API } from './api';
+import { AccountMetadata } from '../types';
 
 enum AccountAPIMethods {
   INFO = '/accounts',
@@ -34,6 +35,11 @@ interface IAccountInfoResponse {
    * The information URI of the account
    */
   infoURI?: string;
+
+  /**
+   * The metadata of the account
+   */
+  metadata: AccountMetadata;
 }
 
 interface IAccountSetInfoResponse {
