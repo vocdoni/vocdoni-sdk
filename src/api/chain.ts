@@ -12,6 +12,7 @@ enum ChainAPIMethods {
   ORGANIZATION_LIST_FILTERED = '/chain/organizations/filter/page',
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks',
+  BLOCK_INFO_BY_HASH = '/chain/blocks/hash',
 }
 
 export interface IChainGetInfoResponse {
@@ -392,7 +393,7 @@ export abstract class ChainAPI extends API {
    */
   public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
     return axios
-      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO + '/' + hash)
+      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_BY_HASH + '/' + hash)
       .then((response) => response.data)
       .catch(this.isApiError);
   }
