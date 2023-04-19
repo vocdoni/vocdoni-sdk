@@ -11,7 +11,7 @@ enum ChainAPIMethods {
   ORGANIZATION_LIST = '/chain/organizations/page',
   ORGANIZATION_LIST_FILTERED = '/chain/organizations/filter/page',
   VALIDATORS_LIST = '/chain/validators',
-  BLOCK_INFO = '/chain/blocks/',
+  BLOCK_INFO = '/chain/blocks',
 }
 
 export interface IChainGetInfoResponse {
