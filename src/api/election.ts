@@ -9,6 +9,7 @@ enum ElectionAPIMethods {
   VOTES = '/elections/{id}/votes/page/{page}',
   VOTES_COUNT = '/elections/{id}/votes/count',
   LIST = '/elections/page/{page}',
+  LIST_FILTERED = '/elections/filter/page/{page}',
 }
 
 export interface IResults {
@@ -461,9 +462,38 @@ export abstract class ElectionAPI extends API {
    *
    * @param {string} url API endpoint URL
    * @param {number} page The page number
+   * @param {string} organizationId Search by partial organizationId
+   * @param {string} electionId Search by partial electionId
+   * @param {boolean} withResults Return elections with results or live results
+   * @param {APIElectionStatus} status Search by election status
    * @returns {Promise<IElectionListResponse>}
    */
-  public static electionsList(url: string, page: number = 0): Promise<IElectionListResponse> {
+  public static electionsList(
+    url: string,
+    page: number = 0,
+    {
+      organizationId,
+      electionId,
+      withResults,
+      status,
+    }: {
+      organizationId?: string;
+      electionId?: string;
+      withResults?: boolean;
+      status?: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
+    } = {}
+  ): Promise<IElectionListResponse> {
+    if (organizationId || electionId || withResults || status) {
+      return axios
+        .post<IElectionListResponse>(url + ElectionAPIMethods.LIST_FILTERED.replace('{page}', String(page)), {
+          organizationId,
+          electionId,
+          withResults,
+          status,
+        })
+        .then((response) => response.data)
+        .catch(this.isApiError);
+    }
     return axios
       .get<IElectionListResponse>(url + ElectionAPIMethods.LIST.replace('{page}', String(page)))
       .then((response) => response.data)
