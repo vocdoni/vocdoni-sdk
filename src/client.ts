@@ -478,13 +478,13 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Sets account information.
+   * Creates an account with information.
    *
    * @param {{account: Account, faucetPackage: string | null}} options Additional options,
    * like extra information of the account, or the faucet package string.
    * @returns {Promise<AccountData>}
    */
-  async setAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
+  async createAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(options.account, 'No account');
 
@@ -494,42 +494,42 @@ export class VocdoniSDKClient {
       this.wallet.getAddress(),
       this.fetchChainId(),
       this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'utf8').toString('base64')),
-    ]).then((data) => AccountCore.generateSetAccountTransaction(data[0], options.account, data[2], faucetPackage));
+    ]).then((data) => AccountCore.generateCreateAccountTransaction(data[0], options.account, data[2], faucetPackage));
 
-    const accountTx = accountData.then((setAccountInfoTx) =>
-      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData.chainId, this.wallet)
-    );
-
-    return Promise.all([accountData, accountTx])
-      .then((accountInfo) => AccountAPI.setInfo(this.url, accountInfo[1], accountInfo[0].metadata))
-      .then((txData) => this.waitForTransaction(txData.txHash))
-      .then(() => this.fetchAccountInfo());
+    return this.setAccountInfo(accountData);
   }
 
   /**
-   * Sets account information.
+   * Updates an account with information
    *
-   * @param {{account: Account, faucetPackage: string | null}} options Additional options,
-   * like extra information of the account, or the faucet package string.
+   * @param {Account} account Account data.
    * @returns {Promise<AccountData>}
    */
-  async updateAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
+  updateAccountInfo(account: Account): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
-    invariant(options.account, 'No account');
-
-    //const faucetPackage = this.parseFaucetPackage(options.faucetPackage ?? (await this.fetchFaucetPayload()));
+    invariant(account, 'No account');
 
     const accountData = Promise.all([
       this.wallet.getAddress(),
       this.fetchChainId(),
-      this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'utf8').toString('base64')),
-    ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0], options.account, data[2]));
+      this.calculateCID(Buffer.from(JSON.stringify(account.generateMetadata()), 'utf8').toString('base64')),
+    ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0], account, data[2]));
 
-    const accountTx = accountData.then((setAccountInfoTx) =>
+    return this.setAccountInfo(accountData);
+  }
+
+  /**
+   * Updates an account with information
+   *
+   * @param {Promise<{ tx: Uint8Array; metadata: string }>} promAccountData Account data promise in Tx form.
+   * @returns {Promise<AccountData>}
+   */
+  private setAccountInfo(promAccountData: Promise<{ tx: Uint8Array; metadata: string }>): Promise<AccountData> {
+    const accountTx = promAccountData.then((setAccountInfoTx) =>
       AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData.chainId, this.wallet)
     );
 
-    return Promise.all([accountData, accountTx])
+    return Promise.all([promAccountData, accountTx])
       .then((accountInfo) => AccountAPI.setInfo(this.url, accountInfo[1], accountInfo[0].metadata))
       .then((txData) => this.waitForTransaction(txData.txHash))
       .then(() => this.fetchAccountInfo());
@@ -545,7 +545,7 @@ export class VocdoniSDKClient {
   createAccount(options?: { account?: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return this.fetchAccountInfo().catch(() =>
-      this.setAccountInfo({ account: options?.account ?? new Account(), faucetPackage: options?.faucetPackage })
+      this.createAccountInfo({ account: options?.account ?? new Account(), faucetPackage: options?.faucetPackage })
     );
   }
 
