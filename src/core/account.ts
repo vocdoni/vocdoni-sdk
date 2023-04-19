@@ -3,6 +3,7 @@ import { Buffer } from 'buffer';
 import { AccountData, FaucetPackage } from '../client';
 import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
+import { strip0x } from '../util/common';
 
 export abstract class AccountCore extends TransactionCore {
   /**
@@ -12,22 +13,14 @@ export abstract class AccountCore extends TransactionCore {
     super();
   }
 
-  public static generateSetAccountTransaction(
+  public static generateCreateAccountTransaction(
     address: string,
     account: Account,
     cid: string,
     faucetPackage: FaucetPackage
   ): { tx: Uint8Array; metadata: string } {
     const txData = this.prepareSetAccountData(address, account.generateMetadata(), cid, faucetPackage);
-    const setAccount = SetAccountTx.fromPartial({
-      ...txData.accountData,
-    });
-    return {
-      tx: Tx.encode({
-        payload: { $case: 'setAccount', setAccount },
-      }).finish(),
-      metadata: txData.metadata,
-    };
+    return this.generateSetAccountTransaction(txData);
   }
 
   public static generateUpdateAccountTransaction(
@@ -36,6 +29,13 @@ export abstract class AccountCore extends TransactionCore {
     cid: string
   ): { tx: Uint8Array; metadata: string } {
     const txData = this.prepareSetAccountData(address, account.generateMetadata(), cid, null, false);
+    return this.generateSetAccountTransaction(txData);
+  }
+
+  private static generateSetAccountTransaction(txData: { metadata: string; accountData: object }): {
+    tx: Uint8Array;
+    metadata: string;
+  } {
     const setAccount = SetAccountTx.fromPartial({
       ...txData.accountData,
     });
@@ -66,7 +66,7 @@ export abstract class AccountCore extends TransactionCore {
       metadata: Buffer.from(JSON.stringify(metadata), 'utf8').toString('base64'),
       accountData: {
         txtype: create ? TxType.CREATE_ACCOUNT : TxType.SET_ACCOUNT_INFO_URI,
-        account: Uint8Array.from(Buffer.from(address)),
+        account: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
         infoURI: cid,
         faucetPackage: faucetPackage ? this.prepareFaucetPackage(faucetPackage) : null,
       },
