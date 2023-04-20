@@ -226,6 +226,7 @@ interface Process {
    */
   tokenDecimals?: number | undefined;
 }
+
 declare enum CensusOrigin {
   CENSUS_UNKNOWN = 0,
   OFF_CHAIN_TREE = 1,
@@ -238,6 +239,7 @@ declare enum CensusOrigin {
   MINI_ME = 15,
   UNRECOGNIZED = -1,
 }
+
 /** Scrutinizer */
 interface ProcessResult {
   votes: QuestionResult[];
@@ -246,9 +248,11 @@ interface ProcessResult {
   oracleAddress?: Uint8Array | undefined;
   signature?: Uint8Array | undefined;
 }
+
 interface QuestionResult {
   question: Uint8Array[];
 }
+
 interface ProcessVoteOptions {
   maxCount: number;
   maxValue: number;
@@ -256,6 +260,7 @@ interface ProcessVoteOptions {
   maxTotalCost: number;
   costExponent: number;
 }
+
 declare enum SourceNetworkId {
   UNKNOWN = 0,
   ETH_MAINNET = 1,
@@ -274,6 +279,7 @@ declare enum SourceNetworkId {
   ARBITRUM = 14,
   UNRECOGNIZED = -1,
 }
+
 interface ProcessMode {
   autoStart: boolean;
   interruptible: boolean;
@@ -281,6 +287,7 @@ interface ProcessMode {
   encryptedMetaData: boolean;
   preRegister: boolean;
 }
+
 interface EnvelopeType {
   serial: boolean;
   anonymous: boolean;
@@ -288,6 +295,7 @@ interface EnvelopeType {
   uniqueValues: boolean;
   costFromWeight: boolean;
 }
+
 declare enum ProcessStatus {
   PROCESS_UNKNOWN = 0,
   READY = 1,
