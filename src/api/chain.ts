@@ -313,9 +313,7 @@ export abstract class ChainAPI extends API {
             String(txIndex)
           )
       )
-      .then((response) => {
-        return response.data;
-      })
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
