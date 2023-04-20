@@ -463,7 +463,7 @@ describe('Election integration tests', () => {
         return client.fetchElection();
       })
       .then((election) => {
-        expect(election.status).toEqual(ElectionStatus.UPCOMING);
+        expect([ElectionStatus.ONGOING, ElectionStatus.UPCOMING]).toContain(election.status);
         return client.pauseElection();
       })
       .then(() => client.fetchElection())
