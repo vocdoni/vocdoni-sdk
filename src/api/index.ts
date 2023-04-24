@@ -1,6 +1,7 @@
 export * from './account';
 export * from './census';
 export * from './chain';
+export * from './chain/index';
 export * from './election';
 export * from './faucet';
 export * from './file';
