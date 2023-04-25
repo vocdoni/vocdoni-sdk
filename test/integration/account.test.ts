@@ -66,13 +66,18 @@ describe('Account integration tests', () => {
       }),
     });
     expect(account.infoURL).toEqual('ipfs://bagaaiera6sovylckaf45zt7blj7pr62ju2cmtk33hcq76vr3tteqncxyguka');
-    expect(account.metadata.languages).toStrictEqual(['es']);
-    expect(account.metadata.name).toStrictEqual({
+    expect(account.account.languages).toStrictEqual(['es']);
+    expect(account.account.name).toStrictEqual({
       es: 'test',
       asdasdsad: 'test',
       default: 'test',
     });
-    expect(account.metadata.meta).toStrictEqual({ test: 'test', test2: 123, test3: [123, 456], test4: {} });
+    expect(account.account.meta).toStrictEqual([
+      { key: 'test', value: 'test' },
+      { key: 'test2', value: 123 },
+      { key: 'test3', value: [123, 456] },
+      { key: 'test4', value: {} },
+    ]);
   }, 75000);
   it('should set information for an account and then update it', async () => {
     await client.createAccount({
@@ -118,7 +123,7 @@ describe('Account integration tests', () => {
       })
     );
     expect(account.infoURL).toEqual('ipfs://bagaaieras2vfxq67cekncw4cqf3vxhmwnzamopnvzyn5uyrxtl5b5zlhnxna');
-    expect(account.metadata.name).toStrictEqual({
+    expect(account.account.name).toStrictEqual({
       es: 'test2',
       asdasdsad: 'test2',
       default: 'test2',

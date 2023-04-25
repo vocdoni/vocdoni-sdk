@@ -1,5 +1,5 @@
 import { MultiLanguage } from '../util/lang';
-import { AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from './metadata/account';
+import { AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from './metadata';
 
 export interface IAccount {
   languages?: string[];
@@ -51,6 +51,15 @@ export class Account {
     this.avatar = params?.avatar ?? '';
     this.logo = params?.logo ?? '';
     this.meta = params?.meta ?? [];
+  }
+
+  /**
+   * Returns an account object
+   *
+   * @param params Account parameters
+   */
+  public static build(params: IAccount) {
+    return new Account(params);
   }
 
   public generateMetadata(): AccountMetadata {
