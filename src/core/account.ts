@@ -19,16 +19,23 @@ export abstract class AccountCore extends TransactionCore {
     cid: string,
     faucetPackage: FaucetPackage
   ): { tx: Uint8Array; metadata: string } {
-    const txData = this.prepareSetAccountData(address, account.generateMetadata(), cid, faucetPackage);
+    const txData = this.prepareSetAccountData(address, 0, account.generateMetadata(), cid, faucetPackage);
     return this.generateSetAccountTransaction(txData);
   }
 
   public static generateUpdateAccountTransaction(
-    address: string,
+    accountData: AccountData,
     account: Account,
     cid: string
   ): { tx: Uint8Array; metadata: string } {
-    const txData = this.prepareSetAccountData(address, account.generateMetadata(), cid, null, false);
+    const txData = this.prepareSetAccountData(
+      accountData.address,
+      accountData.nonce,
+      account.generateMetadata(),
+      cid,
+      null,
+      false
+    );
     return this.generateSetAccountTransaction(txData);
   }
 
@@ -57,6 +64,7 @@ export abstract class AccountCore extends TransactionCore {
 
   private static prepareSetAccountData(
     address: string,
+    nonce: number,
     metadata: AccountMetadata,
     cid: string,
     faucetPackage: FaucetPackage,
@@ -66,6 +74,7 @@ export abstract class AccountCore extends TransactionCore {
       metadata: Buffer.from(JSON.stringify(metadata), 'utf8').toString('base64'),
       accountData: {
         txtype: create ? TxType.CREATE_ACCOUNT : TxType.SET_ACCOUNT_INFO_URI,
+        nonce,
         account: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
         infoURI: cid,
         faucetPackage: faucetPackage ? this.prepareFaucetPackage(faucetPackage) : null,

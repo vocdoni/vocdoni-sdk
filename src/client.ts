@@ -523,7 +523,7 @@ export class VocdoniSDKClient {
     invariant(account, 'No account');
 
     const accountData = Promise.all([
-      this.wallet.getAddress(),
+      this.fetchAccountInfo(),
       this.fetchChainId(),
       this.calculateCID(Buffer.from(JSON.stringify(account.generateMetadata()), 'utf8').toString('base64')),
     ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0], account, data[2]));
