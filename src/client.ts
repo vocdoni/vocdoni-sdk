@@ -289,14 +289,14 @@ export class VocdoniSDKClient {
 
     this.accountData = accountData;
     this.accountData.account = Account.build({
-      languages: accountData.metadata.languages,
-      name: accountData.metadata.name,
-      description: accountData.metadata.description,
-      feed: accountData.metadata.newsFeed,
-      header: accountData.metadata.media.header,
-      avatar: accountData.metadata.media.avatar,
-      logo: accountData.metadata.media.logo,
-      meta: Object.entries(accountData.metadata.meta).map(([key, value]) => ({ key, value })),
+      languages: accountData.metadata?.languages,
+      name: accountData.metadata?.name,
+      description: accountData.metadata?.description,
+      feed: accountData.metadata?.newsFeed,
+      header: accountData.metadata?.media?.header,
+      avatar: accountData.metadata?.media?.avatar,
+      logo: accountData.metadata?.media?.logo,
+      meta: Object.entries(accountData.metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
     });
 
     return this.accountData;
