@@ -9,7 +9,6 @@ import { ElectionCore } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
 import {
   Account,
-  AccountMetadata,
   AllElectionStatus,
   Census,
   CensusType,
@@ -43,7 +42,7 @@ export type ChainData = {
  * @property {number} nonce
  * @property {number} electionIndex
  * @property {string | null} infoURL
- * @property {AccountMetadata} metadata
+ * @property {Account} account
  */
 export type AccountData = {
   address: string;
@@ -51,7 +50,7 @@ export type AccountData = {
   nonce: number;
   electionIndex: number;
   infoURL?: string;
-  metadata: AccountMetadata;
+  account: Account;
 };
 
 type AccountToken = {
@@ -275,18 +274,32 @@ export class VocdoniSDKClient {
   /**
    * Fetches account information.
    *
-   * @param {string} account The account to fetch the information
+   * @param {string} address The account address to fetch the information
    * @returns {Promise<AccountData>}
    */
-  async fetchAccountInfo(account?: string): Promise<AccountData> {
-    if (!this.wallet && !account) {
+  async fetchAccountInfo(address?: string): Promise<AccountData> {
+    let accountData;
+    if (!this.wallet && !address) {
       throw Error('No account set');
-    } else if (account) {
-      return AccountAPI.info(this.url, account);
+    } else if (address) {
+      accountData = await AccountAPI.info(this.url, address);
     } else {
-      this.accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
-      return this.accountData;
+      accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
     }
+
+    this.accountData = accountData;
+    this.accountData.account = Account.build({
+      languages: accountData.metadata.languages,
+      name: accountData.metadata.name,
+      description: accountData.metadata.description,
+      feed: accountData.metadata.newsFeed,
+      header: accountData.metadata.media.header,
+      avatar: accountData.metadata.media.avatar,
+      logo: accountData.metadata.media.logo,
+      meta: Object.entries(accountData.metadata.meta).map(([key, value]) => ({ key, value })),
+    });
+
+    return this.accountData;
   }
 
   /**

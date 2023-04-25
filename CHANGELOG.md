@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `isInCensus` doesn't accept census type because censuses with public keys are removed
+- Refactored account methods to return new `AccountData` definition with `Account` field
 
 ### Removed
 
