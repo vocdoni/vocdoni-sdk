@@ -10,6 +10,12 @@ export const EXPLORER_URL = {
   prod: 'https://explorer.vote',
 };
 
+export const CENSUS3_URL = {
+  dev: 'http://ci.vocdoni.net:8080/api',
+  stg: 'http://ci.vocdoni.net:8080/api',
+  prod: 'http://ci.vocdoni.net:8080/api',
+};
+
 export const FAUCET_URL = {
   dev: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/dev',
   stg: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/stage',
