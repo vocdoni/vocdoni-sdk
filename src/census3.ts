@@ -1,6 +1,7 @@
 import { CENSUS3_URL } from './util/constants';
 import { ClientOptions } from './client';
 import { Census3TokenAPI } from './api';
+import invariant from 'tiny-invariant';
 
 export class VocdoniCensus3Client {
   public url: string;
@@ -20,5 +21,14 @@ export class VocdoniCensus3Client {
 
   getSupportedTokens(): Promise<object> {
     return Census3TokenAPI.list(this.url).then((list) => list.tokens);
+  }
+
+  getSupportedTypes(): Promise<object> {
+    return Census3TokenAPI.types(this.url).then((types) => types.supported_tokens);
+  }
+
+  getToken(id: string): Promise<object> {
+    invariant(id, 'No token id');
+    return Census3TokenAPI.token(this.url, id);
   }
 }
