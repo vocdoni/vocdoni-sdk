@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { API } from './api';
 import { ErrTransactionNotFound } from './errors';
-import { Tx } from './chain/index';
+import { Tx } from './chain/';
+export * from './chain/';
 
 enum ChainAPIMethods {
   INFO = '/chain/info',

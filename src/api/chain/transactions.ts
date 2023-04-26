@@ -77,13 +77,13 @@ export interface VoteEnvelope {
   encryptionKeyIndexes: number[];
 }
 
-interface NewProcessTx {
+export interface NewProcessTx {
   txtype: TxType;
   nonce: number;
   process: Process | undefined;
 }
 
-interface AdminTx {
+export interface AdminTx {
   txtype: TxType;
   processId: Uint8Array;
   address?: Uint8Array | undefined;
@@ -95,7 +95,7 @@ interface AdminTx {
   nonce: number;
 }
 
-interface SetProcessTx {
+export interface SetProcessTx {
   txtype: TxType;
   nonce: number;
   processId: Uint8Array;
@@ -107,7 +107,7 @@ interface SetProcessTx {
   results?: ProcessResult | undefined;
 }
 
-interface RegisterKeyTx {
+export interface RegisterKeyTx {
   /** Unique number per vote attempt, so that replay attacks can't reuse this payload */
   nonce: number;
   /** The process for which the vote is casted */
@@ -120,14 +120,14 @@ interface RegisterKeyTx {
   weight: string;
 }
 
-interface MintTokensTx {
+export interface MintTokensTx {
   txtype: TxType;
   nonce: number;
   to: Uint8Array;
   value: number;
 }
 
-interface SendTokensTx {
+export interface SendTokensTx {
   txtype: TxType;
   nonce: number;
   from: Uint8Array;
@@ -135,13 +135,13 @@ interface SendTokensTx {
   value: number;
 }
 
-interface SetTransactionCostsTx {
+export interface SetTransactionCostsTx {
   txtype: TxType;
   nonce: number;
   value: number;
 }
 
-interface SetAccountTx {
+export interface SetAccountTx {
   txtype: TxType;
   nonce?: number | undefined;
   infoURI?: string | undefined;
@@ -150,7 +150,7 @@ interface SetAccountTx {
   delegates: Uint8Array[];
 }
 
-interface CollectFaucetTx {
+export interface CollectFaucetTx {
   txType: TxType;
   faucetPackage: FaucetPackage | undefined;
   nonce: number;
@@ -161,7 +161,7 @@ interface FaucetPackage {
   signature: Uint8Array;
 }
 
-interface Process {
+export interface Process {
   processId: Uint8Array;
   /** EntityId identifies unequivocally an entity */
   entityId: Uint8Array;
@@ -227,7 +227,7 @@ interface Process {
   tokenDecimals?: number | undefined;
 }
 
-declare enum CensusOrigin {
+export declare enum CensusOrigin {
   CENSUS_UNKNOWN = 0,
   OFF_CHAIN_TREE = 1,
   OFF_CHAIN_TREE_WEIGHTED = 2,
@@ -306,7 +306,7 @@ declare enum ProcessStatus {
   UNRECOGNIZED = -1,
 }
 
-declare enum TxType {
+export declare enum TxType {
   TX_UNKNOWN = 0,
   NEW_PROCESS = 1,
   SET_PROCESS_STATUS = 2,
