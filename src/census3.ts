@@ -1,6 +1,6 @@
 import { CENSUS3_URL } from './util/constants';
 import { ClientOptions } from './client';
-import { Census3TokenAPI } from './api';
+import { Census3StrategiesAPI, Census3TokenAPI } from './api';
 import invariant from 'tiny-invariant';
 
 export class VocdoniCensus3Client {
@@ -30,5 +30,22 @@ export class VocdoniCensus3Client {
   getToken(id: string): Promise<object> {
     invariant(id, 'No token id');
     return Census3TokenAPI.token(this.url, id);
+  }
+
+  getStrategiesList(options?: { page?: number; token?: string }): Promise<number[]> {
+    return Census3StrategiesAPI.list(this.url, options?.page ?? 0, options?.token).then(
+      (strategies) => strategies.strategies
+    );
+  }
+
+  getStrategies(options?: { page?: number; token?: string }): Promise<object[]> {
+    return this.getStrategiesList(options).then((strategies) =>
+      Promise.all(strategies.map((strategyId) => this.getStrategy(strategyId)))
+    );
+  }
+
+  getStrategy(id: number): Promise<object> {
+    invariant(id || id >= 0, 'No strategy id');
+    return Census3StrategiesAPI.strategy(this.url, id);
   }
 }
