@@ -44,6 +44,11 @@ export interface ICensus3Token {
   totalSupply: string;
 
   /**
+   * The default strategy assigned.
+   */
+  defaultStrategy: number;
+
+  /**
    * The census3 status of the token.
    */
   status: {
