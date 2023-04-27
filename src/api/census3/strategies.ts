@@ -16,6 +16,11 @@ export interface ICensus3StrategiesListResponse {
 
 export interface ICensus3StrategyResponse {
   /**
+   * The strategy identifier
+   */
+  id: number;
+
+  /**
    * The list of tokens
    */
   tokens: Array<ICensus3StrategyToken>;
@@ -40,7 +45,7 @@ export interface ICensus3StrategyToken {
   /**
    * The minimum balance.
    */
-  minimum_balance: string;
+  minBalance: string;
 
   /**
    * The method used for checking balances.
