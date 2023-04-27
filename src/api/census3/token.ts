@@ -2,10 +2,10 @@ import axios from 'axios';
 import { Census3API } from './api';
 
 enum Census3TokenAPIMethods {
-  LIST = '/tokens',
-  CREATE = '/tokens',
-  TYPES = '/tokens/types',
-  TOKEN = '/tokens/{id}',
+  LIST = '/token',
+  CREATE = '/token',
+  TYPES = '/token/types',
+  TOKEN = '/token/{id}',
 }
 
 export interface ICensus3Token {
@@ -103,7 +103,7 @@ export interface ICensus3TokenTypesResponse {
   /**
    * The list of the tokens types
    */
-  supportedTokens: Array<string>;
+  supportedTypes: Array<string>;
 }
 
 export abstract class Census3TokenAPI extends Census3API {

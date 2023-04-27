@@ -1,7 +1,8 @@
 import { CENSUS3_URL } from './util/constants';
 import { ClientOptions } from './client';
-import { Census3CensusAPI, Census3StrategiesAPI, Census3TokenAPI } from './api';
+import { Census3CensusAPI, Census3StrategyAPI, Census3TokenAPI } from './api';
 import invariant from 'tiny-invariant';
+import { isAddress } from '@ethersproject/address';
 
 export class VocdoniCensus3Client {
   public url: string;
@@ -24,7 +25,7 @@ export class VocdoniCensus3Client {
   }
 
   getSupportedTypes(): Promise<object> {
-    return Census3TokenAPI.types(this.url).then((types) => types.supportedTokens);
+    return Census3TokenAPI.types(this.url).then((types) => types.supportedTypes);
   }
 
   getToken(id: string): Promise<object> {
@@ -32,8 +33,15 @@ export class VocdoniCensus3Client {
     return Census3TokenAPI.token(this.url, id);
   }
 
+  createToken(address: string, type: string, startBlock: number = 0): Promise<void> {
+    invariant(address, 'No token address');
+    invariant(type, 'No token type');
+    invariant(isAddress(address), 'Incorrect token address');
+    return Census3TokenAPI.create(this.url, address, type, startBlock);
+  }
+
   getStrategiesList(options?: { page?: number; token?: string }): Promise<number[]> {
-    return Census3StrategiesAPI.list(this.url, options?.page ?? 0, options?.token).then(
+    return Census3StrategyAPI.list(this.url, options?.page ?? 0, options?.token).then(
       (strategies) => strategies.strategies
     );
   }
@@ -46,7 +54,17 @@ export class VocdoniCensus3Client {
 
   getStrategy(id: number): Promise<object> {
     invariant(id || id >= 0, 'No strategy id');
-    return Census3StrategiesAPI.strategy(this.url, id);
+    return Census3StrategyAPI.strategy(this.url, id);
+  }
+
+  createStrategy(
+    tokens: Array<{ id: string; name: string; minBalance: string; method: string }>,
+    strategy: string
+  ): Promise<number> {
+    invariant(strategy, 'No strategy set');
+    invariant(tokens.length > 0, 'No tokens set');
+    tokens.map((token) => invariant(isAddress(token.id), 'Invalid token address'));
+    return Census3StrategyAPI.create(this.url, tokens, strategy).then((createStrategy) => createStrategy.strategyId);
   }
 
   getCensusesList(options?: { strategyId?: number }): Promise<number[]> {
@@ -63,5 +81,11 @@ export class VocdoniCensus3Client {
   getCensus(id: number): Promise<object> {
     invariant(id || id >= 0, 'No census id');
     return Census3CensusAPI.census(this.url, id);
+  }
+
+  createCensus(strategyId: number, blockNumber: number): Promise<number> {
+    invariant(strategyId || strategyId >= 0, 'No strategy id');
+    invariant(blockNumber || blockNumber >= 0, 'No block number');
+    return Census3CensusAPI.create(this.url, strategyId, blockNumber).then((createCensus) => createCensus.censusId);
   }
 }
