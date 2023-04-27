@@ -1,8 +1,11 @@
 import { CENSUS3_URL } from './util/constants';
 import { ClientOptions } from './client';
-import { Census3CensusAPI, Census3StrategyAPI, Census3TokenAPI } from './api';
+import { Census3CensusAPI, Census3StrategyAPI, Census3TokenAPI, ICensus3CensusResponse, ICensus3Token } from './api';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
+
+export type Token = ICensus3Token;
+export type Census3Census = Pick<ICensus3CensusResponse, 'merkleRoot' | 'uri'>;
 
 export class VocdoniCensus3Client {
   public url: string;
@@ -28,7 +31,7 @@ export class VocdoniCensus3Client {
     return Census3TokenAPI.types(this.url).then((types) => types.supportedTypes);
   }
 
-  getToken(id: string): Promise<object> {
+  getToken(id: string): Promise<Token> {
     invariant(id, 'No token id');
     return Census3TokenAPI.token(this.url, id);
   }
@@ -78,14 +81,28 @@ export class VocdoniCensus3Client {
     );
   }
 
-  getCensus(id: number): Promise<object> {
+  getCensus(id: number): Promise<Census3Census> {
     invariant(id || id >= 0, 'No census id');
     return Census3CensusAPI.census(this.url, id);
   }
 
-  createCensus(strategyId: number, blockNumber: number): Promise<number> {
+  createCensus(strategyId: number, blockNumber?: number): Promise<number> {
     invariant(strategyId || strategyId >= 0, 'No strategy id');
-    invariant(blockNumber || blockNumber >= 0, 'No block number');
     return Census3CensusAPI.create(this.url, strategyId, blockNumber).then((createCensus) => createCensus.censusId);
+  }
+
+  createTokenCensus(address: string): Promise<Census3Census> {
+    return this.getToken(address)
+      .then((token) => {
+        if (token.status.synced) {
+          return this.createCensus(token.defaultStrategy);
+        }
+        return Promise.reject('Token is not yet synced.');
+      })
+      .then((censusId) => this.getCensus(censusId))
+      .then((census) => ({
+        merkleRoot: census.merkleRoot,
+        uri: census.uri,
+      }));
   }
 }

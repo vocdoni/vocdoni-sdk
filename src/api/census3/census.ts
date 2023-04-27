@@ -87,7 +87,7 @@ export abstract class Census3CensusAPI extends Census3API {
    * @param {number} blockNumber The number of the block
    * @returns {Promise<ICensus3CensusCreateResponse>} promised ICensus3CensusCreateResponse
    */
-  public static create(url: string, strategyId: number, blockNumber: number): Promise<ICensus3CensusCreateResponse> {
+  public static create(url: string, strategyId: number, blockNumber?: number): Promise<ICensus3CensusCreateResponse> {
     return axios
       .post<ICensus3CensusCreateResponse>(
         url + Census3CensusAPIMethods.CREATE,
