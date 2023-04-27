@@ -1,3 +1,3 @@
 export * from './census';
-export * from './strategies';
-export * from './tokens';
+export * from './strategy';
+export * from './token';

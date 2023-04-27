@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { Census3API } from './api';
 
-enum Census3StrategiesAPIMethods {
-  LIST = '/strategies/page/{page}',
-  CREATE = '/strategies',
-  LIST_BY_TOKEN = '/strategies/token/{id}',
-  STRATEGY = '/strategies/{id}',
+enum Census3StrategyAPIMethods {
+  LIST = '/strategy/page/{page}',
+  CREATE = '/strategy',
+  LIST_BY_TOKEN = '/strategy/token/{id}',
+  STRATEGY = '/strategy/{id}',
 }
 
 export interface ICensus3StrategiesListResponse {
@@ -61,7 +61,7 @@ export interface ICensus3StrategyCreateResponse {
   strategyId: number;
 }
 
-export abstract class Census3StrategiesAPI extends Census3API {
+export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Cannot be constructed.
    */
@@ -80,12 +80,12 @@ export abstract class Census3StrategiesAPI extends Census3API {
   public static list(url: string, page: number = 0, token?: string): Promise<ICensus3StrategiesListResponse> {
     if (token) {
       return axios
-        .get<ICensus3StrategiesListResponse>(url + Census3StrategiesAPIMethods.LIST_BY_TOKEN.replace('{id}', token))
+        .get<ICensus3StrategiesListResponse>(url + Census3StrategyAPIMethods.LIST_BY_TOKEN.replace('{id}', token))
         .then((response) => response.data)
         .catch(this.isApiError);
     }
     return axios
-      .get<ICensus3StrategiesListResponse>(url + Census3StrategiesAPIMethods.LIST.replace('{page}', String(page)))
+      .get<ICensus3StrategiesListResponse>(url + Census3StrategyAPIMethods.LIST.replace('{page}', String(page)))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -99,7 +99,7 @@ export abstract class Census3StrategiesAPI extends Census3API {
    */
   public static strategy(url: string, id: number): Promise<ICensus3StrategyResponse> {
     return axios
-      .get<ICensus3StrategyResponse>(url + Census3StrategiesAPIMethods.STRATEGY.replace('{id}', String(id)))
+      .get<ICensus3StrategyResponse>(url + Census3StrategyAPIMethods.STRATEGY.replace('{id}', String(id)))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -119,7 +119,7 @@ export abstract class Census3StrategiesAPI extends Census3API {
   ): Promise<ICensus3StrategyCreateResponse> {
     return axios
       .post<ICensus3StrategyCreateResponse>(
-        url + Census3StrategiesAPIMethods.CREATE,
+        url + Census3StrategyAPIMethods.CREATE,
         JSON.stringify({ tokens, strategy })
       )
       .then((response) => response.data)

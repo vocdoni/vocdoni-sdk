@@ -11,9 +11,9 @@ export const EXPLORER_URL = {
 };
 
 export const CENSUS3_URL = {
-  dev: 'http://ci.vocdoni.net:8080/api',
-  stg: 'http://ci.vocdoni.net:8080/api',
-  prod: 'http://ci.vocdoni.net:8080/api',
+  dev: 'http://ci.vocdoni.net:7788/api',
+  stg: 'http://ci.vocdoni.net:7788/api',
+  prod: 'http://ci.vocdoni.net:7788/api',
 };
 
 export const FAUCET_URL = {
