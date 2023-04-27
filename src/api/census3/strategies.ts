@@ -3,6 +3,7 @@ import { Census3API } from './api';
 
 enum Census3StrategiesAPIMethods {
   LIST = '/strategies/page/{page}',
+  CREATE = '/strategies',
   LIST_BY_TOKEN = '/strategies/token/{id}',
   STRATEGY = '/strategies/{id}',
 }
@@ -53,6 +54,13 @@ export interface ICensus3StrategyToken {
   method: string;
 }
 
+export interface ICensus3StrategyCreateResponse {
+  /**
+   * The identifier of the created strategy
+   */
+  strategyId: number;
+}
+
 export abstract class Census3StrategiesAPI extends Census3API {
   /**
    * Cannot be constructed.
@@ -92,6 +100,28 @@ export abstract class Census3StrategiesAPI extends Census3API {
   public static strategy(url: string, id: number): Promise<ICensus3StrategyResponse> {
     return axios
       .get<ICensus3StrategyResponse>(url + Census3StrategiesAPIMethods.STRATEGY.replace('{id}', String(id)))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Creates a new strategy based on the given token strategies and predicate.
+   *
+   * @param {string} url API endpoint URL
+   * @param {Array<ICensus3StrategyToken>} tokens The token list with strategies
+   * @param {string} strategy The stringified strategy (predicate)
+   * @returns {Promise<ICensus3StrategyCreateResponse>} promised ICensus3StrategyCreateResponse
+   */
+  public static create(
+    url: string,
+    tokens: Array<ICensus3StrategyToken>,
+    strategy: string
+  ): Promise<ICensus3StrategyCreateResponse> {
+    return axios
+      .post<ICensus3StrategyCreateResponse>(
+        url + Census3StrategiesAPIMethods.CREATE,
+        JSON.stringify({ tokens, strategy })
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }
