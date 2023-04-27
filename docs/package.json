@@ -8,8 +8,9 @@
   },
   "scripts": {
     "copy-readme": "cp ../README.md temp_docs/sdk.md && awk -i inplace 'match($1,/!\\[/){sub(/\\]\\(.\\//, \"](https://raw.githubusercontent.com/vocdoni/vocdoni-sdk/main/\")}1' temp_docs/sdk.md && sed -i -e 's;]: ./;]: https://github.com/vocdoni/vocdoni-sdk/blob/main/;g' -e 's;](./;](https://github.com/vocdoni/vocdoni-sdk/blob/main/;g' temp_docs/sdk.md",
+    "copy-changelog": "cp ../CHANGELOG.md temp_docs/changelog.md",
     "gen-docs": "npx jsdoc-to-mdx -c jsdoc-to-mdx.config.json",
-    "build": "npm run gen-docs && npm run copy-readme"
+    "build": "yarn gen-docs && yarn copy-readme && yarn copy-changelog"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",
