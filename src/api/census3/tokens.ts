@@ -26,7 +26,7 @@ export interface ICensus3Token {
   /**
    * The creation block.
    */
-  creation_block: number;
+  startBlock: number;
 
   /**
    * The symbol of the token.
@@ -41,7 +41,7 @@ export interface ICensus3Token {
   /**
    * The total supply of the token.
    */
-  total_supply: string;
+  totalSupply: string;
 
   /**
    * The census3 status of the token.
@@ -55,7 +55,7 @@ export interface ICensus3Token {
     /**
      * At which number of block the token is synced
      */
-    at_block: number;
+    atBlock: number;
 
     /**
      * The progress percentage of the sync
@@ -83,7 +83,7 @@ export interface ICensus3TokenSummary {
   /**
    * The creation block.
    */
-  creation_block: number;
+  startBlock: number;
 }
 
 export interface ICensus3TokenListResponse {
@@ -97,7 +97,7 @@ export interface ICensus3TokenTypesResponse {
   /**
    * The list of the tokens types
    */
-  supported_tokens: Array<string>;
+  supportedTokens: Array<string>;
 }
 
 export abstract class Census3TokenAPI extends Census3API {
@@ -139,11 +139,11 @@ export abstract class Census3TokenAPI extends Census3API {
    *
    * @param {string} url API endpoint URL
    * @param {string} id The id of the token
-   * @returns {Promise<ICensus3TokenTypesResponse>}
+   * @returns {Promise<ICensus3Token>}
    */
-  public static token(url: string, id: string): Promise<ICensus3TokenTypesResponse> {
+  public static token(url: string, id: string): Promise<ICensus3Token> {
     return axios
-      .get<ICensus3TokenTypesResponse>(url + Census3TokenAPIMethods.TOKEN.replace('{id}', id))
+      .get<ICensus3Token>(url + Census3TokenAPIMethods.TOKEN.replace('{id}', id))
       .then((response) => response.data)
       .catch(this.isApiError);
   }

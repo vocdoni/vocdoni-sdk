@@ -24,7 +24,7 @@ export class VocdoniCensus3Client {
   }
 
   getSupportedTypes(): Promise<object> {
-    return Census3TokenAPI.types(this.url).then((types) => types.supported_tokens);
+    return Census3TokenAPI.types(this.url).then((types) => types.supportedTokens);
   }
 
   getToken(id: string): Promise<object> {
