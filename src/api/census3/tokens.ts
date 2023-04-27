@@ -3,6 +3,7 @@ import { Census3API } from './api';
 
 enum Census3TokenAPIMethods {
   LIST = '/tokens',
+  CREATE = '/tokens',
   TYPES = '/tokens/types',
   TOKEN = '/tokens/{id}',
 }
@@ -149,6 +150,22 @@ export abstract class Census3TokenAPI extends Census3API {
   public static token(url: string, id: string): Promise<ICensus3Token> {
     return axios
       .get<ICensus3Token>(url + Census3TokenAPIMethods.TOKEN.replace('{id}', id))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Triggers a new scan for the provided token, starting from the defined block.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} id The token address
+   * @param {string} type The type of the token
+   * @param {number} startBlock The start block
+   * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
+   */
+  public static create(url: string, id: string, type: string, startBlock: number): Promise<void> {
+    return axios
+      .post(url + Census3TokenAPIMethods.CREATE, JSON.stringify({ id, type, startBlock }))
       .then((response) => response.data)
       .catch(this.isApiError);
   }

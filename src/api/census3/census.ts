@@ -3,6 +3,7 @@ import { Census3API } from './api';
 
 enum Census3CensusAPIMethods {
   LIST_BY_STRATEGY = '/census/strategy/{id}',
+  CREATE = '/census',
   CENSUS = '/census/{id}',
 }
 
@@ -33,6 +34,13 @@ export interface ICensus3CensusResponse {
    * The URI of the census
    */
   uri: string;
+}
+
+export interface ICensus3CensusCreateResponse {
+  /**
+   * The identifier of the created census
+   */
+  censusId: number;
 }
 
 export abstract class Census3CensusAPI extends Census3API {
@@ -67,6 +75,24 @@ export abstract class Census3CensusAPI extends Census3API {
   public static census(url: string, id: number): Promise<ICensus3CensusResponse> {
     return axios
       .get<ICensus3CensusResponse>(url + Census3CensusAPIMethods.CENSUS.replace('{id}', String(id)))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Requests the creation of a new census with the strategy provided for the blockNumber.
+   *
+   * @param {string} url API endpoint URL
+   * @param {number} strategyId The strategy identifier
+   * @param {number} blockNumber The number of the block
+   * @returns {Promise<ICensus3CensusCreateResponse>} promised ICensus3CensusCreateResponse
+   */
+  public static create(url: string, strategyId: number, blockNumber: number): Promise<ICensus3CensusCreateResponse> {
+    return axios
+      .post<ICensus3CensusCreateResponse>(
+        url + Census3CensusAPIMethods.CREATE,
+        JSON.stringify({ strategyId, blockNumber })
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }
