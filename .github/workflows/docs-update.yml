@@ -47,6 +47,10 @@ jobs:
           mkdir -p ./developer-portal/docs/sdk/
           cp -R ./docs/temp_docs/* ./developer-portal/docs/sdk/
 
+      - name: Copy Readme.md on Get Started section
+        run: |
+          cp -R ../README.md ./developer-portal/docs/get-started/01-intro.md
+
       - name: Create PR to developer-portal repo
         id: cpr
         uses: peter-evans/create-pull-request@v4
