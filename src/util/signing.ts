@@ -64,7 +64,7 @@ export class Signing {
     return walletOrSigner
       .getAddress()
       .then((address) =>
-        walletOrSigner.provider.send('personal_sign', [this.uint8ArrayToArray(request), address.toLowerCase()])
+        walletOrSigner.provider.send('personal_sign', [new TextDecoder('utf-8').decode(request), address.toLowerCase()])
       );
   }
 
