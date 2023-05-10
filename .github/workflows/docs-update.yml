@@ -49,7 +49,7 @@ jobs:
 
       - name: Copy Readme.md on Get Started section
         run: |
-          cp -R ../README.md ./developer-portal/docs/get-started/01-intro.md
+          cp ./README.md ./developer-portal/docs/get-started/01-intro.md
 
       - name: Create PR to developer-portal repo
         id: cpr
