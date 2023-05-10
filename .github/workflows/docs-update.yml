@@ -47,9 +47,9 @@ jobs:
           mkdir -p ./developer-portal/docs/sdk/
           cp -R ./docs/temp_docs/* ./developer-portal/docs/sdk/
 
-      - name: Copy Readme.md on Get Started section
-        run: |
-          cp ./README.md ./developer-portal/docs/get-started/01-intro.md
+      - name: Copy SDK Readme.md on Get Started section
+        run: | # It uses the temp_docs/sdk.md because it should have the links fixed (using links to the github project instead relative links)
+          cp ./docs/temp_docs/sdk.md ./developer-portal/docs/get-started/01-intro.md
 
       - name: Create PR to developer-portal repo
         id: cpr
