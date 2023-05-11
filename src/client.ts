@@ -379,10 +379,10 @@ export class VocdoniSDKClient {
         PublishedElection.build({
           id: electionInfo.electionId,
           organizationId: electionInfo.organizationId,
-          title: electionInfo.metadata.title,
-          description: electionInfo.metadata.description,
-          header: electionInfo.metadata.media.header,
-          streamUri: electionInfo.metadata.media.streamUri,
+          title: electionInfo.metadata?.title,
+          description: electionInfo.metadata?.description,
+          header: electionInfo.metadata?.media.header,
+          streamUri: electionInfo.metadata?.media.streamUri,
           startDate: electionInfo.startDate,
           endDate: electionInfo.endDate,
           census: new PublishedCensus(
@@ -412,7 +412,7 @@ export class VocdoniSDKClient {
             costFromWeight: electionInfo.voteMode.costFromWeight,
             costExponent: electionInfo.tallyMode.costExponent,
           },
-          questions: electionInfo.metadata.questions.map((question, qIndex) => ({
+          questions: electionInfo.metadata?.questions.map((question, qIndex) => ({
             title: question.title,
             description: question.description,
             choices: question.choices.map((choice, cIndex) => ({
