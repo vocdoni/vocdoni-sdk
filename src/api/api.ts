@@ -54,6 +54,15 @@ export abstract class API {
   }
 
   private static isUndefinedError(error: AxiosError, message?: string): never {
-    throw new ErrAPI(error.response.status + ' ' + error.response.statusText + ': ' + message, error);
+    switch (true) {
+      case error.response?.status != null && error.response?.statusText != null:
+        throw new ErrAPI(error.response.status + ' ' + error.response.statusText + ': ' + message, error);
+      case error.response?.status != null:
+        throw new ErrAPI(error.response.status + ': ' + message, error);
+      case message != null:
+        throw new ErrAPI(message, error);
+      default:
+        throw new ErrAPI('Undefined API error', error);
+    }
   }
 }
