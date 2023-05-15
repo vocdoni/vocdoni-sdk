@@ -513,7 +513,7 @@ You can find a [full featured CRA][example-cra] application with all the previou
 steps in the [examples] folder. In that folder you'll also find a
 [es modules example][example-esm], creating and voting an election process.
 
-![example-esm demo]
+![example-esm demo](./examples/esm/esm.gif)
 
 ## Docs
 
@@ -551,7 +551,6 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [examples]: ./examples
 [example-cra]: ./examples/cra
 [example-esm]: ./examples/esm
-[example-esm demo]: ./examples/esm/esm.gif
 [license]: ./LICENSE
 [devportal]: https://developer.vocdoni.io/sdk
 [builddocs]: ./docs/README.md
