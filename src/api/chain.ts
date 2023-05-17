@@ -164,7 +164,7 @@ export interface IChainOrganizationCountResponse {
   count: number;
 }
 
-interface IChainOrganizationResponse {
+export interface IChainOrganizationResponse {
   /**
    * The identifier of the organization
    */
