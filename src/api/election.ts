@@ -375,6 +375,13 @@ export interface IElectionListResponse {
   elections: Array<IElectionSummary>;
 }
 
+export interface IElectionListFilter {
+  organizationId?: string;
+  electionId?: string;
+  withResults?: boolean;
+  status?: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
+}
+
 export abstract class ElectionAPI extends API {
   /**
    * Cannot be constructed.
@@ -465,23 +472,13 @@ export abstract class ElectionAPI extends API {
    * @param {string} organizationId Search by partial organizationId
    * @param {string} electionId Search by partial electionId
    * @param {boolean} withResults Return elections with results or live results
-   * @param {APIElectionStatus} status Search by election status
+   * @param {Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>} status Search by election status
    * @returns {Promise<IElectionListResponse>}
    */
   public static electionsList(
     url: string,
     page: number = 0,
-    {
-      organizationId,
-      electionId,
-      withResults,
-      status,
-    }: {
-      organizationId?: string;
-      electionId?: string;
-      withResults?: boolean;
-      status?: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
-    } = {}
+    { organizationId, electionId, withResults, status }: IElectionListFilter = {}
   ): Promise<IElectionListResponse> {
     if (organizationId || electionId || withResults || status) {
       return axios
