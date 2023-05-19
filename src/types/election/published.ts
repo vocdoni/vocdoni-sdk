@@ -68,14 +68,7 @@ export class PublishedElection extends Election {
     });
     this._id = params.id;
     this._organizationId = params.organizationId;
-    switch (params.status) {
-      case ElectionStatusReady.READY:
-        this._status = this.startDate <= new Date() ? ElectionStatus.ONGOING : ElectionStatus.UPCOMING;
-        break;
-      default:
-        this._status = params.status;
-        break;
-    }
+    this._status = PublishedElection.getStatus(params.status, this.startDate);
     this._voteCount = params.voteCount;
     this._finalResults = params.finalResults;
     this._results = params.results;
@@ -92,6 +85,15 @@ export class PublishedElection extends Election {
    */
   public static build(params: IPublishedElectionParameters) {
     return new PublishedElection(params);
+  }
+
+  public static getStatus(status: AllElectionStatus, startDate: Date): ElectionStatus {
+    switch (status) {
+      case ElectionStatusReady.READY:
+        return startDate <= new Date() ? ElectionStatus.ONGOING : ElectionStatus.UPCOMING;
+      default:
+        return status;
+    }
   }
 
   get title(): MultiLanguage<string> {
