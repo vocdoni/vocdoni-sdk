@@ -4,6 +4,12 @@ export const API_URL = {
   prod: 'https://api.vocdoni.net/v2',
 };
 
+export const EXPLORER_URL = {
+  dev: 'https://dev.explorer.vote',
+  stg: 'https://stg.explorer.vote',
+  prod: 'https://explorer.vote',
+};
+
 export const FAUCET_URL = {
   dev: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/dev',
   stg: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/stage',
