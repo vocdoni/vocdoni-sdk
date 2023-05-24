@@ -23,7 +23,7 @@ import {
   WeightedCensus,
 } from './types';
 import { delay } from './util/common';
-import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
+import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 
@@ -162,6 +162,7 @@ export class VocdoniSDKClient {
   public url: string;
   public wallet: Wallet | Signer | null;
   public electionId: string | null;
+  public explorerUrl: string;
   public faucet: FaucetOptions | null;
   public tx_wait: TxWaitOptions | null;
 
@@ -191,6 +192,7 @@ export class VocdoniSDKClient {
       retry_time: opts.tx_wait?.retry_time ?? TX_WAIT_OPTIONS.retry_time,
       attempts: opts.tx_wait?.attempts ?? TX_WAIT_OPTIONS.attempts,
     };
+    this.explorerUrl = EXPLORER_URL[opts.env];
   }
 
   /**
