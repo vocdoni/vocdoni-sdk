@@ -22,3 +22,17 @@ export function getHex(): string {
   const bytes = getBytes(32);
   return keccak256(bytes);
 }
+
+/**
+ * Compares two hex strings checking if they're the same. It ensures both
+ * have hex prefix and are lowercase.
+ *
+ * @param {string} hex1
+ * @param {string} hex2
+ * @returns {boolean}
+ */
+export function areEqualHexStrings(hex1?: string, hex2?: string) {
+  if (!hex1 || !hex2) return false;
+
+  return ensure0x(hex1.toLowerCase()) === ensure0x(hex2.toLowerCase());
+}
