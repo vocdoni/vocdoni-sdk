@@ -34,6 +34,16 @@ export interface ICensus3CensusResponse {
    * The URI of the census
    */
   uri: string;
+
+  /**
+   * The size of the census (number of token holders)
+   */
+  size: number;
+
+  /**
+   * The weight of the census (weight of all token holders)
+   */
+  weight: string;
 }
 
 export interface ICensus3CensusCreateResponse {
