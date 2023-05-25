@@ -11,9 +11,9 @@ export const EXPLORER_URL = {
 };
 
 export const CENSUS3_URL = {
-  dev: 'http://ci.vocdoni.net:7788/api',
-  stg: 'http://ci.vocdoni.net:7788/api',
-  prod: 'http://ci.vocdoni.net:7788/api',
+  dev: 'https://ethcensus.dev.vocdoni.net/api',
+  stg: 'https://ethcensus.stg.vocdoni.net/api',
+  prod: 'https://ethcensus.vocdoni.net/api',
 };
 
 export const FAUCET_URL = {

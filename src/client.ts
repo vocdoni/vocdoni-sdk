@@ -645,7 +645,7 @@ export class VocdoniSDKClient {
 
     if (!election.census.isPublished) {
       await this.createCensus(election.census as PlainCensus | WeightedCensus);
-    } else if (!election.maxCensusSize) {
+    } else if (!election.maxCensusSize && !election.census.size) {
       await this.fetchCensusInfo(election.census.censusId).then((censusInfo) => {
         election.census.size = censusInfo.size;
         election.census.weight = censusInfo.weight;
