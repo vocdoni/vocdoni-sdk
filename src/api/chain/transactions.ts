@@ -1,3 +1,5 @@
+import { IChainTxReference } from '../chain';
+
 export interface Tx {
   payload?:
     | {
@@ -48,6 +50,7 @@ export interface Tx {
   //     $case: 'setKeykeeper';
   //     collectFaucet: SetKeyKeeperTx;
   //   };
+  txInfo: IChainTxReference;
 }
 
 export interface VoteEnvelope {
