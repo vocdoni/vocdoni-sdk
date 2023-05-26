@@ -1,7 +1,5 @@
-import { IQuestion } from '../metadata/election';
-import { PublishedCensus } from '../census/published';
-import { PlainCensus } from '../census/plain';
-import { WeightedCensus } from '../census/weighted';
+import { IQuestion } from '../metadata';
+import { PlainCensus, PublishedCensus, WeightedCensus } from '../census';
 import { MultiLanguage } from '../../util/lang';
 import { UnpublishedElection } from './unpublished';
 
@@ -73,6 +71,10 @@ export interface IElectionParameters {
    * Election stream Uri (ex: a video url)
    */
   streamUri?: string;
+  /**
+   * Metadata (anything added by the election creator)
+   */
+  meta?: object;
   startDate?: string | number | Date;
   endDate: string | number | Date;
   census: PublishedCensus | PlainCensus | WeightedCensus;
@@ -102,6 +104,7 @@ export abstract class Election {
   protected _description: MultiLanguage<string>;
   protected _header: string;
   protected _streamUri: string;
+  protected _meta: object;
   protected _startDate: Date;
   protected _endDate: Date;
   protected _electionType: IElectionType;
@@ -121,6 +124,7 @@ export abstract class Election {
       this._description = typeof params.description === 'string' ? { default: params.description } : params.description;
       this._header = params.header;
       this._streamUri = params.streamUri;
+      this._meta = params.meta;
       this._startDate = params.startDate ? new Date(params.startDate) : null;
       this._endDate = new Date(params.endDate);
       this._electionType = params.electionType;
@@ -154,6 +158,10 @@ export abstract class Election {
 
   get streamUri(): string {
     return this._streamUri;
+  }
+
+  get meta(): object {
+    return this._meta;
   }
 
   get startDate(): Date {

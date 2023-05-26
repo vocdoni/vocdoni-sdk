@@ -385,6 +385,7 @@ export class VocdoniSDKClient {
           description: electionInfo.metadata?.description,
           header: electionInfo.metadata?.media.header,
           streamUri: electionInfo.metadata?.media.streamUri,
+          meta: electionInfo.metadata?.meta,
           startDate: electionInfo.startDate,
           endDate: electionInfo.endDate,
           census: new PublishedCensus(
