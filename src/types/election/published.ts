@@ -58,6 +58,7 @@ export class PublishedElection extends Election {
       description: params.description,
       header: params.header,
       streamUri: params.streamUri,
+      meta: params.meta,
       startDate: params.startDate,
       endDate: params.endDate,
       electionType: params.electionType,

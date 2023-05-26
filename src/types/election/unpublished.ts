@@ -5,13 +5,10 @@ import {
   ElectionMetadataTemplate,
   IChoice,
   IQuestion,
-} from '../metadata/election';
+} from '../metadata';
 import invariant from 'tiny-invariant';
-import { PublishedCensus } from '../census/published';
-import { PlainCensus } from '../census/plain';
-import { WeightedCensus } from '../census/weighted';
+import { CspCensus, PlainCensus, PublishedCensus, WeightedCensus } from '../census';
 import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
-import { CspCensus } from '../census/csp';
 
 /**
  * Represents an unpublished election
@@ -28,6 +25,7 @@ export class UnpublishedElection extends Election {
     this.description = typeof params.description === 'string' ? { default: params.description } : params.description;
     this.header = params.header;
     this.streamUri = params.streamUri;
+    this.meta = params.meta;
     this.startDate = params.startDate ? new Date(params.startDate) : null;
     this.endDate = new Date(params.endDate);
     this.census = params.census;
@@ -90,6 +88,7 @@ export class UnpublishedElection extends Election {
       header: this.header,
       streamUri: this.streamUri,
     };
+    metadata.meta = this.meta;
     metadata.questions = this.questions.map((question) => {
       return {
         title: question.title,
@@ -139,6 +138,14 @@ export class UnpublishedElection extends Election {
 
   set streamUri(value: string) {
     this._streamUri = value;
+  }
+
+  get meta(): object {
+    return super.meta;
+  }
+
+  set meta(value: object) {
+    this._meta = value;
   }
 
   get startDate(): Date {

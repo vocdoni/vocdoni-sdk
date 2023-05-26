@@ -38,6 +38,36 @@ const createElection = (census, electionType?, voteType?) => {
 };
 
 describe('Election integration tests', () => {
+  it('should create an election with correct information', async () => {
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+
+    const election = createElection(census);
+
+    election.meta = {
+      test: 'testValue',
+      array: [1, 2],
+      object: {
+        test1: 'test1',
+        test2: 'test2',
+      },
+    };
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((publishedElection) => {
+        expect(publishedElection.title).toEqual(election.title);
+        expect(publishedElection.description).toEqual(election.description);
+        expect(publishedElection.meta).toStrictEqual(election.meta);
+      });
+  }, 85000);
   it('should create an election with addresses census', async () => {
     const census = new PlainCensus();
 
