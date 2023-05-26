@@ -11,6 +11,7 @@ import {
   Account,
   AllElectionStatus,
   Census,
+  Census3Census,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -652,6 +653,10 @@ export class VocdoniSDKClient {
       });
     } else if (election.maxCensusSize && election.maxCensusSize > this.chainData.maxCensusSize) {
       throw new Error('Max census size for the election is greater than allowed size: ' + this.chainData.maxCensusSize);
+    }
+
+    if (election.census instanceof Census3Census) {
+      election.meta = { ...election.meta, ...{ token: election.census.token } };
     }
 
     const electionData = Promise.all([
