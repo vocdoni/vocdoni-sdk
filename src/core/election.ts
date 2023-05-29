@@ -100,11 +100,14 @@ export abstract class ElectionCore extends TransactionCore {
             preRegister: election.electionType.anonymous,
           },
           voteOptions: {
-            maxCount: election.questions.length,
-            maxValue: election.questions.reduce((prev, cur) => {
-              const localMax = cur.choices.length - 1;
-              return localMax > prev ? localMax : prev;
-            }, 0),
+            maxCount: election.voteType.maxCount ?? election.questions.length,
+            maxValue:
+              election.voteType.maxValue ??
+              election.questions.reduce((prev, cur) => {
+                const localMax = cur.choices.length - 1;
+                return localMax > prev ? localMax : prev;
+              }, 0),
+            // maxValue: 3,
             maxVoteOverwrites: election.voteType.maxVoteOverwrites,
             maxTotalCost: 0, // TODO
             costExponent: election.voteType.costExponent,

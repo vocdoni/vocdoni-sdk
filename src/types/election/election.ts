@@ -17,15 +17,48 @@ export interface IVoteType {
    * several choices, even including quadratic voting scenarios.
    */
   costFromWeight?: boolean;
-  /* Defines the exponent that will be used to compute the "cost" of the options voted and compare it against `maxTotalCost`.
-   * totalCost = Σ (value[i] ** costExponent) <= maxTotalCost
+  /**
+   * Defines the `costExponent`, which is used in the computation of the total "cost" of the voted options.
+   * This total cost is later compared against `maxTotalCost`.
    *
-   * Exponent range:
-   * - 0 => 0.0000
-   * - 10000 => 1.0000
-   * - 65535 => 6.5535
+   * The formula used to calculate the total cost is:
+   * totalCost = Σ (value[i] ^ costExponent) <= maxTotalCost
+   *
+   * To establish a quadratic voting election, the `costExponent` must be set to 2. As an illustration, consider a vote
+   * array of `[3,4]` where:
+   * - `3` represents the credits assigned to option 0,
+   * - `4` represents the credits given to option 1.
+   *
+   * The total credits spent are calculated as:
+   *
+   * ```
+   * 3^2 = 9 (Credits for option 0)
+   * 4^2 = 16 (Credits for option 1)
+   * Total = 25 (Total credits spent)
+   * ```
+   *
+   * The total credits available for spending (i.e., `maxTotalCost`) can be set in two ways during the election creation:
+   * - By explicitly defining the `maxTotalCost` parameter to set up same amount of credits for each voter,
+   * - By setting the `costFromWeight` parameter to `true` and using a weighted census. In this method, the weight
+   * assigned to each voter determines the credits they have available for voting.
    */
   costExponent?: number;
+  /**
+   * Defines the maximum acceptable value for all fields in the voting process.
+   * By default, this value corresponds to the total number of choices available in a question.
+   *
+   * In the context of a quadratic voting system, this value should typically be set to 0.
+   */
+  maxValue?: number;
+  /**
+   * Determines the maximum count or number of votes that can be cast across all fields.
+   * The default value corresponds to the total number of questions available in the voting process.
+   *
+   * For elections involving multiple questions (multiquestion elections), this value should be equivalent to the total
+   * number of questions. In contrast, for elections that don't involve multiple questions (non-multiquestion elections),
+   * this value should match the total number of choices available for voting.
+   */
+  maxCount?: number;
 }
 
 export interface IElectionType {
