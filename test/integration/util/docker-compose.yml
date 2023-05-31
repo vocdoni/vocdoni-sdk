@@ -2,8 +2,8 @@ version: "3.4"
 
 services:
   voconed:
-    # pull master tag (instead of latest) to ensure we're testing against bleeding edge
-    image: "vocdoni/go-dvote:master"
+    # pull main tag (instead of latest) to ensure we're testing against bleeding edge
+    image: "vocdoni/vocdoni-node:main"
     entrypoint: "/app/voconed"
     env_file: voconed.env
     # TODO: the following flags should really go into voconed.env
