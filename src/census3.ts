@@ -36,11 +36,11 @@ export class VocdoniCensus3Client {
     return Census3TokenAPI.token(this.url, id);
   }
 
-  createToken(address: string, type: string, startBlock: number = 0): Promise<void> {
+  createToken(address: string, type: string, tags: string[] = [], startBlock: number = 0): Promise<void> {
     invariant(address, 'No token address');
     invariant(type, 'No token type');
     invariant(isAddress(address), 'Incorrect token address');
-    return Census3TokenAPI.create(this.url, address, type, startBlock);
+    return Census3TokenAPI.create(this.url, address, type, startBlock, tags);
   }
 
   getStrategiesList(options?: { page?: number; token?: string }): Promise<number[]> {
