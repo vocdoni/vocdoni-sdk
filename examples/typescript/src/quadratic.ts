@@ -63,14 +63,24 @@ const CREDITS = 14;
 const VOTE_ARRAY = [1, 0, 3, 2];
 
 /**
+ * Must be 0 for quadratic elections
+ */
+const MAX_VALUE = 0;
+
+/**
+ * Have to be the choices length
+ */
+const MAX_COUNT = 0;
+
+/**
  * An example configuration for setting up a quadratic voting system.
  */
 const ELECTION_OPTS: IVoteType = {
+  maxValue: MAX_VALUE,
+  maxCount: MAX_COUNT,
   uniqueChoices: false,
   costFromWeight: true, // This will set that the weight on a weighted census is actually the credits available
   costExponent: COST_EXPONENT,
-  maxValue: 4, // Have to be the choices length
-  maxCount: 0, //Must be 0 for quadratic elections
 };
 
 const submitVote = (participant: Wallet, electionId: string) => {

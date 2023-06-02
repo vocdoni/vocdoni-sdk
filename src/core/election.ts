@@ -107,7 +107,6 @@ export abstract class ElectionCore extends TransactionCore {
                 const localMax = cur.choices.length - 1;
                 return localMax > prev ? localMax : prev;
               }, 0),
-            // maxValue: 3,
             maxVoteOverwrites: election.voteType.maxVoteOverwrites,
             maxTotalCost: 0, // TODO
             costExponent: election.voteType.costExponent,

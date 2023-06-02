@@ -76,6 +76,8 @@ export class UnpublishedElection extends Election {
       maxVoteOverwrites: typeof value?.maxVoteOverwrites === 'number' ? value.maxVoteOverwrites : 0,
       costFromWeight: typeof value?.costFromWeight === 'boolean' ? value.costFromWeight === true : false,
       costExponent: typeof value?.costExponent === 'number' ? value.costExponent : 10000,
+      maxValue: typeof value?.maxValue === 'number' ? value.maxValue : null,
+      maxCount: typeof value?.maxCount === 'number' ? value.maxCount : null,
     };
   }
 
