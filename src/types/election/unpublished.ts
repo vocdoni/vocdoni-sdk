@@ -7,7 +7,7 @@ import {
   IQuestion,
 } from '../metadata';
 import invariant from 'tiny-invariant';
-import { CspCensus, PlainCensus, PublishedCensus, WeightedCensus } from '../census';
+import { Census } from '../census';
 import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
 
 /**
@@ -191,18 +191,12 @@ export class UnpublishedElection extends Election {
     this._questions = value;
   }
 
-  get census(): PublishedCensus | PlainCensus | WeightedCensus | CspCensus {
+  get census(): Census {
     return super.census;
   }
 
-  set census(value: PublishedCensus | PlainCensus | WeightedCensus | CspCensus) {
-    invariant(
-      value instanceof PlainCensus ||
-        value instanceof PublishedCensus ||
-        value instanceof WeightedCensus ||
-        value instanceof CspCensus,
-      'Invalid census'
-    );
+  set census(value: Census) {
+    invariant(value instanceof Census, 'Invalid census');
     this._census = value;
   }
 

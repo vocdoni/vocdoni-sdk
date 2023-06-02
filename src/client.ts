@@ -11,7 +11,7 @@ import {
   Account,
   AllElectionStatus,
   Census,
-  Census3Census,
+  TokenCensus,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -655,7 +655,7 @@ export class VocdoniSDKClient {
       throw new Error('Max census size for the election is greater than allowed size: ' + this.chainData.maxCensusSize);
     }
 
-    if (election.census instanceof Census3Census) {
+    if (election.census instanceof TokenCensus) {
       election.meta = { ...election.meta, ...{ token: election.census.token } };
     }
 
