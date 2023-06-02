@@ -1,5 +1,5 @@
 import { IQuestion } from '../metadata';
-import { PlainCensus, PublishedCensus, WeightedCensus } from '../census';
+import { Census } from '../census';
 import { MultiLanguage } from '../../util/lang';
 import { UnpublishedElection } from './unpublished';
 
@@ -77,7 +77,7 @@ export interface IElectionParameters {
   meta?: object;
   startDate?: string | number | Date;
   endDate: string | number | Date;
-  census: PublishedCensus | PlainCensus | WeightedCensus;
+  census: Census;
   voteType?: IVoteType;
   electionType?: IElectionType;
   questions?: IQuestion[];
@@ -110,7 +110,7 @@ export abstract class Election {
   protected _electionType: IElectionType;
   protected _voteType: IVoteType;
   protected _questions: IQuestion[];
-  protected _census: PublishedCensus | PlainCensus | WeightedCensus;
+  protected _census: Census;
   protected _maxCensusSize: number;
 
   /**
@@ -184,7 +184,7 @@ export abstract class Election {
     return this._questions;
   }
 
-  get census(): PublishedCensus | PlainCensus | WeightedCensus {
+  get census(): Census {
     return this._census;
   }
 

@@ -3,7 +3,7 @@ import { ClientOptions } from './client';
 import { Census3CensusAPI, Census3StrategyAPI, Census3TokenAPI, ICensus3CensusResponse, ICensus3Token } from './api';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
-import { Census3Census } from './types/census/census3';
+import { TokenCensus } from './types';
 
 export type Token = ICensus3Token;
 
@@ -91,7 +91,7 @@ export class VocdoniCensus3Client {
     return Census3CensusAPI.create(this.url, strategyId, blockNumber).then((createCensus) => createCensus.censusId);
   }
 
-  async createTokenCensus(address: string): Promise<Census3Census> {
+  async createTokenCensus(address: string): Promise<TokenCensus> {
     const token = await this.getToken(address);
     if (!token.status.synced) {
       return Promise.reject('Token is not yet synced.');
@@ -99,6 +99,6 @@ export class VocdoniCensus3Client {
 
     return this.createCensus(token.defaultStrategy)
       .then((censusId) => this.getCensus(censusId))
-      .then((census) => new Census3Census(census.merkleRoot, census.uri, token, census.size, BigInt(census.weight)));
+      .then((census) => new TokenCensus(census.merkleRoot, census.uri, token, census.size, BigInt(census.weight)));
   }
 }

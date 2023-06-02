@@ -5,7 +5,7 @@ import { Token } from '../../census3';
 /**
  * Represents a census3 census
  */
-export class Census3Census extends PublishedCensus {
+export class TokenCensus extends PublishedCensus {
   private _token: Token;
 
   /**

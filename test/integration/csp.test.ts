@@ -1,7 +1,7 @@
 import { ICspFinalStepResponse, ICspIntermediateStepResponse } from '../../src/api/csp';
 import { Wallet } from '@ethersproject/wallet';
 import { Election, VocdoniSDKClient, Vote } from '../../src';
-import { CspCensus } from '../../src/types/census/csp';
+import { CspCensus } from '../../src';
 // @ts-ignore
 import { clientParams } from './util/client.params';
 // @ts-ignore
