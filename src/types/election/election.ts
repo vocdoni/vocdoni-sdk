@@ -59,6 +59,13 @@ export interface IVoteType {
    * this value should match the total number of choices available for voting.
    */
   maxCount?: number;
+  /**
+   * Specifies the maximum limit on the total sum of all ballot fields' values, if applicable.
+   * For instance, if the vote array is `[0,0,3,2]`, the `maxTotalCost` should be set to `3`.
+   *
+   * A value of 0 implies no maximum limit or that this parameter is not applicable in the current voting context.
+   */
+  maxTotalCost?: number;
 }
 
 export interface IElectionType {
