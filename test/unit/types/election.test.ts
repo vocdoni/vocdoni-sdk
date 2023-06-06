@@ -46,6 +46,9 @@ describe('Election tests', () => {
       maxVoteOverwrites: 0,
       costFromWeight: false,
       costExponent: 10000,
+      maxCount: null,
+      maxTotalCost: null,
+      maxValue: null,
     });
   });
   it('should have no questions', () => {
