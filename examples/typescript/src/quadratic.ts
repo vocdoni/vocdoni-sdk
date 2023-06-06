@@ -11,7 +11,13 @@ import {
   Vote,
   WeightedCensus,
 } from '@vocdoni/sdk';
-import { waitForElectionReady } from './utils/utils';
+import { getDefaultClient, getRandomVoters, submitVote, waitForElectionReady } from './utils/utils';
+
+/**
+ * Example of quadratic voting election
+ *
+ * https://developer.vocdoni.io/protocol/ballot#quadratic-voting
+ */
 
 /**
  * Set the total number of random voters.
@@ -83,17 +89,6 @@ const ELECTION_OPTS: IVoteType = {
   costExponent: COST_EXPONENT,
 };
 
-const submitVote = (participant: Wallet, electionId: string) => {
-  const pClient = new VocdoniSDKClient({
-    env: EnvOptions.DEV,
-    api_url: process.env.API_URL,
-    wallet: participant,
-  });
-  const vote = new Vote(VOTE_ARRAY);
-  pClient.setElectionId(electionId);
-  return pClient.submitVote(vote);
-};
-
 const createElection = (census: OffchainCensus): UnpublishedElection => {
   const endDate = new Date();
   endDate.setHours(endDate.getHours() + 10);
@@ -133,18 +128,12 @@ const createElection = (census: OffchainCensus): UnpublishedElection => {
 async function main() {
   console.log(chalk.yellow('Creating a new quadratic voting process!'));
 
-  const creator = Wallet.createRandom();
-  const client = new VocdoniSDKClient({
-    env: EnvOptions.DEV,
-    api_url: process.env.API_URL,
-    wallet: creator,
-  });
-
   console.log('Creating account...');
+  const { client } = getDefaultClient();
   await client.createAccount();
 
   console.log('Creating census with some random wallets...');
-  const participants: Wallet[] = [...new Array(VOTERS_NUM)].map(() => Wallet.createRandom());
+  const participants: Wallet[] = getRandomVoters(VOTERS_NUM);
   const census = new WeightedCensus();
   census.add(
     participants.map((participant, index) => ({
@@ -178,7 +167,7 @@ async function main() {
             chalk.yellow('VoterId: '),
             chalk.blue(participant.address)
           );
-          return submitVote(participant, electionIdentifier);
+          return submitVote(participant, electionIdentifier, VOTE_ARRAY);
         })
       );
     })

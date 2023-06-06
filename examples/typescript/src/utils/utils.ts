@@ -1,4 +1,25 @@
-import { ElectionStatus, VocdoniSDKClient } from '@vocdoni/sdk';
+import { ElectionStatus, EnvOptions, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import { Wallet } from '@ethersproject/wallet';
+
+export const getRandomVoters = (voters: number) => [...new Array(voters)].map(() => Wallet.createRandom());
+
+export const getDefaultClient = (wallet?: Wallet) => {
+  const creator = wallet ?? Wallet.createRandom();
+  const client = new VocdoniSDKClient({
+    env: EnvOptions.DEV,
+    api_url: process.env.API_URL,
+    wallet: creator,
+  });
+
+  return { creator, client };
+};
+
+export const submitVote = (participant: Wallet, electionId: string, voteArray: (number | bigint)[]) => {
+  const { client: pClient } = getDefaultClient(participant);
+  const vote = new Vote(voteArray);
+  pClient.setElectionId(electionId);
+  return pClient.submitVote(vote);
+};
 
 /**
  * Await to specific election to be ready

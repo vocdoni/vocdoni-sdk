@@ -11,7 +11,9 @@
   },
   "scripts": {
     "start": "ts-node src/index.ts",
-    "quadratic": "ts-node src/quadratic.ts"
+    "quadratic": "ts-node src/quadratic.ts",
+    "approval": "ts-node src/approval.ts",
+    "linearweighted": "ts-node src/linear-weighted.ts"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",
