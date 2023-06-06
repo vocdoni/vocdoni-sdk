@@ -108,7 +108,7 @@ export abstract class ElectionCore extends TransactionCore {
                 return localMax > prev ? localMax : prev;
               }, 0),
             maxVoteOverwrites: election.voteType.maxVoteOverwrites,
-            maxTotalCost: 0, // TODO
+            maxTotalCost: election.voteType.maxTotalCost ?? 0,
             costExponent: election.voteType.costExponent,
           },
           censusOrigin: this.censusOriginFromCensusType(election.census.type),

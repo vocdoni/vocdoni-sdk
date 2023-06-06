@@ -78,6 +78,7 @@ export class UnpublishedElection extends Election {
       costExponent: typeof value?.costExponent === 'number' ? value.costExponent : 10000,
       maxValue: typeof value?.maxValue === 'number' ? value.maxValue : null,
       maxCount: typeof value?.maxCount === 'number' ? value.maxCount : null,
+      maxTotalCost: typeof value?.maxCount === 'number' ? value.maxTotalCost : null,
     };
   }
 
