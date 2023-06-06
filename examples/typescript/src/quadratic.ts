@@ -12,6 +12,7 @@ import {
   WeightedCensus,
 } from '@vocdoni/sdk';
 import { getDefaultClient, getRandomVoters, submitVote, waitForElectionReady } from './utils/utils';
+import { createElection, executeElection } from './utils/election-process';
 
 /**
  * Example of quadratic voting election
@@ -76,7 +77,7 @@ const MAX_VALUE = 0;
 /**
  * Have to be the choices length
  */
-const MAX_COUNT = 0;
+const MAX_COUNT = 4;
 
 /**
  * An example configuration for setting up a quadratic voting system.
@@ -89,20 +90,13 @@ const ELECTION_OPTS: IVoteType = {
   costExponent: COST_EXPONENT,
 };
 
-const createElection = (census: OffchainCensus): UnpublishedElection => {
-  const endDate = new Date();
-  endDate.setHours(endDate.getHours() + 10);
-
-  const election: UnpublishedElection = Election.from({
-    title: 'Quadratic vote election',
-    description: 'What NGO have to receive the credits?',
-    header: 'https://source.unsplash.com/random',
-    streamUri: 'https://source.unsplash.com/random',
-    endDate: endDate.getTime(),
+const _createElection = (census: OffchainCensus): UnpublishedElection => {
+  const election = createElection(
     census,
-    voteType: ELECTION_OPTS,
-  });
-
+    ELECTION_OPTS,
+    'Quadratic vote election',
+    'What NGO have to receive the credits?'
+  );
   election.addQuestion("Select NGO's", 'Quadratic vote example', [
     {
       title: 'Greenpeace',
@@ -126,12 +120,6 @@ const createElection = (census: OffchainCensus): UnpublishedElection => {
 };
 
 async function main() {
-  console.log(chalk.yellow('Creating a new quadratic voting process!'));
-
-  console.log('Creating account...');
-  const { client } = getDefaultClient();
-  await client.createAccount();
-
   console.log('Creating census with some random wallets...');
   const participants: Wallet[] = getRandomVoters(VOTERS_NUM);
   const census = new WeightedCensus();
@@ -143,45 +131,13 @@ async function main() {
   );
 
   console.log('Creating election...');
-  const election = createElection(census);
+  const election = _createElection(census);
 
-  let electionIdentifier: string;
-
-  await client
-    .createElection(election)
-    .then((electionId) => {
-      client.setElectionId(electionId);
-      console.log(chalk.green('Election created!'), chalk.blue(electionId));
-      console.log('Waiting a bit to ensure we can vote...');
-      client.setElectionId(electionId);
-      electionIdentifier = electionId;
-      return waitForElectionReady(client, electionId);
-    })
-    .then(() => {
-      console.log(chalk.green('Election ready!'));
-      console.log('Submitting all votes');
-      return Promise.all(
-        participants.map(async (participant, index) => {
-          console.log(
-            `Submitting vote ${index} with value ${VOTE_ARRAY}`,
-            chalk.yellow('VoterId: '),
-            chalk.blue(participant.address)
-          );
-          return submitVote(participant, electionIdentifier, VOTE_ARRAY);
-        })
-      );
-    })
-    .then(() => {
-      console.log(chalk.green('Votes submitted!'));
-      return client.fetchElection();
-    })
-    .then((election) => {
-      console.log('Election results: ', election.results);
-      console.log(
-        'Expected results: ',
-        VOTE_ARRAY.map((value, i) => [String(value * VOTERS_NUM)])
-      );
-    });
+  await executeElection(election, participants, VOTE_ARRAY);
+  console.log(
+    'Expected results: ',
+    VOTE_ARRAY.map((value, i) => [String(value * VOTERS_NUM)])
+  );
 }
 
 main()

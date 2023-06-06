@@ -1,7 +1,8 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Election, EnvOptions, OffchainCensus, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import { Election, EnvOptions, IVoteType, OffchainCensus, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
 import chalk from 'chalk';
 import { getDefaultClient, getRandomVoters, submitVote, waitForElectionReady } from './utils/utils';
+import { createElection, executeElection } from './utils/election-process';
 
 /**
  * Example for linear weighted election.
@@ -62,25 +63,24 @@ const UNIQUE_CHOICES = true;
  */
 const VOTE_ARRAY = [2, 3, 0, 1, 4];
 
-const createElection = (census: OffchainCensus) => {
-  const endDate = new Date();
-  endDate.setHours(endDate.getHours() + 10);
+/**
+ * An example configuration for setting up a linear weighted system
+ */
+const ELECTION_OPTS: IVoteType = {
+  uniqueChoices: UNIQUE_CHOICES,
+  costFromWeight: false,
+  maxCount: MAX_COUNT,
+  maxValue: MAX_VALUE,
+  maxTotalCost: 0,
+};
 
-  const election = Election.from({
-    title: 'Sort your 5 favorite blockchains ' + endDate.toISOString(),
-    description: 'Sort your 5 favorite blockchains',
-    header: 'https://source.unsplash.com/random',
-    streamUri: 'https://source.unsplash.com/random',
-    endDate: endDate.getTime(),
+const _createElection = (census: OffchainCensus) => {
+  const election = createElection(
     census,
-    voteType: {
-      uniqueChoices: UNIQUE_CHOICES,
-      costFromWeight: false,
-      maxCount: MAX_COUNT,
-      maxValue: MAX_VALUE,
-      maxTotalCost: 0,
-    },
-  });
+    ELECTION_OPTS,
+    'Sort your 5 favorite blockchains',
+    'Sort your 5 favorite blockchains'
+  );
 
   election.addQuestion('Favourite color', '', [
     {
@@ -109,52 +109,15 @@ const createElection = (census: OffchainCensus) => {
 };
 
 async function main() {
-  console.log(chalk.yellow('Creating a new voting process!'));
-
-  console.log('Creating account...');
-  const { client } = getDefaultClient();
-
-  await client.createAccount();
-
   console.log('Creating census with some random wallets...');
   const participants: Wallet[] = getRandomVoters(VOTERS_NUM);
   const census = new PlainCensus();
   census.add(participants.map((participant, index) => participant.address));
 
   console.log('Creating election...');
-  const election = createElection(census);
-  let electionIdentifier: string;
+  const election = _createElection(census);
 
-  await client
-    .createElection(election)
-    .then((electionId) => {
-      client.setElectionId(electionId);
-      console.log(chalk.green('Election created!'), chalk.blue(electionId));
-      console.log('Waiting a bit to ensure we can vote...');
-      electionIdentifier = electionId;
-      return waitForElectionReady(client, electionId);
-    })
-    .then(() => {
-      console.log(chalk.green('Election ready!'));
-      console.log('Submitting all votes');
-      return Promise.all(
-        participants.map(async (participant, index) => {
-          console.log(
-            `Submitting vote ${index} with value ${VOTE_ARRAY}`,
-            chalk.yellow('VoterId: '),
-            chalk.blue(participant.address)
-          );
-          return submitVote(participant, electionIdentifier, VOTE_ARRAY);
-        })
-      );
-    })
-    .then(() => {
-      console.log(chalk.green('Votes submitted!'));
-      return client.fetchElection();
-    })
-    .then((election) => {
-      console.log('Election results: ', election.results);
-    });
+  await executeElection(election, participants, VOTE_ARRAY);
 }
 
 main()
