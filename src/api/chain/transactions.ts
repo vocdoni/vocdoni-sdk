@@ -1,7 +1,7 @@
 import { IChainTxReference } from '../chain';
 
 export interface Tx {
-  payload?:
+  tx?:
     | {
         $case: 'vote';
         vote: VoteEnvelope;
