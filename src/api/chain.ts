@@ -198,6 +198,7 @@ export interface IChainBlockInfoResponse {
   evidence: {
     evidence: Array<string>;
   };
+  hash: string;
   header: {
     appHash: string;
     chainId: string;
