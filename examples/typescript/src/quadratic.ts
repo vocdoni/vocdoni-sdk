@@ -138,6 +138,7 @@ async function main() {
     'Expected results: ',
     VOTE_ARRAY.map((value, i) => [String(value * VOTERS_NUM)])
   );
+  console.log(chalk.yellow('This results only work if the VOTE_ARRAY is the same for all voters'));
 }
 
 main()
