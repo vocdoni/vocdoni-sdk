@@ -1,14 +1,22 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Election, EnvOptions, IElectionType, PlainCensus, UnpublishedElection, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import {
+  Election,
+  EnvOptions,
+  IElectionType,
+  PlainCensus,
+  UnpublishedElection,
+  VocdoniSDKClient,
+  Vote,
+} from '@vocdoni/sdk';
 import chalk from 'chalk';
 
 export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-const createElection = (census: PlainCensus, electionType?: IElectionType) : UnpublishedElection => {
+const createElection = (census: PlainCensus, electionType?: IElectionType): UnpublishedElection => {
   const endDate = new Date();
   endDate.setHours(endDate.getHours() + 10);
 
-  const election : UnpublishedElection = Election.from({
+  const election: UnpublishedElection = Election.from({
     title: 'Election title',
     description: 'Election description',
     header: 'https://source.unsplash.com/random',

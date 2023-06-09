@@ -1,17 +1,7 @@
 import chalk from 'chalk';
 import { Wallet } from '@ethersproject/wallet';
-import {
-  Election,
-  EnvOptions,
-  IChoice,
-  IVoteType,
-  OffchainCensus,
-  UnpublishedElection,
-  VocdoniSDKClient,
-  Vote,
-  WeightedCensus,
-} from '@vocdoni/sdk';
-import { getDefaultClient, getRandomVoters, submitVote, waitForElectionReady } from './utils/utils';
+import { IVoteType, OffchainCensus, UnpublishedElection, WeightedCensus } from '@vocdoni/sdk';
+import { getRandomVoters } from './utils/utils';
 import { createElection, executeElection } from './utils/election-process';
 
 /**
