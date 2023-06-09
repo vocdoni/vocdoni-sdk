@@ -1,11 +1,11 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Election, EnvOptions, IVoteType, OffchainCensus, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import { IVoteType, OffchainCensus, PlainCensus } from '@vocdoni/sdk';
 import chalk from 'chalk';
-import { getDefaultClient, getRandomVoters, submitVote, waitForElectionReady } from './utils/utils';
+import { getRandomVoters } from './utils/utils';
 import { createElection, executeElection } from './utils/election-process';
 
 /**
- * Example for linear weighted election.
+ * Example for ranked election.
  *
  * For example: Sort your 5 favorite blockchains: Bitcoin:0, Ethereum:1, Monero:2, Zcash:3, Polkadot:4.
  *
@@ -82,7 +82,7 @@ const _createElection = (census: OffchainCensus) => {
     'Sort your 5 favorite blockchains'
   );
 
-  election.addQuestion('Favourite color', '', [
+  election.addQuestion('Favourite blockchain', '', [
     {
       title: 'Bitcoin',
       value: 0,
@@ -112,7 +112,7 @@ async function main() {
   console.log('Creating census with some random wallets...');
   const participants: Wallet[] = getRandomVoters(VOTERS_NUM);
   const census = new PlainCensus();
-  census.add(participants.map((participant, index) => participant.address));
+  census.add(participants.map((participant) => participant.address));
 
   console.log('Creating election...');
   const election = _createElection(census);
