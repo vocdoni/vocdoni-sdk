@@ -50,7 +50,7 @@ const MAX_TOTAL_COST = 2;
  * - For choice `2`, all 10 voters assigned it `0` points, and
  * - For choice `3`, all 10 voters assigned it `1` point.
  */
-const VOTE_ARRAY = [0, 1, 1, 1];
+const VOTE_ARRAY = [0, 1, 0, 1];
 
 /**
  * An example configuration for setting up approval voting
@@ -93,6 +93,16 @@ async function main() {
   const { census, participants } = getPlainCensus(VOTERS_NUM);
   const election = _createElection(census);
   await executeElection(election, participants, VOTE_ARRAY);
+
+  // Calculate the results array depending on the parameters above
+  // This example only work if the VOTE_ARRAY is the same for all the voters
+  const result = VOTE_ARRAY.map((vote) => {
+    let arr = Array(MAX_TOTAL_COST).fill('0');
+    arr[vote] = VOTERS_NUM.toString();
+    return arr;
+  });
+  console.log('Expected results: ', result);
+  console.log(chalk.yellow('This results only work if the VOTE_ARRAY is the same for all voters'));
 }
 
 main()

@@ -116,6 +116,15 @@ async function main() {
   const election = _createElection(census);
 
   await executeElection(election, participants, VOTE_ARRAY);
+  // Calculate the results array depending on the parameters above
+  // This example only work if the VOTE_ARRAY is the same for all the voters
+  const result = VOTE_ARRAY.map((vote) => {
+    let arr = Array(MAX_COUNT).fill('0');
+    arr[vote] = VOTERS_NUM.toString();
+    return arr;
+  });
+  console.log('Expected results: ', result);
+  console.log(chalk.yellow('This results only work if the VOTE_ARRAY is the same for all voters'));
 }
 
 main()
