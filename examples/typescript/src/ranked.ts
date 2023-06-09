@@ -1,7 +1,5 @@
-import { Wallet } from '@ethersproject/wallet';
-import { IVoteType, OffchainCensus, PlainCensus } from '@vocdoni/sdk';
+import { IVoteType, OffchainCensus } from '@vocdoni/sdk';
 import chalk from 'chalk';
-import { getRandomVoters } from './utils/utils';
 import { createElection, executeElection, getPlainCensus } from './utils/election-process';
 
 /**
