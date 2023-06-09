@@ -1,7 +1,15 @@
 import chalk from 'chalk';
-import { getDefaultClient, submitVote, waitForElectionReady } from './utils';
+import { getDefaultClient, getRandomVoters, submitVote, waitForElectionReady } from './utils';
 import { Wallet } from '@ethersproject/wallet';
-import { Election, IVoteType, OffchainCensus, UnpublishedElection } from '@vocdoni/sdk';
+import { Election, IVoteType, OffchainCensus, PlainCensus, UnpublishedElection } from '@vocdoni/sdk';
+
+export const getPlainCensus = (voters: number) => {
+  console.log('Creating census with some random wallets...');
+  const participants: Wallet[] = getRandomVoters(voters);
+  const census = new PlainCensus();
+  census.add(participants.map((participant, index) => participant.address));
+  return { census, participants };
+};
 
 export const createElection = (census: OffchainCensus, electionOpts: IVoteType, title: string, description: string) => {
   const endDate = new Date();
@@ -21,7 +29,7 @@ export const createElection = (census: OffchainCensus, electionOpts: IVoteType, 
 };
 
 export const executeElection = async (election: UnpublishedElection, participants: Wallet[], voteArray: number[]) => {
-  console.log(chalk.yellow('Creating a new quadratic voting process!'));
+  console.log(chalk.yellow('Creating a new voting process!'));
 
   console.log('Creating account...');
   const { client } = getDefaultClient();
