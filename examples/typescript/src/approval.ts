@@ -1,8 +1,6 @@
-import { Wallet } from '@ethersproject/wallet';
-import { Election, EnvOptions, IVoteType, OffchainCensus, PlainCensus, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import { IVoteType, OffchainCensus } from '@vocdoni/sdk';
 import chalk from 'chalk';
-import { getDefaultClient, getRandomVoters, submitVote, waitForElectionReady } from './utils/utils';
-import { createElection, executeElection } from './utils/election-process';
+import { createElection, executeElection, getPlainCensus } from './utils/election-process';
 
 /**
  * Example for Approval voting
@@ -91,14 +89,9 @@ const _createElection = (census: OffchainCensus) => {
 };
 
 async function main() {
-  console.log('Creating census with some random wallets...');
-  const participants: Wallet[] = getRandomVoters(VOTERS_NUM);
-  const census = new PlainCensus();
-  census.add(participants.map((participant, index) => participant.address));
-
   console.log('Creating election...');
+  const { census, participants } = getPlainCensus(VOTERS_NUM);
   const election = _createElection(census);
-
   await executeElection(election, participants, VOTE_ARRAY);
 }
 

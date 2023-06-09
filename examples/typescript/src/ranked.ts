@@ -2,7 +2,7 @@ import { Wallet } from '@ethersproject/wallet';
 import { IVoteType, OffchainCensus, PlainCensus } from '@vocdoni/sdk';
 import chalk from 'chalk';
 import { getRandomVoters } from './utils/utils';
-import { createElection, executeElection } from './utils/election-process';
+import { createElection, executeElection, getPlainCensus } from './utils/election-process';
 
 /**
  * Example for ranked election.
@@ -110,9 +110,7 @@ const _createElection = (census: OffchainCensus) => {
 
 async function main() {
   console.log('Creating census with some random wallets...');
-  const participants: Wallet[] = getRandomVoters(VOTERS_NUM);
-  const census = new PlainCensus();
-  census.add(participants.map((participant) => participant.address));
+  const { census, participants } = getPlainCensus(VOTERS_NUM);
 
   console.log('Creating election...');
   const election = _createElection(census);
