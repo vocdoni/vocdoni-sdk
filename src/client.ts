@@ -414,6 +414,9 @@ export class VocdoniSDKClient {
             maxVoteOverwrites: electionInfo.tallyMode.maxVoteOverwrites,
             costFromWeight: electionInfo.voteMode.costFromWeight,
             costExponent: electionInfo.tallyMode.costExponent,
+            maxCount: electionInfo.tallyMode.maxCount,
+            maxValue: electionInfo.tallyMode.maxValue,
+            maxTotalCost: electionInfo.tallyMode.maxTotalCost,
           },
           questions: electionInfo.metadata?.questions.map((question, qIndex) => ({
             title: question.title,

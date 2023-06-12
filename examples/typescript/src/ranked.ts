@@ -64,7 +64,7 @@ const VOTE_ARRAY = [2, 3, 0, 1, 4];
 /**
  * An example configuration for setting up a linear weighted system
  */
-const ELECTION_OPTS: IVoteType = {
+const VOTE_OPTIONS: IVoteType = {
   uniqueChoices: UNIQUE_CHOICES,
   costFromWeight: false,
   maxCount: MAX_COUNT,
@@ -75,7 +75,7 @@ const ELECTION_OPTS: IVoteType = {
 const _createElection = (census: OffchainCensus) => {
   const election = createElection(
     census,
-    ELECTION_OPTS,
+    VOTE_OPTIONS,
     'Sort your 5 favorite blockchains',
     'Sort your 5 favorite blockchains'
   );
