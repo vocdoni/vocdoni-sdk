@@ -11,21 +11,19 @@ export const getPlainCensus = (voters: number) => {
   return { census, participants };
 };
 
-export const createElection = (census: OffchainCensus, electionOpts: IVoteType, title: string, description: string) => {
+export const createElection = (census: OffchainCensus, voteOpts: IVoteType, title: string, description: string) => {
   const endDate = new Date();
   endDate.setHours(endDate.getHours() + 10);
 
-  const election: UnpublishedElection = Election.from({
+  return Election.from({
     title: title + ' ' + endDate.toISOString(),
     description: description,
     header: 'https://source.unsplash.com/random',
     streamUri: 'https://source.unsplash.com/random',
     endDate: endDate.getTime(),
     census,
-    voteType: electionOpts,
+    voteType: voteOpts,
   });
-
-  return election;
 };
 
 export const executeElection = async (election: UnpublishedElection, participants: Wallet[], voteArray: number[]) => {

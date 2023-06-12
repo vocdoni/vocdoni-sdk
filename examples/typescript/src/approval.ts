@@ -55,7 +55,7 @@ const VOTE_ARRAY = [0, 1, 0, 1];
 /**
  * An example configuration for setting up approval voting
  */
-const ELECTION_OPTS: IVoteType = {
+const VOTE_OPTIONS: IVoteType = {
   uniqueChoices: false,
   costFromWeight: false,
   maxCount: MAX_COUNT,
@@ -64,7 +64,7 @@ const ELECTION_OPTS: IVoteType = {
 };
 
 const _createElection = (census: OffchainCensus) => {
-  const election = createElection(census, ELECTION_OPTS, 'Election title: Approval ', 'Election description: Approval');
+  const election = createElection(census, VOTE_OPTIONS, 'Election title: Approval ', 'Election description: Approval');
 
   election.addQuestion('Favourite color', '', [
     {

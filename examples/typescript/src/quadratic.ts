@@ -72,7 +72,7 @@ const MAX_COUNT = 4;
 /**
  * An example configuration for setting up a quadratic voting system.
  */
-const ELECTION_OPTS: IVoteType = {
+const VOTE_OPTIONS: IVoteType = {
   maxValue: MAX_VALUE,
   maxCount: MAX_COUNT,
   uniqueChoices: false,
@@ -83,7 +83,7 @@ const ELECTION_OPTS: IVoteType = {
 const _createElection = (census: OffchainCensus): UnpublishedElection => {
   const election = createElection(
     census,
-    ELECTION_OPTS,
+    VOTE_OPTIONS,
     'Quadratic vote election',
     'What NGO have to receive the credits?'
   );
