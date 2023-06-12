@@ -6,7 +6,7 @@
   "type": "commonjs",
   "license": "MIT",
   "dependencies": {
-    "@vocdoni/sdk": "0.0.3-alpha"
+    "@vocdoni/sdk": "latest"
   },
   "scripts": {
     "check:import": "node ./src/check.js"

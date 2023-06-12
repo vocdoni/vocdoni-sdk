@@ -6,7 +6,7 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "@vocdoni/sdk": "0.0.3-alpha"
+    "@vocdoni/sdk": "latest"
   },
   "scripts": {
     "esm": "node --experimental-specifier-resolution=node --experimental-modules --no-warnings",
