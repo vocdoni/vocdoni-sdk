@@ -246,7 +246,7 @@ Of course, you will also need some questions in this voting process, how would p
 vote otherwise?
 
 ~~~ts
-election.addQuestion('Ain\'t this process awesome?', [
+election.addQuestion('Ain\'t this process awesome?', 'Question description', [
   {
     title: 'Yes',
     value: 0,
@@ -255,7 +255,7 @@ election.addQuestion('Ain\'t this process awesome?', [
     title: 'No',
     value: 1,
   },
-]).addQuestion('How old are you?', [
+]).addQuestion('How old are you?', 'Question description', [
   {
     title: 'Child (0-9 yo)',
     value: 0,
