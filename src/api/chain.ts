@@ -16,6 +16,7 @@ enum ChainAPIMethods {
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks',
   BLOCK_INFO_BY_HASH = '/chain/blocks/hash',
+  DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
 }
 
 export interface IChainGetInfoResponse {
@@ -231,6 +232,10 @@ export interface IChainBlockInfoResponse {
   };
 }
 
+interface IBlockToDateResponse {
+  height: number;
+}
+
 export interface IChainValidator {
   /**
    * Current power of the validator
@@ -426,6 +431,18 @@ export abstract class ChainAPI extends API {
   public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
     return axios
       .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_BY_HASH + '/' + hash)
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * By a given date give the estimate block for the current Vochain.
+   * @param url API URL
+   * @param timeStamp unix format timestamp
+   */
+  public static dateToBlock(url: string, timeStamp: number): Promise<IBlockToDateResponse> {
+    return axios
+      .get<IBlockToDateResponse>(url + ChainAPIMethods.DATE_TO_BLOCK.replace('{timestamp}', String(timeStamp)))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
