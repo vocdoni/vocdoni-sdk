@@ -271,7 +271,7 @@ export interface IElectionInfoResponse {
   metadata: ElectionMetadata;
 }
 
-interface IEncryptionPublicKey {
+export interface IEncryptionKey {
   /**
    * The index of the encryption key
    */
@@ -283,11 +283,9 @@ interface IEncryptionPublicKey {
   key: string;
 }
 
-interface IElectionKeysResponse {
-  /**
-   * The hash of the transaction
-   */
-  publicKeys: IEncryptionPublicKey[];
+export interface IElectionKeysResponse {
+  publicKeys: IEncryptionKey[];
+  privateKeys: IEncryptionKey[];
 }
 
 interface IElectionVotesCountResponse {
@@ -409,12 +407,12 @@ export abstract class ElectionAPI extends API {
    *
    * @param {string} url API endpoint URL
    * @param {string} electionId The identifier of the election
-   * @returns {Promise<Array<IEncryptionPublicKey>>}
+   * @returns {Promise<IElectionKeysResponse>}
    */
-  public static keys(url: string, electionId: string): Promise<Array<IEncryptionPublicKey>> {
+  public static keys(url: string, electionId: string): Promise<IElectionKeysResponse> {
     return axios
       .get<IElectionKeysResponse>(url + ElectionAPIMethods.KEYS.replace('{id}', electionId))
-      .then((response) => response.data.publicKeys)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
