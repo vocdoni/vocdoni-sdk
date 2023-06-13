@@ -878,9 +878,11 @@ export class VocdoniSDKClient {
 
     let voteTx;
     if (election?.electionType.secretUntilTheEnd) {
-      voteTx = ElectionAPI.keys(this.url, election.id).then((encryptionPubKeys) =>
+      voteTx = ElectionAPI.keys(this.url, election.id).then((encryptionKeys) =>
         Promise.all([
-          VoteCore.generateVoteTransaction(election, censusProof, vote, { encryptionPubKeys }),
+          VoteCore.generateVoteTransaction(election, censusProof, vote, {
+            encryptionPubKeys: encryptionKeys.publicKeys,
+          }),
           this.fetchChainId(),
         ])
       );
