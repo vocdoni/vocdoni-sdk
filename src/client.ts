@@ -436,6 +436,10 @@ export class VocdoniSDKClient {
       .then((election) => {
         this.election = election;
         return election;
+      })
+      .catch((err) => {
+        err.electionId = electionInfo.electionId;
+        throw err;
       });
   }
 
@@ -452,7 +456,9 @@ export class VocdoniSDKClient {
         allSettled(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
       )
       .then((elections) =>
-        elections.map((election) => (election.status === 'fulfilled' ? election.value : new InvalidElection()))
+        elections.map((election) =>
+          election.status === 'fulfilled' ? election.value : new InvalidElection({ id: election?.reason?.electionId })
+        )
       );
   }
 
