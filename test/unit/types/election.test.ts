@@ -102,8 +102,9 @@ describe('Election tests', () => {
     }).toThrow('Maximum census size cannot be zero or negative');
   });
   it('should be possible to create an invalid election', () => {
-    const election = new InvalidElection();
+    const election = new InvalidElection({ id: '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' });
     expect(election).toBeInstanceOf(InvalidElection);
+    expect(election.id).toEqual('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
     expect(election.isValid).toBeFalsy();
   });
 });
