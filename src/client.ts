@@ -27,6 +27,7 @@ import { delay } from './util/common';
 import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
+import { allSettled } from './util/promise';
 
 export type ChainData = {
   chainId: string;
@@ -445,9 +446,13 @@ export class VocdoniSDKClient {
       electionList = AccountAPI.electionsList(this.url, account ?? (await this.wallet.getAddress()), page);
     }
 
-    return electionList.then((elections) =>
-      Promise.all(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
-    );
+    return electionList
+      .then((elections) =>
+        allSettled(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
+      )
+      .then((elections) =>
+        elections.filter((election) => election.status === 'fulfilled').map((election) => election.value)
+      );
   }
 
   /**
