@@ -1,4 +1,4 @@
-import { CensusType, Election, UnpublishedElection, PublishedCensus } from '../../../src';
+import { CensusType, Election, UnpublishedElection, PublishedCensus, InvalidElection } from '../../../src';
 
 const validCensusId = '43cbda11b9d1a322c03eac325eb8a7b72779b46a76f8a727cff94b539ed9b903';
 const validCensusURI = 'ipfs://QmeowUvr4Q9SMBSB942QVzFAqQQYukbjLYXxwANH3oTxbf';
@@ -100,5 +100,10 @@ describe('Election tests', () => {
     expect(() => {
       Election.from(electionData);
     }).toThrow('Maximum census size cannot be zero or negative');
+  });
+  it('should be possible to create an invalid election', () => {
+    const election = new InvalidElection();
+    expect(election).toBeInstanceOf(InvalidElection);
+    expect(election.isValid).toBeFalsy();
   });
 });

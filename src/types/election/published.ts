@@ -180,4 +180,8 @@ export class PublishedElection extends Election {
   get raw(): object {
     return this._raw;
   }
+
+  get isValid(): boolean {
+    return true;
+  }
 }

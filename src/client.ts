@@ -28,6 +28,7 @@ import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS }
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
+import { InvalidElection } from './types/election/invalid';
 
 export type ChainData = {
   chainId: string;
@@ -438,7 +439,7 @@ export class VocdoniSDKClient {
       });
   }
 
-  async fetchElections(account?: string, page: number = 0): Promise<Array<PublishedElection>> {
+  async fetchElections(account?: string, page: number = 0): Promise<Array<PublishedElection | InvalidElection>> {
     let electionList;
     if (!this.wallet && !account) {
       electionList = ElectionAPI.electionsList(this.url, page);
@@ -451,7 +452,7 @@ export class VocdoniSDKClient {
         allSettled(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
       )
       .then((elections) =>
-        elections.filter((election) => election.status === 'fulfilled').map((election) => election.value)
+        elections.map((election) => (election.status === 'fulfilled' ? election.value : new InvalidElection()))
       );
   }
 
