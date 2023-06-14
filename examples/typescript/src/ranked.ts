@@ -7,7 +7,7 @@ import { createElection, executeElection, getPlainCensus } from './utils/electio
  *
  * For example: Sort your 5 favorite blockchains: Bitcoin:0, Ethereum:1, Monero:2, Zcash:3, Polkadot:4.
  *
- * Your first option gets 5 points,... the last 0 points.
+ * Your first option gets 4 points,... the last 0 points.
  *
  * https://developer.vocdoni.io/protocol/ballot#linear-weighted-choice
  */

@@ -5,7 +5,7 @@ import { createElection, executeElection, getPlainCensus } from './utils/electio
 /**
  * Example for Approval voting
  *
- * Example: select your three favourite colors from a list of 4.
+ * Example: select your two favourite colors from a list of 4.
  *
  * https://developer.vocdoni.io/protocol/ballot#multiple-choice
  */
