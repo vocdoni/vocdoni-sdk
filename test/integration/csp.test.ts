@@ -56,7 +56,6 @@ describe('CSP tests', () => {
         return Promise.all(
           participants.map(async (participant, index) => {
             const sdkParams = clientParams(participant);
-            sdkParams.csp_url = CSP_URL;
             const pClient = new VocdoniSDKClient(sdkParams);
             pClient.setElectionId(electionIdentifier);
             const step0 = (await pClient.cspStep(0, ['Name test'])) as ICspIntermediateStepResponse;

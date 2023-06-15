@@ -11,14 +11,15 @@ import {
   Account,
   AllElectionStatus,
   Census,
-  TokenCensus,
   CensusType,
   CspVote,
   ElectionStatus,
   ElectionStatusReady,
+  InvalidElection,
   PlainCensus,
   PublishedCensus,
   PublishedElection,
+  TokenCensus,
   UnpublishedElection,
   Vote,
   WeightedCensus,
@@ -28,7 +29,6 @@ import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS }
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
-import { InvalidElection } from './types/election/invalid';
 
 export type ChainData = {
   chainId: string;
@@ -147,7 +147,6 @@ export type ClientOptions = {
   wallet?: Wallet | Signer;
   electionId?: string;
   faucet?: FaucetOptions;
-  csp_url?: string;
   tx_wait?: TxWaitOptions;
 };
 
@@ -169,7 +168,6 @@ export class VocdoniSDKClient {
   public faucet: FaucetOptions | null;
   public tx_wait: TxWaitOptions | null;
 
-  public csp_url: string | null;
   private cspInformation;
 
   /**
@@ -190,7 +188,6 @@ export class VocdoniSDKClient {
       auth_token: opts.faucet?.auth_token ?? FAUCET_AUTH_TOKEN[opts.env] ?? undefined,
       token_limit: opts.faucet?.token_limit,
     };
-    this.csp_url = opts.csp_url ?? null;
     this.tx_wait = {
       retry_time: opts.tx_wait?.retry_time ?? TX_WAIT_OPTIONS.retry_time,
       attempts: opts.tx_wait?.attempts ?? TX_WAIT_OPTIONS.attempts,
@@ -207,53 +204,56 @@ export class VocdoniSDKClient {
     this.electionId = electionId;
   }
 
-  async cspInfo() {
-    if (!this.csp_url) {
-      throw new Error('Csp URL not set');
+  async cspUrl(): Promise<string> {
+    invariant(this.electionId, 'No election id set');
+    invariant(!this.election || this.election.census.type === CensusType.CSP, 'Election set is not from CSP type');
+
+    if (!this.election) {
+      await this.fetchElection();
     }
 
-    this.cspInformation = await CspAPI.info(this.csp_url);
+    return this.election.census.censusURI;
+  }
+
+  async cspInfo() {
+    invariant(await this.cspUrl(), 'No CSP URL set');
+
+    this.cspInformation = await this.cspUrl().then((cspUrl) => CspAPI.info(cspUrl));
     return this.cspInformation;
   }
 
   async cspStep(stepNumber: number, data: any[], authToken?: string) {
-    if (!this.electionId || !this.csp_url) {
-      throw new Error('Csp options not set');
-    }
+    invariant(await this.cspUrl(), 'No CSP URL set');
     if (!this.cspInformation) {
       await this.cspInfo();
     }
 
-    return CspAPI.step(
-      this.csp_url,
-      this.electionId,
-      this.cspInformation.signatureType[0],
-      this.cspInformation.authType,
-      stepNumber,
-      data,
-      authToken
+    return this.cspUrl().then((cspUrl) =>
+      CspAPI.step(
+        cspUrl,
+        this.electionId,
+        this.cspInformation.signatureType[0],
+        this.cspInformation.authType,
+        stepNumber,
+        data,
+        authToken
+      )
     );
   }
 
   async cspSign(address: string, token: string) {
-    if (!this.electionId || !this.csp_url) {
-      throw new Error('Csp options not set');
-    }
+    invariant(await this.cspUrl(), 'No CSP URL set');
     if (!this.cspInformation) {
       await this.cspInfo();
     }
 
     const { hexBlinded: blindedPayload, userSecretData } = getBlindedPayload(this.electionId, token, address);
 
-    const signature = await CspAPI.sign(
-      this.csp_url,
-      this.electionId,
-      this.cspInformation.signatureType[0],
-      blindedPayload,
-      token
-    );
-
-    return CensusBlind.unblind(signature.signature, userSecretData);
+    return this.cspUrl()
+      .then((cspUrl) =>
+        CspAPI.sign(cspUrl, this.electionId, this.cspInformation.signatureType[0], blindedPayload, token)
+      )
+      .then((signature) => CensusBlind.unblind(signature.signature, userSecretData));
   }
 
   cspVote(vote: Vote, signature: string): CspVote {
