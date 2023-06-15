@@ -502,8 +502,7 @@ The complete flow is shown here:
 const client = new VocdoniSDKClient({
   env: EnvOptions.DEV,
   wallet: signer, // the signer used (Metamask, Walletconnect)
-  electionId: '934234...', // The election identifier
-  csp_url: CSP_URL // The CSP url defined when creating an election
+  electionId: '934234...', // The election identifier (has to be a CSP configured election)
 })
 
 // Auth steps for the CSP (can vary of the type of the CSP)
