@@ -18,6 +18,7 @@ enum ChainAPIMethods {
   BLOCK_INFO_BY_HASH = '/chain/blocks/hash',
   BLOCK_TRANSACTIONS = '/chain/blocks/{height}/transactions/page/{page}',
   DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
+  BLOCK_TO_DATE = '/chain/blockToDate/{height}',
 }
 
 export interface IChainGetInfoResponse {
@@ -239,8 +240,12 @@ export interface IBlockTransactionsResponse {
   transactions: Array<IChainTxReference>;
 }
 
-interface IBlockToDateResponse {
+interface IDateToBlockResponse {
   height: number;
+}
+
+interface IBlockToDateResponse {
+  date: string;
 }
 
 export interface IChainValidator {
@@ -463,10 +468,24 @@ export abstract class ChainAPI extends API {
    * By a given date give the estimate block for the current Vochain.
    * @param url API URL
    * @param timeStamp unix format timestamp
+   * @returns {Promise<IDateToBlockResponse>}
    */
-  public static dateToBlock(url: string, timeStamp: number): Promise<IBlockToDateResponse> {
+  public static dateToBlock(url: string, timeStamp: number): Promise<IDateToBlockResponse> {
     return axios
-      .get<IBlockToDateResponse>(url + ChainAPIMethods.DATE_TO_BLOCK.replace('{timestamp}', String(timeStamp)))
+      .get<IDateToBlockResponse>(url + ChainAPIMethods.DATE_TO_BLOCK.replace('{timestamp}', String(timeStamp)))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Return approximate date by a given block height.
+   *
+   * @param url API URL
+   * @param height block height to calculate approximate timestamp
+   */
+  public static blockToDate(url: string, height: number): Promise<IBlockToDateResponse> {
+    return axios
+      .get<IBlockToDateResponse>(url + ChainAPIMethods.BLOCK_TO_DATE.replace('{height}', String(height)))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
