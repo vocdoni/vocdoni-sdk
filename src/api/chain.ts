@@ -16,6 +16,7 @@ enum ChainAPIMethods {
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks',
   BLOCK_INFO_BY_HASH = '/chain/blocks/hash',
+  BLOCK_TRANSACTIONS = '/chain/blocks/{height}/transactions/page/{page}',
   DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
 }
 
@@ -232,6 +233,12 @@ export interface IChainBlockInfoResponse {
   };
 }
 
+export interface IBlockTransactionsResponse {
+  blockNumber: number;
+  transactionCount: number;
+  transactions: Array<IChainTxReference>;
+}
+
 interface IBlockToDateResponse {
   height: number;
 }
@@ -431,6 +438,23 @@ export abstract class ChainAPI extends API {
   public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
     return axios
       .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_BY_HASH + '/' + hash)
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Get paginated list of transactions registered on specific block
+   *
+   * @param {string} url API endpoint URL
+   * @param {number} height block height
+   * @param {number} page the page number
+   * @returns {Promise<IBlockTransactionsResponse>}
+   */
+  public static blockTransactions(url: string, height: number, page: number): Promise<IBlockTransactionsResponse> {
+    return axios
+      .get<IBlockTransactionsResponse>(
+        url + ChainAPIMethods.BLOCK_TRANSACTIONS.replace('{height}', String(height)).replace('{page}', String(page))
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }
