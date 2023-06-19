@@ -1,4 +1,7 @@
 import { toArrayBuffer, fromArrayBuffer } from './hex';
+import { sha256 } from '@ethersproject/sha2';
+import { Buffer } from 'buffer';
+import { strip0x } from '../common';
 
 export function toBigInt(str: string): bigint {
   const strBuff = toArrayBuffer(str);
@@ -8,8 +11,8 @@ export function toBigInt(str: string): bigint {
 
 export async function toHash(input: string): Promise<string[]> {
   const inputBuff = toArrayBuffer(input);
-  const inputHashArray = await crypto.subtle.digest('SHA-256', inputBuff);
-  const inputHashBuff = new Uint8Array(inputHashArray);
+  const inputHash = sha256(inputBuff);
+  const inputHashBuff = new Uint8Array(Buffer.from(strip0x(inputHash), 'hex'));
 
   const splitArboInput = [
     fromArrayBuffer(inputHashBuff.subarray(0, 16).reverse()),
