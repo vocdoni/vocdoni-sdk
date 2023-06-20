@@ -10,10 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New `InvalidElection` type for invalid elections.
+- New `estimateElectionCost` function in client for estimating election cost.
 
 ### Changed
 
 - `fetchElections` returns new `InvalidElection` type instead of throwing.
+
+### Fixed
+
+- CSP elections use the URI and public key from the election census defined at creation.
 
 ## [0.0.14] - 2023-06-12
 

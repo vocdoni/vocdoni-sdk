@@ -1,4 +1,4 @@
-import { AccountData, ChainData } from '../client';
+import { AccountData, ChainData, ChainCosts } from '../client';
 import {
   CensusOrigin,
   NewProcessTx,
@@ -135,6 +135,55 @@ export abstract class ElectionCore extends TransactionCore {
       default:
         throw new Error('Census origin not defined by the census type');
     }
+  }
+
+  public static estimateElectionCost(election: UnpublishedElection, costs: ChainCosts, chainData: ChainData): number {
+    if (!election.maxCensusSize) {
+      throw new Error('Could not estimate cost because maxCensusSize is not set');
+    }
+
+    const electionBlocks =
+      ElectionCore.estimateBlockAtDateTime(election.endDate, chainData) -
+      ElectionCore.estimateBlockAtDateTime(election.startDate ?? new Date(), chainData);
+
+    if (electionBlocks <= 0) {
+      throw new Error('Could not estimate cost because of negative election blocks size');
+    }
+
+    const params = {
+      maxCensusSize: election.maxCensusSize,
+      electionBlocks: electionBlocks,
+      encryptedVotes: election.electionType.secretUntilTheEnd,
+      anonymousVotes: election.electionType.anonymous,
+      maxVoteOverwrite: election.voteType.maxVoteOverwrites,
+    };
+
+    if (costs.disable) {
+      return 0;
+    }
+
+    let sizePriceFactor = costs.factors.k1 * params.maxCensusSize * (1 - 1 / costs.capacity);
+    if (params.maxCensusSize >= costs.factors.k7) {
+      sizePriceFactor *= 1 + costs.factors.k6 * (params.maxCensusSize - costs.factors.k7);
+    }
+    let sizePrice = sizePriceFactor;
+
+    let durationPrice = costs.factors.k2 * params.electionBlocks * (1 + params.maxCensusSize / costs.capacity);
+
+    let encryptedPrice = 0;
+    if (params.encryptedVotes) {
+      encryptedPrice = costs.factors.k3 * params.maxCensusSize;
+    }
+
+    let anonymousPrice = 0;
+    if (params.anonymousVotes) {
+      anonymousPrice = costs.factors.k4;
+    }
+
+    let overwritePriceFactor = (costs.factors.k5 * params.maxVoteOverwrite) / costs.capacity;
+    let overwritePrice = overwritePriceFactor * params.maxCensusSize;
+
+    return costs.basePrice + sizePrice + durationPrice + encryptedPrice + anonymousPrice + overwritePrice;
   }
 
   /**

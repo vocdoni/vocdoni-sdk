@@ -1,5 +1,14 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Election, ElectionStatus, PlainCensus, VocdoniSDKClient, Vote, WeightedCensus } from '../../src';
+import {
+  CensusType,
+  Election,
+  ElectionStatus,
+  PlainCensus,
+  PublishedCensus,
+  VocdoniSDKClient,
+  Vote,
+  WeightedCensus,
+} from '../../src';
 // @ts-ignore
 import { clientParams } from './util/client.params';
 // @ts-ignore
@@ -704,4 +713,39 @@ describe('Election integration tests', () => {
         expect(election.results).toEqual(EXPECTED_RESULTS);
       });
   }, 285000);
+  it('should estimate the correct price for elections', async () => {
+    const census = new PublishedCensus(
+      '43cbda11b9d1a322c03eac325eb8a7b72779b46a76f8a727cff94b539ed9b903',
+      'ipfs://QmeowUvr4Q9SMBSB942QVzFAqQQYukbjLYXxwANH3oTxbf',
+      CensusType.WEIGHTED
+    );
+    const election = createElection(census);
+
+    await expect(client.estimateElectionCost(election)).rejects.toThrow(
+      'Could not estimate cost because maxCensusSize is not set'
+    );
+
+    election.maxCensusSize = 100;
+    await expect(client.estimateElectionCost(election)).resolves.toBe(5);
+
+    election.maxCensusSize = 10000;
+    await expect(client.estimateElectionCost(election)).resolves.toBe(182);
+
+    election.voteType.maxVoteOverwrites = 10;
+    await expect(client.estimateElectionCost(election)).resolves.toBe(197);
+
+    election.electionType.anonymous = true;
+    await expect(client.estimateElectionCost(election)).resolves.toBe(207);
+
+    election.electionType.secretUntilTheEnd = true;
+    await expect(client.estimateElectionCost(election)).resolves.toBe(257);
+
+    election.endDate = new Date(election.endDate.setMonth(election.endDate.getMonth() + 2));
+    await expect(client.estimateElectionCost(election)).resolves.toBe(592);
+
+    election.endDate = new Date();
+    await expect(client.estimateElectionCost(election)).rejects.toThrow(
+      'Could not estimate cost because of negative election blocks size'
+    );
+  }, 15000);
 });
