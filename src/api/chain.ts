@@ -6,6 +6,7 @@ export * from './chain/';
 
 enum ChainAPIMethods {
   INFO = '/chain/info',
+  COSTS = '/chain/info/electionPriceFactors',
   TX_INFO = '/chain/transactions/reference',
   TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
   SUBMIT_TX = '/chain/transactions',
@@ -86,6 +87,36 @@ export interface IChainGetInfoResponse {
    * The maximum size of a census.
    */
   maxCensusSize: number;
+}
+
+export interface IChainGetCostsResponse {
+  /**
+   * The base price.
+   */
+  basePrice: number;
+
+  /**
+   * The capacity of the chain.
+   */
+  capacity: number;
+
+  /**
+   * The factors.
+   */
+  factors: {
+    k1: number;
+    k2: number;
+    k3: number;
+    k4: number;
+    k5: number;
+    k6: number;
+    k7: number;
+  };
+
+  /**
+   * If it's disabled or not.
+   */
+  disable: boolean;
 }
 
 export enum TransactionType {
@@ -294,6 +325,19 @@ export abstract class ChainAPI extends API {
   public static info(url: string): Promise<IChainGetInfoResponse> {
     return axios
       .get<IChainGetInfoResponse>(url + ChainAPIMethods.INFO)
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches info about the blockchain costs.
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IChainGetCostsResponse>}
+   */
+  public static costs(url: string): Promise<IChainGetCostsResponse> {
+    return axios
+      .get<IChainGetCostsResponse>(url + ChainAPIMethods.COSTS)
       .then((response) => response.data)
       .catch(this.isApiError);
   }

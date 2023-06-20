@@ -3,7 +3,17 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI, CensusAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI, WalletAPI } from './api';
+import {
+  AccountAPI,
+  CensusAPI,
+  ChainAPI,
+  ElectionAPI,
+  FaucetAPI,
+  FileAPI,
+  IChainGetCostsResponse,
+  VoteAPI,
+  WalletAPI,
+} from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
@@ -131,6 +141,8 @@ type TxWaitOptions = {
   attempts?: number;
 };
 
+export type ChainCosts = IChainGetCostsResponse;
+
 /**
  * Optional VocdoniSDKClient arguments
  *
@@ -157,6 +169,7 @@ export type ClientOptions = {
  */
 export class VocdoniSDKClient {
   private chainData: ChainData | null = null;
+  private chainCosts: ChainCosts | null = null;
   private accountData: AccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
   private authToken: AccountToken | null = null;
@@ -273,6 +286,22 @@ export class VocdoniSDKClient {
     return ChainAPI.info(this.url).then((chainData) => {
       this.chainData = chainData;
       return chainData.chainId;
+    });
+  }
+
+  /**
+   * Fetches blockchain costs information if needed.
+   *
+   * @returns {Promise<ChainCosts>}
+   */
+  fetchChainCosts(): Promise<ChainCosts> {
+    if (this.chainCosts) {
+      return Promise.resolve(this.chainCosts);
+    }
+
+    return ChainAPI.costs(this.url).then((chainCosts) => {
+      this.chainCosts = chainCosts;
+      return chainCosts;
     });
   }
 
@@ -906,6 +935,17 @@ export class VocdoniSDKClient {
     const wallet = Wallet.createRandom();
     this.wallet = wallet;
     return wallet.privateKey;
+  }
+
+  /**
+   * Estimates the election cost
+   *
+   * @returns {Promise<number>} The cost in tokens.
+   */
+  public estimateElectionCost(election: UnpublishedElection): Promise<number> {
+    return Promise.all([this.fetchChainCosts(), this.fetchChainId()])
+      .then(() => ElectionCore.estimateElectionCost(election, this.chainCosts, this.chainData))
+      .then((cost) => Math.trunc(cost));
   }
 
   /**
