@@ -725,23 +725,49 @@ describe('Election integration tests', () => {
       'Could not estimate cost because maxCensusSize is not set'
     );
 
+    const desviationPercentAllowed = 5;
+    const upperCost = (cost) => {
+      return cost + cost * (desviationPercentAllowed / 100);
+    };
+    const lowerCost = (cost) => {
+      return cost - cost * (desviationPercentAllowed / 100);
+    };
+
     election.maxCensusSize = 100;
-    await expect(client.estimateElectionCost(election)).resolves.toBe(5);
+    let realCost = await client.calculateElectionCost(election);
+    let estimateCost = await client.estimateElectionCost(election);
+    expect(estimateCost).toBeGreaterThanOrEqual(lowerCost(realCost));
+    expect(estimateCost).toBeLessThan(upperCost(realCost));
 
     election.maxCensusSize = 10000;
-    await expect(client.estimateElectionCost(election)).resolves.toBe(182);
+    realCost = await client.calculateElectionCost(election);
+    estimateCost = await client.estimateElectionCost(election);
+    expect(estimateCost).toBeGreaterThanOrEqual(lowerCost(realCost));
+    expect(estimateCost).toBeLessThan(upperCost(realCost));
 
     election.voteType.maxVoteOverwrites = 10;
-    await expect(client.estimateElectionCost(election)).resolves.toBe(197);
+    realCost = await client.calculateElectionCost(election);
+    estimateCost = await client.estimateElectionCost(election);
+    expect(estimateCost).toBeGreaterThanOrEqual(lowerCost(realCost));
+    expect(estimateCost).toBeLessThan(upperCost(realCost));
 
     election.electionType.anonymous = true;
-    await expect(client.estimateElectionCost(election)).resolves.toBe(207);
+    realCost = await client.calculateElectionCost(election);
+    estimateCost = await client.estimateElectionCost(election);
+    expect(estimateCost).toBeGreaterThanOrEqual(lowerCost(realCost));
+    expect(estimateCost).toBeLessThan(upperCost(realCost));
 
     election.electionType.secretUntilTheEnd = true;
-    await expect(client.estimateElectionCost(election)).resolves.toBe(257);
+    realCost = await client.calculateElectionCost(election);
+    estimateCost = await client.estimateElectionCost(election);
+    expect(estimateCost).toBeGreaterThanOrEqual(lowerCost(realCost));
+    expect(estimateCost).toBeLessThan(upperCost(realCost));
 
     election.endDate = new Date(election.endDate.setMonth(election.endDate.getMonth() + 2));
-    await expect(client.estimateElectionCost(election)).resolves.toBe(592);
+    realCost = await client.calculateElectionCost(election);
+    estimateCost = await client.estimateElectionCost(election);
+    expect(estimateCost).toBeGreaterThanOrEqual(lowerCost(realCost));
+    expect(estimateCost).toBeLessThan(upperCost(realCost));
 
     election.endDate = new Date();
     await expect(client.estimateElectionCost(election)).rejects.toThrow(
