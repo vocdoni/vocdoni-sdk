@@ -163,10 +163,6 @@ export abstract class ElectionCore extends TransactionCore {
       maxVoteOverwrite: election.voteType.maxVoteOverwrites,
     };
 
-    if (costs.disable) {
-      return 0;
-    }
-
     let sizePriceFactor = costs.factors.k1 * params.maxCensusSize * (1 - 1 / costs.capacity);
     if (params.maxCensusSize >= costs.factors.k7) {
       sizePriceFactor *= 1 + costs.factors.k6 * (params.maxCensusSize - costs.factors.k7);

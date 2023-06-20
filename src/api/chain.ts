@@ -112,11 +112,6 @@ export interface IChainGetCostsResponse {
     k6: number;
     k7: number;
   };
-
-  /**
-   * If it's disabled or not.
-   */
-  disable: boolean;
 }
 
 export enum TransactionType {
