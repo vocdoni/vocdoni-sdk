@@ -455,7 +455,7 @@ export abstract class ChainAPI extends API {
    * @param {number} page the page number
    * @returns {Promise<IBlockTransactionsResponse>}
    */
-  public static blockTransactions(url: string, height: number, page: number): Promise<IBlockTransactionsResponse> {
+  public static blockTransactions(url: string, height: number, page: number = 0): Promise<IBlockTransactionsResponse> {
     return axios
       .get<IBlockTransactionsResponse>(
         url + ChainAPIMethods.BLOCK_TRANSACTIONS.replace('{height}', String(height)).replace('{page}', String(page))
