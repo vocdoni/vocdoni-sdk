@@ -312,6 +312,30 @@ More information can be found in the [documentation][approval voting documentati
 Here is a [full working example][ranked voting example] of how to create a ranked voting election.
 More information can be found in the [documentation][ranked voting documentation].
 
+### Other election functionalities
+
+#### Estimate election cost
+
+This is a fast function (most times will resolve automatically) which allows to estimate a election price in tokens:
+
+~~~ts
+(async () => {
+  const price = await client.estimateElectionCost(election) // Should be an UnpublishedElection
+  console.log(price) // shows the estimation price
+})();
+~~~
+
+#### Calculate the real election cost
+
+This function returns the exact election price in tokens:
+
+~~~ts
+(async () => {
+  const price = await client.calculateElectionCost(election) // Should be an UnpublishedElection
+  console.log(price) // shows the real price
+})();
+~~~
+
 ### Fetching election info
 
 You can always access a election information and metadata using `fetchElection`:

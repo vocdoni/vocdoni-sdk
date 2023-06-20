@@ -137,14 +137,19 @@ export abstract class ElectionCore extends TransactionCore {
     }
   }
 
+  public static estimateElectionBlocks(election: UnpublishedElection, chainData: ChainData): number {
+    return (
+      this.estimateBlockAtDateTime(election.endDate, chainData) -
+      this.estimateBlockAtDateTime(election.startDate ?? new Date(), chainData)
+    );
+  }
+
   public static estimateElectionCost(election: UnpublishedElection, costs: ChainCosts, chainData: ChainData): number {
     if (!election.maxCensusSize) {
       throw new Error('Could not estimate cost because maxCensusSize is not set');
     }
 
-    const electionBlocks =
-      ElectionCore.estimateBlockAtDateTime(election.endDate, chainData) -
-      ElectionCore.estimateBlockAtDateTime(election.startDate ?? new Date(), chainData);
+    const electionBlocks = this.estimateElectionBlocks(election, chainData);
 
     if (electionBlocks <= 0) {
       throw new Error('Could not estimate cost because of negative election blocks size');

@@ -4,6 +4,7 @@ import { API } from './api';
 
 enum ElectionAPIMethods {
   INFO = '/elections',
+  PRICE = '/elections/price',
   KEYS = '/elections/{id}/keys',
   CREATE = '/elections',
   VOTES = '/elections/{id}/votes/page/{page}',
@@ -295,6 +296,13 @@ interface IElectionVotesCountResponse {
   count: number;
 }
 
+interface IElectionCalculatePriceResponse {
+  /**
+   * The price of the election
+   */
+  price: number;
+}
+
 export interface IElectionVote {
   /**
    * Containing transaction hash
@@ -491,6 +499,34 @@ export abstract class ElectionAPI extends API {
     }
     return axios
       .get<IElectionListResponse>(url + ElectionAPIMethods.LIST.replace('{page}', String(page)))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Calculates the election price.
+   *
+   * @param {string} url API endpoint URL
+   * @param {number} maxCensusSize
+   * @param {number} electionBlocks
+   * @param {boolean} encryptedVotes
+   * @param {boolean} anonymousVotes
+   * @param {number} maxVoteOverwrite
+   * @returns {Promise<IElectionCalculatePriceResponse>}
+   */
+  public static price(
+    url: string,
+    maxCensusSize: number,
+    electionBlocks: number,
+    encryptedVotes: boolean,
+    anonymousVotes: boolean,
+    maxVoteOverwrite: number
+  ): Promise<IElectionCalculatePriceResponse> {
+    return axios
+      .post<IElectionCalculatePriceResponse>(
+        url + ElectionAPIMethods.PRICE,
+        JSON.stringify({ maxCensusSize, electionBlocks, encryptedVotes, anonymousVotes, maxVoteOverwrite })
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }

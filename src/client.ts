@@ -949,6 +949,26 @@ export class VocdoniSDKClient {
   }
 
   /**
+   * Calculate the election cost
+   *
+   * @returns {Promise<number>} The cost in tokens.
+   */
+  public calculateElectionCost(election: UnpublishedElection): Promise<number> {
+    return this.fetchChainId()
+      .then(() =>
+        ElectionAPI.price(
+          this.url,
+          election.maxCensusSize,
+          ElectionCore.estimateElectionBlocks(election, this.chainData),
+          election.electionType.secretUntilTheEnd,
+          election.electionType.anonymous,
+          election.voteType.maxVoteOverwrites
+        )
+      )
+      .then((cost) => cost.price);
+  }
+
+  /**
    * Returns a Wallet based on the inputs.
    *
    * @param {string | string[]} data The data inputs which should generate the Wallet
