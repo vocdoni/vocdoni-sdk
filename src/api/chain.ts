@@ -482,6 +482,7 @@ export abstract class ChainAPI extends API {
    *
    * @param url API URL
    * @param height block height to calculate approximate timestamp
+   * @return {Promise<IBlockToDateResponse>}
    */
   public static blockToDate(url: string, height: number): Promise<IBlockToDateResponse> {
     return axios
