@@ -29,9 +29,9 @@ export abstract class API {
           throw new ErrCantParseElectionID(err['error']);
         case 4020:
           throw new ErrCantParsePayloadAsJSON(err['error']);
-        case 4046:
+        case 4045:
           throw new ErrElectionNotFound(err['error']);
-        case 4048:
+        case 4047:
           throw new ErrNoElectionKeys(err['error']);
         case 5003:
           return API.isVochainError(err['error']);
