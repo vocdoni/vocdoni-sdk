@@ -13,6 +13,7 @@ import {
 import { clientParams } from './util/client.params';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
+import { SDK_VERSION } from '../../src/version';
 
 let client: VocdoniSDKClient;
 let wallet: Wallet;
@@ -74,7 +75,17 @@ describe('Election integration tests', () => {
       .then((publishedElection) => {
         expect(publishedElection.title).toEqual(election.title);
         expect(publishedElection.description).toEqual(election.description);
-        expect(publishedElection.meta).toStrictEqual(election.meta);
+        expect(publishedElection.meta).toStrictEqual({
+          test: 'testValue',
+          array: [1, 2],
+          object: {
+            test1: 'test1',
+            test2: 'test2',
+          },
+          sdk: {
+            version: SDK_VERSION,
+          },
+        });
         expect(publishedElection.electionType).toStrictEqual({
           autoStart: true,
           interruptible: true,

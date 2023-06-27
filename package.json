@@ -35,6 +35,7 @@
   "scripts": {
     "clean": "rimraf node_modules dist",
     "start": "yarn watch",
+    "prebuild": "node -p \"'export const SDK_VERSION = \\'' + require('./package.json').version + '\\';'\" > src/version.ts",
     "build": "rollup -c",
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
     "test": "yarn test:unit && yarn test:api && yarn test:integration",

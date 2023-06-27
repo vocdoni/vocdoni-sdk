@@ -9,6 +9,7 @@ import {
 import invariant from 'tiny-invariant';
 import { Census } from '../census';
 import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
+import { SDK_VERSION } from '../../version';
 
 /**
  * Represents an unpublished election
@@ -33,6 +34,7 @@ export class UnpublishedElection extends Election {
     this.voteType = UnpublishedElection.fullVoteType(params.voteType);
     this.questions = params.questions ?? [];
     this.maxCensusSize = params.maxCensusSize;
+    this.addSDKVersion = params.addSDKVersion ?? true;
   }
 
   public addQuestion(
@@ -92,6 +94,11 @@ export class UnpublishedElection extends Election {
       streamUri: this.streamUri,
     };
     metadata.meta = this.meta;
+    if (this.addSDKVersion) {
+      metadata.meta.sdk = {
+        version: SDK_VERSION,
+      };
+    }
     metadata.questions = this.questions.map((question) => {
       return {
         title: question.title,
@@ -210,5 +217,13 @@ export class UnpublishedElection extends Election {
   set maxCensusSize(value: number) {
     invariant(value == null || value > 0, 'Maximum census size cannot be zero or negative');
     this._maxCensusSize = value;
+  }
+
+  get addSDKVersion(): boolean {
+    return super.addSDKVersion;
+  }
+
+  set addSDKVersion(value: boolean) {
+    this._addSDKVersion = value;
   }
 }

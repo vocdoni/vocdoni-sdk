@@ -134,6 +134,11 @@ export interface IElectionParameters {
    * size` error.
    */
   maxCensusSize?: number;
+
+  /**
+   * Used to add the SDK version to the election metadata
+   */
+  addSDKVersion?: boolean;
 }
 
 /**
@@ -152,6 +157,7 @@ export abstract class Election {
   protected _questions: IQuestion[];
   protected _census: Census;
   protected _maxCensusSize: number;
+  protected _addSDKVersion: boolean;
 
   /**
    * Constructs an election
@@ -172,6 +178,7 @@ export abstract class Election {
       this._questions = params.questions ?? [];
       this._census = params.census;
       this._maxCensusSize = params.maxCensusSize;
+      this._addSDKVersion = params.addSDKVersion ?? true;
     }
   }
 
@@ -230,5 +237,9 @@ export abstract class Election {
 
   get maxCensusSize(): number {
     return this._maxCensusSize;
+  }
+
+  get addSDKVersion(): boolean {
+    return this._addSDKVersion;
   }
 }
