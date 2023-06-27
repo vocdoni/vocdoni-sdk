@@ -64,7 +64,7 @@ export class VocdoniCensus3Client {
   }
 
   /**
-   * Returns the full token information based on the id (address)
+   * Creates a new token to be tracked in the service
    *
    * @param {string} address The address of the token
    * @param {string} type The type of the token
