@@ -93,7 +93,7 @@ export class UnpublishedElection extends Election {
       header: this.header,
       streamUri: this.streamUri,
     };
-    metadata.meta = this.meta;
+    metadata.meta = this.meta ?? {};
     if (this.addSDKVersion) {
       metadata.meta.sdk = {
         version: SDK_VERSION,
@@ -155,6 +155,7 @@ export class UnpublishedElection extends Election {
   }
 
   set meta(value: object) {
+    invariant(!value || value['sdk'] === undefined, 'Field `sdk` is restricted in metadata');
     this._meta = value;
   }
 
