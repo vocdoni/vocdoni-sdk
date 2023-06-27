@@ -18,6 +18,14 @@ beforeEach(() => {
     description: 'Test',
     header: 'Test',
     streamUri: 'Test',
+    meta: {
+      test: 'testValue',
+      array: [1, 2],
+      object: {
+        test1: 'test1',
+        test2: 'test2',
+      },
+    },
     startDate: new Date().getTime() + 80000,
     endDate: new Date().getTime() + 10000000,
     census: publishedCensus,
@@ -34,6 +42,15 @@ describe('Election tests', () => {
     const election = Election.from(electionData);
     expect(election['id']).toBeUndefined();
     expect(election.maxCensusSize).toBeUndefined();
+    expect(election.addSDKVersion).toBeTruthy();
+    expect(election.meta).toEqual({
+      test: 'testValue',
+      array: [1, 2],
+      object: {
+        test1: 'test1',
+        test2: 'test2',
+      },
+    });
     expect(election.electionType).toEqual({
       autoStart: true,
       interruptible: true,
@@ -100,6 +117,14 @@ describe('Election tests', () => {
     expect(() => {
       Election.from(electionData);
     }).toThrow('Maximum census size cannot be zero or negative');
+  });
+  it('should throw when meta uses the sdk restricted field', () => {
+    electionData.meta = {
+      sdk: 'test',
+    };
+    expect(() => {
+      Election.from(electionData);
+    }).toThrow('Field `sdk` is restricted in metadata');
   });
   it('should be possible to create an invalid election', () => {
     const election = new InvalidElection({ id: '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' });

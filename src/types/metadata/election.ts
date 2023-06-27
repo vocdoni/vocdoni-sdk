@@ -105,7 +105,9 @@ export interface ElectionMetadata {
     streamUri?: string;
   };
   /** Arbitrary key/value data that specific applications can use for their own needs */
-  meta?: any;
+  meta?: {
+    [key: string]: any;
+  };
   questions: Array<IQuestion>;
   results: {
     aggregation: ElectionResultsAggregation;
