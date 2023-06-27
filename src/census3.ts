@@ -134,7 +134,7 @@ export class VocdoniCensus3Client {
    * Returns the census3 censuses identifiers list
    *
    * @param {{ strategyId?: number }} options The options for listing
-   * @returns {Promise<Census3Census[]>} The list of census3 censuses identifiers
+   * @returns {Promise<number[]>} The list of census3 censuses identifiers
    */
   getCensusesList(options?: { strategyId?: number }): Promise<number[]> {
     invariant(options.strategyId || options.strategyId >= 0, 'No strategy id');
