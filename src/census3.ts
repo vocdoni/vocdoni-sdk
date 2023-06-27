@@ -157,7 +157,7 @@ export class VocdoniCensus3Client {
    * Returns the census3 census based on the given identifier
    *
    * @param {number} id The id of the census
-   * @returns {Promise<Census3Census>} The the census3 census
+   * @returns {Promise<Census3Census>} The census3 census
    */
   getCensus(id: number): Promise<Census3Census> {
     invariant(id || id >= 0, 'No census id');
