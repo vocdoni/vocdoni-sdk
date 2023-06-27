@@ -82,7 +82,7 @@ export class VocdoniCensus3Client {
    * Returns the strategies identifiers list
    *
    * @param {{ page?: number; token?: string }} options The options for listing
-   * @returns {Promise<Strategy[]>} The list of strategies identifiers
+   * @returns {Promise<number[]>} The list of strategies identifiers
    */
   getStrategiesList(options?: { page?: number; token?: string }): Promise<number[]> {
     return Census3StrategyAPI.list(this.url, options?.page ?? 0, options?.token).then(
