@@ -87,6 +87,11 @@ export interface ICensus3TokenSummary {
   name: string;
 
   /**
+   * The symbol of the token.
+   */
+  symbol: string;
+
+  /**
    * The type of the token.
    */
   type: string;
