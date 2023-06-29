@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New types defined in `VocdoniCensus3Client` with some additional documentation.
 - Added new field `symbol` to summary token list in Census3.
+- Added new field `size` to token information in Census3 as number of token holders.
 
 ### Fixed
 
