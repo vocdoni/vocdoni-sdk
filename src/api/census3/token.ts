@@ -50,6 +50,11 @@ export interface ICensus3Token {
   defaultStrategy: number;
 
   /**
+   * The number of token holders of the token
+   */
+  size: number;
+
+  /**
    * The tags of the token.
    */
   tag?: string;
