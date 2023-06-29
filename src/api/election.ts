@@ -13,57 +13,112 @@ enum ElectionAPIMethods {
   LIST_FILTERED = '/elections/filter/page/{page}',
 }
 
-export interface IResults {
-  value: string[];
-}
-
 export interface ICensus {
-  censusOrigin: string;
+  /**
+   * The type of the census
+   */
+  censusOrigin: CensusTypeEnum;
+
+  /**
+   * The root of the census
+   */
   censusRoot: string;
+
+  /**
+   * The post register root of the census
+   */
   postRegisterCensusRoot: string;
+
+  /**
+   * The URL of the census
+   */
   censusURL: string;
+
+  /**
+   * Max size of the census. How many voters the census can have.
+   */
+  maxCensusSize: number;
 }
 
 export interface IVoteMode {
+  /**
+   * If the vote is serial
+   */
   serial: boolean;
+
+  /**
+   * If the vote is anonymous
+   */
   anonymous: boolean;
+
+  /**
+   * If the vote is encrypted
+   */
   encryptedVotes: boolean;
+
+  /**
+   * If the vote values are unique
+   */
   uniqueValues: boolean;
+
+  /**
+   * Cost from weight of the election
+   */
   costFromWeight: boolean;
 }
 
 export interface IElectionMode {
+  /**
+   * If the election should start automatically
+   */
   autoStart: boolean;
+
+  /**
+   * If the election is interruptible
+   */
   interruptible: boolean;
+
+  /**
+   * If the election has a dynamic census
+   */
   dynamicCensus: boolean;
+
+  /**
+   * If the election has encrypted metadata
+   */
   encryptedMetaData: boolean;
+
+  /**
+   * If the election has preregister phase
+   */
   preRegister: boolean;
 }
 
 export interface ITallyMode {
+  /**
+   * The max count of the vote's values sum
+   */
   maxCount: number;
-  maxValue: number;
-  maxVoteOverwrites: number;
-  maxTotalCost: number;
-  costExponent: number;
-}
 
-export interface IElection {
-  electionId: string;
-  type: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  voteCount: number;
-  finalResults: boolean;
-  result: IResults[];
-  electionCount: number;
-  census: ICensus;
-  metadataURL: string;
-  creationTime: string;
-  voteMode: IVoteMode;
-  electionMode: IElectionMode;
-  tallyMode: ITallyMode;
+  /**
+   * The max value of the vote's values
+   */
+  maxValue: number;
+
+  /**
+   * The max number of votes overwrites
+   */
+  maxVoteOverwrites: number;
+
+  /**
+   * The max total cost of the votes
+   */
+  maxTotalCost: number;
+
+  /**
+   * The cost exponent of the vote
+   */
+  costExponent: number;
 }
 
 interface IElectionCreateResponse {
@@ -137,34 +192,9 @@ export interface IElectionInfoResponse {
   result?: Array<Array<string>>;
 
   /**
-   * The number of elections done by the account
-   */
-  electionCount: number;
-
-  /**
    * The census of the election
    */
-  census: {
-    /**
-     * The type of the census
-     */
-    censusOrigin: CensusTypeEnum;
-
-    /**
-     * The root of the census
-     */
-    censusRoot: string;
-
-    /**
-     * The post register root of the census
-     */
-    postRegisterCensusRoot: string;
-
-    /**
-     * The URL of the census
-     */
-    censusURL: string;
-  };
+  census: ICensus;
 
   /**
    * The URL of the metadata
@@ -179,92 +209,17 @@ export interface IElectionInfoResponse {
   /**
    * The voting mode of the election
    */
-  voteMode: {
-    /**
-     * If the vote is serial
-     */
-    serial: boolean;
-
-    /**
-     * If the vote is anonymous
-     */
-    anonymous: boolean;
-
-    /**
-     * If the vote is encrypted
-     */
-    encryptedVotes: boolean;
-
-    /**
-     * If the vote values are unique
-     */
-    uniqueValues: boolean;
-
-    /**
-     * Cost from weight of the election
-     */
-    costFromWeight: boolean;
-  };
+  voteMode: IVoteMode;
 
   /**
    * The election mode of the election
    */
-  electionMode: {
-    /**
-     * If the election should start automatically
-     */
-    autoStart: boolean;
-
-    /**
-     * If the election is interruptible
-     */
-    interruptible: boolean;
-
-    /**
-     * If the election has a dynamic census
-     */
-    dynamicCensus: boolean;
-
-    /**
-     * If the election has encrypted metadata
-     */
-    encryptedMetaData: boolean;
-
-    /**
-     * If the election has preregister phase
-     */
-    preRegister: boolean;
-  };
+  electionMode: IElectionMode;
 
   /**
    * The tally mode of the vote
    */
-  tallyMode: {
-    /**
-     * The max count of the vote's values sum
-     */
-    maxCount: number;
-
-    /**
-     * The max value of the vote's values
-     */
-    maxValue: number;
-
-    /**
-     * The max number of votes overwrites
-     */
-    maxVoteOverwrites: number;
-
-    /**
-     * The max total cost of the votes
-     */
-    maxTotalCost: number;
-
-    /**
-     * The cost exponent of the vote
-     */
-    costExponent: number;
-  };
+  tallyMode: ITallyMode;
 
   /**
    * The metadata of the election
