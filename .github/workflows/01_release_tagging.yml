@@ -1,0 +1,73 @@
+name: 01-Release-Tagging
+
+on:
+  workflow_dispatch:
+  push:
+    # paths:
+    #   - 'CHANGELOG.md'
+    branches:
+      - 'DOPS-*'
+  pull_request:
+    # types:
+    #   - closed
+
+env:
+  RUN_TESTS: not
+  RELEASE_LABEL: release
+  # TAG_SUFFIX: ''
+  TAG_SUFFIX: '-preview'
+
+jobs:
+
+  test_bundle:
+    if: ${{ env.RUN_TESTS == 'yes' }}
+    uses: ./.github/workflows/test-bundle.yml
+
+  prepare:
+    name: Prepare PR labels
+    needs: [test_bundle]
+    runs-on: ubuntu-latest
+    # if: github.event.pull_request.merged
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get PR labels
+        id: getlabels
+        run: |
+          PR_LABEL_LIST="${{ toJson(github.event.pull_request.labels.*.name) }}"
+          echo "Label list: $PR_LABEL_LIST"
+
+  tagging:
+    name: Set Github Tag
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    ## This condition gets TRUE if used in this way: contains(toJson(xyz), 'substr')
+    if: ${{ contains( toJson(github.event.pull_request.labels.*.name), 'release' ) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      ## Tag pattern: v1.2.3${{env.TAG_SUFFIX}}
+      - name: Get pkg version from package.json
+        id: getversion
+        run: | 
+          PKG_VER=$(cat package.json | jq -r .version)
+          echo "Pkg Version: $PKG_VER"
+          echo "Label list: ${{ toJson(github.event.pull_request.labels.*.name) }}"
+          echo "pkg_ver=v${PKG_VER}${{ env.TAG_SUFFIX }}" >> $GITHUB_OUTPUT
+
+      ## Throw error if the Tag to add already exist
+      ## Unhandled error: HttpError: Reference already exists
+      - name: Set Github Tag via API
+        uses: actions/github-script@v6
+        if: ${{ contains( toJson(github.event.pull_request.labels.*.name), env.RELEASE_LABEL ) }}
+        with:
+          github-token: ${{ secrets.VOCDONIBOT_PAT_TRIGGER_WORKFLOW }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${{ steps.getversion.outputs.pkg_ver }}`,
+              sha: "${{ github.sha }}"
+            })
