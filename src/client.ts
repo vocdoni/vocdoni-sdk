@@ -431,7 +431,6 @@ export class VocdoniSDKClient {
           voteCount: electionInfo.voteCount,
           finalResults: electionInfo.finalResults,
           results: electionInfo.result,
-          electionCount: electionInfo.electionCount,
           metadataURL: electionInfo.metadataURL,
           creationTime: electionInfo.creationTime,
           electionType: {
