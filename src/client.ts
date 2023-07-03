@@ -786,6 +786,35 @@ export class VocdoniSDKClient {
   }
 
   /**
+   * Changes the census of an election.
+   *
+   * @param {string} electionId The id of the election
+   * @param {string} censusId The new census id (root)
+   * @param {string} censusURI The new census URI
+   * @returns {Promise<void>}
+   */
+  public changeElectionCensus(electionId: string, censusId: string, censusURI: string): Promise<void> {
+    if (!this.electionId && !electionId) {
+      throw Error('No election set');
+    }
+    return this.fetchAccountInfo()
+      .then((accountData) =>
+        Promise.all([
+          ElectionCore.generateSetElectionCensusTransaction(
+            electionId ?? this.electionId,
+            accountData.nonce,
+            censusId,
+            censusURI
+          ),
+          this.fetchChainId(),
+        ])
+      )
+      .then((data) => ElectionCore.signTransaction(data[0], data[1], this.wallet))
+      .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
+      .then((data) => this.waitForTransaction(data.hash));
+  }
+
+  /**
    * Checks if the user is in census.
    *
    * @param {string} electionId The id of the election
