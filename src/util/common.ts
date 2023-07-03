@@ -1,7 +1,7 @@
 import { keccak256 } from '@ethersproject/keccak256';
 import { formatUnits as ethersFormatUnits } from '@ethersproject/units';
 import nacl from 'tweetnacl';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumberish } from '@ethersproject/bignumber';
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -42,10 +42,10 @@ export function areEqualHexStrings(hex1?: string, hex2?: string) {
 /**
  * Returns a string representation of value formatted with decimals digits
  *
- * @param {bigint} value The value in native BigInt
+ * @param {BigNumberish} value The value in native BigInt
  * @param {number} decimals The number of decimals
  * @returns {string} The formatted string
  */
-export function formatUnits(value: bigint, decimals: number = 18): string {
-  return ethersFormatUnits(BigNumber.from(value), decimals);
+export function formatUnits(value: BigNumberish, decimals: number = 18): string {
+  return ethersFormatUnits(value, decimals);
 }
