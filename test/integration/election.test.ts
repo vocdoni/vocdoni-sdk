@@ -23,12 +23,13 @@ beforeEach(async () => {
   client = new VocdoniSDKClient(clientParams(wallet));
 });
 
-const createElection = (census, electionType?, voteType?) => {
+const createElection = (census, electionType?, voteType?, maxCensusSize?) => {
   const election = Election.from({
     title: 'SDK Testing - Title',
     description: 'SDK Testing - Description',
     endDate: new Date().getTime() + 10000000,
     census,
+    maxCensusSize,
     electionType: electionType ?? null,
     voteType: voteType ?? null,
   });
@@ -785,4 +786,108 @@ describe('Election integration tests', () => {
       'Could not estimate cost because of negative election blocks size'
     );
   }, 15000);
+  it('should be able to change an election census successfully and perform voting', async () => {
+    const census1 = new PlainCensus();
+    const census2 = new PlainCensus();
+    const voter1 = Wallet.createRandom();
+    const voter2 = Wallet.createRandom();
+    census1.add(await voter1.getAddress());
+    census2.add(await voter1.getAddress());
+    census2.add(await voter2.getAddress());
+
+    const election = createElection(
+      census1,
+      {
+        dynamicCensus: true,
+      },
+      null,
+      census2.participants.length
+    );
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return waitForElectionReady(client, electionId);
+      })
+      .then(async () => {
+        // Check voter2 is not in the census
+        const clientVoter2 = new VocdoniSDKClient(clientParams(voter2));
+        clientVoter2.setElectionId(client.electionId);
+        const isInCensus2 = await clientVoter2.isInCensus();
+        expect(isInCensus2).toBeFalsy();
+        const hasAlreadyVoted2 = await clientVoter2.hasAlreadyVoted();
+        expect(hasAlreadyVoted2).toBeFalsy();
+        const isAbleToVote2 = await clientVoter2.isAbleToVote();
+        expect(isAbleToVote2).toBeFalsy();
+        // Check voter1 is in the census
+        const clientVoter1 = new VocdoniSDKClient(clientParams(voter1));
+        clientVoter1.setElectionId(client.electionId);
+        const isInCensus = await clientVoter1.isInCensus();
+        expect(isInCensus).toBeTruthy();
+        const hasAlreadyVoted = await clientVoter1.hasAlreadyVoted();
+        expect(hasAlreadyVoted).toBeFalsy();
+        const isAbleToVote = await clientVoter1.isAbleToVote();
+        expect(isAbleToVote).toBeTruthy();
+        // Vote with voter 1
+        const vote = new Vote([1]);
+        return clientVoter1.submitVote(vote);
+      })
+      .then(() => client.createCensus(census2))
+      .then(() => client.changeElectionCensus(client.electionId, census2.censusId, census2.censusURI))
+      .then(async () => {
+        // Check voter2 is in the census
+        const clientVoter2 = new VocdoniSDKClient(clientParams(voter2));
+        clientVoter2.setElectionId(client.electionId);
+        const isInCensus2 = await clientVoter2.isInCensus();
+        expect(isInCensus2).toBeTruthy();
+        const hasAlreadyVoted2 = await clientVoter2.hasAlreadyVoted();
+        expect(hasAlreadyVoted2).toBeFalsy();
+        const isAbleToVote2 = await clientVoter2.isAbleToVote();
+        expect(isAbleToVote2).toBeTruthy();
+        // Check voter1 is in the census but already voted
+        const clientVoter1 = new VocdoniSDKClient(clientParams(voter1));
+        clientVoter1.setElectionId(client.electionId);
+        const isInCensus = await clientVoter1.isInCensus();
+        expect(isInCensus).toBeTruthy();
+        const hasAlreadyVoted = await clientVoter1.hasAlreadyVoted();
+        expect(hasAlreadyVoted).toBeTruthy();
+        const isAbleToVote = await clientVoter1.isAbleToVote();
+        expect(isAbleToVote).toBeFalsy();
+        // Vote with voter 2
+        const vote = new Vote([0]);
+        return clientVoter2.submitVote(vote);
+      })
+      .then(async () => {
+        // Check voter2 is in the census but already voted
+        const clientVoter2 = new VocdoniSDKClient(clientParams(voter2));
+        clientVoter2.setElectionId(client.electionId);
+        const isInCensus2 = await clientVoter2.isInCensus();
+        expect(isInCensus2).toBeTruthy();
+        const hasAlreadyVoted2 = await clientVoter2.hasAlreadyVoted();
+        expect(hasAlreadyVoted2).toBeTruthy();
+        const isAbleToVote2 = await clientVoter2.isAbleToVote();
+        expect(isAbleToVote2).toBeFalsy();
+        // Check voter1 is in the census but already voted
+        const clientVoter1 = new VocdoniSDKClient(clientParams(voter1));
+        clientVoter1.setElectionId(client.electionId);
+        const isInCensus = await clientVoter1.isInCensus();
+        expect(isInCensus).toBeTruthy();
+        const hasAlreadyVoted = await clientVoter1.hasAlreadyVoted();
+        expect(hasAlreadyVoted).toBeTruthy();
+        const isAbleToVote = await clientVoter1.isAbleToVote();
+        expect(isAbleToVote).toBeFalsy();
+        return client.fetchElection();
+      })
+      .then((election) => {
+        expect(election.id).toEqual(client.electionId);
+        expect(election.voteCount).toEqual(census2.size);
+        expect(election.results[0][0]).toEqual(election.results[0][1]);
+        expect(election.census.censusId).toEqual(census2.censusId);
+        expect(election.census.censusURI).toEqual(census2.censusURI);
+      });
+  }, 185000);
 });

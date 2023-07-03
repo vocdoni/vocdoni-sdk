@@ -39,6 +39,24 @@ export abstract class ElectionCore extends TransactionCore {
     }).finish();
   }
 
+  public static async generateSetElectionCensusTransaction(
+    electionId: string,
+    accountNonce: number,
+    censusId: string,
+    censusURI: string
+  ): Promise<Uint8Array> {
+    const setProcess = SetProcessTx.fromPartial({
+      txtype: TxType.SET_PROCESS_CENSUS,
+      nonce: accountNonce,
+      processId: Uint8Array.from(Buffer.from(strip0x(electionId), 'hex')),
+      censusRoot: Uint8Array.from(Buffer.from(strip0x(censusId), 'hex')),
+      censusURI: censusURI,
+    });
+    return Tx.encode({
+      payload: { $case: 'setProcess', setProcess },
+    }).finish();
+  }
+
   public static async generateNewElectionTransaction(
     election: UnpublishedElection,
     cid: string,
