@@ -1,5 +1,7 @@
 import { keccak256 } from '@ethersproject/keccak256';
+import { formatUnits as ethersFormatUnits } from '@ethersproject/units';
 import nacl from 'tweetnacl';
+import { BigNumber } from '@ethersproject/bignumber';
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -35,4 +37,15 @@ export function areEqualHexStrings(hex1?: string, hex2?: string) {
   if (!hex1 || !hex2) return false;
 
   return ensure0x(hex1.toLowerCase()) === ensure0x(hex2.toLowerCase());
+}
+
+/**
+ * Returns a string representation of value formatted with decimals digits
+ *
+ * @param {bigint} value The value in native BigInt
+ * @param {number} decimals The number of decimals
+ * @returns {string} The formatted string
+ */
+export function formatUnits(value: bigint, decimals: number = 18): string {
+  return ethersFormatUnits(BigNumber.from(value), decimals);
 }
