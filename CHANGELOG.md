@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - SDK version added to election metadata.
 - Added new function `changeElectionCensus` to change the election census dynamically.
+- Added new helper function `formatUnits` for formatting big decimals values.
 
 ### Changed
 
