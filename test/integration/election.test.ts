@@ -795,6 +795,9 @@ describe('Election integration tests', () => {
     census2.add(await voter1.getAddress());
     census2.add(await voter2.getAddress());
 
+    const clientVoter1 = new VocdoniSDKClient(clientParams(voter1));
+    const clientVoter2 = new VocdoniSDKClient(clientParams(voter2));
+
     const election = createElection(
       census1,
       {
@@ -811,12 +814,12 @@ describe('Election integration tests', () => {
       .then((electionId) => {
         expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
         client.setElectionId(electionId);
+        clientVoter1.setElectionId(electionId);
+        clientVoter2.setElectionId(electionId);
         return waitForElectionReady(client, electionId);
       })
       .then(async () => {
         // Check voter2 is not in the census
-        const clientVoter2 = new VocdoniSDKClient(clientParams(voter2));
-        clientVoter2.setElectionId(client.electionId);
         const isInCensus2 = await clientVoter2.isInCensus();
         expect(isInCensus2).toBeFalsy();
         const hasAlreadyVoted2 = await clientVoter2.hasAlreadyVoted();
@@ -824,8 +827,6 @@ describe('Election integration tests', () => {
         const isAbleToVote2 = await clientVoter2.isAbleToVote();
         expect(isAbleToVote2).toBeFalsy();
         // Check voter1 is in the census
-        const clientVoter1 = new VocdoniSDKClient(clientParams(voter1));
-        clientVoter1.setElectionId(client.electionId);
         const isInCensus = await clientVoter1.isInCensus();
         expect(isInCensus).toBeTruthy();
         const hasAlreadyVoted = await clientVoter1.hasAlreadyVoted();
@@ -840,8 +841,6 @@ describe('Election integration tests', () => {
       .then(() => client.changeElectionCensus(client.electionId, census2.censusId, census2.censusURI))
       .then(async () => {
         // Check voter2 is in the census
-        const clientVoter2 = new VocdoniSDKClient(clientParams(voter2));
-        clientVoter2.setElectionId(client.electionId);
         const isInCensus2 = await clientVoter2.isInCensus();
         expect(isInCensus2).toBeTruthy();
         const hasAlreadyVoted2 = await clientVoter2.hasAlreadyVoted();
@@ -849,8 +848,6 @@ describe('Election integration tests', () => {
         const isAbleToVote2 = await clientVoter2.isAbleToVote();
         expect(isAbleToVote2).toBeTruthy();
         // Check voter1 is in the census but already voted
-        const clientVoter1 = new VocdoniSDKClient(clientParams(voter1));
-        clientVoter1.setElectionId(client.electionId);
         const isInCensus = await clientVoter1.isInCensus();
         expect(isInCensus).toBeTruthy();
         const hasAlreadyVoted = await clientVoter1.hasAlreadyVoted();
@@ -863,8 +860,6 @@ describe('Election integration tests', () => {
       })
       .then(async () => {
         // Check voter2 is in the census but already voted
-        const clientVoter2 = new VocdoniSDKClient(clientParams(voter2));
-        clientVoter2.setElectionId(client.electionId);
         const isInCensus2 = await clientVoter2.isInCensus();
         expect(isInCensus2).toBeTruthy();
         const hasAlreadyVoted2 = await clientVoter2.hasAlreadyVoted();
@@ -872,8 +867,6 @@ describe('Election integration tests', () => {
         const isAbleToVote2 = await clientVoter2.isAbleToVote();
         expect(isAbleToVote2).toBeFalsy();
         // Check voter1 is in the census but already voted
-        const clientVoter1 = new VocdoniSDKClient(clientParams(voter1));
-        clientVoter1.setElectionId(client.electionId);
         const isInCensus = await clientVoter1.isInCensus();
         expect(isInCensus).toBeTruthy();
         const hasAlreadyVoted = await clientVoter1.hasAlreadyVoted();
