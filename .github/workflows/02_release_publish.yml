@@ -9,13 +9,15 @@ env:
   RUN_TESTS: not
   PUBLISH_NPM: not
   PUBLISH_RELEASE: yes
+  TAG_SUFFIX: '-preview'
 
 jobs:
 
   check_tag:
     runs-on: ubuntu-latest
     outputs:
-      pkg_ver: ${{ steps.tag-info.outputs.pkg_version }}
+      pkg_semver_only: ${{ steps.tag-info.outputs.pkg_semver }}
+      release_tag_only: ${{ steps.tag-info.outputs.release_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,9 +30,10 @@ jobs:
           GITHUB_REF="${{ github.ref }}"
           TAG=${GITHUB_REF##*/}
           VERSION=$(echo "$TAG" | sed 's/\s*//g' | sed 's/^v//g' | sed 's/-.*//g')
-          echo "pkg_version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Tag: $TAG"
-          echo "Version: $VERSION"
+          echo "release_tag=$TAG" >> $GITHUB_OUTPUT
+          echo "pkg_semver=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release Tag only: $TAG"
+          echo "SemVer only: $VERSION"
 
   test_bundle:
     if: ${{ env.RUN_TESTS == 'yes' }}
@@ -56,8 +59,8 @@ jobs:
           yarn install --frozen-lockfile
           yarn run build
 
-      - name: Publish NPM ${{ needs.check_tag.outputs.pkg_ver }}
-        run: yarn publish --no-git-tag-version --new-version ${{ needs.check_tag.outputs.pkg_ver }}
+      - name: Publish NPM ${{ needs.check_tag.outputs.pkg_semver_only }}
+        run: yarn publish --no-git-tag-version --new-version ${{ needs.check_tag.outputs.pkg_semver_only }}
         env:
           NODE_AUTH_TOKEN: ${{secrets.VOCDONI_NPM_TOKEN}}
 
@@ -73,7 +76,7 @@ jobs:
         id: checkchangelog
         run: |
           LINE_PATTERN_1="## \[Unreleased\]"
-          LINE_PATTERN_2="## \[${{ needs.check_tag.outputs.pkg_ver }}\] -"
+          LINE_PATTERN_2="## \[${{ needs.check_tag.outputs.pkg_semver_only }}\] -"
           MATCHES_PATTERN=$(grep -c "$LINE_PATTERN_1\|$LINE_PATTERN_2" CHANGELOG.md)
           echo "changes_made=$MATCHES_PATTERN" >> $GITHUB_OUTPUT
           echo "Number of matches: $MATCHES_PATTERN"  ## It should be 2 
@@ -85,10 +88,10 @@ jobs:
       ##    Full Changelog: https://github.com/vocdoni/vocdoni-sdk/blob/v1.2.3/CHANGELOG.md
       - name: Compose release-notes.txt
         run: |
-          echo "Vocdoni SDK v${{ needs.check_tag.outputs.pkg_ver }}" >> release-notes.txt
-          echo "**NPM**: https://www.npmjs.com/package/@vocdoni/sdk/v/${{ needs.check_tag.outputs.pkg_ver }})" >> release-notes.txt
+          echo "Vocdoni SDK ${{ needs.check_tag.outputs.release_tag_only }}" >> release-notes.txt
           echo " " >> release-notes.txt
-          echo "**Full Changelog**: https://github.com/vocdoni/vocdoni-sdk/blob/v${{ needs.check_tag.outputs.pkg_ver }}/CHANGELOG.md" >> release-notes.txt
+          echo "* NPM: https://www.npmjs.com/package/@vocdoni/sdk/v/${{ needs.check_tag.outputs.pkg_semver_only }})" >> release-notes.txt
+          echo "* Full Changelog: https://github.com/vocdoni/vocdoni-sdk/blob/${{ needs.check_tag.outputs.release_tag_only }}/CHANGELOG.md" >> release-notes.txt
 
       ## Tag pattern: v1.2.3
       ## Release pattern: v1.2.3
@@ -96,5 +99,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: ${{ startsWith(github.ref, 'refs/tags/v[0-9]+') && steps.checkchangelog.outputs.changes_made == '2' && env.PUBLISH_RELEASE == 'yes' }}
         with:
-          prerelease: false
+          name: ${{ needs.check_tag.outputs.release_tag_only }}
           body_path: release-notes.txt
+          draft: endsWith(github.ref, env.TAG_SUFFIX )
+          prerelease: true
