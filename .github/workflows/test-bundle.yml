@@ -1,14 +1,22 @@
 name: Test-Bundle
+
 on:
+  workflow_call:
+    inputs:
+      run:
+        description: "Forces a run if true"
+        required: false
+        type: boolean
   push:
     branches:
     - main
   pull_request: ~
 
 jobs:
-  build:
-    name: Check bundle exports/imports
 
+  build:
+    if: ${{ github.actor != 'arabot-1' || inputs.run }}
+    name: Check bundle exports/imports
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,7 +26,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Use Node 18.x
+      - name: Setup NodeJS
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
@@ -30,14 +38,14 @@ jobs:
         run: yarn pack --filename sdk-bundle-tests.tgz
 
       - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@v2
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "\"@vocdoni/sdk\":[^\n]+"
           replace: "\"@vocdoni/sdk\": \"file:../../../sdk-bundle-tests.tgz\""
           regex: true
           include: "test/bundle/${{ matrix.example }}/package.json"
 
-      - name: Yarn install ${{ matrix.example }}
+      - name: Run yarn install ${{ matrix.example }}
         working-directory: test/bundle/${{ matrix.example }}
         run: yarn
 
