@@ -1,4 +1,4 @@
-# Vocdoni SDK
+# Vocdoni SDK 
 
 The Vocdoni SDK is a convenient way to interact with the Vocdoni Protocol
 through [the new API][Vocdoni API], allowing anyone to create, manage and
