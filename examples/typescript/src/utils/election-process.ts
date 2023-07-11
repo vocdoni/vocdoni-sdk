@@ -11,7 +11,12 @@ export const getPlainCensus = (voters: number) => {
   return { census, participants };
 };
 
-export const createElection = (census: OffchainCensus, voteOpts: IVoteType, title: string, description: string) => {
+export const createElection = (
+  census: OffchainCensus,
+  voteOpts: IVoteType | undefined,
+  title: string,
+  description: string
+) => {
   const endDate = new Date();
   endDate.setHours(endDate.getHours() + 10);
 
@@ -26,7 +31,11 @@ export const createElection = (census: OffchainCensus, voteOpts: IVoteType, titl
   });
 };
 
-export const executeElection = async (election: UnpublishedElection, participants: Wallet[], voteArray: number[]) => {
+export const executeElection = async (
+  election: UnpublishedElection,
+  participants: Wallet[],
+  voteArray: number[] | ((index: number) => number[])
+) => {
   console.log(chalk.yellow('Creating a new voting process!'));
 
   console.log('Creating account...');
@@ -55,7 +64,11 @@ export const executeElection = async (election: UnpublishedElection, participant
             chalk.yellow('VoterId: '),
             chalk.blue(participant.address)
           );
-          return submitVote(participant, electionIdentifier, voteArray);
+          return submitVote(
+            participant,
+            electionIdentifier,
+            typeof voteArray === 'function' ? voteArray(index) : voteArray
+          );
         })
       );
     })

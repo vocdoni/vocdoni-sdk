@@ -32,6 +32,8 @@ located in the [tests] folder at the root of the SDK.
 ```bash
 docker compose pull 
 docker compose up -d voconed
+# You can easily see the logs with
+docker logs -f util-voconed-1 
 ```
 
 This command will launch only the standalone node. You'll then need to 
