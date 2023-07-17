@@ -1,4 +1,4 @@
-import { groth16 } from 'snarkjs';
+import snarkjs from '../../util/snarkjs';
 
 import { CircuitInputs } from './inputs';
 
@@ -7,5 +7,5 @@ export async function generateGroth16Proof(
   circuitPath: string,
   provingKey: string
 ): Promise<any> {
-  return await groth16.fullProve(inputs, circuitPath, provingKey);
+  return await snarkjs.groth16.fullProve(inputs, circuitPath, provingKey);
 }

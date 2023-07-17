@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Alert, Box, Button, Link, Stack, Tag, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
-import { Election, EnvOptions, PlainCensus, PublishedElection, VocdoniSDKClient } from '@vocdoni/sdk'
+import { Election, EnvOptions, PlainCensus, PublishedElection, VocdoniSDKClient, dummy } from '@vocdoni/sdk'
 import { useEffect, useState } from 'react'
 import { Else, If, Then, When } from 'react-if'
 import Census from '../components/Census'
@@ -80,6 +80,7 @@ export const App = () => {
 
   return (
     <Box fontSize='xl' m={20}>
+      <Button onClick={() => dummy().then(console.log).catch(console.error)}>dummy</Button>
       <Stack direction='row'>
         <If condition={isMMActive || isWCActive}>
           <Then>
