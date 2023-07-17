@@ -1,6 +1,6 @@
 import { buildPoseidon } from 'circomlibjs';
-import * as ff from './ff';
 import * as arbo from './arbo_utils';
+import * as ff from './ff';
 import * as hex from './hex';
 
 async function calcNullifier(ffsignature: string, ffpassword: string, arboElectionId: string[]): Promise<bigint> {
@@ -45,7 +45,7 @@ export async function prepareCircuitInputs(
   return {
     // public inputs
     electionId: await arbo.toHash(electionId),
-    nullifier: nullifier.toString(),
+    nullifier,
     availableWeight,
     voteHash: await arbo.toHash(hex.fromBigInt(BigInt(availableWeight))),
     cikRoot,

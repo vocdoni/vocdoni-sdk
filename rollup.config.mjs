@@ -2,8 +2,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
-import nodePolyfills from 'rollup-plugin-polyfill-node';
-
 import { default as pkg } from './package.json' assert { type: 'json' };
 import json from '@rollup/plugin-json';
 
@@ -15,8 +13,11 @@ const bundle = (config) => ({
   ...config,
   input: 'src/index.ts',
   external: (id) => {
-    if (id === 'blakejs/blake2b' || id === 'blindsecp256k1') {
+    if (['blakejs/blake2b', 'blindsecp256k1', 'circomlibjs', 'blake-hash'].includes(id)) {
       return false;
+    }
+    if (/blake/.test(id)) {
+      console.log(id)
     }
     if (process.platform === 'win32') {
       return !id.includes('src');
@@ -35,21 +36,10 @@ export default [
       resolve({
         browser: true,
       }),
-      /*
-        {
-          "assert": require("assert"),
-          "buffer": require("browser-buffer"),
-          "constants": req uire("constants-browserify"), // this package does not export required constants and needs to envolve it in other file :P
-          "crypto": require("crypto-browserify"),
-          "fs": require("browserify-fs"),
-          "path": require("path-browserify"),
-          "os": require("os-browserify/browser"),
-          "stream": require("stream-browserify"),
-        }
-      */
-      nodePolyfills({ include: null }),
       // final transformation
-      esbuild(),
+      esbuild({
+        target: 'esnext',
+      }),
     ],
     output: [
       // commonjs

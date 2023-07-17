@@ -14,6 +14,7 @@ import {
   VoteAPI,
   WalletAPI,
 } from './api';
+import { CspAPI } from './api/csp';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { CensusProofType, VoteCore } from './core/vote';
@@ -36,7 +37,6 @@ import {
 } from './types';
 import { delay, strip0x } from './util/common';
 import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
-import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
 import { sha256 } from '@ethersproject/sha2';
