@@ -3777,7 +3777,6 @@
     blindsecp256k1 "^0.0.9"
     buffer "^6.0.3"
     circomlibjs "^0.1.7"
-    ffjavascript "./ffjavascript-v1.2.59-vocdoni.tgz"
     iso-language-codes "^1.1.0"
     snarkjs "^0.7.0"
     tiny-invariant "^1.3.1"
@@ -6690,14 +6689,6 @@ fb-watchman@^2.0.0:
   integrity sha512-p5161BqbuCaSnB8jIbzQHOlpgsPmK5rJVDfDKO91Axs5NC1uu3HRQm6wt9cd9/+GtQQIO53JdGXXoyDpTAsgYA==
   dependencies:
     bser "2.1.1"
-
-ffjavascript@./ffjavascript-v1.2.59-vocdoni.tgz:
-  version "1.2.59-vocdoni"
-  resolved "./ffjavascript-v1.2.59-vocdoni.tgz#7f6f0429a051fcda0f9798d7a943497d3c0a0b50"
-  dependencies:
-    wasmbuilder "0.0.16"
-    wasmcurves "0.2.1"
-    web-worker "^1.2.0"
 
 ffjavascript@0.2.57:
   version "0.2.57"
