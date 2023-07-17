@@ -14,7 +14,7 @@ const bundle = (config) => ({
   ...config,
   input: 'src/index.ts',
   external: (id) => {
-    if (['blakejs/blake2b', 'blindsecp256k1', 'circomlibjs', 'blake-hash'].includes(id)) {
+    if (['blakejs/blake2b', 'blindsecp256k1', 'circomlibjs', 'blake-hash', 'ffjavascript'].includes(id)) {
       return false;
     }
     if (/blake/.test(id)) {
