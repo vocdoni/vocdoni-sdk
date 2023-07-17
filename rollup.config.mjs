@@ -2,6 +2,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { default as pkg } from './package.json' assert { type: 'json' };
 import json from '@rollup/plugin-json';
 
@@ -30,11 +31,14 @@ export default [
   bundle({
     plugins: [
       json(),
-      // convert esm to commonjs modules (for cjs support)
+      // convert commonjs to esm modules
       commonjs(),
       // resolve node modules
       resolve({
         browser: true,
+      }),
+      nodePolyfills({
+        include: null,
       }),
       // final transformation
       esbuild({
