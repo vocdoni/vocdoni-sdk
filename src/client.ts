@@ -1,6 +1,7 @@
 import { Signer } from '@ethersproject/abstract-signer';
 import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
+import axios from 'axios';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
 import {
@@ -403,10 +404,14 @@ export async function dummy() {
   console.log('inputs done');
 
   console.log('generating proof');
+  const wasm = await axios.get('https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/circuit.wasm', {responseType: 'arraybuffer'})
+    .then(({data}) => new Uint8Array(data))
+  const key =  await axios.get('https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/proving_key.zkey', {responseType: 'arraybuffer'})
+  .then(({data}) => new Uint8Array(data))
   await generateGroth16Proof(
     inputs,
-    'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/circuit.wasm',
-    'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/proving_key.zkey'
+    wasm,
+    key
   );
   console.log('proof done');
   const end = Date.now();

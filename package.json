@@ -119,8 +119,9 @@
     "blindsecp256k1": "^0.0.9",
     "buffer": "^6.0.3",
     "circomlibjs": "^0.1.7",
+    "ffjavascript": "^0.2.59",
     "iso-language-codes": "^1.1.0",
-    "snarkjs": "^0.7.0",
+    "snarkjs": "vocdoni/snarkjs",
     "tiny-invariant": "^1.3.1",
     "tweetnacl": "^1.0.3",
     "yup": "^0.32.11"
