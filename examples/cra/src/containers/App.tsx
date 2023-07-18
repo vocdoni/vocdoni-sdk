@@ -9,7 +9,7 @@ import Census from '../components/Census'
 import Connect from '../components/Connect'
 import Vote from '../components/VoteOptions'
 import { connector as metamask, hooks as mhooks } from '../connectors/metamask'
-import { connector as walletconnect, hooks as whooks } from '../connectors/walletconnect'
+import { hooks as whooks } from '../connectors/walletconnect'
 
 export const App = () => {
   const [provider, setProvider] = useState<string>('')
@@ -160,9 +160,6 @@ export const App = () => {
             <Stack spacing={6} direction='row' justifyContent='center' w='full'>
               <Connect provider={metamask} onSuccess={() => setProvider('metamask')}>
                 Metamask connect
-              </Connect>
-              <Connect provider={walletconnect} onSuccess={() => setProvider('walletconnect')}>
-                WalletConnect
               </Connect>
             </Stack>
           </Else>
