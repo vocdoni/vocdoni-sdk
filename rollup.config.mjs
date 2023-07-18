@@ -8,7 +8,18 @@ import json from '@rollup/plugin-json';
 
 // take name from package "main" defined file
 const name = pkg.main.replace(/\.js$/, '');
-const embeded = ['blakejs/blake2b', 'blindsecp256k1', 'circomlibjs', 'blake-hash', 'ffjavascript', 'crypto', 'os'];
+const embeded = [
+  'blakejs/blake2b',
+  'blindsecp256k1',
+  'circomlibjs',
+  'blake-hash',
+  'ffjavascript',
+  'crypto',
+  'os',
+  'snarkjs',
+  'circom_runtime',
+  '@iden3/binfileutils',
+];
 
 // generics
 const bundle = (config) => ({
