@@ -10,11 +10,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.19",
+    "@chakra-ui/react": "^2.7.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@vocdoni/sdk": "^0.0.16",
+    "@walletconnect/ethereum-provider": "^1.7.5",
+    "@web3-react/core": "8.0.35-beta.0",
+    "@web3-react/metamask": "8.0.28-beta.0",
+    "@web3-react/walletconnect": "8.0.35-beta.0",
     "buffer": "^6.0.3",
+    "framer-motion": "^10.12.22",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-if": "^4.1.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.14",
