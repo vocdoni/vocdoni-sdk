@@ -41,13 +41,16 @@ export async function prepareCircuitInputs(
   const arboElectionId = await arbo.toHash(electionId);
   const ffsignature = ff.hexToFFBigInt(signature).toString();
   const ffpassword = ff.hexToFFBigInt(password).toString();
-  const nullifier = await calcNullifier(ffsignature, ffpassword, arboElectionId);
-  return {
+
+  return Promise.all([
+    calcNullifier(ffsignature, ffpassword, arboElectionId),
+    arbo.toHash(hex.fromBigInt(BigInt(availableWeight))),
+  ]).then((data) => ({
     // public inputs
-    electionId: await arbo.toHash(electionId),
-    nullifier,
+    electionId: arboElectionId,
+    nullifier: data[0].toString(),
     availableWeight,
-    voteHash: await arbo.toHash(hex.fromBigInt(BigInt(availableWeight))),
+    voteHash: data[1],
     cikRoot,
     censusRoot,
     // private inputs
@@ -57,5 +60,5 @@ export async function prepareCircuitInputs(
     voteWeight,
     cikSiblings,
     censusSiblings,
-  };
+  }));
 }
