@@ -8,13 +8,14 @@ import json from '@rollup/plugin-json';
 
 // take name from package "main" defined file
 const name = pkg.main.replace(/\.js$/, '');
+const embeded = ['blakejs/blake2b', 'blindsecp256k1', 'circomlibjs', 'blake-hash', 'ffjavascript', 'crypto', 'os'];
 
 // generics
 const bundle = (config) => ({
   ...config,
   input: 'src/index.ts',
   external: (id) => {
-    if (['blakejs/blake2b', 'blindsecp256k1', 'circomlibjs', 'blake-hash', 'ffjavascript', 'crypto', 'os'].includes(id)) {
+    if (embeded.includes(id)) {
       return false;
     }
     if (process.platform === 'win32') {
@@ -34,9 +35,7 @@ export default [
       resolve({
         browser: true,
       }),
-      nodePolyfills({
-        include: null,
-      }),
+      nodePolyfills(),
       // final transformation
       esbuild({
         target: 'esnext',
