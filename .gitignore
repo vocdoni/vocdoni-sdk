@@ -9,8 +9,5 @@ dist
 /package-lock.json
 /yarn.lock
 
-# version file
-/src/version.ts
-
 # ignore mdx temp files
 docs/temp_docs/

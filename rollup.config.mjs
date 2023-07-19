@@ -3,6 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
 import { default as pkg } from './package.json' assert { type: 'json' };
+import json from '@rollup/plugin-json';
 
 // take name from package "main" defined file
 const name = pkg.main.replace(/\.js$/, '');
@@ -25,6 +26,7 @@ const bundle = (config) => ({
 export default [
   bundle({
     plugins: [
+      json(),
       // convert esm to commonjs modules (for cjs support)
       commonjs(),
       // resolve node modules
