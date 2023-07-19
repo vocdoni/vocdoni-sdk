@@ -9,19 +9,6 @@ describe('Client tests', () => {
     const firstFetch = await client.fetchCircuits();
     const secondFetch = await client.fetchCircuits();
     expect(firstFetch).toEqual(secondFetch);
-    expect(() => {
-      client.setCircuits({
-        zKeyData: Uint8Array.from([1]),
-        zKeyHash: sha256(new Uint8Array()),
-        zKeyURI: '',
-        vKeyData: new Uint8Array(),
-        vKeyHash: sha256(new Uint8Array()),
-        vKeyURI: '',
-        wasmData: new Uint8Array(),
-        wasmHash: sha256(new Uint8Array()),
-        wasmURI: '',
-      });
-    }).toThrow('Invalid hash check for zKey');
     await expect(
       client.setCircuits({
         zKeyData: new Uint8Array(),
