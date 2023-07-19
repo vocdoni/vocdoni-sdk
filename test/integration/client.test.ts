@@ -21,7 +21,7 @@ describe('Client tests', () => {
         wasmHash: sha256(new Uint8Array()),
         wasmURI: '',
       });
-    }).toThrow();
+    }).toThrow('Invalid hash check for zKey');
     await expect(
       client.setCircuits({
         zKeyData: new Uint8Array(),
