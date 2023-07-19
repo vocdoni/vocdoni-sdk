@@ -35,7 +35,6 @@
   "scripts": {
     "clean": "rimraf node_modules dist",
     "start": "yarn watch",
-    "prebuild": "node -p \"'export const SDK_VERSION = \\'' + require('./package.json').version + '\\';'\" > src/version.ts",
     "build": "rollup -c",
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
     "test": "yarn test:unit && yarn test:api && yarn test:integration",
@@ -80,6 +79,7 @@
   ],
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/jest": "^29.2.2",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
