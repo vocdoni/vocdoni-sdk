@@ -1,12 +1,8 @@
-import { EnvOptions, VocdoniSDKClient, dummy } from '../../../src';
-import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from '../../../src/util/constants';
 import { Wallet } from '@ethersproject/wallet';
+import { EnvOptions, VocdoniSDKClient } from '../../../src';
+import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from '../../../src/util/constants';
 
 describe('Client tests', () => {
-  it('dummy test function to test snarkjs integration', () => {
-    dummy();
-  });
-
   it('should have the correct type', () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.DEV });
     expect(client).toBeInstanceOf(VocdoniSDKClient);
