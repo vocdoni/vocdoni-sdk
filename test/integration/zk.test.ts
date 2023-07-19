@@ -1,9 +1,12 @@
-import { prepareCircuitInputs } from '../../../src/util/zk/inputs';
-import { generateGroth16Proof } from '../../../src/util/zk/prover';
-import axios from 'axios';
+import { prepareCircuitInputs } from '../../src/util/zk/inputs';
+import { generateGroth16Proof } from '../../src/util/zk/prover';
+// @ts-ignore
+import { clientParams } from './util/client.params';
+import { VocdoniSDKClient } from '../../src';
 
 describe('zkSNARK test', () => {
   it('should calculate the proof correctly', async () => {
+    const client = new VocdoniSDKClient(clientParams());
     const apiInputs = {
       availableWeight: '10',
       cikRoot: '8249099760907167789571303445229571020142579550816399551344063388758746358298',
@@ -359,20 +362,18 @@ describe('zkSNARK test', () => {
       apiInputs.censusSiblings
     );
 
-    const wasm = await axios
-      .get(
-        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/circuit.wasm',
-        { responseType: 'arraybuffer' }
-      )
-      .then(({ data }) => new Uint8Array(data));
-
-    const key = await axios
-      .get(
+    const circuits = await client.fetchCircuits({
+      zKeyHash: 'a42bf48a706aa24a78e364f769d9576c3ee7b453fefacafdcee4e1335ff5365f',
+      zKeyURI:
         'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/proving_key.zkey',
-        { responseType: 'arraybuffer' }
-      )
-      .then(({ data }) => new Uint8Array(data));
+      vKeyHash: '24c4c4f6ca2a48c41e95d324c48b4428d4794d7e6fbeb9c840221ad797bcae56',
+      vKeyURI:
+        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/verification_key.json',
+      wasmHash: '0fe608036ef46ca58395c86b6b31b3c54edd79f331d003b7769c999ace38abfc',
+      wasmURI:
+        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/circuit.wasm',
+    });
 
-    await expect(generateGroth16Proof(inputs, wasm, key)).resolves;
+    await expect(generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData)).resolves;
   }, 10000000);
 });
