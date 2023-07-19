@@ -7,6 +7,7 @@ export * from './chain/';
 enum ChainAPIMethods {
   INFO = '/chain/info',
   COSTS = '/chain/info/electionPriceFactors',
+  CIRCUITS = '/chain/info/circuit',
   TX_INFO = '/chain/transactions/reference',
   TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
   SUBMIT_TX = '/chain/transactions',
@@ -112,6 +113,53 @@ export interface IChainGetCostsResponse {
     k6: number;
     k7: number;
   };
+}
+
+export interface IChainGetCircuitResponse {
+  /**
+   * The base uri of the files.
+   */
+  uri: string;
+
+  /**
+   * The path of the circuit.
+   */
+  circuitPath: string;
+
+  /**
+   * The circuit levels.
+   */
+  levels: number;
+
+  /**
+   * The hash of the proving key file.
+   */
+  zKeyHash: string;
+
+  /**
+   * The name of the proving key file.
+   */
+  zKeyFilename: string;
+
+  /**
+   * The hash of the verification key file.
+   */
+  vKeyHash: string;
+
+  /**
+   * The name of the verification key file.
+   */
+  vKeyFilename: string;
+
+  /**
+   * The hash of the WASM file.
+   */
+  wasmHash: string;
+
+  /**
+   * The name of the WASM file.
+   */
+  wasmFilename: string;
 }
 
 export enum TransactionType {
@@ -333,6 +381,32 @@ export abstract class ChainAPI extends API {
   public static costs(url: string): Promise<IChainGetCostsResponse> {
     return axios
       .get<IChainGetCostsResponse>(url + ChainAPIMethods.COSTS)
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches info about the blockchain anonymous circuits.
+   *
+   * @param {string} url API endpoint URL
+   * @returns {Promise<IChainGetCircuitResponse>}
+   */
+  public static circuits(url: string): Promise<IChainGetCircuitResponse> {
+    return axios
+      .get<IChainGetCircuitResponse>(url + ChainAPIMethods.CIRCUITS)
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches a circuit.
+   *
+   * @param {string} url Circuit URL
+   * @returns {Promise<Uint8Array>}
+   */
+  public static circuit(url: string): Promise<Uint8Array> {
+    return axios
+      .get<Uint8Array>(url, { responseType: 'arraybuffer' })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
