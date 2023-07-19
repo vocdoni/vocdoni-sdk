@@ -9,8 +9,8 @@ describe('Client tests', () => {
     const firstFetch = await client.fetchCircuits();
     const secondFetch = await client.fetchCircuits();
     expect(firstFetch).toEqual(secondFetch);
-    await expect(async () => {
-      await client.setCircuits({
+    expect(() => {
+      client.setCircuits({
         zKeyData: Uint8Array.from([1]),
         zKeyHash: sha256(new Uint8Array()),
         zKeyURI: '',
@@ -21,7 +21,7 @@ describe('Client tests', () => {
         wasmHash: sha256(new Uint8Array()),
         wasmURI: '',
       });
-    }).rejects;
+    }).toThrow();
     await expect(
       client.setCircuits({
         zKeyData: new Uint8Array(),
