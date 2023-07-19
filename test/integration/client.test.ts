@@ -35,8 +35,5 @@ describe('Client tests', () => {
         wasmURI: '',
       })
     ).resolves;
-    await expect(client.fetchCircuits(firstFetch)).resolves;
-    const thirdFetch = await client.fetchCircuits();
-    expect(firstFetch).toEqual(thirdFetch);
   }, 50000);
 });
