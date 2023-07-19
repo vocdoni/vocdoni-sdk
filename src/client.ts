@@ -183,7 +183,7 @@ export type ClientOptions = {
 export class VocdoniSDKClient {
   private chainData: ChainData | null = null;
   private chainCosts: ChainCosts | null = null;
-  private _chainCircuits: ChainCircuits | null = null;
+  private chainCircuits: ChainCircuits | null = null;
   private accountData: AccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
   private authToken: AccountToken | null = null;
@@ -325,21 +325,21 @@ export class VocdoniSDKClient {
    * @returns {ChainCircuits} The checked circuit parameters
    */
   private checkCircuitsHashes(): ChainCircuits {
-    invariant(this._chainCircuits, 'Circuits not set');
+    invariant(this.chainCircuits, 'Circuits not set');
     invariant(
-      strip0x(sha256(this._chainCircuits.zKeyData)) === strip0x(this._chainCircuits.zKeyHash),
+      strip0x(sha256(this.chainCircuits.zKeyData)) === strip0x(this.chainCircuits.zKeyHash),
       'Invalid hash check for zKey'
     );
     invariant(
-      strip0x(sha256(this._chainCircuits.vKeyData)) === strip0x(this._chainCircuits.vKeyHash),
+      strip0x(sha256(this.chainCircuits.vKeyData)) === strip0x(this.chainCircuits.vKeyHash),
       'Invalid hash check for vKey'
     );
     invariant(
-      strip0x(sha256(this._chainCircuits.wasmData)) === strip0x(this._chainCircuits.wasmHash),
+      strip0x(sha256(this.chainCircuits.wasmData)) === strip0x(this.chainCircuits.wasmHash),
       'Invalid hash check for WASM'
     );
 
-    return this._chainCircuits;
+    return this.chainCircuits;
   }
 
   /**
@@ -349,7 +349,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<ChainCircuits>}
    */
   setCircuits(circuits: ChainCircuits): ChainCircuits {
-    this._chainCircuits = circuits;
+    this.chainCircuits = circuits;
     return this.checkCircuitsHashes();
   }
 
@@ -366,16 +366,16 @@ export class VocdoniSDKClient {
       wasmData: new Uint8Array(),
     };
     if (circuits) {
-      this._chainCircuits = {
+      this.chainCircuits = {
         ...circuits,
         ...empty,
       };
     }
 
-    const setCircuitInfo = this._chainCircuits
-      ? Promise.resolve(this._chainCircuits)
+    const setCircuitInfo = this.chainCircuits
+      ? Promise.resolve(this.chainCircuits)
       : ChainAPI.circuits(this.url).then((chainCircuits) => {
-          this._chainCircuits = {
+          this.chainCircuits = {
             zKeyHash: chainCircuits.zKeyHash,
             zKeyURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.zKeyFilename,
             vKeyHash: chainCircuits.vKeyHash,
@@ -384,21 +384,21 @@ export class VocdoniSDKClient {
             wasmURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.wasmFilename,
             ...empty,
           };
-          return this._chainCircuits;
+          return this.chainCircuits;
         });
 
     return setCircuitInfo
       .then(() =>
         Promise.all([
-          ChainAPI.circuit(this._chainCircuits.zKeyURI),
-          ChainAPI.circuit(this._chainCircuits.vKeyURI),
-          ChainAPI.circuit(this._chainCircuits.wasmURI),
+          ChainAPI.circuit(this.chainCircuits.zKeyURI),
+          ChainAPI.circuit(this.chainCircuits.vKeyURI),
+          ChainAPI.circuit(this.chainCircuits.wasmURI),
         ])
       )
       .then((files) => {
-        this._chainCircuits.zKeyData = files[0];
-        this._chainCircuits.vKeyData = files[1];
-        this._chainCircuits.wasmData = files[2];
+        this.chainCircuits.zKeyData = files[0];
+        this.chainCircuits.vKeyData = files[1];
+        this.chainCircuits.wasmData = files[2];
         return this.checkCircuitsHashes();
       });
   }
