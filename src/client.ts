@@ -34,11 +34,12 @@ import {
   Vote,
   WeightedCensus,
 } from './types';
-import { delay } from './util/common';
+import { delay, strip0x } from './util/common';
 import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import { CspAPI } from './api/csp';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
+import { sha256 } from '@ethersproject/sha2';
 
 export type ChainData = {
   chainId: string;
@@ -143,6 +144,18 @@ type TxWaitOptions = {
 
 export type ChainCosts = IChainGetCostsResponse;
 
+export type ChainCircuits = {
+  zKeyData: Uint8Array;
+  zKeyHash: string;
+  zKeyURI: string;
+  vKeyData: Uint8Array;
+  vKeyHash: string;
+  vKeyURI: string;
+  wasmData: Uint8Array;
+  wasmHash: string;
+  wasmURI: string;
+};
+
 /**
  * Optional VocdoniSDKClient arguments
  *
@@ -170,6 +183,7 @@ export type ClientOptions = {
 export class VocdoniSDKClient {
   private chainData: ChainData | null = null;
   private chainCosts: ChainCosts | null = null;
+  private _chainCircuits: ChainCircuits | null = null;
   private accountData: AccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
   private authToken: AccountToken | null = null;
@@ -303,6 +317,90 @@ export class VocdoniSDKClient {
       this.chainCosts = chainCosts;
       return chainCosts;
     });
+  }
+
+  /**
+   * Checks circuit hashes
+   *
+   * @returns {ChainCircuits} The checked circuit parameters
+   */
+  private checkCircuitsHashes(): ChainCircuits {
+    invariant(this._chainCircuits, 'Circuits not set');
+    invariant(
+      strip0x(sha256(this._chainCircuits.zKeyData)) === strip0x(this._chainCircuits.zKeyHash),
+      'Invalid hash check for zKey'
+    );
+    invariant(
+      strip0x(sha256(this._chainCircuits.vKeyData)) === strip0x(this._chainCircuits.vKeyHash),
+      'Invalid hash check for vKey'
+    );
+    invariant(
+      strip0x(sha256(this._chainCircuits.wasmData)) === strip0x(this._chainCircuits.wasmHash),
+      'Invalid hash check for WASM'
+    );
+
+    return this._chainCircuits;
+  }
+
+  /**
+   * Sets circuits for anonymous voting
+   *
+   * @param {ChainCircuits} circuits Custom circuits
+   * @returns {Promise<ChainCircuits>}
+   */
+  setCircuits(circuits: ChainCircuits): ChainCircuits {
+    this._chainCircuits = circuits;
+    return this.checkCircuitsHashes();
+  }
+
+  /**
+   * Fetches circuits for anonymous voting
+   *
+   * @param {Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>} circuits Additional options for custom circuits
+   * @returns {Promise<ChainCircuits>}
+   */
+  fetchCircuits(circuits?: Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>): Promise<ChainCircuits> {
+    const empty = {
+      zKeyData: new Uint8Array(),
+      vKeyData: new Uint8Array(),
+      wasmData: new Uint8Array(),
+    };
+    if (circuits) {
+      this._chainCircuits = {
+        ...circuits,
+        ...empty,
+      };
+    }
+
+    const setCircuitInfo = this._chainCircuits
+      ? Promise.resolve(this._chainCircuits)
+      : ChainAPI.circuits(this.url).then((chainCircuits) => {
+          this._chainCircuits = {
+            zKeyHash: chainCircuits.zKeyHash,
+            zKeyURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.zKeyFilename,
+            vKeyHash: chainCircuits.vKeyHash,
+            vKeyURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.vKeyFilename,
+            wasmHash: chainCircuits.wasmHash,
+            wasmURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.wasmFilename,
+            ...empty,
+          };
+          return this._chainCircuits;
+        });
+
+    return setCircuitInfo
+      .then(() =>
+        Promise.all([
+          ChainAPI.circuit(this._chainCircuits.zKeyURI),
+          ChainAPI.circuit(this._chainCircuits.vKeyURI),
+          ChainAPI.circuit(this._chainCircuits.wasmURI),
+        ])
+      )
+      .then((files) => {
+        this._chainCircuits.zKeyData = files[0];
+        this._chainCircuits.vKeyData = files[1];
+        this._chainCircuits.wasmData = files[2];
+        return this.checkCircuitsHashes();
+      });
   }
 
   /**
