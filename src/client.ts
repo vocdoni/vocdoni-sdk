@@ -1112,13 +1112,13 @@ export class VocdoniSDKClient {
     return this.fetchCircuits({
       zKeyHash: 'a42bf48a706aa24a78e364f769d9576c3ee7b453fefacafdcee4e1335ff5365f',
       zKeyURI:
-        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/proving_key.zkey',
+        'https://github.com/vocdoni/zk-franchise-proof-circuit/raw/9a2c24e5c0fdddc77f65cac16a9e411dabeb1725/artifacts/zkCensus/dev/160/proving_key.zkey',
       vKeyHash: '24c4c4f6ca2a48c41e95d324c48b4428d4794d7e6fbeb9c840221ad797bcae56',
       vKeyURI:
-        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/verification_key.json',
+        'https://github.com/vocdoni/zk-franchise-proof-circuit/raw/9a2c24e5c0fdddc77f65cac16a9e411dabeb1725/artifacts/zkCensus/dev/160/verification_key.json',
       wasmHash: '0fe608036ef46ca58395c86b6b31b3c54edd79f331d003b7769c999ace38abfc',
       wasmURI:
-        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/feature/new-circuit/artifacts/zkCensus/dev/160/circuit.wasm',
+        'https://github.com/vocdoni/zk-franchise-proof-circuit/raw/9a2c24e5c0fdddc77f65cac16a9e411dabeb1725/artifacts/zkCensus/dev/160/circuit.wasm',
     }).then((circuits) => generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData));
   }
 
@@ -1482,8 +1482,8 @@ export class VocdoniSDKClient {
     console.log('inputs done');
 
     console.log('generating proof');
-    await this.generateGroth16Proof(inputs);
-    console.log('proof done');
+    const results = await this.generateGroth16Proof(inputs);
+    console.log('proof done', results);
     const end = Date.now();
     console.log(`proof took ${(end - start) / 1000}s`);
   }
