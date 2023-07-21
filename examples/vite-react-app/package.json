@@ -15,7 +15,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@vocdoni/sdk": "^0.0.16",
+    "@vocdoni/sdk": "0.0.17",
     "@walletconnect/ethereum-provider": "^1.7.5",
     "@web3-react/core": "8.0.35-beta.0",
     "@web3-react/metamask": "8.0.28-beta.0",

@@ -31,7 +31,7 @@ export const App = () => {
 
   const update = async () => {
     const client = new VocdoniSDKClient({
-      env: EnvOptions.DEV,
+      env: EnvOptions.STG,
       electionId: electionId
     })
     const publishedElection = await client.fetchElection()
@@ -45,7 +45,7 @@ export const App = () => {
       if (account.length || balance > 0 || provider.length === 0) return
       // client instance
       const client = new VocdoniSDKClient({
-        env: EnvOptions.DEV,
+        env: EnvOptions.STG,
         wallet: (providers[provider] as Web3Provider).getSigner()
       })
       // fetch info or create account if does not exist
@@ -107,7 +107,7 @@ export const App = () => {
                     const signer = (providers[provider] as Web3Provider).getSigner()
                     // client instance
                     const client = new VocdoniSDKClient({
-                      env: EnvOptions.DEV,
+                      env: EnvOptions.STG,
                       wallet: signer
                     })
 
@@ -169,7 +169,7 @@ export const App = () => {
               <Alert status='success'>
                 <Text fontSize='sm'>
                   Election created!&nbsp;
-                  <Link href={`https://dev.explorer.vote/processes/show/#/${electionId}`} isExternal>
+                  <Link href={`https://stg.explorer.vote/processes/show/#/${electionId}`} isExternal>
                     Check it out in the explorer <ExternalLinkIcon mx='2px' />
                   </Link>
                 </Text>

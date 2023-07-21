@@ -42,7 +42,7 @@ const VoteOptions = ({questions, signer, election, address, update} : VoteProps)
                       setVoting({...voting, [k]: true})
                       setDisabled(true)
                       const client = new VocdoniSDKClient({
-                        env: EnvOptions.DEV,
+                        env: EnvOptions.STG,
                         wallet: signer,
                       })
                       // set election id to be voted

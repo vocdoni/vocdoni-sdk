@@ -37,7 +37,7 @@ async function main() {
 
   const creator = Wallet.createRandom();
   const client = new VocdoniSDKClient({
-    env: EnvOptions.DEV,
+    env: EnvOptions.STG,
     wallet: creator,
   });
 

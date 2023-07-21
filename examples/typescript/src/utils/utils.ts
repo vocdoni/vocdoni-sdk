@@ -6,7 +6,7 @@ export const getRandomVoters = (voters: number) => [...new Array(voters)].map(()
 export const getDefaultClient = (wallet?: Wallet) => {
   const creator = wallet ?? Wallet.createRandom();
   const client = new VocdoniSDKClient({
-    env: EnvOptions.DEV,
+    env: EnvOptions.STG,
     api_url: process.env.API_URL,
     wallet: creator,
   });
