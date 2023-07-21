@@ -41,9 +41,9 @@ For creating elections or vote on them, blockchain transactions need to be
 build, thus a signer is required. Any kind of standard [ethers] signer should
 work.
 
-This project has been bundled into many different formats in order for you to
+This project has been bundled into many formats in order for you to
 import it based on the environment you're using it. When importing it via
-`@vocdoni/sdk` it will chose a version based on your current environment
+`@vocdoni/sdk` it will choose a version based on your current environment
 (commonjs or esm). There's also another UMD version which can be accessed via
 `@vocdoni/sdk/umd` in case you need it.
 
@@ -145,7 +145,7 @@ The `createAccount` also accepts some information about the account:
 ### Vocdoni tokens; faucet & balance
 
 Accounts require Vocdoni tokens in order to be able to register against our
-blokchain. The process above will automatically fetch some tokens from a faucet
+blockchain. The process above will automatically fetch some tokens from a faucet
 **under development**. For production environments, you should contact us (Vocdoni)
 for a byte64 string faucet, and specify it when creating your account:
 
@@ -275,7 +275,7 @@ election.addQuestion('Ain\'t this process awesome?', 'Question description', [
 ])
 ~~~
 
-> If you're a developer, maybe the value set to zero in Yes (and viceversa)
+> If you're a developer, maybe the value set to zero in Yes (and vice-versa)
 > confuses you. Note that this is a mapping of values; people voting on Yes will
 > properly set the value as specified (zero in this case), thus printing the
 > results as you expect.
