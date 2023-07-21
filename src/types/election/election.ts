@@ -91,13 +91,13 @@ export interface IElectionType {
   anonymous?: boolean;
 }
 
-type AnyJson = boolean | number | string | null | JsonArray | JsonMap;
+type AnyJson = boolean | number | string | null | JsonArray | JsonMap | any;
 interface JsonMap {
   [key: string]: AnyJson;
 }
 interface JsonArray extends Array<AnyJson> {}
 
-export type ElectionMeta = JsonArray | JsonMap;
+export type ElectionMeta = AnyJson | JsonArray | JsonMap;
 
 /**
  * Define election parameters.
