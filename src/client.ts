@@ -799,7 +799,7 @@ export class VocdoniSDKClient {
     }
 
     if (election.census instanceof TokenCensus) {
-      election.meta = { ...election.meta, ...{ token: election.census.token } };
+      election.meta = { ...election.meta, ...{ token: election.census.token as any } };
     }
 
     const electionData = Promise.all([

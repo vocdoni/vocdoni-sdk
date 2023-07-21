@@ -91,6 +91,14 @@ export interface IElectionType {
   anonymous?: boolean;
 }
 
+type AnyJson = boolean | number | string | null | JsonArray | JsonMap;
+interface JsonMap {
+  [key: string]: AnyJson;
+}
+interface JsonArray extends Array<AnyJson> {}
+
+export type ElectionMeta = JsonArray | JsonMap;
+
 /**
  * Define election parameters.
  */
@@ -114,7 +122,7 @@ export interface IElectionParameters {
   /**
    * Metadata (anything added by the election creator)
    */
-  meta?: object;
+  meta?: ElectionMeta;
   startDate?: string | number | Date;
   endDate: string | number | Date;
   census: Census;
@@ -149,7 +157,7 @@ export abstract class Election {
   protected _description: MultiLanguage<string>;
   protected _header: string;
   protected _streamUri: string;
-  protected _meta: object;
+  protected _meta: ElectionMeta;
   protected _startDate: Date;
   protected _endDate: Date;
   protected _electionType: IElectionType;
@@ -207,7 +215,7 @@ export abstract class Election {
     return this._streamUri;
   }
 
-  get meta(): object {
+  get meta(): ElectionMeta {
     return this._meta;
   }
 

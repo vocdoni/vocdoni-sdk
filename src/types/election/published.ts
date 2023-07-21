@@ -1,7 +1,7 @@
 import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
 import { MultiLanguage } from '../../util/lang';
-import { IQuestion } from '../metadata/election';
-import { PublishedCensus } from '../census/published';
+import { IQuestion } from '../metadata';
+import { PublishedCensus } from '../census';
 
 export enum ElectionStatus {
   PROCESS_UNKNOWN = 'PROCESS_UNKNOWN',
