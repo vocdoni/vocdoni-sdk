@@ -13,7 +13,7 @@ import { getHex, strip0x } from '../util/common';
 import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
-import { CspCensusProof, OffchainCensusProof } from '../client';
+import { CspCensusProof, CensusProof } from '../client';
 import { TransactionCore } from './transaction';
 
 export type IProofArbo = { siblings: string; weight?: bigint };
@@ -43,11 +43,6 @@ export type VotePackage = {
   votes: VoteValues;
 };
 
-export enum CensusProofType {
-  PUBKEY = 'pubkey', // This is deprecated, left for backward type compatibility
-  ADDRESS = 'address',
-}
-
 export abstract class VoteCore extends TransactionCore {
   /**
    * Cannot be constructed.
@@ -58,7 +53,7 @@ export abstract class VoteCore extends TransactionCore {
 
   public static generateVoteTransaction(
     election: PublishedElection,
-    censusProof: OffchainCensusProof | CspCensusProof,
+    censusProof: CensusProof | CspCensusProof,
     votePackage: Vote,
     processKeys?: ProcessKeys
   ): Uint8Array {
@@ -71,7 +66,7 @@ export abstract class VoteCore extends TransactionCore {
 
   private static prepareVoteData(
     election: PublishedElection,
-    censusProof: OffchainCensusProof | CspCensusProof,
+    censusProof: CensusProof | CspCensusProof,
     vote: Vote,
     processKeys?: ProcessKeys
   ): object {
@@ -108,33 +103,20 @@ export abstract class VoteCore extends TransactionCore {
   private static packageSignedProof(
     electionId: string,
     type: CensusType,
-    censusProof: OffchainCensusProof | CspCensusProof
+    censusProof: CensusProof | CspCensusProof
   ): Proof {
     if (type == CensusType.WEIGHTED) {
-      const proof = censusProof as OffchainCensusProof;
+      const proof = censusProof as CensusProof;
       // Check census proof
       if (typeof proof?.proof !== 'string' || !proof?.proof.match(/^(0x)?[0-9a-zA-Z]+$/)) {
         throw new Error('Invalid census proof (must be a hex string)');
       }
 
-      let keyType;
-      switch (proof.type) {
-        case CensusProofType.ADDRESS:
-          keyType = ProofArbo_KeyType.ADDRESS;
-          break;
-        case CensusProofType.PUBKEY:
-          keyType = ProofArbo_KeyType.PUBKEY;
-          break;
-        default:
-          keyType = ProofArbo_KeyType.UNRECOGNIZED;
-          break;
-      }
-
       const aProof = ProofArbo.fromPartial({
         siblings: Uint8Array.from(Buffer.from(proof.proof, 'hex')),
         type: ProofArbo_Type.BLAKE2B,
-        leafWeight: new Uint8Array(Buffer.from(proof.value, 'hex')),
-        keyType,
+        availableWeight: new Uint8Array(Buffer.from(proof.value, 'hex')),
+        keyType: ProofArbo_KeyType.ADDRESS,
       });
 
       return Proof.fromPartial({
