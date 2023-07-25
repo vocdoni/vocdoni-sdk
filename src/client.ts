@@ -36,12 +36,20 @@ import {
   WeightedCensus,
 } from './types';
 import { delay, strip0x } from './util/common';
-import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
+import {
+  API_URL,
+  EXPLORER_URL,
+  FAUCET_AUTH_TOKEN,
+  FAUCET_URL,
+  TX_WAIT_OPTIONS,
+  VOCDONI_SIK_PAYLOAD,
+} from './util/constants';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
 import { sha256 } from '@ethersproject/sha2';
-import { CircuitInputs } from './util/zk/inputs';
+import { calcSik, CircuitInputs } from './util/zk/inputs';
 import { generateGroth16Proof, ZkProof } from './util/zk/prover';
+import { Signing } from './util/signing';
 
 export type ChainData = {
   chainId: string;
@@ -641,21 +649,30 @@ export class VocdoniSDKClient {
   /**
    * Creates an account with information.
    *
-   * @param {{account: Account, faucetPackage: string | null}} options Additional options,
+   * @param {{account: Account, faucetPackage: string | null, signedSikPayload: string | null}} options Additional options,
    * like extra information of the account, or the faucet package string.
    * @returns {Promise<AccountData>}
    */
-  async createAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
+  async createAccountInfo(options: {
+    account: Account;
+    faucetPackage?: string;
+    signedSikPayload?: string;
+  }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(options.account, 'No account');
 
     const faucetPackage = this.parseFaucetPackage(options.faucetPackage ?? (await this.fetchFaucetPayload()));
 
+    const address = await this.wallet.getAddress();
+
+    const calculatedSik = options?.signedSikPayload ? await calcSik(address, options.signedSikPayload) : null;
+
     const accountData = Promise.all([
-      this.wallet.getAddress(),
       this.fetchChainId(),
       this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'utf8').toString('base64')),
-    ]).then((data) => AccountCore.generateCreateAccountTransaction(data[0], options.account, data[2], faucetPackage));
+    ]).then((data) =>
+      AccountCore.generateCreateAccountTransaction(address, options.account, data[1], faucetPackage, calculatedSik)
+    );
 
     return this.setAccountInfo(accountData);
   }
@@ -699,15 +716,27 @@ export class VocdoniSDKClient {
   /**
    * Registers an account against vochain, so it can create new elections.
    *
-   * @param {{account: Account | null, faucetPackage: string | null}} options Additional
+   * @param {{account: Account | null, faucetPackage: string | null, sik: boolean | null}} options Additional
    * options, like extra information of the account, or the faucet package string
    * @returns {Promise<AccountData>}
    */
-  createAccount(options?: { account?: Account; faucetPackage?: string }): Promise<AccountData> {
+  createAccount(options?: { account?: Account; faucetPackage?: string; sik?: boolean }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
-    return this.fetchAccountInfo().catch(() =>
-      this.createAccountInfo({ account: options?.account ?? new Account(), faucetPackage: options?.faucetPackage })
-    );
+    return this.fetchAccountInfo().catch(() => {
+      if (options?.sik) {
+        return Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), this.wallet).then((signedPayload) =>
+          this.createAccountInfo({
+            account: options?.account ?? new Account(),
+            faucetPackage: options?.faucetPackage,
+            signedSikPayload: signedPayload,
+          })
+        );
+      }
+      return this.createAccountInfo({
+        account: options?.account ?? new Account(),
+        faucetPackage: options?.faucetPackage,
+      });
+    });
   }
 
   /**

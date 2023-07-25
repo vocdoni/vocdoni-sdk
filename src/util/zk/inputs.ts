@@ -2,6 +2,27 @@ import { buildPoseidon } from 'circomlibjs';
 import * as arbo from './arbo_utils';
 import * as ff from './ff';
 import * as hex from './hex';
+import { VOCDONI_SIK_SIGNATURE_LENGTH } from '../constants';
+
+function signatureToVocdoniSikSignature(personal_sign: string): string {
+  // Discard the last byte of the personal_sign (used for recovery), different
+  // that the same byte of a signature generated with go
+  const buffSign = hex.toArrayBuffer(personal_sign);
+  return hex.fromArrayBuffer(buffSign.slice(0, VOCDONI_SIK_SIGNATURE_LENGTH));
+}
+
+export async function calcSik(address, personal_sign: string, password: string = '0'): Promise<string> {
+  const arboAddress = arbo.toBigInt(address).toString();
+  const safeSignature = signatureToVocdoniSikSignature(personal_sign);
+
+  const ffsignature = ff.hexToFFBigInt(safeSignature).toString();
+  const ffpassword = ff.hexToFFBigInt(password).toString();
+
+  return buildPoseidon().then((poseidon) => {
+    const hash = poseidon([arboAddress, ffpassword, ffsignature]);
+    return arbo.toString(poseidon.F.toObject(hash));
+  });
+}
 
 async function calcNullifier(ffsignature: string, ffpassword: string, arboElectionId: string[]): Promise<bigint> {
   const poseidon = await buildPoseidon();
