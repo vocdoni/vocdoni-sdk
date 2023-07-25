@@ -9,6 +9,7 @@ import {
   Vote,
 } from '@vocdoni/sdk';
 import chalk from 'chalk';
+import { getDefaultClient } from './utils/utils';
 
 export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -43,11 +44,7 @@ const createElection = (census: PlainCensus, electionType?: IElectionType): Unpu
 async function main() {
   console.log(chalk.yellow('Creating a new voting process!'));
 
-  const creator = Wallet.createRandom();
-  const client = new VocdoniSDKClient({
-    env: EnvOptions.STG,
-    wallet: creator,
-  });
+  const { client } = getDefaultClient();
 
   console.log('Creating account...');
   await client.createAccount();
