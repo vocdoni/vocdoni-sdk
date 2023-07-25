@@ -33,16 +33,26 @@ interface ICensusPublishResponse {
   uri: string;
 }
 
-interface ICensusProofResponse {
+export interface ICensusProofResponse {
+  /**
+   * The type of the census
+   */
+  type: CensusType;
+
   /**
    * The weight as a string
    */
   weight: string;
 
   /**
+   * The root (id) of the census
+   */
+  censusRoot: string;
+
+  /**
    * The proof for the given key
    */
-  proof: string;
+  censusProof: string;
 
   /**
    * The value for the given key

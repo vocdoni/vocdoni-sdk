@@ -1,7 +1,8 @@
 export enum CensusType {
   WEIGHTED = 'weighted',
-  ANONYMOUS = 'zkindexed',
+  ANONYMOUS = 'zkweighted',
   CSP = 'csp',
+  UNKNOWN = 'unknown',
 }
 
 /**

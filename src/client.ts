@@ -17,7 +17,7 @@ import {
 import { CspAPI } from './api/csp';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
-import { CensusProofType, VoteCore } from './core/vote';
+import { VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
@@ -75,17 +75,17 @@ type AccountToken = {
 };
 
 /**
- * @typedef OffchainCensusProof
+ * @typedef CensusProof
  * @property {string} weight
  * @property {string} proof
  * @property {string} value
- * @property {CensusProofType} type
  */
-export type OffchainCensusProof = {
+export type CensusProof = {
+  type: CensusType;
   weight: string;
+  root: string;
   proof: string;
   value: string;
-  type: CensusProofType;
 };
 
 /**
@@ -615,13 +615,16 @@ export class VocdoniSDKClient {
    *
    * @param {string} censusId Census we want to check the address against
    * @param {string} key The address to be found
-   * @param {CensusProofType} type Type of census
-   * @returns {Promise<OffchainCensusProof>}
+   * @returns {Promise<CensusProof>}
    */
-  async fetchProof(censusId: string, key: string, type: CensusProofType): Promise<OffchainCensusProof> {
-    return CensusAPI.proof(this.url, censusId, key).then((censusProof) => {
-      return { ...censusProof, type };
-    });
+  async fetchProof(censusId: string, key: string): Promise<CensusProof> {
+    return CensusAPI.proof(this.url, censusId, key).then((censusProof) => ({
+      type: censusProof.type,
+      weight: censusProof.weight,
+      root: censusProof.censusRoot,
+      proof: censusProof.censusProof,
+      value: censusProof.value,
+    }));
   }
 
   /**
@@ -629,12 +632,10 @@ export class VocdoniSDKClient {
    *
    * @param election
    * @param wallet
-   * @returns {Promise<OffchainCensusProof>}
+   * @returns {Promise<CensusProof>}
    */
-  private fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<OffchainCensusProof> {
-    return wallet
-      .getAddress()
-      .then((address) => this.fetchProof(election.census.censusId, address, CensusProofType.ADDRESS));
+  private fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<CensusProof> {
+    return wallet.getAddress().then((address) => this.fetchProof(election.census.censusId, address));
   }
 
   /**
@@ -933,7 +934,7 @@ export class VocdoniSDKClient {
     let proofPromise;
 
     if (key) {
-      proofPromise = this.fetchProof(election.census.censusId, key, CensusProofType.ADDRESS);
+      proofPromise = this.fetchProof(election.census.censusId, key);
     } else if (election) {
       proofPromise = this.fetchProofForWallet(election, this.wallet);
     } else {
@@ -1021,7 +1022,7 @@ export class VocdoniSDKClient {
 
     const election = await this.fetchElection();
 
-    let censusProof: CspCensusProof | OffchainCensusProof;
+    let censusProof: CspCensusProof | CensusProof;
     if (election.census.type == CensusType.WEIGHTED) {
       censusProof = await this.fetchProofForWallet(election, this.wallet);
     } else if (election.census.type == CensusType.CSP && vote instanceof CspVote) {
