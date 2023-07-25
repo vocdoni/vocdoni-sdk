@@ -17,9 +17,17 @@ export abstract class AccountCore extends TransactionCore {
     address: string,
     account: Account,
     cid: string,
-    faucetPackage: FaucetPackage
+    faucetPackage: FaucetPackage,
+    sik: string
   ): { tx: Uint8Array; metadata: string } {
-    const txData = this.prepareSetAccountData(address, 0, account.generateMetadata(), cid, faucetPackage);
+    const txData = this.prepareSetAccountData({
+      address,
+      nonce: 0,
+      metadata: account.generateMetadata(),
+      cid,
+      faucetPackage,
+      sik,
+    });
     return this.generateSetAccountTransaction(txData);
   }
 
@@ -29,11 +37,12 @@ export abstract class AccountCore extends TransactionCore {
     cid: string
   ): { tx: Uint8Array; metadata: string } {
     const txData = this.prepareSetAccountData(
-      accountData.address,
-      accountData.nonce,
-      account.generateMetadata(),
-      cid,
-      null,
+      {
+        address: accountData.address,
+        nonce: accountData.nonce,
+        metadata: account.generateMetadata(),
+        cid,
+      },
       false
     );
     return this.generateSetAccountTransaction(txData);
@@ -63,21 +72,25 @@ export abstract class AccountCore extends TransactionCore {
   }
 
   private static prepareSetAccountData(
-    address: string,
-    nonce: number,
-    metadata: AccountMetadata,
-    cid: string,
-    faucetPackage: FaucetPackage,
+    data: {
+      address: string;
+      nonce: number;
+      metadata: AccountMetadata;
+      cid: string;
+      faucetPackage?: FaucetPackage;
+      sik?: string;
+    },
     create: boolean = true
   ): { metadata: string; accountData: object } {
     return {
-      metadata: Buffer.from(JSON.stringify(metadata), 'utf8').toString('base64'),
+      metadata: Buffer.from(JSON.stringify(data.metadata), 'utf8').toString('base64'),
       accountData: {
         txtype: create ? TxType.CREATE_ACCOUNT : TxType.SET_ACCOUNT_INFO_URI,
-        nonce,
-        account: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
-        infoURI: cid,
-        faucetPackage: faucetPackage ? this.prepareFaucetPackage(faucetPackage) : null,
+        nonce: data.nonce,
+        account: new Uint8Array(Buffer.from(strip0x(data.address), 'hex')),
+        infoURI: data.cid,
+        faucetPackage: data.faucetPackage ? this.prepareFaucetPackage(data.faucetPackage) : null,
+        sik: data.sik ? new Uint8Array(Buffer.from(strip0x(data.sik), 'hex')) : null,
       },
     };
   }
