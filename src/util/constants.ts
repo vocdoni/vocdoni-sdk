@@ -30,3 +30,6 @@ export const TX_WAIT_OPTIONS = {
   retry_time: 5000,
   attempts: 6,
 };
+
+export const VOCDONI_SIK_SIGNATURE_LENGTH = 64;
+export const VOCDONI_SIK_PAYLOAD = 'vocdoni-sik-payload';
