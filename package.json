@@ -39,13 +39,12 @@
     "ts-types": "tsc --emitDeclarationOnly --outDir dist",
     "test": "yarn test:unit && yarn test:api && yarn test:integration",
     "test:unit": "jest test/unit",
-    "test:integration": "jest test/integration",
+    "test:integration": "jest test/integration --forceExit",
     "test:api": "jest test/api",
     "lint": "eslint src test --ext .js,.jsx,.ts,.tsx",
     "lintfix": "yarn lint --fix",
     "prepare": "yarn build",
     "size": "size-limit",
-    "analyze": "size-limit --why",
     "watch": "yarn build --watch"
   },
   "husky": {
