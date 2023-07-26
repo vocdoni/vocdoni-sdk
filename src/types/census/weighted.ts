@@ -1,5 +1,4 @@
 import { ICensusParticipant, OffchainCensus } from './offchain';
-import { CensusType } from './census';
 
 /**
  * Represents a weighted census
@@ -10,7 +9,6 @@ export class WeightedCensus extends OffchainCensus {
    */
   public constructor() {
     super();
-    this.type = CensusType.WEIGHTED;
   }
 
   public add(participants: ICensusParticipant | ICensusParticipant[]) {

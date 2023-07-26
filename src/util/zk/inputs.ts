@@ -3,17 +3,18 @@ import * as arbo from './arbo_utils';
 import * as ff from './ff';
 import * as hex from './hex';
 import { VOCDONI_SIK_SIGNATURE_LENGTH } from '../constants';
+import { strip0x } from '../common';
 
-function signatureToVocdoniSikSignature(personal_sign: string): string {
+export function signatureToVocdoniSikSignature(personal_sign: string): string {
   // Discard the last byte of the personal_sign (used for recovery), different
   // that the same byte of a signature generated with go
   const buffSign = hex.toArrayBuffer(personal_sign);
   return hex.fromArrayBuffer(buffSign.slice(0, VOCDONI_SIK_SIGNATURE_LENGTH));
 }
 
-export async function calcSik(address, personal_sign: string, password: string = '0'): Promise<string> {
-  const arboAddress = arbo.toBigInt(address).toString();
-  const safeSignature = signatureToVocdoniSikSignature(personal_sign);
+export async function calcSik(address: string, personal_sign: string, password: string = '0'): Promise<string> {
+  const arboAddress = arbo.toBigInt(strip0x(address)).toString();
+  const safeSignature = signatureToVocdoniSikSignature(strip0x(personal_sign));
 
   const ffsignature = ff.hexToFFBigInt(safeSignature).toString();
   const ffpassword = ff.hexToFFBigInt(password).toString();
@@ -36,14 +37,14 @@ export interface CircuitInputs {
   nullifier: string;
   availableWeight: string;
   voteHash: string[];
-  cikRoot: string;
+  sikRoot: string;
   censusRoot: string;
   // private inputs
   address: string;
   password: string;
   signature: string;
   voteWeight: string;
-  cikSiblings: string[];
+  sikSiblings: string[];
   censusSiblings: string[];
 }
 
@@ -54,32 +55,32 @@ export async function prepareCircuitInputs(
   signature: string,
   voteWeight: string,
   availableWeight: string,
-  cikRoot: string,
-  cikSiblings: string[],
+  sikRoot: string,
+  sikSiblings: string[],
   censusRoot: string,
   censusSiblings: string[]
 ): Promise<CircuitInputs> {
+  signature = signatureToVocdoniSikSignature(strip0x(signature));
+
   const arboElectionId = await arbo.toHash(electionId);
-  const ffsignature = ff.hexToFFBigInt(signature).toString();
+  const ffsignature = ff.hexToFFBigInt(strip0x(signature)).toString();
   const ffpassword = ff.hexToFFBigInt(password).toString();
 
   return Promise.all([
     calcNullifier(ffsignature, ffpassword, arboElectionId),
     arbo.toHash(hex.fromBigInt(BigInt(availableWeight))),
   ]).then((data) => ({
-    // public inputs
     electionId: arboElectionId,
     nullifier: data[0].toString(),
-    availableWeight,
+    availableWeight: arbo.toBigInt(availableWeight).toString(),
     voteHash: data[1],
-    cikRoot,
-    censusRoot,
-    // private inputs
-    address: arbo.toBigInt(address).toString(),
+    sikRoot: arbo.toBigInt(sikRoot).toString(),
+    censusRoot: arbo.toBigInt(censusRoot).toString(),
+    address: arbo.toBigInt(strip0x(address)).toString(),
     password: ffpassword,
     signature: ffsignature,
-    voteWeight,
-    cikSiblings,
+    voteWeight: arbo.toBigInt(voteWeight).toString(),
+    sikSiblings,
     censusSiblings,
   }));
 }
