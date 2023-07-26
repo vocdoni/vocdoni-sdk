@@ -11,7 +11,7 @@ export function fromArrayBuffer(input: Uint8Array): string {
 
 export function toArrayBuffer(input: string): Uint8Array {
   if (input.length % 2 !== 0) {
-    throw new RangeError('Expected string to be an even number of characters');
+    input = input + '0';
   }
 
   const view = new Uint8Array(input.length / 2);

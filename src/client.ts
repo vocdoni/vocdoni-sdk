@@ -21,7 +21,6 @@ import { VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
-  Census,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -47,9 +46,10 @@ import {
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
 import { sha256 } from '@ethersproject/sha2';
-import { calcSik, CircuitInputs } from './util/zk/inputs';
+import { calcSik, CircuitInputs, prepareCircuitInputs } from './util/zk/inputs';
 import { generateGroth16Proof, ZkProof } from './util/zk/prover';
 import { Signing } from './util/signing';
+import { ZkAPI } from './api/zk';
 
 export type ChainData = {
   chainId: string;
@@ -94,6 +94,7 @@ export type CensusProof = {
   root: string;
   proof: string;
   value: string;
+  siblings?: Array<string>;
 };
 
 /**
@@ -531,7 +532,7 @@ export class VocdoniSDKClient {
           census: new PublishedCensus(
             electionInfo.census.censusRoot,
             electionInfo.census.censusURL,
-            Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin),
+            censusInfo.type,
             censusInfo.size,
             censusInfo.weight
           ),
@@ -634,6 +635,7 @@ export class VocdoniSDKClient {
       root: censusProof.censusRoot,
       proof: censusProof.censusProof,
       value: censusProof.value,
+      siblings: censusProof.censusSiblings ?? null,
     }));
   }
 
@@ -646,6 +648,38 @@ export class VocdoniSDKClient {
    */
   private fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<CensusProof> {
     return wallet.getAddress().then((address) => this.fetchProof(election.census.censusId, address));
+  }
+
+  /**
+   * Calculates ZK proof from given wallet.
+   *
+   * @param election
+   * @param wallet
+   * @returns {Promise<ZkProof>}
+   */
+  private async calcZKProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<ZkProof> {
+    const address = await wallet.getAddress();
+
+    return Promise.all([
+      this.fetchProofForWallet(election, wallet),
+      ZkAPI.proof(this.url, address),
+      Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet),
+    ])
+      .then((proof) =>
+        prepareCircuitInputs(
+          election.id,
+          address,
+          '0',
+          proof[2],
+          proof[0].value,
+          proof[0].value,
+          proof[1].censusRoot,
+          proof[1].censusSiblings,
+          proof[0].root,
+          proof[0].siblings
+        )
+      )
+      .then((circuits) => this.generateZkProof(circuits));
   }
 
   /**
@@ -793,15 +827,21 @@ export class VocdoniSDKClient {
    * @param censusId
    * @returns {Promise<{size: number, weight: bigint}>}
    */
-  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint }> {
-    return Promise.all([CensusAPI.size(this.url, censusId), CensusAPI.weight(this.url, censusId)])
+  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
+    return Promise.all([
+      CensusAPI.size(this.url, censusId),
+      CensusAPI.weight(this.url, censusId),
+      CensusAPI.type(this.url, censusId),
+    ])
       .then((censusInfo) => ({
         size: censusInfo[0].size,
         weight: BigInt(censusInfo[1].weight),
+        type: censusInfo[2].type,
       }))
       .catch(() => ({
         size: undefined,
         weight: undefined,
+        type: undefined,
       }));
   }
 
@@ -816,6 +856,10 @@ export class VocdoniSDKClient {
       election.maxCensusSize || election.census.type !== CensusType.CSP,
       'CSP Census needs a max census size set in the election'
     );
+
+    if (election.electionType.anonymous) {
+      election.census.type = CensusType.ANONYMOUS;
+    }
 
     const chainId = await this.fetchChainId();
 
@@ -1053,9 +1097,11 @@ export class VocdoniSDKClient {
 
     const election = await this.fetchElection();
 
-    let censusProof: CspCensusProof | CensusProof;
+    let censusProof: CspCensusProof | CensusProof | ZkProof;
     if (election.census.type == CensusType.WEIGHTED) {
       censusProof = await this.fetchProofForWallet(election, this.wallet);
+    } else if (election.census.type == CensusType.ANONYMOUS) {
+      censusProof = await this.calcZKProofForWallet(election, this.wallet);
     } else if (election.census.type == CensusType.CSP && vote instanceof CspVote) {
       censusProof = {
         address: await this.wallet.getAddress(),
@@ -1140,7 +1186,6 @@ export class VocdoniSDKClient {
     return new Wallet(keccak256(Buffer.from(hash)));
   }
 
-  // @ts-ignore
   private async generateZkProof(inputs: CircuitInputs): Promise<ZkProof> {
     return this.fetchCircuits().then((circuits) => generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData));
   }

@@ -10,6 +10,7 @@ enum CensusAPIMethods {
   PROOF = '/censuses/{id}/proof',
   SIZE = '/censuses/{id}/size',
   WEIGHT = '/censuses/{id}/weight',
+  TYPE = '/censuses/{id}/type',
 }
 
 interface ICensusCreateResponse {
@@ -58,6 +59,11 @@ export interface ICensusProofResponse {
    * The value for the given key
    */
   value: string;
+
+  /**
+   * The census siblings
+   */
+  censusSiblings?: Array<string>;
 }
 
 interface ICensusSizeResponse {
@@ -72,6 +78,13 @@ interface ICensusWeightResponse {
    * The weight of the census as a BigInt (sum of all weights)
    */
   weight: string;
+}
+
+interface ICensusTypeResponse {
+  /**
+   * The type of the census
+   */
+  type: CensusType;
 }
 
 export abstract class CensusAPI extends API {
@@ -176,7 +189,7 @@ export abstract class CensusAPI extends API {
    * Returns the size of a given census
    *
    * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID of which we want the proof from
+   * @param {string} censusId The census ID
    * @returns {Promise<ICensusSizeResponse>}
    */
   public static size(url: string, censusId: string): Promise<ICensusSizeResponse> {
@@ -190,12 +203,26 @@ export abstract class CensusAPI extends API {
    * Returns the weight of a given census
    *
    * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID of which we want the proof from
+   * @param {string} censusId The census ID
    * @returns {Promise<ICensusWeightResponse>}
    */
   public static weight(url: string, censusId: string): Promise<ICensusWeightResponse> {
     return axios
       .get<ICensusWeightResponse>(url + CensusAPIMethods.WEIGHT.replace('{id}', censusId))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the type of a given census
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} censusId The census ID
+   * @returns {Promise<ICensusTypeResponse>}
+   */
+  public static type(url: string, censusId: string): Promise<ICensusTypeResponse> {
+    return axios
+      .get<ICensusTypeResponse>(url + CensusAPIMethods.TYPE.replace('{id}', censusId))
       .then((response) => response.data)
       .catch(this.isApiError);
   }

@@ -900,4 +900,30 @@ describe('Election integration tests', () => {
         expect(election.census.censusURI).toEqual(census2.censusURI);
       });
   }, 185000);
+  it('should create an anonymous election and vote successfully', async () => {
+    const census = new PlainCensus();
+    census.add((client.wallet as Wallet).address);
+
+    const election = createElection(census, {
+      anonymous: true,
+    });
+
+    await client.createAccount({ sik: true });
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((publishedElection) => {
+        expect(publishedElection.electionType.anonymous).toBeTruthy();
+        return waitForElectionReady(client, publishedElection.id);
+      })
+      .then(() => {
+        const vote = new Vote([1]);
+        return client.submitVote(vote);
+      });
+  }, 285000);
 });
