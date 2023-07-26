@@ -1,4 +1,4 @@
-import { Census } from './census';
+import { Census, CensusType } from './census';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
 
@@ -18,6 +18,7 @@ export abstract class OffchainCensus extends Census {
    */
   protected constructor() {
     super();
+    this.type = CensusType.WEIGHTED;
     this.participants = [];
   }
 

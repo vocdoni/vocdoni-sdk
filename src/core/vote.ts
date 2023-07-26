@@ -6,6 +6,7 @@ import {
   ProofArbo_Type,
   ProofCA,
   ProofCA_Type,
+  ProofZkSNARK,
   Tx,
   VoteEnvelope,
 } from '@vocdoni/proto/vochain';
@@ -15,6 +16,8 @@ import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
 import { CspCensusProof, CensusProof } from '../client';
 import { TransactionCore } from './transaction';
+import { ZkProof } from '../util/zk/prover';
+import { toArrayBuffer } from '../util/zk/hex';
 
 export type IProofArbo = { siblings: string; weight?: bigint };
 export type IProofCA = {
@@ -53,7 +56,7 @@ export abstract class VoteCore extends TransactionCore {
 
   public static generateVoteTransaction(
     election: PublishedElection,
-    censusProof: CensusProof | CspCensusProof,
+    censusProof: CensusProof | CspCensusProof | ZkProof,
     votePackage: Vote,
     processKeys?: ProcessKeys
   ): Uint8Array {
@@ -66,7 +69,7 @@ export abstract class VoteCore extends TransactionCore {
 
   private static prepareVoteData(
     election: PublishedElection,
-    censusProof: CensusProof | CspCensusProof,
+    censusProof: CensusProof | CspCensusProof | ZkProof,
     vote: Vote,
     processKeys?: ProcessKeys
   ): object {
@@ -86,13 +89,18 @@ export abstract class VoteCore extends TransactionCore {
       const nonce = Buffer.from(strip0x(getHex()), 'hex');
       const { votePackage, keyIndexes } = this.packageVoteContent(vote.votes, processKeys);
 
+      const nullifier =
+        election.census.type == CensusType.ANONYMOUS
+          ? toArrayBuffer((censusProof as ZkProof).publicSignals[2])
+          : new Uint8Array();
+
       return {
         proof,
         processId: new Uint8Array(Buffer.from(strip0x(election.id), 'hex')),
         nonce: new Uint8Array(nonce),
         votePackage: new Uint8Array(votePackage),
         encryptionKeyIndexes: keyIndexes || [],
-        nullifier: new Uint8Array(),
+        nullifier,
       };
     } catch (error) {
       throw new Error('The poll vote envelope could not be generated');
@@ -103,7 +111,7 @@ export abstract class VoteCore extends TransactionCore {
   private static packageSignedProof(
     electionId: string,
     type: CensusType,
-    censusProof: CensusProof | CspCensusProof
+    censusProof: CensusProof | CspCensusProof | ZkProof
   ): Proof {
     if (type == CensusType.WEIGHTED) {
       const proof = censusProof as CensusProof;
@@ -122,16 +130,27 @@ export abstract class VoteCore extends TransactionCore {
       return Proof.fromPartial({
         payload: { $case: 'arbo', arbo: aProof },
       });
+    } else if (type == CensusType.ANONYMOUS) {
+      const proof = censusProof as ZkProof;
+
+      const zkSnark = ProofZkSNARK.fromPartial({
+        a: proof.proof.pi_a,
+        b: proof.proof.pi_b.reduce((a, b) => a.concat(b), []),
+        c: proof.proof.pi_c,
+        publicInputs: proof.publicSignals,
+      });
+
+      return Proof.fromPartial({
+        payload: { $case: 'zkSnark', zkSnark },
+      });
     } else if (type == CensusType.CSP) {
       const proof = censusProof as CspCensusProof;
 
       // Populate the proof
       const caProof = ProofCA.fromPartial({
-        // type: proof.type,
         type: ProofCA_Type.ECDSA_BLIND_PIDSALTED,
         signature: new Uint8Array(Buffer.from(strip0x(proof.signature), 'hex')),
         bundle: this.cspCaBundle(electionId, proof.address),
-        // weight
       });
 
       return Proof.fromPartial({
