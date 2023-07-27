@@ -103,7 +103,7 @@ export abstract class VoteCore extends TransactionCore {
         nullifier,
       };
     } catch (error) {
-      throw new Error('The poll vote envelope could not be generated: ' + error.message);
+      throw new Error('The poll vote envelope could not be generated');
     }
   }
 
