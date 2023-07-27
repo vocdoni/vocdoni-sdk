@@ -902,13 +902,20 @@ describe('Election integration tests', () => {
   }, 185000);
   it('should create an anonymous election and vote successfully', async () => {
     const census = new PlainCensus();
+    const voter1 = Wallet.createRandom();
+    const voter2 = Wallet.createRandom();
+    // User that votes with account with SIK
     census.add((client.wallet as Wallet).address);
+    // User that votes with account without SIK
+    census.add(voter1.address);
+    // User that votes and has no account
+    census.add(voter2.address);
 
     const election = createElection(census, {
       anonymous: true,
     });
 
-    await client.createAccount({ sik: true });
+    await client.createAccount();
 
     await client
       .createElection(election)
@@ -922,6 +929,11 @@ describe('Election integration tests', () => {
         return waitForElectionReady(client, publishedElection.id);
       })
       .then(() => {
+        const vote = new Vote([0]);
+        return client.submitVote(vote);
+      })
+      .then(() => {
+        client.wallet = voter2;
         const vote = new Vote([1]);
         return client.submitVote(vote);
       });

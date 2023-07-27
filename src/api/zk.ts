@@ -3,7 +3,7 @@ import { strip0x } from '../util/common';
 import { API } from './api';
 
 enum ZkAPIMethods {
-  PROOF = '/sik/proof',
+  PROOF = '/siks/proof',
 }
 
 export interface IZkProofResponse {

@@ -407,7 +407,7 @@ export abstract class ChainAPI extends API {
   public static circuit(url: string): Promise<Uint8Array> {
     return axios
       .get<Uint8Array>(url, { responseType: 'arraybuffer' })
-      .then((response) => response.data)
+      .then((response) => new Uint8Array(response.data))
       .catch(this.isApiError);
   }
 

@@ -652,6 +652,20 @@ export class VocdoniSDKClient {
     return wallet.getAddress().then((address) => this.fetchProof(election.census.censusId, address));
   }
 
+  private async setAccountSIK(
+    election: PublishedElection,
+    sik: string,
+    censusProof: CensusProof,
+    wallet: Wallet | Signer
+  ): Promise<void> {
+    const address = await wallet.getAddress();
+    const calculatedSIK = await calcSik(address, sik);
+    const registerSIKTx = AccountCore.generateRegisterSIKTransaction(election.id, calculatedSIK, censusProof);
+    return AccountCore.signTransaction(registerSIKTx, this.chainData.chainId, wallet)
+      .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
+      .then((data) => this.waitForTransaction(data.hash));
+  }
+
   /**
    * Calculates ZK proof from given wallet.
    *
@@ -661,24 +675,24 @@ export class VocdoniSDKClient {
    */
   private async calcZKProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<ZkProof> {
     const address = await wallet.getAddress();
+    const sik = await Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet);
+    const censusProof = await this.fetchProofForWallet(election, wallet);
 
-    return Promise.all([
-      this.fetchProofForWallet(election, wallet),
-      ZkAPI.proof(this.url, address),
-      Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet),
-    ])
-      .then((proof) =>
+    await this.fetchAccountInfo(address).catch(() => this.setAccountSIK(election, sik, censusProof, wallet));
+
+    return ZkAPI.proof(this.url, address)
+      .then((zkProof) =>
         prepareCircuitInputs(
           election.id,
           address,
           '0',
-          proof[2],
-          proof[0].value,
-          proof[0].value,
-          proof[1].censusRoot,
-          proof[1].censusSiblings,
-          proof[0].root,
-          proof[0].siblings
+          sik,
+          censusProof.value,
+          censusProof.value,
+          zkProof.censusRoot,
+          zkProof.censusSiblings,
+          censusProof.root,
+          censusProof.siblings
         )
       )
       .then((circuits) => this.generateZkProof(circuits));
@@ -758,7 +772,13 @@ export class VocdoniSDKClient {
    * options, like extra information of the account, or the faucet package string
    * @returns {Promise<AccountData>}
    */
-  createAccount(options?: { account?: Account; faucetPackage?: string; sik?: boolean }): Promise<AccountData> {
+  createAccount(
+    options: { account?: Account; faucetPackage?: string; sik?: boolean } = {
+      account: null,
+      faucetPackage: null,
+      sik: true,
+    }
+  ): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     return this.fetchAccountInfo().catch(() => {
       if (options?.sik) {
