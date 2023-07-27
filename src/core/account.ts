@@ -1,6 +1,16 @@
-import { CollectFaucetTx, SetAccountTx, Tx, TxType } from '@vocdoni/proto/vochain';
+import {
+  CollectFaucetTx,
+  Proof,
+  ProofArbo,
+  ProofArbo_KeyType,
+  ProofArbo_Type,
+  RegisterSIKTx,
+  SetAccountTx,
+  Tx,
+  TxType,
+} from '@vocdoni/proto/vochain';
 import { Buffer } from 'buffer';
-import { AccountData, FaucetPackage } from '../client';
+import { AccountData, CensusProof, FaucetPackage } from '../client';
 import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
 import { strip0x } from '../util/common';
@@ -71,6 +81,27 @@ export abstract class AccountCore extends TransactionCore {
     }).finish();
   }
 
+  public static generateRegisterSIKTransaction(electionId: string, sik: string, proof: CensusProof): Uint8Array {
+    const aProof = ProofArbo.fromPartial({
+      siblings: Uint8Array.from(Buffer.from(proof.proof, 'hex')),
+      type: ProofArbo_Type.POSEIDON,
+      availableWeight: new Uint8Array(Buffer.from(proof.value, 'hex')),
+      keyType: ProofArbo_KeyType.ADDRESS,
+    });
+
+    const registerSIK = RegisterSIKTx.fromPartial({
+      electionId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
+      SIK: new Uint8Array(Buffer.from(strip0x(sik), 'hex')),
+      censusProof: Proof.fromPartial({
+        payload: { $case: 'arbo', arbo: aProof },
+      }),
+    });
+
+    return Tx.encode({
+      payload: { $case: 'registerSIK', registerSIK },
+    }).finish();
+  }
+
   private static prepareSetAccountData(
     data: {
       address: string;
@@ -90,7 +121,7 @@ export abstract class AccountCore extends TransactionCore {
         account: new Uint8Array(Buffer.from(strip0x(data.address), 'hex')),
         infoURI: data.cid,
         faucetPackage: data.faucetPackage ? this.prepareFaucetPackage(data.faucetPackage) : null,
-        sik: data.sik ? new Uint8Array(Buffer.from(strip0x(data.sik), 'hex')) : null,
+        SIK: data.sik ? new Uint8Array(Buffer.from(strip0x(data.sik), 'hex')) : null,
       },
     };
   }

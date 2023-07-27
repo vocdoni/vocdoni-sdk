@@ -14,7 +14,7 @@ import { getHex, strip0x } from '../util/common';
 import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
-import { CspCensusProof, CensusProof } from '../client';
+import { CensusProof, CspCensusProof } from '../client';
 import { TransactionCore } from './transaction';
 import { ZkProof } from '../util/zk/prover';
 import { toArrayBuffer } from '../util/zk/hex';
