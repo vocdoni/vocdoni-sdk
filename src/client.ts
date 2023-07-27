@@ -661,7 +661,8 @@ export class VocdoniSDKClient {
     const address = await wallet.getAddress();
     const calculatedSIK = await calcSik(address, sik);
     const registerSIKTx = AccountCore.generateRegisterSIKTransaction(election.id, calculatedSIK, censusProof);
-    return AccountCore.signTransaction(registerSIKTx, this.chainData.chainId, wallet)
+    const chainId = await this.fetchChainId();
+    return AccountCore.signTransaction(registerSIKTx, chainId, wallet)
       .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
       .then((data) => this.waitForTransaction(data.hash));
   }
