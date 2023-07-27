@@ -113,6 +113,7 @@ export abstract class VoteCore extends TransactionCore {
     type: CensusType,
     censusProof: CensusProof | CspCensusProof | ZkProof
   ): Proof {
+    console.log('packageSignedProof', type, censusProof);
     if (type == CensusType.WEIGHTED) {
       const proof = censusProof as CensusProof;
       // Check census proof
