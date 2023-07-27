@@ -77,4 +77,15 @@ export abstract class Census {
       typeof this.censusId !== 'undefined' && typeof this.censusURI !== 'undefined' && typeof this.type !== 'undefined'
     );
   }
+
+  static censusTypeFromCensusOrigin(censusOrigin: string, anonymous: boolean = false): CensusType {
+    switch (censusOrigin) {
+      case 'OFF_CHAIN_TREE_WEIGHTED':
+        return anonymous ? CensusType.ANONYMOUS : CensusType.WEIGHTED;
+      case 'OFF_CHAIN_CA':
+        return CensusType.CSP;
+      default:
+        throw new Error('Census type not defined by the census origin');
+    }
+  }
 }

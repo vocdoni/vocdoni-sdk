@@ -21,6 +21,7 @@ import { VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
+  Census,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -532,7 +533,8 @@ export class VocdoniSDKClient {
           census: new PublishedCensus(
             electionInfo.census.censusRoot,
             electionInfo.census.censusURL,
-            censusInfo.type,
+            censusInfo.type ??
+              Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin, electionInfo.voteMode.anonymous),
             censusInfo.size,
             censusInfo.weight
           ),
