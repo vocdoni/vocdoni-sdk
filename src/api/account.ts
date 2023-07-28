@@ -27,6 +27,11 @@ interface IAccountInfoResponse {
   nonce: number;
 
   /**
+   * The sik of the account.
+   */
+  sik: string;
+
+  /**
    * The index of the elections created by the account.
    */
   electionIndex: number;
