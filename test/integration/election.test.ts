@@ -906,9 +906,9 @@ describe('Election integration tests', () => {
     const voter2 = Wallet.createRandom();
     // User that votes with account with SIK
     census.add((client.wallet as Wallet).address);
-    // User that votes with account without SIK
-    census.add(voter1.address);
     // User that votes and has no account
+    census.add(voter1.address);
+    // User that votes with account without SIK
     census.add(voter2.address);
 
     const election = createElection(census, {
@@ -933,7 +933,15 @@ describe('Election integration tests', () => {
         return client.submitVote(vote);
       })
       .then(() => {
+        client.wallet = voter1;
+        const vote = new Vote([0]);
+        return client.submitVote(vote);
+      })
+      .then(() => {
         client.wallet = voter2;
+        return client.createAccount({ sik: false });
+      })
+      .then(() => {
         const vote = new Vote([1]);
         return client.submitVote(vote);
       });
