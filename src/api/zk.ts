@@ -4,6 +4,7 @@ import { API } from './api';
 
 enum ZkAPIMethods {
   PROOF = '/siks/proof',
+  SIK = '/siks',
 }
 
 export interface IZkProofResponse {
@@ -28,6 +29,13 @@ export interface IZkProofResponse {
   censusSiblings: Array<string>;
 }
 
+export interface IZkSIKResponse {
+  /**
+   * The sik of the address
+   */
+  sik: string;
+}
+
 export abstract class ZkAPI extends API {
   /**
    * Cannot be constructed.
@@ -46,6 +54,20 @@ export abstract class ZkAPI extends API {
   public static proof(url: string, key: string): Promise<IZkProofResponse> {
     return axios
       .get<IZkProofResponse>(url + ZkAPIMethods.PROOF + '/' + strip0x(key))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the SIK on given address
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} key The address to be checked
+   * @returns {Promise<IZkSIKResponse>} The ZK proof
+   */
+  public static sik(url: string, key: string): Promise<IZkSIKResponse> {
+    return axios
+      .get<IZkSIKResponse>(url + ZkAPIMethods.SIK + '/' + strip0x(key))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
