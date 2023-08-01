@@ -679,13 +679,7 @@ export class VocdoniSDKClient {
     const sik = await Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet);
     const censusProof = await this.fetchProofForWallet(election, wallet);
 
-    await AccountAPI.info(this.url, address)
-      .then((account) => {
-        if (account.sik.length === 0) {
-          throw new Error();
-        }
-      })
-      .catch(() => this.setAccountSIK(election, sik, censusProof, wallet));
+    await ZkAPI.sik(this.url, address).catch(() => this.setAccountSIK(election, sik, censusProof, wallet));
 
     return ZkAPI.proof(this.url, address)
       .then((zkProof) =>
