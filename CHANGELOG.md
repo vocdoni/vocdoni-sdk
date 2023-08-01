@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.18] - 2023-08-01
+
+### Added
+
+- Election `get` function to fetch metadata values using `dotobject`
+
+### Fixed
+
+- Added missing dependencies
+
 ## [0.0.17] - 2023-07-21
 
 ### Added
@@ -211,6 +221,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.0.18]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.18
 [0.0.17]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.17
 [0.0.16]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.16
 [0.0.15]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.0.15
