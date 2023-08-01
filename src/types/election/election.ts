@@ -2,6 +2,7 @@ import { IQuestion } from '../metadata';
 import { Census } from '../census';
 import { MultiLanguage } from '../../util/lang';
 import { UnpublishedElection } from './unpublished';
+import { dotobject } from '../../util/common';
 
 export interface IVoteType {
   /**
@@ -249,5 +250,9 @@ export abstract class Election {
 
   get addSDKVersion(): boolean {
     return this._addSDKVersion;
+  }
+
+  get(dot: string) {
+    return dotobject(this.meta, dot);
   }
 }

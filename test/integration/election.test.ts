@@ -62,6 +62,10 @@ describe('Election integration tests', () => {
         test1: 'test1',
         test2: 'test2',
       },
+      census: {
+        fields: ['firstname', 'lastname', 'email'],
+        type: 'spreadsheet',
+      },
     };
 
     await client.createAccount();
@@ -83,10 +87,15 @@ describe('Election integration tests', () => {
             test1: 'test1',
             test2: 'test2',
           },
+          census: {
+            fields: ['firstname', 'lastname', 'email'],
+            type: 'spreadsheet',
+          },
           sdk: {
             version: SDK_VERSION,
           },
         });
+        expect(publishedElection.get('census.type')).toEqual('spreadsheet');
         expect(publishedElection.electionType).toStrictEqual({
           autoStart: true,
           interruptible: true,
