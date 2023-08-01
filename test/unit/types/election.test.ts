@@ -25,6 +25,10 @@ beforeEach(() => {
         test1: 'test1',
         test2: 'test2',
       },
+      census: {
+        fields: ['firstname', 'lastname', 'email'],
+        type: 'spreadsheet',
+      },
     },
     startDate: new Date().getTime() + 80000,
     endDate: new Date().getTime() + 10000000,
@@ -50,7 +54,12 @@ describe('Election tests', () => {
         test1: 'test1',
         test2: 'test2',
       },
+      census: {
+        fields: ['firstname', 'lastname', 'email'],
+        type: 'spreadsheet',
+      },
     });
+    expect(election.get('census.type')).toEqual('spreadsheet');
     expect(election.electionType).toEqual({
       autoStart: true,
       interruptible: true,
