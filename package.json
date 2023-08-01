@@ -1,7 +1,7 @@
 {
   "name": "@vocdoni/sdk",
   "author": "Vocdoni",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "⚒️An SDK for building applications on top of Vocdoni API",
   "repository": "https://github.com/vocdoni/vocdoni-sdk.git",
   "license": "AGPL-3.0-or-later",
