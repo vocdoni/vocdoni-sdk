@@ -56,7 +56,7 @@ export function formatUnits(value: BigNumberish, decimals: number = 18): string 
  *
  * @param {any} obj Object to be accessed by dot notation
  * @param {string} dot Dot notation string to extract object data
- * @returns
+ * @returns {any} Return the object data
  */
 export const dotobject = (obj: any, dot: string) => {
   const rec = (obj: any, dot: string[]): any => {
