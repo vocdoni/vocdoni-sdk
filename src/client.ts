@@ -382,6 +382,11 @@ export class VocdoniSDKClient {
         ...circuits,
         ...empty,
       };
+    } else {
+      try {
+        this.checkCircuitsHashes();
+        return Promise.resolve(this.chainCircuits);
+      } catch (e) {}
     }
 
     const setCircuitInfo = this.chainCircuits
