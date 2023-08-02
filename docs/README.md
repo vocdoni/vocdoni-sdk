@@ -10,13 +10,13 @@ This library export the JSDocs to `.mdx` format, which is compatible with docusa
 Run:
 
 ```bash
-npm install
+yarn
 ```
 
 Then you can just run the npm script:
 
 ```bash
-npm run build
+yarn build
 ```
 
 This will generate a `temp_docs` folder with all generated documentation. It also copies de `../README.md` into 
