@@ -667,14 +667,11 @@ export class VocdoniSDKClient {
   ): Promise<void> {
     return wallet
       .getAddress()
-      .then((address) => calcSik(address, sik))
-      .then((calculatedSIK) =>
-        Promise.all([
-          AccountCore.generateRegisterSIKTransaction(election.id, calculatedSIK, censusProof),
-          this.fetchChainId(),
-        ])
-      )
-      .then(([registerSIKTx, chainId]) => AccountCore.signTransaction(registerSIKTx, chainId, wallet))
+      .then((address) => Promise.all([calcSik(address, sik), this.fetchChainId()]))
+      .then(([calculatedSIK, chainId]) => {
+        const registerSIKTx = AccountCore.generateRegisterSIKTransaction(election.id, calculatedSIK, censusProof);
+        return AccountCore.signTransaction(registerSIKTx, chainId, wallet);
+      })
       .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
       .then((data) => this.waitForTransaction(data.hash));
   }
