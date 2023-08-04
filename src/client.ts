@@ -527,6 +527,8 @@ export class VocdoniSDKClient {
             censusInfo.size,
             censusInfo.weight
           ),
+          maxCensusSize: electionInfo.census.maxCensusSize,
+          manuallyEnded: electionInfo.manuallyEnded,
           status: electionInfo.status,
           voteCount: electionInfo.voteCount,
           finalResults: electionInfo.finalResults,
