@@ -112,6 +112,7 @@ describe('Election integration tests', () => {
           maxValue: 1,
           maxTotalCost: 0,
         });
+        expect(publishedElection.manuallyEnded).toBeFalsy();
       });
   }, 85000);
   it('should create an election with addresses census', async () => {
@@ -474,11 +475,13 @@ describe('Election integration tests', () => {
       })
       .then((election) => {
         expect([ElectionStatus.ONGOING, ElectionStatus.UPCOMING]).toContain(election.status);
+        expect(election.manuallyEnded).toBeFalsy();
         return client.endElection();
       })
       .then(() => client.fetchElection())
       .then((election) => {
         expect([ElectionStatus.ENDED, ElectionStatus.RESULTS]).toContain(election.status);
+        expect(election.manuallyEnded).toBeTruthy();
       });
   }, 85000);
   it('should create an election and pause it successfully', async () => {

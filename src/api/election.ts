@@ -192,6 +192,11 @@ export interface IElectionInfoResponse {
   result?: Array<Array<string>>;
 
   /**
+   * If the election has been ended manually
+   */
+  manuallyEnded: boolean;
+
+  /**
    * The census of the election
    */
   census: ICensus;

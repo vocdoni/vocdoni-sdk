@@ -26,6 +26,7 @@ export interface IPublishedElectionParameters extends IElectionParameters {
   voteCount: number;
   finalResults: boolean;
   results: Array<Array<string>>;
+  manuallyEnded: boolean;
   creationTime: string;
   metadataURL: string;
   raw: object;
@@ -40,6 +41,7 @@ export class PublishedElection extends Election {
   private readonly _status: ElectionStatus;
   private readonly _voteCount: number;
   private readonly _finalResults: boolean;
+  private readonly _manuallyEnded: boolean;
   private readonly _results: Array<Array<string>>;
   private readonly _creationTime: Date;
   private readonly _metadataURL: string;
@@ -71,6 +73,7 @@ export class PublishedElection extends Election {
     this._voteCount = params.voteCount;
     this._finalResults = params.finalResults;
     this._results = params.results;
+    this._manuallyEnded = params.manuallyEnded;
     this._creationTime = new Date(params.creationTime);
     this._metadataURL = params.metadataURL;
     this._raw = params.raw;
@@ -160,6 +163,10 @@ export class PublishedElection extends Election {
 
   get results(): Array<Array<string>> {
     return this._results;
+  }
+
+  get manuallyEnded(): boolean {
+    return this._manuallyEnded;
   }
 
   get creationTime(): Date {
