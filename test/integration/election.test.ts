@@ -113,6 +113,7 @@ describe('Election integration tests', () => {
           maxTotalCost: 0,
         });
         expect(publishedElection.manuallyEnded).toBeFalsy();
+        expect(publishedElection.maxCensusSize).toEqual(1);
       });
   }, 85000);
   it('should create an election with addresses census', async () => {
@@ -202,6 +203,7 @@ describe('Election integration tests', () => {
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt(numVotes));
         expect(election.status).toEqual(ElectionStatus.ONGOING);
+        expect(election.maxCensusSize).toEqual(numVotes);
       })
       .then(() =>
         Promise.all(
@@ -285,6 +287,7 @@ describe('Election integration tests', () => {
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt((numVotes * (numVotes + 1)) / 2));
         expect(election.status).toEqual(ElectionStatus.ONGOING);
+        expect(election.maxCensusSize).toEqual(numVotes);
       })
       .then(() =>
         Promise.all(
@@ -363,6 +366,7 @@ describe('Election integration tests', () => {
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt(numVotes));
         expect(election.status).toEqual(ElectionStatus.ONGOING);
+        expect(election.maxCensusSize).toEqual(numVotes);
       })
       .then(() =>
         Promise.all(
@@ -444,6 +448,7 @@ describe('Election integration tests', () => {
         expect(election.census.size).toEqual(numVotes);
         expect(election.census.weight).toEqual(BigInt(numVotes));
         expect(election.status).toEqual(ElectionStatus.ONGOING);
+        expect(election.maxCensusSize).toEqual(numVotes);
       })
       .then(() =>
         Promise.all(
