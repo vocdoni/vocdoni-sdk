@@ -976,6 +976,12 @@ describe('Election integration tests', () => {
           }
           const isInCensus = await client.isInCensus();
           expect(isInCensus).toBeTruthy();
+          await expect(async () => {
+            await client.hasAlreadyVoted();
+          }).rejects.toThrow();
+          await expect(async () => {
+            await client.isAbleToVote();
+          }).rejects.toThrow();
           await client.submitVote(vote);
         }
       })

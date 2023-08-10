@@ -1071,7 +1071,7 @@ export class VocdoniSDKClient {
    * @param {string} electionId The id of the election
    * @returns {Promise<string>} The id of the vote
    */
-  hasAlreadyVoted(electionId?: string): Promise<string> {
+  async hasAlreadyVoted(electionId?: string): Promise<string> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
@@ -1079,9 +1079,15 @@ export class VocdoniSDKClient {
       throw Error('No wallet found');
     }
 
+    const election = await this.fetchElection(electionId ?? this.electionId);
+
+    if (election.electionType.anonymous) {
+      throw Error('This function cannot be used with an anonymous election');
+    }
+
     return this.wallet
       .getAddress()
-      .then((address) => VoteAPI.info(this.url, keccak256(address.toLowerCase() + (electionId ?? this.electionId))))
+      .then((address) => VoteAPI.info(this.url, keccak256(address.toLowerCase() + election.id)))
       .then((voteInfo) => voteInfo.voteID)
       .catch(() => null);
   }
@@ -1093,9 +1099,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<boolean>}
    */
   isAbleToVote(electionId?: string): Promise<boolean> {
-    return this.votesLeftCount(electionId)
-      .then((votesLeftCount) => votesLeftCount > 0)
-      .catch(() => false);
+    return this.votesLeftCount(electionId).then((votesLeftCount) => votesLeftCount > 0);
   }
 
   /**
@@ -1112,12 +1116,16 @@ export class VocdoniSDKClient {
       throw Error('No wallet found');
     }
 
-    const isInCensus = await this.isInCensus(electionId ?? this.electionId);
+    const election = await this.fetchElection(electionId ?? this.electionId);
+
+    if (election.electionType.anonymous) {
+      throw Error('This function cannot be used with an anonymous election');
+    }
+
+    const isInCensus = await this.isInCensus(election.id);
     if (!isInCensus) {
       throw Error('Not in census');
     }
-
-    const election = await this.fetchElection(electionId ?? this.electionId);
 
     return this.wallet
       .getAddress()
