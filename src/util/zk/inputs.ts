@@ -4,6 +4,8 @@ import * as ff from './ff';
 import * as hex from './hex';
 import { VOCDONI_SIK_SIGNATURE_LENGTH } from '../constants';
 import { strip0x } from '../common';
+import { hexlify } from '@ethersproject/bytes';
+import { toUtf8Bytes } from '@ethersproject/strings';
 
 export function signatureToVocdoniSikSignature(personal_sign: string): string {
   // Discard the last byte of the personal_sign (used for recovery), different
@@ -17,7 +19,7 @@ export async function calcSik(address: string, personal_sign: string, password: 
   const safeSignature = signatureToVocdoniSikSignature(strip0x(personal_sign));
 
   const ffsignature = ff.hexToFFBigInt(safeSignature).toString();
-  const ffpassword = ff.hexToFFBigInt(password).toString();
+  const ffpassword = ff.hexToFFBigInt(hexlify(toUtf8Bytes(password))).toString();
 
   return buildPoseidon().then((poseidon) => {
     const hash = poseidon([arboAddress, ffpassword, ffsignature]);
@@ -64,7 +66,7 @@ export async function prepareCircuitInputs(
 
   const arboElectionId = await arbo.toHash(electionId);
   const ffsignature = ff.hexToFFBigInt(strip0x(signature)).toString();
-  const ffpassword = ff.hexToFFBigInt(password).toString();
+  const ffpassword = ff.hexToFFBigInt(hexlify(toUtf8Bytes(password))).toString();
 
   return Promise.all([
     calcNullifier(ffsignature, ffpassword, arboElectionId),
