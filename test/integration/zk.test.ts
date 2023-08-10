@@ -1,380 +1,150 @@
-import { prepareCircuitInputs } from '../../src/util/zk/inputs';
-import { generateGroth16Proof } from '../../src/util/zk/prover';
 // @ts-ignore
 import { clientParams } from './util/client.params';
-import { VocdoniSDKClient } from '../../src';
+import { Election, PlainCensus, VocdoniSDKClient, Vote } from '../../src';
+import { Wallet } from '@ethersproject/wallet';
+// @ts-ignore
+import { waitForElectionReady } from './util/client.utils';
+import { AnonymousVote } from '../../src/types/vote/anonymous';
+
+let client: VocdoniSDKClient;
+let wallet: Wallet;
+
+beforeEach(async () => {
+  wallet = Wallet.createRandom();
+  client = new VocdoniSDKClient(clientParams(wallet));
+});
+
+const createElection = (census, electionType?, voteType?, maxCensusSize?) => {
+  const election = Election.from({
+    title: 'SDK Testing - Title',
+    description: 'SDK Testing - Description',
+    endDate: new Date().getTime() + 10000000,
+    census,
+    maxCensusSize,
+    electionType: electionType ?? null,
+    voteType: voteType ?? null,
+  });
+
+  election.addQuestion('This is a title', 'This is a description', [
+    {
+      title: 'Option 1',
+      value: 0,
+    },
+    {
+      title: 'Option 2',
+      value: 1,
+    },
+  ]);
+
+  return election;
+};
 
 describe('zkSNARK test', () => {
-  it('should calculate the proof correctly', async () => {
-    const client = new VocdoniSDKClient(clientParams());
-    const apiInputs = {
-      availableWeight: '10',
-      cikRoot: '8249099760907167789571303445229571020142579550816399551344063388758746358298',
-      cikSiblings: [
-        '7548158814310825343542451035513910435175908869118880827293082019140308928765',
-        '7621616467852048598984306939476316508903164606437232069863966962716987421574',
-        '0',
-        '18616412528782094425570523485399800126649249730262010043759673549343655698710',
-        '9435966446765861998449762818553607928871451298821960692184639206470581874262',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-      ],
-      censusRoot: '11177228488345865753134984371979258733075585988910587528690250331384779468608',
-      censusSiblings: [
-        '12940653407944391992631250845953962507824817648629121074758866002450631761908',
-        '21269862985882725828037322963542871197672714891820625500210977910628481463112',
-        '0',
-        '134181927717507984641610333591947729623167601209884374561715717589118869884',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-        '0',
-      ],
-    };
-    const clientInputs = {
-      electionId: '7faeab7a7d250527d614e952ae8e446825bd1124c6def410844c7c383d1519a6',
-      address: 'B1F05B11Ba3d892EdD00f2e7689779E2B8841827',
-      password: 'df8634ab3b14536cb7a6953b1128ec6742726483bc5bb13605891600fd5ec35b',
-      signature:
-        '3a7806f4e0b5bda625d465abf5639ba42ac9b91bafea3b800a4afff840be8d55333c286c7e21c91850a99efb5008847eaf653e3a5776f64f4d3b405afd5dcde61c',
-      voteWeight: '5',
-    };
+  it('should create an anonymous election and vote successfully', async () => {
+    const census = new PlainCensus();
+    const voter1 = Wallet.createRandom();
+    const voter2 = Wallet.createRandom();
+    // User that votes with account with SIK
+    census.add((client.wallet as Wallet).address);
+    // User that votes and has no account
+    census.add(voter1.address);
+    // User that votes with account without SIK
+    census.add(voter2.address);
 
-    const inputs = await prepareCircuitInputs(
-      // client inputs
-      clientInputs.electionId,
-      clientInputs.address,
-      clientInputs.password,
-      clientInputs.signature,
-      clientInputs.voteWeight,
-      // api inputs
-      apiInputs.availableWeight,
-      apiInputs.cikRoot,
-      apiInputs.cikSiblings,
-      apiInputs.censusRoot,
-      apiInputs.censusSiblings
-    );
-
-    // These are specific circuits that could be outdated but are useful for testing purposes
-    const circuits = await client.fetchCircuits({
-      zKeyHash: 'a42bf48a706aa24a78e364f769d9576c3ee7b453fefacafdcee4e1335ff5365f',
-      zKeyURI:
-        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/9a2c24e5c0fdddc77f65cac16a9e411dabeb1725/artifacts/zkCensus/dev/160/proving_key.zkey',
-      vKeyHash: '24c4c4f6ca2a48c41e95d324c48b4428d4794d7e6fbeb9c840221ad797bcae56',
-      vKeyURI:
-        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/9a2c24e5c0fdddc77f65cac16a9e411dabeb1725/artifacts/zkCensus/dev/160/verification_key.json',
-      wasmHash: '0fe608036ef46ca58395c86b6b31b3c54edd79f331d003b7769c999ace38abfc',
-      wasmURI:
-        'https://raw.githubusercontent.com/vocdoni/zk-franchise-proof-circuit/9a2c24e5c0fdddc77f65cac16a9e411dabeb1725/artifacts/zkCensus/dev/160/circuit.wasm',
+    const election = createElection(census, {
+      anonymous: true,
     });
 
-    await expect(generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData)).resolves;
-  }, 10000000);
+    await client.createAccount({
+      account: null,
+      faucetPackage: null,
+      sik: true,
+      password: 'password123',
+    });
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((publishedElection) => {
+        expect(publishedElection.electionType.anonymous).toBeTruthy();
+        return waitForElectionReady(client, publishedElection.id);
+      })
+      .then(async () => {
+        /*await expect(async () => {
+          await client.submitVote(new Vote([0]));
+        }).rejects.toThrow();*/
+        const vote = new AnonymousVote([0], 'password123');
+        return client.submitVote(vote);
+      })
+      .then(() => {
+        client.wallet = voter1;
+        const vote = new AnonymousVote([0], 'password456');
+        return client.submitVote(vote);
+      })
+      .then(() => {
+        client.wallet = voter2;
+        return client.createAccount({ sik: false });
+      })
+      .then(() => {
+        const vote = new Vote([1]);
+        return client.submitVote(vote);
+      });
+  }, 285000);
+  it('should create an anonymous election with 12 participants and each of them should vote correctly', async () => {
+    const numVotes = 12; // should be even number
+    const census = new PlainCensus();
+
+    const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
+
+    const election = createElection(census, {
+      anonymous: true,
+    });
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return waitForElectionReady(client, electionId);
+      })
+      .then(async () => {
+        for (let i = 0; i < participants.length; i++) {
+          client.wallet = participants[i];
+          let vote: Vote | AnonymousVote = new Vote([i % 2]);
+
+          if (i % 3 == 0) {
+            await client.createAccount({
+              account: null,
+              faucetPackage: null,
+              sik: true,
+              password: participants[i].address,
+            });
+            vote = new AnonymousVote([i % 2], participants[i].address);
+          } else if (i % 3 == 1) {
+            await client.createAccount({ sik: false });
+          }
+          const isInCensus = await client.isInCensus();
+          expect(isInCensus).toBeTruthy();
+          await expect(async () => {
+            await client.hasAlreadyVoted();
+          }).rejects.toThrow();
+          await expect(async () => {
+            await client.isAbleToVote();
+          }).rejects.toThrow();
+          await client.submitVote(vote);
+        }
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.electionType.anonymous).toBeTruthy();
+        expect(election.voteCount).toEqual(numVotes);
+      });
+  }, 720000);
 });
