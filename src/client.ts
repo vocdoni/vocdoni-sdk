@@ -1124,7 +1124,7 @@ export class VocdoniSDKClient {
 
     const isInCensus = await this.isInCensus(election.id);
     if (!isInCensus) {
-      throw Error('Not in census');
+      return Promise.resolve(0);
     }
 
     return this.wallet
