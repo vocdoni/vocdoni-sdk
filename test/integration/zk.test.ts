@@ -9,6 +9,10 @@ import { AnonymousVote } from '../../src/types/vote/anonymous';
 let client: VocdoniSDKClient;
 let wallet: Wallet;
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
 beforeEach(async () => {
   wallet = Wallet.createRandom();
   client = new VocdoniSDKClient(clientParams(wallet));
@@ -74,9 +78,9 @@ describe('zkSNARK test', () => {
         return waitForElectionReady(client, publishedElection.id);
       })
       .then(async () => {
-        /*await expect(async () => {
+        await expect(async () => {
           await client.submitVote(new Vote([0]));
-        }).rejects.toThrow();*/
+        }).rejects.toThrow();
         const vote = new AnonymousVote([0], 'password123');
         return client.submitVote(vote);
       })
@@ -126,6 +130,9 @@ describe('zkSNARK test', () => {
               sik: true,
               password: participants[i].address,
             });
+            await expect(async () => {
+              await client.submitVote(new AnonymousVote([i % 2], 'wrongpassword'));
+            }).rejects.toThrow();
             vote = new AnonymousVote([i % 2], participants[i].address);
           } else if (i % 3 == 1) {
             await client.createAccount({ sik: false });
