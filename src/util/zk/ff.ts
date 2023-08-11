@@ -4,8 +4,8 @@ const q: bigint = BigInt('218882428718392752222464057452572750885483644004160343
 
 export function bigIntToFF(bi: bigint): bigint {
   if (bi == q) {
-    return 0n;
-  } else if (bi < q && bi != 0n) {
+    return BigInt(0);
+  } else if (bi < q && bi != BigInt(0)) {
     return bi;
   }
   return bi % q;
