@@ -794,29 +794,35 @@ export class VocdoniSDKClient {
    * options, like extra information of the account, or the faucet package string
    * @returns {Promise<AccountData>}
    */
-  createAccount(
-    options: { account?: Account; faucetPackage?: string; sik?: boolean; password?: string } = {
+  createAccount(options?: {
+    account?: Account;
+    faucetPackage?: string;
+    sik?: boolean;
+    password?: string;
+  }): Promise<AccountData> {
+    invariant(this.wallet, 'No wallet or signer set');
+    const settings = {
       account: null,
       faucetPackage: null,
       sik: true,
       password: '0',
-    }
-  ): Promise<AccountData> {
-    invariant(this.wallet, 'No wallet or signer set');
+      ...options,
+    };
+
     return this.fetchAccountInfo().catch(() => {
-      if (options?.sik) {
+      if (settings?.sik) {
         return this.signSIKPayload(this.wallet).then((signedPayload) =>
           this.createAccountInfo({
-            account: options?.account ?? new Account(),
-            faucetPackage: options?.faucetPackage,
+            account: settings?.account ?? new Account(),
+            faucetPackage: settings?.faucetPackage,
             signedSikPayload: signedPayload,
-            password: options.password,
+            password: settings.password,
           })
         );
       }
       return this.createAccountInfo({
-        account: options?.account ?? new Account(),
-        faucetPackage: options?.faucetPackage,
+        account: settings?.account ?? new Account(),
+        faucetPackage: settings?.faucetPackage,
       });
     });
   }

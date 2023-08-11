@@ -60,8 +60,6 @@ describe('zkSNARK test', () => {
     });
 
     await client.createAccount({
-      account: null,
-      faucetPackage: null,
       sik: true,
       password: 'password123',
     });
@@ -125,8 +123,6 @@ describe('zkSNARK test', () => {
 
           if (i % 3 == 0) {
             await client.createAccount({
-              account: null,
-              faucetPackage: null,
               sik: true,
               password: participants[i].address,
             });
