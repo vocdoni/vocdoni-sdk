@@ -60,8 +60,8 @@ export function formatUnits(value: BigNumberish, decimals: number = 18): string 
  */
 export const dotobject = (obj: any, dot: string) => {
   const rec = (obj: any, dot: string[]): any => {
-    if (dot.length && typeof obj[dot[0]] !== 'undefined') {
-      return rec(obj[dot[0]], dot.slice(1));
+    if (dot.length) {
+      return typeof obj[dot[0]] !== 'undefined' ? rec(obj[dot[0]], dot.slice(1)) : null;
     }
     return obj;
   };
