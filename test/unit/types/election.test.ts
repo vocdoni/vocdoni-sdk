@@ -60,6 +60,10 @@ describe('Election tests', () => {
       },
     });
     expect(election.get('census.type')).toEqual('spreadsheet');
+    expect(election.get('census.fields')).toEqual(['firstname', 'lastname', 'email']);
+    expect(election.get('bad')).toBeNull();
+    expect(election.get('bad.bad')).toBeNull();
+    expect(election.get('census.bad')).toBeNull();
     expect(election.electionType).toEqual({
       autoStart: true,
       interruptible: true,
