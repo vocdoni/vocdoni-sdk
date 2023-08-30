@@ -253,6 +253,6 @@ export abstract class Election {
   }
 
   get(dot: string) {
-    return dotobject(this.meta, dot);
+    return this.meta ? dotobject(this.meta, dot) : null;
   }
 }
