@@ -40,7 +40,7 @@ export class VocdoniCensus3Client {
    * @returns {Promise<TokenSummary[]>} Token summary list
    */
   getSupportedTokens(): Promise<TokenSummary[]> {
-    return Census3TokenAPI.list(this.url).then((list) => list.tokens);
+    return Census3TokenAPI.list(this.url).then((list) => list.tokens ?? []);
   }
 
   /**
