@@ -53,7 +53,7 @@ export abstract class API {
     }
   }
 
-  private static isUndefinedError(error: AxiosError, message?: string): never {
+  protected static isUndefinedError(error: AxiosError, message?: string): never {
     switch (true) {
       case error.response?.status != null && error.response?.statusText != null:
         throw new ErrAPI(error.response.status + ' ' + error.response.statusText + ': ' + message, error);
