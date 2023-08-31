@@ -832,15 +832,17 @@ export class VocdoniSDKClient {
   /**
    * Calls the faucet to get new tokens. Only under development.
    *
+   * @param {string} faucetPackage The faucet package
    * @returns {Promise<AccountData>} Account data information updated with new balance
    */
-  collectFaucetTokens(): Promise<AccountData> {
+  collectFaucetTokens(faucetPackage?: string): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
-    return Promise.all([this.fetchAccountInfo(), this.fetchFaucetPayload(), this.fetchChainId()])
-      .then((data) => {
-        const faucetPackage = this.parseFaucetPackage(data[1]);
-        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(data[0], faucetPackage);
-        return AccountCore.signTransaction(collectFaucetTx, data[2], this.wallet);
+    const faucet = faucetPackage ? Promise.resolve(faucetPackage) : this.fetchFaucetPayload();
+    return Promise.all([this.fetchAccountInfo(), faucet, this.fetchChainId()])
+      .then(([account, faucet, chainId]) => {
+        const faucetPackage = this.parseFaucetPackage(faucet);
+        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account, faucetPackage);
+        return AccountCore.signTransaction(collectFaucetTx, chainId, this.wallet);
       })
       .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
       .then((txData) => this.waitForTransaction(txData.hash))
