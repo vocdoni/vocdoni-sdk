@@ -394,7 +394,7 @@ export abstract class ElectionAPI extends API {
    */
   public static create(url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
     return axios
-      .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, JSON.stringify({ txPayload: payload, metadata }))
+      .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, { txPayload: payload, metadata })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -483,10 +483,13 @@ export abstract class ElectionAPI extends API {
     maxVoteOverwrite: number
   ): Promise<IElectionCalculatePriceResponse> {
     return axios
-      .post<IElectionCalculatePriceResponse>(
-        url + ElectionAPIMethods.PRICE,
-        JSON.stringify({ maxCensusSize, electionBlocks, encryptedVotes, anonymousVotes, maxVoteOverwrite })
-      )
+      .post<IElectionCalculatePriceResponse>(url + ElectionAPIMethods.PRICE, {
+        maxCensusSize,
+        electionBlocks,
+        encryptedVotes,
+        anonymousVotes,
+        maxVoteOverwrite,
+      })
       .then((response) => response.data)
       .catch(this.isApiError);
   }

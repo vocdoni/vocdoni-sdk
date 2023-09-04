@@ -157,10 +157,7 @@ export abstract class Census3CensusAPI extends Census3API {
     blockNumber?: number
   ): Promise<ICensus3CensusCreateResponse> {
     return axios
-      .post<ICensus3CensusCreateResponse>(
-        url + Census3CensusAPIMethods.CREATE,
-        JSON.stringify({ strategyId, blockNumber, anonymous })
-      )
+      .post<ICensus3CensusCreateResponse>(url + Census3CensusAPIMethods.CREATE, { strategyId, blockNumber, anonymous })
       .then((response) => response.data)
       .catch(this.isApiError);
   }

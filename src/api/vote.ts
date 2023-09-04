@@ -89,7 +89,7 @@ export abstract class VoteAPI extends API {
    */
   public static submit(url: string, payload: string): Promise<IVoteSubmitResponse> {
     return axios
-      .post<IVoteSubmitResponse>(url + VoteAPIMethods.VOTE, JSON.stringify({ txPayload: payload }))
+      .post<IVoteSubmitResponse>(url + VoteAPIMethods.VOTE, { txPayload: payload })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
