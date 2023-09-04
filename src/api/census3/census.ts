@@ -5,6 +5,7 @@ enum Census3CensusAPIMethods {
   LIST_BY_STRATEGY = '/census/strategy/{id}',
   CREATE = '/census',
   CENSUS = '/census/{id}',
+  QUEUE = '/census/queue/{id}',
 }
 
 export interface ICensus3CensusListResponse {
@@ -18,7 +19,7 @@ export interface ICensus3CensusResponse {
   /**
    * The identifier of the census
    */
-  id: number;
+  censusId: number;
 
   /**
    * The identifier of the strategy of the built census
@@ -44,13 +45,50 @@ export interface ICensus3CensusResponse {
    * The weight of the census (weight of all token holders)
    */
   weight: string;
+
+  /**
+   * The chain identifier
+   */
+  chainId: string;
+
+  /**
+   * If the census is anonymous or not
+   */
+  anonymous: boolean;
+}
+
+export interface ICensus3CensusQueueResponse {
+  /**
+   * If the queue has been done
+   */
+  done: boolean;
+
+  /**
+   * The error of the queue
+   */
+  error: {
+    /**
+     * The code of the error
+     */
+    code: number;
+
+    /**
+     * The string of the error
+     */
+    err: string;
+  };
+
+  /**
+   * The census
+   */
+  census: ICensus3CensusResponse;
 }
 
 export interface ICensus3CensusCreateResponse {
   /**
-   * The identifier of the created census
+   * The identifier of queue for the census creation
    */
-  censusId: number;
+  queueId: string;
 }
 
 export abstract class Census3CensusAPI extends Census3API {
@@ -90,18 +128,38 @@ export abstract class Census3CensusAPI extends Census3API {
   }
 
   /**
+   * Returns the information of the census queue
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} id The identifier of the census queue
+   * @returns {Promise<ICensus3CensusQueueResponse>}
+   */
+  public static queue(url: string, id: string): Promise<ICensus3CensusQueueResponse> {
+    return axios
+      .get<ICensus3CensusQueueResponse>(url + Census3CensusAPIMethods.QUEUE.replace('{id}', id))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
    * Requests the creation of a new census with the strategy provided for the blockNumber.
    *
    * @param {string} url API endpoint URL
    * @param {number} strategyId The strategy identifier
+   * @param {boolean} anonymous If the census has to be anonymous
    * @param {number} blockNumber The number of the block
    * @returns {Promise<ICensus3CensusCreateResponse>} promised ICensus3CensusCreateResponse
    */
-  public static create(url: string, strategyId: number, blockNumber?: number): Promise<ICensus3CensusCreateResponse> {
+  public static create(
+    url: string,
+    strategyId: number,
+    anonymous: boolean = false,
+    blockNumber?: number
+  ): Promise<ICensus3CensusCreateResponse> {
     return axios
       .post<ICensus3CensusCreateResponse>(
         url + Census3CensusAPIMethods.CREATE,
-        JSON.stringify({ strategyId, blockNumber })
+        JSON.stringify({ strategyId, blockNumber, anonymous })
       )
       .then((response) => response.data)
       .catch(this.isApiError);
