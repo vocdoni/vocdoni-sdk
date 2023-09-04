@@ -168,28 +168,48 @@ export class VocdoniCensus3Client {
    * Creates the census based on the given strategy
    *
    * @param {number} strategyId The id of the strategy
+   * @param {boolean} anonymous If the census has to be anonymous
    * @param {number} blockNumber The block number
-   * @returns {Promise<number>} The id of the census
+   * @returns {Promise<Census3Census>} The census information
    */
-  createCensus(strategyId: number, blockNumber?: number): Promise<number> {
+  createCensus(strategyId: number, anonymous: boolean = false, blockNumber?: number): Promise<Census3Census> {
     invariant(strategyId || strategyId >= 0, 'No strategy id');
-    return Census3CensusAPI.create(this.url, strategyId, blockNumber).then((createCensus) => createCensus.censusId);
+
+    const waitForQueue = (queueId: string): Promise<Census3Census> => {
+      return Census3CensusAPI.queue(this.url, queueId).then((queue) => {
+        console.log(queueId);
+        console.log(queue);
+        switch (true) {
+          case queue.done && queue.error?.code?.toString().length > 0:
+            return Promise.reject(new Error('Could not create the census'));
+          case queue.done:
+            return Promise.resolve(queue.census);
+          default:
+            return waitForQueue(queueId);
+        }
+      });
+    };
+
+    return Census3CensusAPI.create(this.url, strategyId, anonymous, blockNumber)
+      .then((createCensus) => createCensus.queueId)
+      .then((queueId) => waitForQueue(queueId));
   }
 
   /**
    * Returns the actual census based on the given token
    *
    * @param {string} address The address of the token
+   * @param {boolean} anonymous If the census has to be anonymous
    * @returns {Promise<TokenCensus>} The token census
    */
-  async createTokenCensus(address: string): Promise<TokenCensus> {
+  async createTokenCensus(address: string, anonymous: boolean = false): Promise<TokenCensus> {
     const token = await this.getToken(address);
     if (!token.status.synced) {
       return Promise.reject('Token is not yet synced.');
     }
 
-    return this.createCensus(token.defaultStrategy)
-      .then((censusId) => this.getCensus(censusId))
-      .then((census) => new TokenCensus(census.merkleRoot, census.uri, token, census.size, BigInt(census.weight)));
+    return this.createCensus(token.defaultStrategy, anonymous).then(
+      (census) => new TokenCensus(census.merkleRoot, census.uri, anonymous, token, census.size, BigInt(census.weight))
+    );
   }
 }

@@ -13,12 +13,20 @@ export class TokenCensus extends PublishedCensus {
    *
    * @param censusId The id of the census
    * @param censusURI The URI of the census
+   * @param anonymous If the census is anonymous
    * @param token The token of the census
    * @param size The size of the census
    * @param weight The weight of the census
    */
-  public constructor(censusId: string, censusURI: string, token: Token, size?: number, weight?: bigint) {
-    super(censusId, censusURI, CensusType.WEIGHTED, size, weight);
+  public constructor(
+    censusId: string,
+    censusURI: string,
+    anonymous: boolean,
+    token: Token,
+    size?: number,
+    weight?: bigint
+  ) {
+    super(censusId, censusURI, anonymous ? CensusType.ANONYMOUS : CensusType.WEIGHTED, size, weight);
     this.token = token;
   }
 
