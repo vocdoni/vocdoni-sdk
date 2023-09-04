@@ -177,8 +177,6 @@ export class VocdoniCensus3Client {
 
     const waitForQueue = (queueId: string): Promise<Census3Census> => {
       return Census3CensusAPI.queue(this.url, queueId).then((queue) => {
-        console.log(queueId);
-        console.log(queue);
         switch (true) {
           case queue.done && queue.error?.code?.toString().length > 0:
             return Promise.reject(new Error('Could not create the census'));
