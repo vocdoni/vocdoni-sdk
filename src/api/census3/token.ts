@@ -186,7 +186,7 @@ export abstract class Census3TokenAPI extends Census3API {
    */
   public static create(url: string, id: string, type: string, startBlock: number, tag?: string[]): Promise<void> {
     return axios
-      .post(url + Census3TokenAPIMethods.CREATE, JSON.stringify({ id, type, startBlock, tag: tag?.join() }))
+      .post(url + Census3TokenAPIMethods.CREATE, { id, type, startBlock, tag: tag?.join() })
       .then((response) => response.data)
       .catch(this.isApiError);
   }

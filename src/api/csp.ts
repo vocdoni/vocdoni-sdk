@@ -115,7 +115,7 @@ export abstract class CspAPI extends API {
     return axios
       .post<ICspIntermediateStepResponse | ICspFinalStepResponse>(
         url + CspAPIMethods.STEP + '/' + strip0x(electionId) + '/' + signatureType + '/' + authType + '/' + stepNr,
-        JSON.stringify(authToken ? { authToken, authData: data } : { authData: data })
+        authToken ? { authToken, authData: data } : { authData: data }
       )
       .then((response) => response.data)
       .catch(this.isApiError);
@@ -142,7 +142,7 @@ export abstract class CspAPI extends API {
     return axios
       .post<ICspSignResponse>(
         url + CspAPIMethods.SIGN.replace('{id}', electionId).replace('{signatureType}', signatureType),
-        JSON.stringify({ payload, token })
+        { payload, token }
       )
       .then((response) => response.data)
       .catch(this.isApiError);

@@ -29,7 +29,7 @@ export abstract class FileAPI extends API {
    */
   public static cid(url: string, payload: string): Promise<IFileCIDResponse> {
     return axios
-      .post<IFileCIDResponse>(url + FileAPIMethods.CID, JSON.stringify({ payload }))
+      .post<IFileCIDResponse>(url + FileAPIMethods.CID, { payload })
       .then((response) => response.data)
       .catch(this.isApiError);
   }

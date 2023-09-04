@@ -100,7 +100,7 @@ export abstract class AccountAPI extends API {
    */
   public static setInfo(url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
-      .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, JSON.stringify({ txPayload: payload, metadata }))
+      .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, { txPayload: payload, metadata })
       .then((response) => response.data)
       .catch(this.isApiError);
   }

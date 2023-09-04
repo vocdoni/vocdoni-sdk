@@ -118,10 +118,7 @@ export abstract class Census3StrategyAPI extends Census3API {
     strategy: string
   ): Promise<ICensus3StrategyCreateResponse> {
     return axios
-      .post<ICensus3StrategyCreateResponse>(
-        url + Census3StrategyAPIMethods.CREATE,
-        JSON.stringify({ tokens, strategy })
-      )
+      .post<ICensus3StrategyCreateResponse>(url + Census3StrategyAPIMethods.CREATE, { tokens, strategy })
       .then((response) => response.data)
       .catch(this.isApiError);
   }

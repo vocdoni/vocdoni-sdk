@@ -460,7 +460,7 @@ export abstract class ChainAPI extends API {
    */
   public static submitTx(url: string, payload: string): Promise<IChainSubmitTxResponse> {
     return axios
-      .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, JSON.stringify({ payload }))
+      .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, { payload })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
