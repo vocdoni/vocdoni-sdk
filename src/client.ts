@@ -3,17 +3,7 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import {
-  AccountAPI,
-  CensusAPI,
-  ChainAPI,
-  ElectionAPI,
-  FaucetAPI,
-  FileAPI,
-  IChainGetCostsResponse,
-  VoteAPI,
-  WalletAPI,
-} from './api';
+import { AccountAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, IChainGetCostsResponse, VoteAPI } from './api';
 import { CspAPI } from './api/csp';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
@@ -52,6 +42,7 @@ import { generateGroth16Proof, ZkProof } from './util/zk/prover';
 import { Signing } from './util/signing';
 import { ZkAPI } from './api/zk';
 import { AnonymousVote } from './types/vote/anonymous';
+import { CensusProof, CensusService, CspCensusProof } from './services';
 
 export type ChainData = {
   chainId: string;
@@ -77,40 +68,6 @@ export type AccountData = {
   electionIndex: number;
   infoURL?: string;
   account: Account;
-};
-
-type AccountToken = {
-  identifier: string;
-  wallet: Wallet;
-};
-
-/**
- * @typedef CensusProof
- * @property {string} weight
- * @property {string} proof
- * @property {string} value
- */
-export type CensusProof = {
-  type: CensusType;
-  weight: string;
-  root: string;
-  proof: string;
-  value: string;
-  siblings?: Array<string>;
-};
-
-/**
- * @typedef CspCensusProof
- * @property {string} type
- * @property {string} address
- * @property {string} signature
- * @property {bigint} weight
- */
-export type CspCensusProof = {
-  type?: number;
-  address: string;
-  signature: string;
-  weight?: bigint;
 };
 
 /**
@@ -199,7 +156,8 @@ export class VocdoniSDKClient {
   private chainCircuits: ChainCircuits | null = null;
   private accountData: AccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
-  private authToken: AccountToken | null = null;
+
+  public censusService: CensusService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
@@ -233,6 +191,7 @@ export class VocdoniSDKClient {
       attempts: opts.tx_wait?.attempts ?? TX_WAIT_OPTIONS.attempts,
     };
     this.explorerUrl = EXPLORER_URL[opts.env];
+    this.censusService = new CensusService({ url: this.url });
   }
 
   /**
@@ -492,26 +451,6 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Fetches the specific account token auth and sets it to the current instance.
-   *
-   * @returns {Promise<void>}
-   */
-  fetchAccountToken(): Promise<void> {
-    if (this.authToken) {
-      return Promise.resolve();
-    }
-
-    this.authToken = {
-      identifier: '',
-      wallet: Wallet.createRandom(),
-    };
-
-    return WalletAPI.add(this.url, this.authToken.wallet.privateKey).then((addWalletResponse) => {
-      this.authToken.identifier = addWalletResponse.token;
-    });
-  }
-
-  /**
    * Fetches info about an election.
    *
    * @param {string} electionId The id of the election
@@ -524,7 +463,8 @@ export class VocdoniSDKClient {
 
     const electionInfo = await ElectionAPI.info(this.url, electionId ?? this.electionId);
 
-    return this.fetchCensusInfo(electionInfo.census.censusRoot)
+    return this.censusService
+      .fetchCensusInfo(electionInfo.census.censusRoot)
       .then((censusInfo) =>
         PublishedElection.build({
           id: electionInfo.electionId,
@@ -632,30 +572,12 @@ export class VocdoniSDKClient {
   /**
    * Fetches proof that an address is part of the specified census.
    *
-   * @param {string} censusId Census we want to check the address against
-   * @param {string} key The address to be found
-   * @returns {Promise<CensusProof>}
-   */
-  async fetchProof(censusId: string, key: string): Promise<CensusProof> {
-    return CensusAPI.proof(this.url, censusId, key).then((censusProof) => ({
-      type: censusProof.type,
-      weight: censusProof.weight,
-      root: censusProof.censusRoot,
-      proof: censusProof.censusProof,
-      value: censusProof.value,
-      siblings: censusProof.censusSiblings ?? null,
-    }));
-  }
-
-  /**
-   * Fetches proof that an address is part of the specified census.
-   *
    * @param election
    * @param wallet
    * @returns {Promise<CensusProof>}
    */
   private fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<CensusProof> {
-    return wallet.getAddress().then((address) => this.fetchProof(election.census.censusId, address));
+    return wallet.getAddress().then((address) => this.censusService.fetchProof(election.census.censusId, address));
   }
 
   private signSIKPayload(wallet: Wallet | Signer): Promise<string> {
@@ -850,58 +772,6 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Publishes the given census.
-   *
-   * @param {PlainCensus | WeightedCensus} census The census to be published.
-   * @returns {Promise<void>}
-   */
-  createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
-    const censusCreation = this.fetchAccountToken().then(() =>
-      CensusAPI.create(this.url, this.authToken.identifier, census.type)
-    );
-
-    const censusAdding = censusCreation.then((censusCreateResponse) =>
-      CensusAPI.add(this.url, this.authToken.identifier, censusCreateResponse.censusID, census.participants)
-    );
-
-    return Promise.all([censusCreation, censusAdding])
-      .then((censusData) => CensusAPI.publish(this.url, this.authToken.identifier, censusData[0].censusID))
-      .then((censusPublish) => {
-        census.censusId = censusPublish.censusID;
-        census.censusURI = censusPublish.uri;
-        census.size = census.participants.length;
-        census.weight = census.participants.reduce(
-          (currentValue, participant) => currentValue + participant.weight,
-          BigInt(0)
-        );
-      });
-  }
-
-  /**
-   * Fetches the information of a given census.
-   *
-   * @param censusId
-   * @returns {Promise<{size: number, weight: bigint}>}
-   */
-  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
-    return Promise.all([
-      CensusAPI.size(this.url, censusId),
-      CensusAPI.weight(this.url, censusId),
-      CensusAPI.type(this.url, censusId),
-    ])
-      .then((censusInfo) => ({
-        size: censusInfo[0].size,
-        weight: BigInt(censusInfo[1].weight),
-        type: censusInfo[2].type,
-      }))
-      .catch(() => ({
-        size: undefined,
-        weight: undefined,
-        type: undefined,
-      }));
-  }
-
-  /**
    * Creates a new voting election.
    *
    * @param {UnpublishedElection} election The election object to be created.
@@ -920,9 +790,9 @@ export class VocdoniSDKClient {
     const chainId = await this.fetchChainId();
 
     if (!election.census.isPublished) {
-      await this.createCensus(election.census as PlainCensus | WeightedCensus);
+      await this.censusService.createCensus(election.census as PlainCensus | WeightedCensus);
     } else if (!election.maxCensusSize && !election.census.size) {
-      await this.fetchCensusInfo(election.census.censusId).then((censusInfo) => {
+      await this.censusService.fetchCensusInfo(election.census.censusId).then((censusInfo) => {
         election.census.size = censusInfo.size;
         election.census.weight = censusInfo.weight;
       });
@@ -1065,7 +935,7 @@ export class VocdoniSDKClient {
     let proofPromise;
 
     if (key) {
-      proofPromise = this.fetchProof(election.census.censusId, key);
+      proofPromise = this.censusService.fetchProof(election.census.censusId, key);
     } else if (election) {
       proofPromise = this.fetchProofForWallet(election, this.wallet);
     } else {
@@ -1256,5 +1126,40 @@ export class VocdoniSDKClient {
 
   private async generateZkProof(inputs: CircuitInputs): Promise<ZkProof> {
     return this.fetchCircuits().then((circuits) => generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData));
+  }
+
+  /**
+   * This functions will be deprecated
+   */
+
+  /**
+   * Fetches proof that an address is part of the specified census.
+   *
+   * @param {string} censusId Census we want to check the address against
+   * @param {string} key The address to be found
+   * @returns {Promise<CensusProof>}
+   */
+  async fetchProof(censusId: string, key: string): Promise<CensusProof> {
+    return this.censusService.fetchProof(censusId, key);
+  }
+
+  /**
+   * Publishes the given census.
+   *
+   * @param {PlainCensus | WeightedCensus} census The census to be published.
+   * @returns {Promise<void>}
+   */
+  createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
+    return this.censusService.createCensus(census);
+  }
+
+  /**
+   * Fetches the information of a given census.
+   *
+   * @param censusId
+   * @returns {Promise<{size: number, weight: bigint}>}
+   */
+  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
+    return this.censusService.fetchCensusInfo(censusId);
   }
 }

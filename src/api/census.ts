@@ -214,7 +214,7 @@ export abstract class CensusAPI extends API {
   }
 
   /**
-   * Returns the type of a given census
+   * Returns the type of given census
    *
    * @param {string} url API endpoint URL
    * @param {string} censusId The census ID

@@ -87,6 +87,20 @@ jobs:
           FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
           FAUCET_TOKEN_LIMIT: 100
 
+      - name: Service tests
+        run: yarn test:service --ci --coverage --maxWorkers=2
+        env:
+          API_URL: http://${{ env.voconed_hostport }}/v2
+          BLINDCSP_URL: http://${{ env.blindcsp_hostport }}/v1
+          BLINDCSP_PRIVKEY: f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
+          # that privkey is hardcoded in docker-compose.yml and corresponds to:
+          # address 0xc3E925C7D971601c85eB042032F415852E56A038
+          # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
+          BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
+          FAUCET_URL: ${{ secrets.FAUCET_URL }}
+          FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
+          FAUCET_TOKEN_LIMIT: 100
+
       - name: Anonymous integration tests
         run: yarn test:integration:zk --ci --coverage
         env:
