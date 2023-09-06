@@ -9,6 +9,7 @@ import { toUtf8Bytes } from '@ethersproject/strings';
 import { buildPoseidon } from 'circomlibjs';
 import { VOCDONI_SIK_SIGNATURE_LENGTH } from '../util/constants';
 import { Buffer } from 'buffer';
+import { ZkAPI } from '../api/zk';
 
 interface AnonymousServiceProperties {
   chainCircuits: ChainCircuits;
@@ -73,6 +74,14 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     return this.fetchCircuits().then((circuits) =>
       AnonymousService.generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData)
     );
+  }
+
+  async fetchAccountSIK(address: string) {
+    return ZkAPI.sik(this.url, address);
+  }
+
+  async fetchZKProof(address: string) {
+    return ZkAPI.proof(this.url, address);
   }
 
   /**

@@ -37,7 +37,6 @@ import {
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
 import { Signing } from './util/signing';
-import { ZkAPI } from './api/zk';
 import { AnonymousVote } from './types/vote/anonymous';
 import { AnonymousService, CensusProof, CensusService, ChainCircuits, CspCensusProof, ZkProof } from './services';
 
@@ -518,9 +517,10 @@ export class VocdoniSDKClient {
       this.fetchProofForWallet(election.census.censusId, wallet),
     ]);
 
-    return ZkAPI.sik(this.url, address)
+    return this.anonymousService
+      .fetchAccountSIK(address)
       .catch(() => this.setAccountSIK(election.id, sik, password, censusProof, wallet))
-      .then(() => ZkAPI.proof(this.url, address))
+      .then(() => this.anonymousService.fetchZKProof(address))
       .then((zkProof) =>
         AnonymousService.prepareCircuitInputs(
           election.id,
