@@ -25,7 +25,7 @@ import {
   Vote,
   WeightedCensus,
 } from './types';
-import { delay, strip0x } from './util/common';
+import { delay } from './util/common';
 import {
   API_URL,
   EXPLORER_URL,
@@ -36,13 +36,10 @@ import {
 } from './util/constants';
 import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
-import { sha256 } from '@ethersproject/sha2';
-import { calcSik, CircuitInputs, prepareCircuitInputs } from './util/zk/inputs';
-import { generateGroth16Proof, ZkProof } from './util/zk/prover';
 import { Signing } from './util/signing';
 import { ZkAPI } from './api/zk';
 import { AnonymousVote } from './types/vote/anonymous';
-import { CensusProof, CensusService, CspCensusProof } from './services';
+import { AnonymousService, CensusProof, CensusService, ChainCircuits, CspCensusProof, ZkProof } from './services';
 
 export type ChainData = {
   chainId: string;
@@ -114,18 +111,6 @@ type TxWaitOptions = {
 
 export type ChainCosts = IChainGetCostsResponse;
 
-export type ChainCircuits = {
-  zKeyData: Uint8Array;
-  zKeyHash: string;
-  zKeyURI: string;
-  vKeyData: Uint8Array;
-  vKeyHash: string;
-  vKeyURI: string;
-  wasmData: Uint8Array;
-  wasmHash: string;
-  wasmURI: string;
-};
-
 /**
  * Optional VocdoniSDKClient arguments
  *
@@ -153,11 +138,11 @@ export type ClientOptions = {
 export class VocdoniSDKClient {
   private chainData: ChainData | null = null;
   private chainCosts: ChainCosts | null = null;
-  private chainCircuits: ChainCircuits | null = null;
   private accountData: AccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
 
   public censusService: CensusService;
+  public anonymousService: AnonymousService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
@@ -192,6 +177,7 @@ export class VocdoniSDKClient {
     };
     this.explorerUrl = EXPLORER_URL[opts.env];
     this.censusService = new CensusService({ url: this.url });
+    this.anonymousService = new AnonymousService({ url: this.url });
   }
 
   /**
@@ -289,95 +275,6 @@ export class VocdoniSDKClient {
       this.chainCosts = chainCosts;
       return chainCosts;
     });
-  }
-
-  /**
-   * Checks circuit hashes
-   *
-   * @returns {ChainCircuits} The checked circuit parameters
-   */
-  private checkCircuitsHashes(): ChainCircuits {
-    invariant(this.chainCircuits, 'Circuits not set');
-    invariant(
-      strip0x(sha256(this.chainCircuits.zKeyData)) === strip0x(this.chainCircuits.zKeyHash),
-      'Invalid hash check for zKey'
-    );
-    invariant(
-      strip0x(sha256(this.chainCircuits.vKeyData)) === strip0x(this.chainCircuits.vKeyHash),
-      'Invalid hash check for vKey'
-    );
-    invariant(
-      strip0x(sha256(this.chainCircuits.wasmData)) === strip0x(this.chainCircuits.wasmHash),
-      'Invalid hash check for WASM'
-    );
-
-    return this.chainCircuits;
-  }
-
-  /**
-   * Sets circuits for anonymous voting
-   *
-   * @param {ChainCircuits} circuits Custom circuits
-   * @returns {Promise<ChainCircuits>}
-   */
-  setCircuits(circuits: ChainCircuits): ChainCircuits {
-    this.chainCircuits = circuits;
-    return this.checkCircuitsHashes();
-  }
-
-  /**
-   * Fetches circuits for anonymous voting
-   *
-   * @param {Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>} circuits Additional options for custom circuits
-   * @returns {Promise<ChainCircuits>}
-   */
-  fetchCircuits(circuits?: Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>): Promise<ChainCircuits> {
-    const empty = {
-      zKeyData: new Uint8Array(),
-      vKeyData: new Uint8Array(),
-      wasmData: new Uint8Array(),
-    };
-    if (circuits) {
-      this.chainCircuits = {
-        ...circuits,
-        ...empty,
-      };
-    } else {
-      try {
-        this.checkCircuitsHashes();
-        return Promise.resolve(this.chainCircuits);
-      } catch (e) {}
-    }
-
-    const setCircuitInfo = this.chainCircuits
-      ? Promise.resolve(this.chainCircuits)
-      : ChainAPI.circuits(this.url).then((chainCircuits) => {
-          this.chainCircuits = {
-            zKeyHash: chainCircuits.zKeyHash,
-            zKeyURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.zKeyFilename,
-            vKeyHash: chainCircuits.vKeyHash,
-            vKeyURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.vKeyFilename,
-            wasmHash: chainCircuits.wasmHash,
-            wasmURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.wasmFilename,
-            ...empty,
-          };
-          return this.chainCircuits;
-        });
-
-    return setCircuitInfo
-      .then(() =>
-        Promise.all([
-          ChainAPI.circuit(this.chainCircuits.zKeyURI),
-          ChainAPI.circuit(this.chainCircuits.vKeyURI),
-          ChainAPI.circuit(this.chainCircuits.wasmURI),
-        ])
-      )
-      .then((files) => {
-        this.chainCircuits.zKeyData = files[0];
-        this.chainCircuits.vKeyData = files[1];
-        this.chainCircuits.wasmData = files[2];
-        return this.checkCircuitsHashes();
-      });
   }
 
   /**
@@ -572,12 +469,12 @@ export class VocdoniSDKClient {
   /**
    * Fetches proof that an address is part of the specified census.
    *
-   * @param election
+   * @param censusId
    * @param wallet
    * @returns {Promise<CensusProof>}
    */
-  private fetchProofForWallet(election: PublishedElection, wallet: Wallet | Signer): Promise<CensusProof> {
-    return wallet.getAddress().then((address) => this.censusService.fetchProof(election.census.censusId, address));
+  private fetchProofForWallet(censusId: string, wallet: Wallet | Signer): Promise<CensusProof> {
+    return wallet.getAddress().then((address) => this.censusService.fetchProof(censusId, address));
   }
 
   private signSIKPayload(wallet: Wallet | Signer): Promise<string> {
@@ -593,7 +490,7 @@ export class VocdoniSDKClient {
   ): Promise<void> {
     return wallet
       .getAddress()
-      .then((address) => Promise.all([calcSik(address, sik, password), this.fetchChainId()]))
+      .then((address) => Promise.all([AnonymousService.calcSik(address, sik, password), this.fetchChainId()]))
       .then(([calculatedSIK, chainId]) => {
         const registerSIKTx = AccountCore.generateRegisterSIKTransaction(electionId, calculatedSIK, censusProof);
         return AccountCore.signTransaction(registerSIKTx, chainId, wallet);
@@ -618,14 +515,14 @@ export class VocdoniSDKClient {
     const [address, sik, censusProof] = await Promise.all([
       wallet.getAddress(),
       this.signSIKPayload(wallet),
-      this.fetchProofForWallet(election, wallet),
+      this.fetchProofForWallet(election.census.censusId, wallet),
     ]);
 
     return ZkAPI.sik(this.url, address)
       .catch(() => this.setAccountSIK(election.id, sik, password, censusProof, wallet))
       .then(() => ZkAPI.proof(this.url, address))
       .then((zkProof) =>
-        prepareCircuitInputs(
+        AnonymousService.prepareCircuitInputs(
           election.id,
           address,
           password,
@@ -638,7 +535,7 @@ export class VocdoniSDKClient {
           censusProof.siblings
         )
       )
-      .then((circuits) => this.generateZkProof(circuits));
+      .then((circuits) => this.anonymousService.generateZkProof(circuits));
   }
 
   /**
@@ -662,7 +559,7 @@ export class VocdoniSDKClient {
     const address = await this.wallet.getAddress();
 
     const calculatedSik = options?.signedSikPayload
-      ? await calcSik(address, options.signedSikPayload, options.password)
+      ? await AnonymousService.calcSik(address, options.signedSikPayload, options.password)
       : null;
 
     const accountData = Promise.all([
@@ -937,7 +834,7 @@ export class VocdoniSDKClient {
     if (key) {
       proofPromise = this.censusService.fetchProof(election.census.censusId, key);
     } else if (election) {
-      proofPromise = this.fetchProofForWallet(election, this.wallet);
+      proofPromise = this.fetchProofForWallet(election.census.censusId, this.wallet);
     } else {
       proofPromise = Promise.reject();
     }
@@ -1033,7 +930,7 @@ export class VocdoniSDKClient {
 
     let censusProof: CspCensusProof | CensusProof | ZkProof;
     if (election.census.type == CensusType.WEIGHTED) {
-      censusProof = await this.fetchProofForWallet(election, this.wallet);
+      censusProof = await this.fetchProofForWallet(election.census.censusId, this.wallet);
     } else if (election.census.type == CensusType.ANONYMOUS) {
       if (vote instanceof AnonymousVote) {
         censusProof = await this.calcZKProofForWallet(election, this.wallet, vote.password);
@@ -1124,10 +1021,6 @@ export class VocdoniSDKClient {
     return new Wallet(keccak256(Buffer.from(hash)));
   }
 
-  private async generateZkProof(inputs: CircuitInputs): Promise<ZkProof> {
-    return this.fetchCircuits().then((circuits) => generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData));
-  }
-
   /**
    * This functions will be deprecated
    */
@@ -1161,5 +1054,25 @@ export class VocdoniSDKClient {
    */
   fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
     return this.censusService.fetchCensusInfo(censusId);
+  }
+
+  /**
+   * Fetches circuits for anonymous voting
+   *
+   * @param {Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>} circuits Additional options for custom circuits
+   * @returns {Promise<ChainCircuits>}
+   */
+  fetchCircuits(circuits?: Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>): Promise<ChainCircuits> {
+    return this.anonymousService.fetchCircuits(circuits);
+  }
+
+  /**
+   * Sets circuits for anonymous voting
+   *
+   * @param {ChainCircuits} circuits Custom circuits
+   * @returns {Promise<ChainCircuits>}
+   */
+  setCircuits(circuits: ChainCircuits): ChainCircuits {
+    return this.anonymousService.setCircuits(circuits);
   }
 }

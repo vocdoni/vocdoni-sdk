@@ -15,9 +15,7 @@ import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
 import { TransactionCore } from './transaction';
-import { ZkProof } from '../util/zk/prover';
-import { toArrayBuffer } from '../util/zk/hex';
-import { CensusProof, CspCensusProof } from '../services';
+import { AnonymousService, CensusProof, CspCensusProof, ZkProof } from '../services';
 
 export type IProofArbo = { siblings: string; weight?: bigint };
 export type IProofCA = {
@@ -91,7 +89,7 @@ export abstract class VoteCore extends TransactionCore {
 
       const nullifier =
         election.census.type == CensusType.ANONYMOUS
-          ? toArrayBuffer((censusProof as ZkProof).publicSignals[2])
+          ? AnonymousService.hex_utils.toArrayBuffer((censusProof as ZkProof).publicSignals[2])
           : new Uint8Array();
 
       return {
