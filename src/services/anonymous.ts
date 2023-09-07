@@ -7,9 +7,12 @@ import { groth16 } from 'snarkjs';
 import { hexlify } from '@ethersproject/bytes';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { buildPoseidon } from 'circomlibjs';
-import { VOCDONI_SIK_SIGNATURE_LENGTH } from '../util/constants';
+import { VOCDONI_SIK_PAYLOAD, VOCDONI_SIK_SIGNATURE_LENGTH } from '../util/constants';
 import { Buffer } from 'buffer';
 import { ZkAPI } from '../api/zk';
+import { Wallet } from '@ethersproject/wallet';
+import { Signer } from '@ethersproject/abstract-signer';
+import { Signing } from '../util/signing';
 
 interface AnonymousServiceProperties {
   chainCircuits: ChainCircuits;
@@ -82,6 +85,10 @@ export class AnonymousService extends Service implements AnonymousServicePropert
 
   async fetchZKProof(address: string) {
     return ZkAPI.proof(this.url, address);
+  }
+
+  async signSIKPayload(wallet: Wallet | Signer): Promise<string> {
+    return Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet);
   }
 
   /**

@@ -3,7 +3,7 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI, FaucetAPI, FileAPI, VoteAPI } from './api';
+import { AccountAPI, FaucetAPI, FileAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -24,15 +24,7 @@ import {
   WeightedCensus,
 } from './types';
 import { delay } from './util/common';
-import {
-  API_URL,
-  EXPLORER_URL,
-  FAUCET_AUTH_TOKEN,
-  FAUCET_URL,
-  TX_WAIT_OPTIONS,
-  VOCDONI_SIK_PAYLOAD,
-} from './util/constants';
-import { Signing } from './util/signing';
+import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import {
   AnonymousService,
   CensusProof,
@@ -42,6 +34,7 @@ import {
   CspCensusProof,
   CspService,
   ElectionService,
+  VoteService,
   ZkProof,
 } from './services';
 
@@ -138,6 +131,7 @@ export class VocdoniSDKClient {
   public anonymousService: AnonymousService;
   public cspService: CspService;
   public electionService: ElectionService;
+  public voteService: VoteService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
@@ -175,6 +169,10 @@ export class VocdoniSDKClient {
     this.electionService = new ElectionService({
       url: this.url,
       censusService: this.censusService,
+      chainService: this.chainService,
+    });
+    this.voteService = new VoteService({
+      url: this.url,
       chainService: this.chainService,
     });
     this.cspService = new CspService({});
@@ -308,10 +306,6 @@ export class VocdoniSDKClient {
     return wallet.getAddress().then((address) => this.censusService.fetchProof(censusId, address));
   }
 
-  private signSIKPayload(wallet: Wallet | Signer): Promise<string> {
-    return Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet);
-  }
-
   private setAccountSIK(
     electionId: string,
     sik: string,
@@ -345,7 +339,7 @@ export class VocdoniSDKClient {
   ): Promise<ZkProof> {
     const [address, sik, censusProof] = await Promise.all([
       wallet.getAddress(),
-      this.signSIKPayload(wallet),
+      this.anonymousService.signSIKPayload(wallet),
       this.fetchProofForWallet(election.census.censusId, wallet),
     ]);
 
@@ -464,7 +458,7 @@ export class VocdoniSDKClient {
 
     return this.fetchAccountInfo().catch(() => {
       if (settings?.sik) {
-        return this.signSIKPayload(this.wallet).then((signedPayload) =>
+        return this.anonymousService.signSIKPayload(this.wallet).then((signedPayload) =>
           this.createAccountInfo({
             account: settings?.account ?? new Account(),
             faucetPackage: settings?.faucetPackage,
@@ -688,7 +682,7 @@ export class VocdoniSDKClient {
 
     return this.wallet
       .getAddress()
-      .then((address) => VoteAPI.info(this.url, keccak256(address.toLowerCase() + election.id)))
+      .then((address) => this.voteService.info(address.toLowerCase(), election.id))
       .then((voteInfo) => voteInfo.voteID)
       .catch(() => null);
   }
@@ -730,7 +724,7 @@ export class VocdoniSDKClient {
 
     return this.wallet
       .getAddress()
-      .then((address) => VoteAPI.info(this.url, keccak256(address.toLowerCase() + election.id)))
+      .then((address) => this.voteService.info(address.toLowerCase(), election.id))
       .then((voteInfo) => election.voteType.maxVoteOverwrites - voteInfo.overwriteCount)
       .catch(() => election.voteType.maxVoteOverwrites + 1);
   }
@@ -773,21 +767,18 @@ export class VocdoniSDKClient {
     let voteTx;
     if (election?.electionType.secretUntilTheEnd) {
       voteTx = this.electionService.keys(election.id).then((encryptionKeys) =>
-        Promise.all([
-          VoteCore.generateVoteTransaction(election, censusProof, vote, {
-            encryptionPubKeys: encryptionKeys.publicKeys,
-          }),
-          this.fetchChainId(),
-        ])
+        VoteCore.generateVoteTransaction(election, censusProof, vote, {
+          encryptionPubKeys: encryptionKeys.publicKeys,
+        })
       );
     } else {
-      voteTx = Promise.all([VoteCore.generateVoteTransaction(election, censusProof, vote), this.fetchChainId()]);
+      voteTx = Promise.resolve(VoteCore.generateVoteTransaction(election, censusProof, vote));
     }
 
     // Vote
     return voteTx
-      .then((data) => VoteCore.signTransaction(data[0], data[1], this.wallet))
-      .then((signedTx) => VoteAPI.submit(this.url, signedTx))
+      .then((tx) => this.voteService.signTransaction(tx, this.wallet))
+      .then((signedTx) => this.voteService.vote(signedTx))
       .then((apiResponse) => this.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
   }
 
