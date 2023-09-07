@@ -1,5 +1,6 @@
 import { Service, ServiceProperties } from './service';
 import { ChainAPI, IChainGetCostsResponse, IChainTxReference } from '../api';
+import invariant from 'tiny-invariant';
 
 interface ChainServiceProperties {
   chainCosts: ChainCosts;
@@ -42,6 +43,7 @@ export class ChainService extends Service implements ChainServiceProperties {
     if (this.chainData) {
       return Promise.resolve(this.chainData);
     }
+    invariant(this.url, 'No URL set');
 
     return ChainAPI.info(this.url).then((chainData) => {
       this.chainData = chainData;
@@ -58,6 +60,7 @@ export class ChainService extends Service implements ChainServiceProperties {
     if (this.chainCosts) {
       return Promise.resolve(this.chainCosts);
     }
+    invariant(this.url, 'No URL set');
 
     return ChainAPI.costs(this.url).then((chainCosts) => {
       this.chainCosts = chainCosts;
@@ -72,6 +75,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    * @returns {Promise<string>} The transaction hash
    */
   submitTx(payload: string): Promise<string> {
+    invariant(this.url, 'No URL set');
     return ChainAPI.submitTx(this.url, payload).then((txData) => txData.hash);
   }
 
@@ -82,6 +86,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    * @returns {Promise<ChainTx>} The chain transaction
    */
   txInfo(txHash: string): Promise<ChainTx> {
+    invariant(this.url, 'No URL set');
     return ChainAPI.txInfo(this.url, txHash);
   }
 }

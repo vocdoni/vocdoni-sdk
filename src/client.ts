@@ -3,7 +3,7 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI, FaucetAPI, FileAPI } from './api';
+import { AccountAPI, FaucetAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -34,6 +34,7 @@ import {
   CspCensusProof,
   CspService,
   ElectionService,
+  FileService,
   VoteService,
   ZkProof,
 } from './services';
@@ -132,6 +133,7 @@ export class VocdoniSDKClient {
   public cspService: CspService;
   public electionService: ElectionService;
   public voteService: VoteService;
+  public fileService: FileService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
@@ -164,6 +166,7 @@ export class VocdoniSDKClient {
     };
     this.explorerUrl = EXPLORER_URL[opts.env];
     this.censusService = new CensusService({ url: this.url });
+    this.fileService = new FileService({ url: this.url });
     this.chainService = new ChainService({ url: this.url });
     this.anonymousService = new AnonymousService({ url: this.url });
     this.electionService = new ElectionService({
@@ -216,16 +219,6 @@ export class VocdoniSDKClient {
     });
 
     return this.accountData;
-  }
-
-  /**
-   * Fetches the CID expected for the specified data content.
-   *
-   * @param {string} data The data of which we want the CID of
-   * @returns {Promise<string>} Resulting CID
-   */
-  calculateCID(data: string): Promise<string> {
-    return FileAPI.cid(this.url, data).then((data) => data.cid);
   }
 
   /**
@@ -390,7 +383,7 @@ export class VocdoniSDKClient {
 
     const accountData = Promise.all([
       this.fetchChainId(),
-      this.calculateCID(Buffer.from(JSON.stringify(options.account.generateMetadata()), 'utf8').toString('base64')),
+      this.fileService.calculateCID(JSON.stringify(options.account.generateMetadata())),
     ]).then((data) =>
       AccountCore.generateCreateAccountTransaction(address, options.account, data[1], faucetPackage, calculatedSik)
     );
@@ -411,7 +404,7 @@ export class VocdoniSDKClient {
     const accountData = Promise.all([
       this.fetchAccountInfo(),
       this.fetchChainId(),
-      this.calculateCID(Buffer.from(JSON.stringify(account.generateMetadata()), 'utf8').toString('base64')),
+      this.fileService.calculateCID(JSON.stringify(account.generateMetadata())),
     ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0], account, data[2]));
 
     return this.setAccountInfo(accountData);
@@ -529,7 +522,7 @@ export class VocdoniSDKClient {
 
     const electionData = Promise.all([
       this.fetchAccountInfo(),
-      this.calculateCID(Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64')),
+      this.fileService.calculateCID(JSON.stringify(election.generateMetadata())),
     ]).then((data) =>
       ElectionCore.generateNewElectionTransaction(election, data[1], this.chainService.chainData, data[0])
     );
@@ -919,5 +912,15 @@ export class VocdoniSDKClient {
    */
   public calculateElectionCost(election: UnpublishedElection): Promise<number> {
     return this.electionService.calculateElectionCost(election);
+  }
+
+  /**
+   * Fetches the CID expected for the specified data content.
+   *
+   * @param {string} data The data of which we want the CID of
+   * @returns {Promise<string>} Resulting CID
+   */
+  calculateCID(data: string): Promise<string> {
+    return this.fileService.calculateCID(data);
   }
 }

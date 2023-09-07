@@ -45,6 +45,7 @@ export class VoteService extends Service implements VoteServiceProperties {
    * @returns {Promise<VoteInfo>}
    */
   info(address: string, electionId: string): Promise<VoteInfo> {
+    invariant(this.url, 'No URL set');
     return VoteAPI.info(this.url, keccak256(address.toLowerCase() + electionId));
   }
 
@@ -56,6 +57,7 @@ export class VoteService extends Service implements VoteServiceProperties {
    * @returns {Promise<VoteSubmit>}
    */
   vote(payload: string): Promise<VoteSubmit> {
+    invariant(this.url, 'No URL set');
     return VoteAPI.submit(this.url, payload);
   }
 }
