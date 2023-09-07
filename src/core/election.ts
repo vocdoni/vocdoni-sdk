@@ -116,7 +116,7 @@ export abstract class ElectionCore extends TransactionCore {
             interruptible: election.electionType.interruptible,
             dynamicCensus: election.electionType.dynamicCensus,
             encryptedMetaData: false, // TODO
-            preRegister: election.electionType.anonymous,
+            preRegister: false, // TODO
           },
           voteOptions: {
             maxCount: election.voteType.maxCount ?? election.questions.length,
