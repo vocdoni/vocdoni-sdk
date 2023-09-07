@@ -145,6 +145,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @returns {Promise<ElectionCreatedInformation>} The created election information
    */
   create(payload: string, metadata: string): Promise<ElectionCreatedInformation> {
+    invariant(this.url, 'No URL set');
     return ElectionAPI.create(this.url, payload, metadata);
   }
 
@@ -155,6 +156,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @returns {Promise<ElectionKeys>}
    */
   keys(electionId: string): Promise<ElectionKeys> {
+    invariant(this.url, 'No URL set');
     return ElectionAPI.keys(this.url, electionId);
   }
 
@@ -176,6 +178,8 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @returns {Promise<number>} The cost in tokens.
    */
   calculateElectionCost(election: UnpublishedElection): Promise<number> {
+    invariant(this.chainService, 'No chain service set');
+    invariant(this.url, 'No URL set');
     return this.chainService
       .fetchChainData()
       .then((chainData) =>
