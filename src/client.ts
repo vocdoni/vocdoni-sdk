@@ -10,6 +10,7 @@ import { VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
+  AnonymousVote,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -32,7 +33,6 @@ import {
   VOCDONI_SIK_PAYLOAD,
 } from './util/constants';
 import { Signing } from './util/signing';
-import { AnonymousVote } from './types/vote/anonymous';
 import {
   AnonymousService,
   CensusProof,
@@ -516,8 +516,6 @@ export class VocdoniSDKClient {
       election.census.type = CensusType.ANONYMOUS;
     }
 
-    const chainId = await this.fetchChainId();
-
     if (!election.census.isPublished) {
       await this.censusService.createCensus(election.census as PlainCensus | WeightedCensus);
     } else if (!election.maxCensusSize && !election.census.size) {
@@ -543,7 +541,7 @@ export class VocdoniSDKClient {
     );
 
     const electionPackage = electionData.then((newElectionData) =>
-      ElectionCore.signTransaction(newElectionData.tx, chainId, this.wallet)
+      this.electionService.signTransaction(newElectionData.tx, this.wallet)
     );
 
     const electionTx = await Promise.all([electionData, electionPackage]).then(([metadata, payload]) =>
@@ -606,16 +604,9 @@ export class VocdoniSDKClient {
     }
     return this.fetchAccountInfo()
       .then((accountData) =>
-        Promise.all([
-          ElectionCore.generateSetElectionStatusTransaction(
-            electionId ?? this.electionId,
-            accountData.nonce,
-            newStatus
-          ),
-          this.fetchChainId(),
-        ])
+        ElectionCore.generateSetElectionStatusTransaction(electionId ?? this.electionId, accountData.nonce, newStatus)
       )
-      .then((data) => ElectionCore.signTransaction(data[0], data[1], this.wallet))
+      .then((tx) => this.electionService.signTransaction(tx, this.wallet))
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.waitForTransaction(hash));
   }
@@ -634,17 +625,14 @@ export class VocdoniSDKClient {
     }
     return this.fetchAccountInfo()
       .then((accountData) =>
-        Promise.all([
-          ElectionCore.generateSetElectionCensusTransaction(
-            electionId ?? this.electionId,
-            accountData.nonce,
-            censusId,
-            censusURI
-          ),
-          this.fetchChainId(),
-        ])
+        ElectionCore.generateSetElectionCensusTransaction(
+          electionId ?? this.electionId,
+          accountData.nonce,
+          censusId,
+          censusURI
+        )
       )
-      .then((data) => ElectionCore.signTransaction(data[0], data[1], this.wallet))
+      .then((tx) => this.electionService.signTransaction(tx, this.wallet))
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.waitForTransaction(hash));
   }
