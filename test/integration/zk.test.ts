@@ -4,7 +4,7 @@ import { Election, PlainCensus, VocdoniSDKClient, Vote } from '../../src';
 import { Wallet } from '@ethersproject/wallet';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
-import { AnonymousVote } from '../../src/types/vote/anonymous';
+import { AnonymousVote } from '../../src';
 
 let client: VocdoniSDKClient;
 let wallet: Wallet;

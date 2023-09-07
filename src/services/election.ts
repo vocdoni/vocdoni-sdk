@@ -6,6 +6,8 @@ import { allSettled } from '../util/promise';
 import invariant from 'tiny-invariant';
 import { ElectionCore } from '../core/election';
 import { ChainService } from './chain';
+import { Wallet } from '@ethersproject/wallet';
+import { Signer } from '@ethersproject/abstract-signer';
 
 interface ElectionServiceProperties {
   censusService: CensusService;
@@ -34,6 +36,13 @@ export class ElectionService extends Service implements ElectionServicePropertie
   constructor(params: Partial<ElectionServiceParameters>) {
     super();
     Object.assign(this, params);
+  }
+
+  public async signTransaction(tx: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
+    invariant(this.chainService, 'No chain service set');
+    return this.chainService
+      .fetchChainData()
+      .then((chainData) => ElectionCore.signTransaction(tx, chainData.chainId, walletOrSigner));
   }
 
   /**
