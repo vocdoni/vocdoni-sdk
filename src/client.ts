@@ -4,7 +4,6 @@ import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
 import { AccountAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, IChainGetCostsResponse, VoteAPI } from './api';
-import { CspAPI } from './api/csp';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -34,11 +33,18 @@ import {
   TX_WAIT_OPTIONS,
   VOCDONI_SIK_PAYLOAD,
 } from './util/constants';
-import { CensusBlind, getBlindedPayload } from './util/blind-signing';
 import { allSettled } from './util/promise';
 import { Signing } from './util/signing';
 import { AnonymousVote } from './types/vote/anonymous';
-import { AnonymousService, CensusProof, CensusService, ChainCircuits, CspCensusProof, ZkProof } from './services';
+import {
+  AnonymousService,
+  CensusProof,
+  CensusService,
+  ChainCircuits,
+  CspCensusProof,
+  CspService,
+  ZkProof,
+} from './services';
 
 export type ChainData = {
   chainId: string;
@@ -142,6 +148,7 @@ export class VocdoniSDKClient {
 
   public censusService: CensusService;
   public anonymousService: AnonymousService;
+  public cspService: CspService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
@@ -149,8 +156,6 @@ export class VocdoniSDKClient {
   public explorerUrl: string;
   public faucet: FaucetOptions | null;
   public tx_wait: TxWaitOptions | null;
-
-  private cspInformation;
 
   /**
    * Instantiate new VocdoniSDK client.
@@ -177,6 +182,7 @@ export class VocdoniSDKClient {
     this.explorerUrl = EXPLORER_URL[opts.env];
     this.censusService = new CensusService({ url: this.url });
     this.anonymousService = new AnonymousService({ url: this.url });
+    this.cspService = new CspService({});
   }
 
   /**
@@ -186,62 +192,6 @@ export class VocdoniSDKClient {
    */
   setElectionId(electionId: string) {
     this.electionId = electionId;
-  }
-
-  async cspUrl(): Promise<string> {
-    invariant(this.electionId, 'No election id set');
-    invariant(!this.election || this.election.census.type === CensusType.CSP, 'Election set is not from CSP type');
-
-    if (!this.election) {
-      await this.fetchElection();
-    }
-
-    return this.election.census.censusURI;
-  }
-
-  async cspInfo() {
-    invariant(await this.cspUrl(), 'No CSP URL set');
-
-    this.cspInformation = await this.cspUrl().then((cspUrl) => CspAPI.info(cspUrl));
-    return this.cspInformation;
-  }
-
-  async cspStep(stepNumber: number, data: any[], authToken?: string) {
-    invariant(await this.cspUrl(), 'No CSP URL set');
-    if (!this.cspInformation) {
-      await this.cspInfo();
-    }
-
-    return this.cspUrl().then((cspUrl) =>
-      CspAPI.step(
-        cspUrl,
-        this.electionId,
-        this.cspInformation.signatureType[0],
-        this.cspInformation.authType,
-        stepNumber,
-        data,
-        authToken
-      )
-    );
-  }
-
-  async cspSign(address: string, token: string) {
-    invariant(await this.cspUrl(), 'No CSP URL set');
-    if (!this.cspInformation) {
-      await this.cspInfo();
-    }
-
-    const { hexBlinded: blindedPayload, userSecretData } = getBlindedPayload(this.electionId, token, address);
-
-    return this.cspUrl()
-      .then((cspUrl) =>
-        CspAPI.sign(cspUrl, this.electionId, this.cspInformation.signatureType[0], blindedPayload, token)
-      )
-      .then((signature) => CensusBlind.unblind(signature.signature, userSecretData));
-  }
-
-  cspVote(vote: Vote, signature: string): CspVote {
-    return new CspVote(vote.votes, signature);
   }
 
   /**
@@ -1074,5 +1024,28 @@ export class VocdoniSDKClient {
    */
   setCircuits(circuits: ChainCircuits): ChainCircuits {
     return this.anonymousService.setCircuits(circuits);
+  }
+
+  async cspUrl(): Promise<string> {
+    invariant(this.electionId, 'No election id set');
+    return this.fetchElection(this.electionId).then(this.cspService.setUrlFromElection);
+  }
+
+  async cspInfo() {
+    return this.cspService.setInfo();
+  }
+
+  async cspStep(stepNumber: number, data: any[], authToken?: string) {
+    invariant(this.electionId, 'No election id set');
+    return this.cspService.cspStep(this.electionId, stepNumber, data, authToken);
+  }
+
+  async cspSign(address: string, token: string) {
+    invariant(this.electionId, 'No election id set');
+    return this.cspService.cspSign(this.electionId, address, token);
+  }
+
+  cspVote(vote: Vote, signature: string) {
+    return this.cspService.cspVote(vote, signature);
   }
 }
