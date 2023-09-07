@@ -3,7 +3,7 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI } from './api';
+import { AccountAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -286,7 +286,8 @@ export class VocdoniSDKClient {
     const attemptsNum = attempts ?? this.tx_wait.attempts;
     return attemptsNum === 0
       ? Promise.reject('Time out waiting for transaction: ' + tx)
-      : ChainAPI.txInfo(this.url, tx)
+      : this.chainService
+          .txInfo(tx)
           .then(() => Promise.resolve())
           .catch(() => delay(waitTime).then(() => this.waitForTransaction(tx, waitTime, attemptsNum - 1)));
   }
@@ -320,8 +321,8 @@ export class VocdoniSDKClient {
         const registerSIKTx = AccountCore.generateRegisterSIKTransaction(electionId, calculatedSIK, censusProof);
         return AccountCore.signTransaction(registerSIKTx, chainId, wallet);
       })
-      .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
-      .then((data) => this.waitForTransaction(data.hash));
+      .then((signedTx) => this.chainService.submitTx(signedTx))
+      .then((hash) => this.waitForTransaction(hash));
   }
 
   /**
@@ -489,8 +490,8 @@ export class VocdoniSDKClient {
         const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account, faucetPackage);
         return AccountCore.signTransaction(collectFaucetTx, chainId, this.wallet);
       })
-      .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
-      .then((txData) => this.waitForTransaction(txData.hash))
+      .then((signedTx) => this.chainService.submitTx(signedTx))
+      .then((hash) => this.waitForTransaction(hash))
       .then(() => this.fetchAccountInfo());
   }
 
@@ -610,8 +611,8 @@ export class VocdoniSDKClient {
         ])
       )
       .then((data) => ElectionCore.signTransaction(data[0], data[1], this.wallet))
-      .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
-      .then((data) => this.waitForTransaction(data.hash));
+      .then((signedTx) => this.chainService.submitTx(signedTx))
+      .then((hash) => this.waitForTransaction(hash));
   }
 
   /**
@@ -639,8 +640,8 @@ export class VocdoniSDKClient {
         ])
       )
       .then((data) => ElectionCore.signTransaction(data[0], data[1], this.wallet))
-      .then((signedTx) => ChainAPI.submitTx(this.url, signedTx))
-      .then((data) => this.waitForTransaction(data.hash));
+      .then((signedTx) => this.chainService.submitTx(signedTx))
+      .then((hash) => this.waitForTransaction(hash));
   }
 
   /**
