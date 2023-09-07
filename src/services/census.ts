@@ -2,6 +2,7 @@ import { Service, ServiceProperties } from './service';
 import { CensusType, PlainCensus, WeightedCensus } from '../types';
 import { CensusAPI, WalletAPI } from '../api';
 import { Wallet } from '@ethersproject/wallet';
+import invariant from 'tiny-invariant';
 
 interface CensusServiceProperties {
   auth: CensusAuth;
@@ -63,6 +64,7 @@ export class CensusService extends Service implements CensusServiceProperties {
    * @returns {Promise<{size: number, weight: bigint}>}
    */
   fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
+    invariant(this.url, 'No URL set');
     return Promise.all([
       CensusAPI.size(this.url, censusId),
       CensusAPI.weight(this.url, censusId),
@@ -88,6 +90,7 @@ export class CensusService extends Service implements CensusServiceProperties {
    * @returns {Promise<CensusProof>}
    */
   async fetchProof(censusId: string, key: string): Promise<CensusProof> {
+    invariant(this.url, 'No URL set');
     return CensusAPI.proof(this.url, censusId, key).then((censusProof) => ({
       type: censusProof.type,
       weight: censusProof.weight,
@@ -105,6 +108,7 @@ export class CensusService extends Service implements CensusServiceProperties {
    * @returns {Promise<void>}
    */
   createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
+    invariant(this.url, 'No URL set');
     const censusCreation = this.fetchAccountToken().then(() =>
       CensusAPI.create(this.url, this.auth.identifier, census.type)
     );
@@ -135,6 +139,7 @@ export class CensusService extends Service implements CensusServiceProperties {
     if (this.auth) {
       return Promise.resolve();
     }
+    invariant(this.url, 'No URL set');
 
     this.auth = {
       identifier: '',

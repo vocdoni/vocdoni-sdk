@@ -80,10 +80,12 @@ export class AnonymousService extends Service implements AnonymousServicePropert
   }
 
   async fetchAccountSIK(address: string) {
+    invariant(this.url, 'No URL set');
     return ZkAPI.sik(this.url, address);
   }
 
   async fetchZKProof(address: string) {
+    invariant(this.url, 'No URL set');
     return ZkAPI.proof(this.url, address);
   }
 
@@ -137,6 +139,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
         return Promise.resolve(this.chainCircuits);
       } catch (e) {}
     }
+    invariant(this.url, 'No URL set');
 
     const setCircuitInfo = this.chainCircuits
       ? Promise.resolve(this.chainCircuits)
