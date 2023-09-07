@@ -154,10 +154,10 @@ export class AnonymousService extends Service implements AnonymousServicePropert
           ChainAPI.circuit(this.chainCircuits.wasmURI),
         ])
       )
-      .then((files) => {
-        this.chainCircuits.zKeyData = files[0];
-        this.chainCircuits.vKeyData = files[1];
-        this.chainCircuits.wasmData = files[2];
+      .then(([zKeyData, vKeyData, wasmData]) => {
+        this.chainCircuits.zKeyData = zKeyData;
+        this.chainCircuits.vKeyData = vKeyData;
+        this.chainCircuits.wasmData = wasmData;
         return this.checkCircuitsHashes();
       });
   }
