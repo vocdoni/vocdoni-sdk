@@ -10,14 +10,12 @@ import { VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
-  Census,
   CensusType,
   CspVote,
   ElectionStatus,
   ElectionStatusReady,
   InvalidElection,
   PlainCensus,
-  PublishedCensus,
   PublishedElection,
   TokenCensus,
   UnpublishedElection,
@@ -33,7 +31,6 @@ import {
   TX_WAIT_OPTIONS,
   VOCDONI_SIK_PAYLOAD,
 } from './util/constants';
-import { allSettled } from './util/promise';
 import { Signing } from './util/signing';
 import { AnonymousVote } from './types/vote/anonymous';
 import {
@@ -43,6 +40,7 @@ import {
   ChainCircuits,
   CspCensusProof,
   CspService,
+  ElectionService,
   ZkProof,
 } from './services';
 
@@ -149,6 +147,7 @@ export class VocdoniSDKClient {
   public censusService: CensusService;
   public anonymousService: AnonymousService;
   public cspService: CspService;
+  public electionService: ElectionService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
@@ -182,6 +181,7 @@ export class VocdoniSDKClient {
     this.explorerUrl = EXPLORER_URL[opts.env];
     this.censusService = new CensusService({ url: this.url });
     this.anonymousService = new AnonymousService({ url: this.url });
+    this.electionService = new ElectionService({ url: this.url, censusService: this.censusService });
     this.cspService = new CspService({});
   }
 
@@ -303,98 +303,15 @@ export class VocdoniSDKClient {
    * @returns {Promise<UnpublishedElection>}
    */
   async fetchElection(electionId?: string): Promise<PublishedElection> {
-    if (!this.electionId && !electionId) {
-      throw Error('No election set');
-    }
+    invariant(this.electionId || electionId, 'No election set');
 
-    const electionInfo = await ElectionAPI.info(this.url, electionId ?? this.electionId);
-
-    return this.censusService
-      .fetchCensusInfo(electionInfo.census.censusRoot)
-      .then((censusInfo) =>
-        PublishedElection.build({
-          id: electionInfo.electionId,
-          organizationId: electionInfo.organizationId,
-          title: electionInfo.metadata?.title,
-          description: electionInfo.metadata?.description,
-          header: electionInfo.metadata?.media.header,
-          streamUri: electionInfo.metadata?.media.streamUri,
-          meta: electionInfo.metadata?.meta,
-          startDate: electionInfo.startDate,
-          endDate: electionInfo.endDate,
-          census: new PublishedCensus(
-            electionInfo.census.censusRoot,
-            electionInfo.census.censusURL,
-            censusInfo.type ??
-              Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin, electionInfo.voteMode.anonymous),
-            censusInfo.size,
-            censusInfo.weight
-          ),
-          maxCensusSize: electionInfo.census.maxCensusSize,
-          manuallyEnded: electionInfo.manuallyEnded,
-          status: electionInfo.status,
-          voteCount: electionInfo.voteCount,
-          finalResults: electionInfo.finalResults,
-          results: electionInfo.result,
-          metadataURL: electionInfo.metadataURL,
-          creationTime: electionInfo.creationTime,
-          electionType: {
-            autoStart: electionInfo.electionMode.autoStart,
-            interruptible: electionInfo.electionMode.interruptible,
-            dynamicCensus: electionInfo.electionMode.dynamicCensus,
-            secretUntilTheEnd: electionInfo.voteMode.encryptedVotes,
-            anonymous: electionInfo.voteMode.anonymous,
-          },
-          voteType: {
-            uniqueChoices: electionInfo.voteMode.uniqueValues,
-            maxVoteOverwrites: electionInfo.tallyMode.maxVoteOverwrites,
-            costFromWeight: electionInfo.voteMode.costFromWeight,
-            costExponent: electionInfo.tallyMode.costExponent,
-            maxCount: electionInfo.tallyMode.maxCount,
-            maxValue: electionInfo.tallyMode.maxValue,
-            maxTotalCost: electionInfo.tallyMode.maxTotalCost,
-          },
-          questions: electionInfo.metadata?.questions.map((question, qIndex) => ({
-            title: question.title,
-            description: question.description,
-            choices: question.choices.map((choice, cIndex) => ({
-              title: choice.title,
-              value: choice.value,
-              results: electionInfo.result ? electionInfo.result[qIndex][cIndex] : null,
-            })),
-          })),
-          raw: electionInfo,
-        })
-      )
-      .then((election) => {
-        this.election = election;
-        return election;
-      })
-      .catch((err) => {
-        err.electionId = electionInfo.electionId;
-        throw err;
-      });
+    this.election = await this.electionService.fetchElection(electionId ?? this.electionId);
+    return this.election;
   }
 
   async fetchElections(account?: string, page: number = 0): Promise<Array<PublishedElection | InvalidElection>> {
-    let electionList;
-    if (!this.wallet && !account) {
-      electionList = ElectionAPI.electionsList(this.url, page);
-    } else {
-      electionList = AccountAPI.electionsList(this.url, account ?? (await this.wallet.getAddress()), page);
-    }
-
-    return electionList
-      .then((elections) =>
-        allSettled(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
-      )
-      .then((elections) =>
-        elections.map((election) =>
-          election.status === 'fulfilled' ? election.value : new InvalidElection({ id: election?.reason?.electionId })
-        )
-      );
+    return this.electionService.fetchElections({ account: account ?? (await this.wallet?.getAddress()), page });
   }
-
   /**
    * A convenience method to wait for a transaction to be executed. It will
    * loop trying to get the transaction information, and will retry every time
