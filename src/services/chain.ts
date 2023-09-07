@@ -1,5 +1,5 @@
 import { Service, ServiceProperties } from './service';
-import { ChainAPI, IChainGetCostsResponse } from '../api';
+import { ChainAPI, IChainGetCostsResponse, IChainTxReference } from '../api';
 
 interface ChainServiceProperties {
   chainCosts: ChainCosts;
@@ -9,6 +9,7 @@ interface ChainServiceProperties {
 type ChainServiceParameters = ServiceProperties & ChainServiceProperties;
 
 export type ChainCosts = IChainGetCostsResponse;
+export type ChainTx = IChainTxReference;
 
 export type ChainData = {
   chainId: string;
@@ -62,5 +63,25 @@ export class ChainService extends Service implements ChainServiceProperties {
       this.chainCosts = chainCosts;
       return chainCosts;
     });
+  }
+
+  /**
+   * Submits a transaction to the blockchain
+   *
+   * @param {string} payload The transaction data payload
+   * @returns {Promise<string>} The transaction hash
+   */
+  submitTx(payload: string): Promise<string> {
+    return ChainAPI.submitTx(this.url, payload).then((txData) => txData.hash);
+  }
+
+  /**
+   * Fetches information about a transaction from the blockchain.
+   *
+   * @param {string} txHash The transaction hash which we want to retrieve the info from
+   * @returns {Promise<ChainTx>} The chain transaction
+   */
+  txInfo(txHash: string): Promise<ChainTx> {
+    return ChainAPI.txInfo(this.url, txHash);
   }
 }
