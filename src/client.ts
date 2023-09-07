@@ -1028,7 +1028,7 @@ export class VocdoniSDKClient {
 
   async cspUrl(): Promise<string> {
     invariant(this.electionId, 'No election id set');
-    return this.fetchElection(this.electionId).then(this.cspService.setUrlFromElection);
+    return this.fetchElection(this.electionId).then((election) => this.cspService.setUrlFromElection(election));
   }
 
   async cspInfo() {
@@ -1037,6 +1037,8 @@ export class VocdoniSDKClient {
 
   async cspStep(stepNumber: number, data: any[], authToken?: string) {
     invariant(this.electionId, 'No election id set');
+    await this.cspUrl();
+    await this.cspInfo();
     return this.cspService.cspStep(this.electionId, stepNumber, data, authToken);
   }
 
