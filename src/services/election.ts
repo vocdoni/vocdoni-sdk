@@ -1,6 +1,6 @@
 import { Service, ServiceProperties } from './service';
 import { Census, InvalidElection, PublishedCensus, PublishedElection, UnpublishedElection } from '../types';
-import { AccountAPI, ElectionAPI } from '../api';
+import { AccountAPI, ElectionAPI, IElectionCreateResponse, IElectionKeysResponse } from '../api';
 import { CensusService } from './census';
 import { allSettled } from '../util/promise';
 import invariant from 'tiny-invariant';
@@ -18,6 +18,9 @@ export interface FetchElectionsParameters {
   account: string;
   page: number;
 }
+
+export type ElectionKeys = IElectionKeysResponse;
+export type ElectionCreatedInformation = IElectionCreateResponse;
 
 export class ElectionService extends Service implements ElectionServiceProperties {
   public censusService: CensusService;
@@ -135,15 +138,38 @@ export class ElectionService extends Service implements ElectionServicePropertie
   }
 
   /**
+   * Creates a new election.
+   *
+   * @param {string} payload The set information info raw payload to be submitted to the chain
+   * @param {string} metadata The base64 encoded metadata JSON object
+   * @returns {Promise<ElectionCreatedInformation>} The created election information
+   */
+  create(payload: string, metadata: string): Promise<ElectionCreatedInformation> {
+    return ElectionAPI.create(this.url, payload, metadata);
+  }
+
+  /**
+   * Fetches the encryption keys from the specified process.
+   *
+   * @param {string} electionId The identifier of the election
+   * @returns {Promise<ElectionKeys>}
+   */
+  keys(electionId: string): Promise<ElectionKeys> {
+    return ElectionAPI.keys(this.url, electionId);
+  }
+
+  /**
    * Estimates the election cost
    *
    * @returns {Promise<number>} The cost in tokens.
    */
   estimateElectionCost(election: UnpublishedElection): Promise<number> {
+    invariant(this.chainService, 'No chain service set');
     return Promise.all([this.chainService.fetchChainCosts(), this.chainService.fetchChainData()])
       .then(([chainCosts, chainData]) => ElectionCore.estimateElectionCost(election, chainCosts, chainData))
       .then((cost) => Math.trunc(cost));
   }
+
   /**
    * Calculate the election cost
    *

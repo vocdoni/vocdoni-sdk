@@ -121,7 +121,7 @@ export interface ITallyMode {
   costExponent: number;
 }
 
-interface IElectionCreateResponse {
+export interface IElectionCreateResponse {
   /**
    * The hash of the transaction
    */

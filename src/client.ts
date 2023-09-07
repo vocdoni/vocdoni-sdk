@@ -3,7 +3,7 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI } from './api';
+import { AccountAPI, FaucetAPI, FileAPI, VoteAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -172,7 +172,11 @@ export class VocdoniSDKClient {
     this.censusService = new CensusService({ url: this.url });
     this.chainService = new ChainService({ url: this.url });
     this.anonymousService = new AnonymousService({ url: this.url });
-    this.electionService = new ElectionService({ url: this.url, censusService: this.censusService });
+    this.electionService = new ElectionService({
+      url: this.url,
+      censusService: this.censusService,
+      chainService: this.chainService,
+    });
     this.cspService = new CspService({});
   }
 
@@ -271,6 +275,7 @@ export class VocdoniSDKClient {
   async fetchElections(account?: string, page: number = 0): Promise<Array<PublishedElection | InvalidElection>> {
     return this.electionService.fetchElections({ account: account ?? (await this.wallet?.getAddress()), page });
   }
+
   /**
    * A convenience method to wait for a transaction to be executed. It will
    * loop trying to get the transaction information, and will retry every time
@@ -541,8 +546,8 @@ export class VocdoniSDKClient {
       ElectionCore.signTransaction(newElectionData.tx, chainId, this.wallet)
     );
 
-    const electionTx = await Promise.all([electionData, electionPackage]).then((election) =>
-      ElectionAPI.create(this.url, election[1], election[0].metadata)
+    const electionTx = await Promise.all([electionData, electionPackage]).then(([metadata, payload]) =>
+      this.electionService.create(payload, metadata.metadata)
     );
 
     return this.waitForTransaction(electionTx.txHash).then(() => electionTx.electionID);
@@ -779,7 +784,7 @@ export class VocdoniSDKClient {
 
     let voteTx;
     if (election?.electionType.secretUntilTheEnd) {
-      voteTx = ElectionAPI.keys(this.url, election.id).then((encryptionKeys) =>
+      voteTx = this.electionService.keys(election.id).then((encryptionKeys) =>
         Promise.all([
           VoteCore.generateVoteTransaction(election, censusProof, vote, {
             encryptionPubKeys: encryptionKeys.publicKeys,
