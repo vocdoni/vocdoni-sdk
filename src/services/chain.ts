@@ -1,0 +1,66 @@
+import { Service, ServiceProperties } from './service';
+import { ChainAPI, IChainGetCostsResponse } from '../api';
+
+interface ChainServiceProperties {
+  chainCosts: ChainCosts;
+  chainData: ChainData;
+}
+
+type ChainServiceParameters = ServiceProperties & ChainServiceProperties;
+
+export type ChainCosts = IChainGetCostsResponse;
+
+export type ChainData = {
+  chainId: string;
+  blockTime: number[];
+  height: number;
+  blockTimestamp: number;
+  maxCensusSize: number;
+};
+
+export class ChainService extends Service implements ChainServiceProperties {
+  public chainCosts: ChainCosts;
+  public chainData: ChainData;
+
+  /**
+   * Instantiate the chain service.
+   *
+   * @param {Partial<ChainServiceParameters>} params The service parameters
+   */
+  constructor(params: Partial<ChainServiceParameters>) {
+    super();
+    Object.assign(this, params);
+  }
+
+  /**
+   * Fetches blockchain information if needed.
+   *
+   * @returns {Promise<ChainData>}
+   */
+  fetchChainData(): Promise<ChainData> {
+    if (this.chainData) {
+      return Promise.resolve(this.chainData);
+    }
+
+    return ChainAPI.info(this.url).then((chainData) => {
+      this.chainData = chainData;
+      return chainData;
+    });
+  }
+
+  /**
+   * Fetches blockchain costs information if needed.
+   *
+   * @returns {Promise<ChainCosts>}
+   */
+  fetchChainCosts(): Promise<ChainCosts> {
+    if (this.chainCosts) {
+      return Promise.resolve(this.chainCosts);
+    }
+
+    return ChainAPI.costs(this.url).then((chainCosts) => {
+      this.chainCosts = chainCosts;
+      return chainCosts;
+    });
+  }
+}
