@@ -3,7 +3,7 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, IChainGetCostsResponse, VoteAPI } from './api';
+import { AccountAPI, ChainAPI, ElectionAPI, FaucetAPI, FileAPI, VoteAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -38,19 +38,12 @@ import {
   CensusProof,
   CensusService,
   ChainCircuits,
+  ChainService,
   CspCensusProof,
   CspService,
   ElectionService,
   ZkProof,
 } from './services';
-
-export type ChainData = {
-  chainId: string;
-  blockTime: number[];
-  height: number;
-  blockTimestamp: number;
-  maxCensusSize: number;
-};
 
 /**
  * @typedef AccountData
@@ -112,8 +105,6 @@ type TxWaitOptions = {
   attempts?: number;
 };
 
-export type ChainCosts = IChainGetCostsResponse;
-
 /**
  * Optional VocdoniSDKClient arguments
  *
@@ -139,12 +130,11 @@ export type ClientOptions = {
  * point.
  */
 export class VocdoniSDKClient {
-  private chainData: ChainData | null = null;
-  private chainCosts: ChainCosts | null = null;
   private accountData: AccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
 
   public censusService: CensusService;
+  public chainService: ChainService;
   public anonymousService: AnonymousService;
   public cspService: CspService;
   public electionService: ElectionService;
@@ -180,6 +170,7 @@ export class VocdoniSDKClient {
     };
     this.explorerUrl = EXPLORER_URL[opts.env];
     this.censusService = new CensusService({ url: this.url });
+    this.chainService = new ChainService({ url: this.url });
     this.anonymousService = new AnonymousService({ url: this.url });
     this.electionService = new ElectionService({ url: this.url, censusService: this.censusService });
     this.cspService = new CspService({});
@@ -192,38 +183,6 @@ export class VocdoniSDKClient {
    */
   setElectionId(electionId: string) {
     this.electionId = electionId;
-  }
-
-  /**
-   * Fetches blockchain information if needed and returns the chain id.
-   *
-   * @returns {Promise<string>}
-   */
-  fetchChainId(): Promise<string> {
-    if (this.chainData?.chainId) {
-      return Promise.resolve(this.chainData.chainId);
-    }
-
-    return ChainAPI.info(this.url).then((chainData) => {
-      this.chainData = chainData;
-      return chainData.chainId;
-    });
-  }
-
-  /**
-   * Fetches blockchain costs information if needed.
-   *
-   * @returns {Promise<ChainCosts>}
-   */
-  fetchChainCosts(): Promise<ChainCosts> {
-    if (this.chainCosts) {
-      return Promise.resolve(this.chainCosts);
-    }
-
-    return ChainAPI.costs(this.url).then((chainCosts) => {
-      this.chainCosts = chainCosts;
-      return chainCosts;
-    });
   }
 
   /**
@@ -466,7 +425,7 @@ export class VocdoniSDKClient {
    */
   private setAccountInfo(promAccountData: Promise<{ tx: Uint8Array; metadata: string }>): Promise<AccountData> {
     const accountTx = promAccountData.then((setAccountInfoTx) =>
-      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainData.chainId, this.wallet)
+      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainService.chainData.chainId, this.wallet)
     );
 
     return Promise.all([promAccountData, accountTx])
@@ -560,8 +519,10 @@ export class VocdoniSDKClient {
         election.census.size = censusInfo.size;
         election.census.weight = censusInfo.weight;
       });
-    } else if (election.maxCensusSize && election.maxCensusSize > this.chainData.maxCensusSize) {
-      throw new Error('Max census size for the election is greater than allowed size: ' + this.chainData.maxCensusSize);
+    } else if (election.maxCensusSize && election.maxCensusSize > this.chainService.chainData.maxCensusSize) {
+      throw new Error(
+        'Max census size for the election is greater than allowed size: ' + this.chainService.chainData.maxCensusSize
+      );
     }
 
     if (election.census instanceof TokenCensus) {
@@ -571,7 +532,9 @@ export class VocdoniSDKClient {
     const electionData = Promise.all([
       this.fetchAccountInfo(),
       this.calculateCID(Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64')),
-    ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[1], this.chainData, data[0]));
+    ]).then((data) =>
+      ElectionCore.generateNewElectionTransaction(election, data[1], this.chainService.chainData, data[0])
+    );
 
     const electionPackage = electionData.then((newElectionData) =>
       ElectionCore.signTransaction(newElectionData.tx, chainId, this.wallet)
@@ -846,37 +809,6 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Estimates the election cost
-   *
-   * @returns {Promise<number>} The cost in tokens.
-   */
-  public estimateElectionCost(election: UnpublishedElection): Promise<number> {
-    return Promise.all([this.fetchChainCosts(), this.fetchChainId()])
-      .then(() => ElectionCore.estimateElectionCost(election, this.chainCosts, this.chainData))
-      .then((cost) => Math.trunc(cost));
-  }
-
-  /**
-   * Calculate the election cost
-   *
-   * @returns {Promise<number>} The cost in tokens.
-   */
-  public calculateElectionCost(election: UnpublishedElection): Promise<number> {
-    return this.fetchChainId()
-      .then(() =>
-        ElectionAPI.price(
-          this.url,
-          election.maxCensusSize,
-          ElectionCore.estimateElectionBlocks(election, this.chainData),
-          election.electionType.secretUntilTheEnd,
-          election.electionType.anonymous,
-          election.voteType.maxVoteOverwrites
-        )
-      )
-      .then((cost) => cost.price);
-  }
-
-  /**
    * Returns a Wallet based on the inputs.
    *
    * @param {string | string[]} data The data inputs which should generate the Wallet
@@ -966,5 +898,41 @@ export class VocdoniSDKClient {
 
   cspVote(vote: Vote, signature: string) {
     return this.cspService.cspVote(vote, signature);
+  }
+
+  /**
+   * Fetches blockchain costs information if needed.
+   *
+   * @returns {Promise<ChainCosts>}
+   */
+  fetchChainCosts() {
+    return this.chainService.fetchChainCosts();
+  }
+
+  /**
+   * Fetches blockchain information if needed and returns the chain id.
+   *
+   * @returns {Promise<string>}
+   */
+  fetchChainId(): Promise<string> {
+    return this.chainService.fetchChainData().then((chainData) => chainData.chainId);
+  }
+
+  /**
+   * Estimates the election cost
+   *
+   * @returns {Promise<number>} The cost in tokens.
+   */
+  public estimateElectionCost(election: UnpublishedElection): Promise<number> {
+    return this.electionService.estimateElectionCost(election);
+  }
+
+  /**
+   * Calculate the election cost
+   *
+   * @returns {Promise<number>} The cost in tokens.
+   */
+  public calculateElectionCost(election: UnpublishedElection): Promise<number> {
+    return this.electionService.calculateElectionCost(election);
   }
 }

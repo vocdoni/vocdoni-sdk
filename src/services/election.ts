@@ -1,12 +1,15 @@
 import { Service, ServiceProperties } from './service';
-import { Census, InvalidElection, PublishedCensus, PublishedElection } from '../types';
+import { Census, InvalidElection, PublishedCensus, PublishedElection, UnpublishedElection } from '../types';
 import { AccountAPI, ElectionAPI } from '../api';
 import { CensusService } from './census';
 import { allSettled } from '../util/promise';
 import invariant from 'tiny-invariant';
+import { ElectionCore } from '../core/election';
+import { ChainService } from './chain';
 
 interface ElectionServiceProperties {
   censusService: CensusService;
+  chainService: ChainService;
 }
 
 type ElectionServiceParameters = ServiceProperties & ElectionServiceProperties;
@@ -18,9 +21,10 @@ export interface FetchElectionsParameters {
 
 export class ElectionService extends Service implements ElectionServiceProperties {
   public censusService: CensusService;
+  public chainService: ChainService;
 
   /**
-   * Instantiate the CSP service.
+   * Instantiate the election service.
    *
    * @param {Partial<ElectionServiceParameters>} params The service parameters
    */
@@ -128,5 +132,36 @@ export class ElectionService extends Service implements ElectionServicePropertie
           election.status === 'fulfilled' ? election.value : new InvalidElection({ id: election?.reason?.electionId })
         )
       );
+  }
+
+  /**
+   * Estimates the election cost
+   *
+   * @returns {Promise<number>} The cost in tokens.
+   */
+  estimateElectionCost(election: UnpublishedElection): Promise<number> {
+    return Promise.all([this.chainService.fetchChainCosts(), this.chainService.fetchChainData()])
+      .then(([chainCosts, chainData]) => ElectionCore.estimateElectionCost(election, chainCosts, chainData))
+      .then((cost) => Math.trunc(cost));
+  }
+  /**
+   * Calculate the election cost
+   *
+   * @returns {Promise<number>} The cost in tokens.
+   */
+  calculateElectionCost(election: UnpublishedElection): Promise<number> {
+    return this.chainService
+      .fetchChainData()
+      .then((chainData) =>
+        ElectionAPI.price(
+          this.url,
+          election.maxCensusSize,
+          ElectionCore.estimateElectionBlocks(election, chainData),
+          election.electionType.secretUntilTheEnd,
+          election.electionType.anonymous,
+          election.voteType.maxVoteOverwrites
+        )
+      )
+      .then((cost) => cost.price);
   }
 }
