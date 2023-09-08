@@ -3,7 +3,7 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI, FaucetAPI } from './api';
+import { AccountAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -34,6 +34,8 @@ import {
   CspCensusProof,
   CspService,
   ElectionService,
+  FaucetOptions,
+  FaucetService,
   FileService,
   VoteService,
   ZkProof,
@@ -57,35 +59,11 @@ export type AccountData = {
   account: Account;
 };
 
-/**
- * @typedef FaucetPackage
- * @property {string} payload
- * @property {string} signature
- */
-export type FaucetPackage = {
-  payload: string;
-  signature: string;
-};
-
 export enum EnvOptions {
   DEV = 'dev',
   STG = 'stg',
   PROD = 'prod',
 }
-
-/**
- * Specify custom Faucet.
- *
- * @typedef FaucetOptions
- * @property {string} url
- * @property {string | null} auth_token
- * @property {number | null} token_limit
- */
-type FaucetOptions = {
-  url: string;
-  auth_token?: string;
-  token_limit?: number;
-};
 
 /**
  * Specify custom retry times and attempts when waiting for a transaction.
@@ -134,12 +112,12 @@ export class VocdoniSDKClient {
   public electionService: ElectionService;
   public voteService: VoteService;
   public fileService: FileService;
+  public faucetService: FaucetService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
   public electionId: string | null;
   public explorerUrl: string;
-  public faucet: FaucetOptions | null;
   public tx_wait: TxWaitOptions | null;
 
   /**
@@ -155,11 +133,6 @@ export class VocdoniSDKClient {
     this.url = opts.api_url ?? API_URL[opts.env];
     this.wallet = opts.wallet;
     this.electionId = opts.electionId;
-    this.faucet = {
-      url: opts.faucet?.url ?? FAUCET_URL[opts.env] ?? undefined,
-      auth_token: opts.faucet?.auth_token ?? FAUCET_AUTH_TOKEN[opts.env] ?? undefined,
-      token_limit: opts.faucet?.token_limit,
-    };
     this.tx_wait = {
       retry_time: opts.tx_wait?.retry_time ?? TX_WAIT_OPTIONS.retry_time,
       attempts: opts.tx_wait?.attempts ?? TX_WAIT_OPTIONS.attempts,
@@ -168,6 +141,11 @@ export class VocdoniSDKClient {
     this.censusService = new CensusService({ url: this.url });
     this.fileService = new FileService({ url: this.url });
     this.chainService = new ChainService({ url: this.url });
+    this.faucetService = new FaucetService({
+      url: opts.faucet?.url ?? FAUCET_URL[opts.env] ?? undefined,
+      auth_token: opts.faucet?.auth_token ?? FAUCET_AUTH_TOKEN[opts.env] ?? undefined,
+      token_limit: opts.faucet?.token_limit,
+    });
     this.anonymousService = new AnonymousService({ url: this.url });
     this.electionService = new ElectionService({
       url: this.url,
@@ -219,35 +197,6 @@ export class VocdoniSDKClient {
     });
 
     return this.accountData;
-  }
-
-  /**
-   * Fetches a faucet payload. Only for development.
-   *
-   * @returns {Promise<{string}>}
-   */
-  fetchFaucetPayload(): Promise<string> {
-    invariant(this.wallet, 'No wallet or signer set');
-    invariant(this.faucet.url, 'No faucet URL');
-    invariant(this.faucet.auth_token, 'No faucet auth token');
-    return this.wallet
-      .getAddress()
-      .then((address) => FaucetAPI.collect(this.faucet.url, this.faucet.auth_token, address))
-      .then((data) => data.faucetPackage);
-  }
-
-  /**
-   * Parses a faucet package.
-   *
-   * @returns {FaucetPackage}
-   */
-  parseFaucetPackage(faucetPackage: string): FaucetPackage {
-    try {
-      const jsonFaucetPackage = JSON.parse(Buffer.from(faucetPackage, 'base64').toString());
-      return { payload: jsonFaucetPackage.faucetPayload, signature: jsonFaucetPackage.signature };
-    } catch (e) {
-      throw new Error('Invalid faucet package');
-    }
   }
 
   /**
@@ -373,7 +322,10 @@ export class VocdoniSDKClient {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(options.account, 'No account');
 
-    const faucetPackage = this.parseFaucetPackage(options.faucetPackage ?? (await this.fetchFaucetPayload()));
+    const faucetPayload =
+      options.faucetPackage ??
+      (await this.wallet.getAddress().then((address) => this.faucetService.fetchPayload(address)));
+    const faucetPackage = this.faucetService.parseFaucetPackage(faucetPayload);
 
     const address = await this.wallet.getAddress();
 
@@ -475,10 +427,12 @@ export class VocdoniSDKClient {
    */
   collectFaucetTokens(faucetPackage?: string): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
-    const faucet = faucetPackage ? Promise.resolve(faucetPackage) : this.fetchFaucetPayload();
+    const faucet = faucetPackage
+      ? Promise.resolve(faucetPackage)
+      : this.wallet.getAddress().then((address) => this.faucetService.fetchPayload(address));
     return Promise.all([this.fetchAccountInfo(), faucet, this.fetchChainId()])
       .then(([account, faucet, chainId]) => {
-        const faucetPackage = this.parseFaucetPackage(faucet);
+        const faucetPackage = this.faucetService.parseFaucetPackage(faucet);
         const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account, faucetPackage);
         return AccountCore.signTransaction(collectFaucetTx, chainId, this.wallet);
       })
@@ -922,5 +876,25 @@ export class VocdoniSDKClient {
    */
   calculateCID(data: string): Promise<string> {
     return this.fileService.calculateCID(data);
+  }
+
+  /**
+   * Fetches a faucet payload. Only for development.
+   *
+   * @returns {Promise<{string}>}
+   */
+  fetchFaucetPayload(): Promise<string> {
+    invariant(this.wallet, 'No wallet or signer set');
+    return this.wallet.getAddress().then((address) => this.faucetService.fetchPayload(address));
+  }
+
+  /**
+   * Parses a faucet package.
+   *
+   * @param {string} faucetPackage The encoded faucet package
+   * @returns {FaucetPackage}
+   */
+  parseFaucetPackage(faucetPackage: string) {
+    return this.faucetService.parseFaucetPackage(faucetPackage);
   }
 }
