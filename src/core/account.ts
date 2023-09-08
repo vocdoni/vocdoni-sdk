@@ -10,11 +10,11 @@ import {
   TxType,
 } from '@vocdoni/proto/vochain';
 import { Buffer } from 'buffer';
-import { AccountData, FaucetPackage } from '../client';
+import { AccountData } from '../client';
 import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
 import { strip0x } from '../util/common';
-import { CensusProof } from '../services';
+import { CensusProof, FaucetPackage } from '../services';
 
 export abstract class AccountCore extends TransactionCore {
   /**
