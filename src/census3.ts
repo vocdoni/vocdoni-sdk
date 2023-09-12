@@ -2,6 +2,7 @@ import { CENSUS3_URL } from './util/constants';
 import { ClientOptions } from './client';
 import {
   Census3CensusAPI,
+  Census3ServiceAPI,
   Census3StrategyAPI,
   Census3TokenAPI,
   ICensus3CensusResponse,
@@ -41,6 +42,15 @@ export class VocdoniCensus3Client {
    */
   getSupportedTokens(): Promise<TokenSummary[]> {
     return Census3TokenAPI.list(this.url).then((list) => list.tokens ?? []);
+  }
+
+  /**
+   * Returns a list of supported chain identifiers
+   *
+   * @returns {Promise<number[]>} Supported chain list
+   */
+  getSupportedChains(): Promise<number[]> {
+    return Census3ServiceAPI.info(this.url).then((info) => info.chainIDs ?? []);
   }
 
   /**
