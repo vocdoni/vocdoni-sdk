@@ -1,3 +1,4 @@
+export * from './account';
 export * from './census';
 export * from './chain';
 export * from './csp';

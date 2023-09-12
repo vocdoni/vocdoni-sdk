@@ -1,4 +1,3 @@
-import { AccountData } from '../client';
 import {
   CensusOrigin,
   NewProcessTx,
@@ -12,7 +11,7 @@ import { AllElectionStatus, CensusType, ElectionStatus, UnpublishedElection } fr
 import { TransactionCore } from './transaction';
 import { Buffer } from 'buffer';
 import { strip0x } from '../util/common';
-import { ChainCosts, ChainData } from '../services';
+import { AccountData, ChainCosts, ChainData } from '../services';
 
 export abstract class ElectionCore extends TransactionCore {
   private static readonly VOCHAIN_BLOCK_TIME_IN_SECONDS = 12;
