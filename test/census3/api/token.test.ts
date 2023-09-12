@@ -5,15 +5,15 @@ import { Census3TokenAPI, ErrCantGetToken, ErrNotFoundToken, ErrTokenAlreadyExis
 describe('Census3 token API tests', () => {
   it('should throw when creating a non existent token', async () => {
     await expect(async () => {
-      await Census3TokenAPI.create(URL, '0x0', 'erc20', 0);
+      await Census3TokenAPI.create(URL, '0x0', 'erc20', 1, 0);
     }).rejects.toThrow(ErrCantGetToken);
   }, 5000);
   it('should throw when creating an already existent token', async () => {
     try {
-      await Census3TokenAPI.create(URL, '0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 0);
+      await Census3TokenAPI.create(URL, '0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 1, 0);
     } catch (e) {}
     await expect(async () => {
-      await Census3TokenAPI.create(URL, '0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 0);
+      await Census3TokenAPI.create(URL, '0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 1, 0);
     }).rejects.toThrow(ErrTokenAlreadyExists);
   }, 5000);
   it('should throw when fetching a non existent token', async () => {

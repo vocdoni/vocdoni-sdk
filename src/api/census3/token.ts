@@ -25,6 +25,11 @@ export interface ICensus3Token {
   type: string;
 
   /**
+   * The chain id of the token.
+   */
+  chainID: number;
+
+  /**
    * The creation block.
    */
   startBlock: number;
@@ -100,6 +105,11 @@ export interface ICensus3TokenSummary {
    * The type of the token.
    */
   type: string;
+
+  /**
+   * The chain id of the token.
+   */
+  chainID: number;
 
   /**
    * The creation block.
@@ -180,13 +190,21 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param {string} url API endpoint URL
    * @param {string} id The token address
    * @param {string} type The type of the token
+   * @param {number} chainId The chain id of the token
    * @param {number} startBlock The start block
    * @param {string[]} tag The tags assigned for the token
    * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
    */
-  public static create(url: string, id: string, type: string, startBlock: number, tag?: string[]): Promise<void> {
+  public static create(
+    url: string,
+    id: string,
+    type: string,
+    chainId: number,
+    startBlock: number,
+    tag?: string[]
+  ): Promise<void> {
     return axios
-      .post(url + Census3TokenAPIMethods.CREATE, { id, type, startBlock, tag: tag?.join() })
+      .post(url + Census3TokenAPIMethods.CREATE, { id, type, chainID: chainId, startBlock, tag: tag?.join() })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
