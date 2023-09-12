@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Ensuring proof `value` handled as hex for anonymous circuits inputs.
+
 ### Added
 
 - Census3 supported chains information.
