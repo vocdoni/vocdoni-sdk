@@ -1,7 +1,7 @@
 import { Service, ServiceProperties } from './service';
 import { ChainAPI } from '../api';
 import invariant from 'tiny-invariant';
-import { strip0x } from '../util/common';
+import { ensure0x, strip0x } from '../util/common';
 import { sha256 } from '@ethersproject/sha2';
 import { groth16 } from 'snarkjs';
 import { hexlify } from '@ethersproject/bytes';
@@ -211,7 +211,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
 
     return Promise.all([
       AnonymousService.calcNullifier(ffsignature, ffpassword, arboElectionId),
-      AnonymousService.arbo_utils.toHash(AnonymousService.hex_utils.fromBigInt(BigInt(availableWeight))),
+      AnonymousService.arbo_utils.toHash(AnonymousService.hex_utils.fromBigInt(BigInt(ensure0x(availableWeight)))),
     ]).then((data) => ({
       electionId: arboElectionId,
       nullifier: data[0].toString(),
