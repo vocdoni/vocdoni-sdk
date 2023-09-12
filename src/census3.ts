@@ -78,14 +78,21 @@ export class VocdoniCensus3Client {
    *
    * @param {string} address The address of the token
    * @param {string} type The type of the token
+   * @param {number} chainId The chain id of the token
    * @param {string} tags The tag list to associate the token with
    * @param {string} startBlock The start block where to start scanning
    */
-  createToken(address: string, type: string, tags: string[] = [], startBlock: number = 0): Promise<void> {
+  createToken(
+    address: string,
+    type: string,
+    chainId: number = 1,
+    tags: string[] = [],
+    startBlock: number = 0
+  ): Promise<void> {
     invariant(address, 'No token address');
     invariant(type, 'No token type');
     invariant(isAddress(address), 'Incorrect token address');
-    return Census3TokenAPI.create(this.url, address, type, startBlock, tags);
+    return Census3TokenAPI.create(this.url, address, type, chainId, startBlock, tags);
   }
 
   /**
