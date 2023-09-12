@@ -3,7 +3,6 @@ import { keccak256 } from '@ethersproject/keccak256';
 import { Wallet } from '@ethersproject/wallet';
 import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
-import { AccountAPI } from './api';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
@@ -26,6 +25,8 @@ import {
 import { delay } from './util/common';
 import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import {
+  AccountData,
+  AccountService,
   AnonymousService,
   CensusProof,
   CensusService,
@@ -40,24 +41,6 @@ import {
   VoteService,
   ZkProof,
 } from './services';
-
-/**
- * @typedef AccountData
- * @property {string} address
- * @property {number} balance
- * @property {number} nonce
- * @property {number} electionIndex
- * @property {string | null} infoURL
- * @property {Account} account
- */
-export type AccountData = {
-  address: string;
-  balance: number;
-  nonce: number;
-  electionIndex: number;
-  infoURL?: string;
-  account: Account;
-};
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -113,6 +96,7 @@ export class VocdoniSDKClient {
   public voteService: VoteService;
   public fileService: FileService;
   public faucetService: FaucetService;
+  public accountService: AccountService;
 
   public url: string;
   public wallet: Wallet | Signer | null;
@@ -157,6 +141,10 @@ export class VocdoniSDKClient {
       chainService: this.chainService,
     });
     this.cspService = new CspService({});
+    this.accountService = new AccountService({
+      url: this.url,
+      chainService: this.chainService,
+    });
   }
 
   /**
@@ -175,27 +163,15 @@ export class VocdoniSDKClient {
    * @returns {Promise<AccountData>}
    */
   async fetchAccountInfo(address?: string): Promise<AccountData> {
-    let accountData;
     if (!this.wallet && !address) {
       throw Error('No account set');
     } else if (address) {
-      accountData = await AccountAPI.info(this.url, address);
+      this.accountData = await this.accountService.fetchAccountInfo(address);
     } else {
-      accountData = await this.wallet.getAddress().then((address) => AccountAPI.info(this.url, address));
+      this.accountData = await this.wallet
+        .getAddress()
+        .then((address) => this.accountService.fetchAccountInfo(address));
     }
-
-    this.accountData = accountData;
-    this.accountData.account = Account.build({
-      languages: accountData.metadata?.languages,
-      name: accountData.metadata?.name,
-      description: accountData.metadata?.description,
-      feed: accountData.metadata?.newsFeed,
-      header: accountData.metadata?.media?.header,
-      avatar: accountData.metadata?.media?.avatar,
-      logo: accountData.metadata?.media?.logo,
-      meta: Object.entries(accountData.metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
-    });
-
     return this.accountData;
   }
 
@@ -257,10 +233,10 @@ export class VocdoniSDKClient {
   ): Promise<void> {
     return wallet
       .getAddress()
-      .then((address) => Promise.all([AnonymousService.calcSik(address, sik, password), this.fetchChainId()]))
-      .then(([calculatedSIK, chainId]) => {
+      .then((address) => AnonymousService.calcSik(address, sik, password))
+      .then((calculatedSIK) => {
         const registerSIKTx = AccountCore.generateRegisterSIKTransaction(electionId, calculatedSIK, censusProof);
-        return AccountCore.signTransaction(registerSIKTx, chainId, wallet);
+        return this.accountService.signTransaction(registerSIKTx, wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.waitForTransaction(hash));
@@ -370,12 +346,12 @@ export class VocdoniSDKClient {
    */
   private setAccountInfo(promAccountData: Promise<{ tx: Uint8Array; metadata: string }>): Promise<AccountData> {
     const accountTx = promAccountData.then((setAccountInfoTx) =>
-      AccountCore.signTransaction(setAccountInfoTx.tx, this.chainService.chainData.chainId, this.wallet)
+      this.accountService.signTransaction(setAccountInfoTx.tx, this.wallet)
     );
 
     return Promise.all([promAccountData, accountTx])
-      .then((accountInfo) => AccountAPI.setInfo(this.url, accountInfo[1], accountInfo[0].metadata))
-      .then((txData) => this.waitForTransaction(txData.txHash))
+      .then((accountInfo) => this.accountService.setInfo(accountInfo[1], accountInfo[0].metadata))
+      .then((txHash) => this.waitForTransaction(txHash))
       .then(() => this.fetchAccountInfo());
   }
 
@@ -430,11 +406,11 @@ export class VocdoniSDKClient {
     const faucet = faucetPackage
       ? Promise.resolve(faucetPackage)
       : this.wallet.getAddress().then((address) => this.faucetService.fetchPayload(address));
-    return Promise.all([this.fetchAccountInfo(), faucet, this.fetchChainId()])
-      .then(([account, faucet, chainId]) => {
+    return Promise.all([this.fetchAccountInfo(), faucet])
+      .then(([account, faucet]) => {
         const faucetPackage = this.faucetService.parseFaucetPackage(faucet);
         const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account, faucetPackage);
-        return AccountCore.signTransaction(collectFaucetTx, chainId, this.wallet);
+        return this.accountService.signTransaction(collectFaucetTx, this.wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.waitForTransaction(hash))
