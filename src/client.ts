@@ -453,6 +453,7 @@ export class VocdoniSDKClient {
     const electionData = Promise.all([
       this.fetchAccountInfo(),
       this.fileService.calculateCID(JSON.stringify(election.generateMetadata())),
+      this.fetchChainId(),
     ]).then((data) =>
       ElectionCore.generateNewElectionTransaction(election, data[1], this.chainService.chainData, data[0])
     );
