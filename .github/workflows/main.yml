@@ -73,6 +73,15 @@ jobs:
           echo -n "blindcsp_hostport=" >> $GITHUB_ENV
           docker-compose -f test/integration/util/docker-compose.yml port blind-csp 5000 >> $GITHUB_ENV
 
+      - name: Wait until voconed is ready
+        env:
+          API_URL: http://${{ env.voconed_hostport }}/v2
+        run: |
+          for i in {1..20}; do
+            date
+            curl -s --fail ${{ env.API_URL }}/chain/info 2>/dev/null && break || sleep 1
+          done
+
       - name: Integration tests
         run: yarn test:integration --ci --coverage --maxWorkers=2
         env:
