@@ -22,7 +22,6 @@ import {
   Vote,
   WeightedCensus,
 } from './types';
-import { delay } from './util/common';
 import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import {
   AccountData,
@@ -102,7 +101,6 @@ export class VocdoniSDKClient {
   public wallet: Wallet | Signer | null;
   public electionId: string | null;
   public explorerUrl: string;
-  public tx_wait: TxWaitOptions | null;
 
   /**
    * Instantiate new VocdoniSDK client.
@@ -117,14 +115,16 @@ export class VocdoniSDKClient {
     this.url = opts.api_url ?? API_URL[opts.env];
     this.wallet = opts.wallet;
     this.electionId = opts.electionId;
-    this.tx_wait = {
-      retry_time: opts.tx_wait?.retry_time ?? TX_WAIT_OPTIONS.retry_time,
-      attempts: opts.tx_wait?.attempts ?? TX_WAIT_OPTIONS.attempts,
-    };
     this.explorerUrl = EXPLORER_URL[opts.env];
     this.censusService = new CensusService({ url: this.url });
     this.fileService = new FileService({ url: this.url });
-    this.chainService = new ChainService({ url: this.url });
+    this.chainService = new ChainService({
+      url: this.url,
+      txWait: {
+        retryTime: opts.tx_wait?.retry_time ?? TX_WAIT_OPTIONS.retry_time,
+        attempts: opts.tx_wait?.attempts ?? TX_WAIT_OPTIONS.attempts,
+      },
+    });
     this.faucetService = new FaucetService({
       url: opts.faucet?.url ?? FAUCET_URL[opts.env] ?? undefined,
       auth_token: opts.faucet?.auth_token ?? FAUCET_AUTH_TOKEN[opts.env] ?? undefined,
@@ -193,27 +193,6 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * A convenience method to wait for a transaction to be executed. It will
-   * loop trying to get the transaction information, and will retry every time
-   * it fails.
-   *
-   * @param {string} tx Transaction to wait for
-   * @param {number} wait The delay in milliseconds between tries
-   * @param {attempts} attempts The attempts to try before failing
-   * @returns {Promise<void>}
-   */
-  waitForTransaction(tx: string, wait?: number, attempts?: number): Promise<void> {
-    const waitTime = wait ?? this.tx_wait.retry_time;
-    const attemptsNum = attempts ?? this.tx_wait.attempts;
-    return attemptsNum === 0
-      ? Promise.reject('Time out waiting for transaction: ' + tx)
-      : this.chainService
-          .txInfo(tx)
-          .then(() => Promise.resolve())
-          .catch(() => delay(waitTime).then(() => this.waitForTransaction(tx, waitTime, attemptsNum - 1)));
-  }
-
-  /**
    * Fetches proof that an address is part of the specified census.
    *
    * @param censusId
@@ -239,7 +218,7 @@ export class VocdoniSDKClient {
         return this.accountService.signTransaction(registerSIKTx, wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
-      .then((hash) => this.waitForTransaction(hash));
+      .then((hash) => this.chainService.waitForTransaction(hash));
   }
 
   /**
@@ -351,7 +330,7 @@ export class VocdoniSDKClient {
 
     return Promise.all([promAccountData, accountTx])
       .then((accountInfo) => this.accountService.setInfo(accountInfo[1], accountInfo[0].metadata))
-      .then((txHash) => this.waitForTransaction(txHash))
+      .then((txHash) => this.chainService.waitForTransaction(txHash))
       .then(() => this.fetchAccountInfo());
   }
 
@@ -413,7 +392,7 @@ export class VocdoniSDKClient {
         return this.accountService.signTransaction(collectFaucetTx, this.wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
-      .then((hash) => this.waitForTransaction(hash))
+      .then((hash) => this.chainService.waitForTransaction(hash))
       .then(() => this.fetchAccountInfo());
   }
 
@@ -463,7 +442,7 @@ export class VocdoniSDKClient {
       this.electionService.create(payload, metadata.metadata)
     );
 
-    return this.waitForTransaction(electionTx.txHash).then(() => electionTx.electionID);
+    return this.chainService.waitForTransaction(electionTx.txHash).then(() => electionTx.electionID);
   }
 
   /**
@@ -523,7 +502,7 @@ export class VocdoniSDKClient {
       )
       .then((tx) => this.electionService.signTransaction(tx, this.wallet))
       .then((signedTx) => this.chainService.submitTx(signedTx))
-      .then((hash) => this.waitForTransaction(hash));
+      .then((hash) => this.chainService.waitForTransaction(hash));
   }
 
   /**
@@ -549,7 +528,7 @@ export class VocdoniSDKClient {
       )
       .then((tx) => this.electionService.signTransaction(tx, this.wallet))
       .then((signedTx) => this.chainService.submitTx(signedTx))
-      .then((hash) => this.waitForTransaction(hash));
+      .then((hash) => this.chainService.waitForTransaction(hash));
   }
 
   /**
@@ -700,7 +679,7 @@ export class VocdoniSDKClient {
     return voteTx
       .then((tx) => this.voteService.signTransaction(tx, this.wallet))
       .then((signedTx) => this.voteService.vote(signedTx))
-      .then((apiResponse) => this.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
+      .then((apiResponse) => this.chainService.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
   }
 
   /**
@@ -870,5 +849,19 @@ export class VocdoniSDKClient {
    */
   parseFaucetPackage(faucetPackage: string) {
     return this.faucetService.parseFaucetPackage(faucetPackage);
+  }
+
+  /**
+   * A convenience method to wait for a transaction to be executed. It will
+   * loop trying to get the transaction information, and will retry every time
+   * it fails.
+   *
+   * @param {string} tx Transaction to wait for
+   * @param {number} wait The delay in milliseconds between tries
+   * @param {attempts} attempts The attempts to try before failing
+   * @returns {Promise<void>}
+   */
+  waitForTransaction(tx: string, wait?: number, attempts?: number): Promise<void> {
+    return this.chainService.waitForTransaction(tx, wait, attempts);
   }
 }
