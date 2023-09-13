@@ -433,6 +433,8 @@ export class VocdoniSDKClient {
       election.census.type = CensusType.ANONYMOUS;
     }
 
+    const chainData = await this.chainService.fetchChainData();
+
     if (!election.census.isPublished) {
       await this.censusService.createCensus(election.census as PlainCensus | WeightedCensus);
     } else if (!election.maxCensusSize && !election.census.size) {
@@ -440,10 +442,8 @@ export class VocdoniSDKClient {
         election.census.size = censusInfo.size;
         election.census.weight = censusInfo.weight;
       });
-    } else if (election.maxCensusSize && election.maxCensusSize > this.chainService.chainData.maxCensusSize) {
-      throw new Error(
-        'Max census size for the election is greater than allowed size: ' + this.chainService.chainData.maxCensusSize
-      );
+    } else if (election.maxCensusSize && election.maxCensusSize > chainData.maxCensusSize) {
+      throw new Error('Max census size for the election is greater than allowed size: ' + chainData.maxCensusSize);
     }
 
     if (election.census instanceof TokenCensus) {
@@ -453,10 +453,7 @@ export class VocdoniSDKClient {
     const electionData = Promise.all([
       this.fetchAccountInfo(),
       this.fileService.calculateCID(JSON.stringify(election.generateMetadata())),
-      this.fetchChainId(),
-    ]).then((data) =>
-      ElectionCore.generateNewElectionTransaction(election, data[1], this.chainService.chainData, data[0])
-    );
+    ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[1], chainData, data[0]));
 
     const electionPackage = electionData.then((newElectionData) =>
       this.electionService.signTransaction(newElectionData.tx, this.wallet)
