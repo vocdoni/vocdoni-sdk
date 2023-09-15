@@ -2,6 +2,7 @@ import { Wallet } from '@ethersproject/wallet';
 import {
   CensusType,
   Election,
+  ElectionCreationSteps,
   ElectionStatus,
   PlainCensus,
   PublishedCensus,
@@ -116,6 +117,18 @@ describe('Election integration tests', () => {
         expect(publishedElection.maxCensusSize).toEqual(1);
       });
   }, 85000);
+  it('should create an election step by step', async () => {
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+
+    const election = createElection(census);
+
+    await client.createAccount();
+
+    for await (const value of client.createElectionSteps(election)) {
+      expect(Object.values(ElectionCreationSteps)).toContain(value.key);
+    }
+  }, 850000);
   it('should create an election with addresses census', async () => {
     const census = new PlainCensus();
 

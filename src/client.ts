@@ -33,6 +33,8 @@ import {
   ChainService,
   CspCensusProof,
   CspService,
+  ElectionCreationSteps,
+  ElectionCreationStepValue,
   ElectionService,
   FaucetOptions,
   FaucetService,
@@ -403,16 +405,36 @@ export class VocdoniSDKClient {
    * @returns {Promise<string>} Resulting election id.
    */
   async createElection(election: UnpublishedElection): Promise<string> {
+    for await (const step of this.createElectionSteps(election)) {
+      switch (step.key) {
+        case ElectionCreationSteps.DONE:
+          return step.electionId;
+      }
+    }
+    throw new Error('There was an error creating the election');
+  }
+
+  /**
+   * Creates a new voting election by steps with async returns.
+   *
+   * @param {UnpublishedElection} election The election object to be created.
+   * @returns {AsyncGenerator<ElectionCreationStepValue>} The async step returns.
+   */
+  async *createElectionSteps(election: UnpublishedElection): AsyncGenerator<ElectionCreationStepValue> {
     invariant(
       election.maxCensusSize || election.census.type !== CensusType.CSP,
       'CSP Census needs a max census size set in the election'
     );
 
+    const chainData = await this.chainService.fetchChainData();
+
+    yield {
+      key: ElectionCreationSteps.GET_CHAIN_DATA,
+    };
+
     if (election.electionType.anonymous) {
       election.census.type = CensusType.ANONYMOUS;
     }
-
-    const chainData = await this.chainService.fetchChainData();
 
     if (!election.census.isPublished) {
       await this.censusService.createCensus(election.census as PlainCensus | WeightedCensus);
@@ -429,20 +451,41 @@ export class VocdoniSDKClient {
       election.meta = { ...election.meta, ...{ token: election.census.token } };
     }
 
-    const electionData = Promise.all([
-      this.fetchAccountInfo(),
-      this.fileService.calculateCID(JSON.stringify(election.generateMetadata())),
-    ]).then((data) => ElectionCore.generateNewElectionTransaction(election, data[1], chainData, data[0]));
+    yield {
+      key: ElectionCreationSteps.CENSUS_CREATED,
+    };
 
-    const electionPackage = electionData.then((newElectionData) =>
-      this.electionService.signTransaction(newElectionData.tx, this.wallet)
-    );
+    const account = await this.fetchAccountInfo();
+    yield {
+      key: ElectionCreationSteps.GET_ACCOUNT_DATA,
+    };
 
-    const electionTx = await Promise.all([electionData, electionPackage]).then(([metadata, payload]) =>
-      this.electionService.create(payload, metadata.metadata)
-    );
+    const cid = await this.fileService.calculateCID(JSON.stringify(election.generateMetadata()));
+    yield {
+      key: ElectionCreationSteps.GET_ELECTION_DATA_PIN,
+    };
 
-    return this.chainService.waitForTransaction(electionTx.txHash).then(() => electionTx.electionID);
+    const electionTxData = await ElectionCore.generateNewElectionTransaction(election, cid, chainData, account);
+    yield {
+      key: ElectionCreationSteps.GENERATE_TX,
+    };
+
+    const signedElectionTx = await this.electionService.signTransaction(electionTxData.tx, this.wallet);
+    yield {
+      key: ElectionCreationSteps.SIGN_TX,
+    };
+
+    const electionTx = await this.electionService.create(signedElectionTx, electionTxData.metadata);
+    yield {
+      key: ElectionCreationSteps.CREATING,
+      txHash: electionTx.txHash,
+    };
+
+    const electionId = await this.chainService.waitForTransaction(electionTx.txHash).then(() => electionTx.electionID);
+    yield {
+      key: ElectionCreationSteps.DONE,
+      electionId,
+    };
   }
 
   /**
