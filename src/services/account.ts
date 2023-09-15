@@ -52,21 +52,19 @@ export class AccountService extends Service implements AccountServiceProperties 
    */
   async fetchAccountInfo(address: string): Promise<AccountData> {
     invariant(this.url, 'No URL set');
-    let accountData;
-    accountData = await AccountAPI.info(this.url, address);
-
-    accountData.account = Account.build({
-      languages: accountData.metadata?.languages,
-      name: accountData.metadata?.name,
-      description: accountData.metadata?.description,
-      feed: accountData.metadata?.newsFeed,
-      header: accountData.metadata?.media?.header,
-      avatar: accountData.metadata?.media?.avatar,
-      logo: accountData.metadata?.media?.logo,
-      meta: Object.entries(accountData.metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
-    });
-
-    return accountData;
+    return AccountAPI.info(this.url, address).then((accountInfo) => ({
+      account: Account.build({
+        languages: accountInfo.metadata?.languages,
+        name: accountInfo.metadata?.name,
+        description: accountInfo.metadata?.description,
+        feed: accountInfo.metadata?.newsFeed,
+        header: accountInfo.metadata?.media?.header,
+        avatar: accountInfo.metadata?.media?.avatar,
+        logo: accountInfo.metadata?.media?.logo,
+        meta: Object.entries(accountInfo.metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
+      }),
+      ...accountInfo,
+    }));
   }
 
   /**
