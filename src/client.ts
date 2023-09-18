@@ -462,7 +462,7 @@ export class VocdoniSDKClient {
 
     const cid = await this.fileService.calculateCID(JSON.stringify(election.generateMetadata()));
     yield {
-      key: ElectionCreationSteps.GET_ELECTION_DATA_PIN,
+      key: ElectionCreationSteps.GET_DATA_PIN,
     };
 
     const electionTxData = await ElectionCore.generateNewElectionTransaction(election, cid, chainData, account);

@@ -28,9 +28,9 @@ export enum ElectionCreationSteps {
   GET_CHAIN_DATA = 'get-chain-data',
   CENSUS_CREATED = 'census-created',
   GET_ACCOUNT_DATA = 'get-account-data',
-  GET_ELECTION_DATA_PIN = 'get-election-data-pin',
-  GENERATE_TX = 'generate-new-election-tx',
-  SIGN_TX = 'sign-new-election-tx',
+  GET_DATA_PIN = 'get-data-pin',
+  GENERATE_TX = 'generate-tx',
+  SIGN_TX = 'sign-tx',
   CREATING = 'creating',
   DONE = 'done',
 }
@@ -39,7 +39,7 @@ export type ElectionCreationStepValue =
   | { key: ElectionCreationSteps.GET_CHAIN_DATA }
   | { key: ElectionCreationSteps.CENSUS_CREATED }
   | { key: ElectionCreationSteps.GET_ACCOUNT_DATA }
-  | { key: ElectionCreationSteps.GET_ELECTION_DATA_PIN }
+  | { key: ElectionCreationSteps.GET_DATA_PIN }
   | { key: ElectionCreationSteps.GENERATE_TX }
   | { key: ElectionCreationSteps.SIGN_TX }
   | { key: ElectionCreationSteps.CREATING; txHash: string }
