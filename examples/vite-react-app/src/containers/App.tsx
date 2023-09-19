@@ -146,6 +146,10 @@ export const App = () => {
                         },
                     ])
 
+                    election.meta = {
+                      generated: 'github-pages-vite'
+                    }
+
                     setElectionId(await client.createElection(election))
                     setCreating(false)
                   }}>
