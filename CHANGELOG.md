@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New `createElectionSteps` function in client for using async generators and control creation flow.
+- New `sendTokens` function in client for transferring tokens between accounts.
 
 ## [0.3.0] - 2023-09-13
 

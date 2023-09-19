@@ -5,6 +5,7 @@ import {
   ProofArbo_KeyType,
   ProofArbo_Type,
   RegisterSIKTx,
+  SendTokensTx,
   SetAccountTx,
   Tx,
   TxType,
@@ -99,6 +100,20 @@ export abstract class AccountCore extends TransactionCore {
 
     return Tx.encode({
       payload: { $case: 'registerSIK', registerSIK },
+    }).finish();
+  }
+
+  public static generateTransferTransaction(nonce: number, from: string, to: string, amount): Uint8Array {
+    const sendTokens = SendTokensTx.fromPartial({
+      txtype: TxType.SEND_TOKENS,
+      nonce: nonce,
+      from: new Uint8Array(Buffer.from(strip0x(from), 'hex')),
+      to: new Uint8Array(Buffer.from(strip0x(to), 'hex')),
+      value: amount,
+    });
+
+    return Tx.encode({
+      payload: { $case: 'sendTokens', sendTokens },
     }).finish();
   }
 

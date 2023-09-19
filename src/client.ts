@@ -17,6 +17,7 @@ import {
   InvalidElection,
   PlainCensus,
   PublishedElection,
+  SendTokensOptions,
   TokenCensus,
   UnpublishedElection,
   Vote,
@@ -42,6 +43,7 @@ import {
   VoteService,
   ZkProof,
 } from './services';
+import { isAddress } from '@ethersproject/address';
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -374,6 +376,35 @@ export class VocdoniSDKClient {
         faucetPackage: settings?.faucetPackage,
       });
     });
+  }
+
+  /**
+   * Send tokens from one account to another.
+   *
+   * @param {SendTokensOptions} options Options for send tokens
+   * @returns {Promise<void>}
+   */
+  sendTokens(options: SendTokensOptions): Promise<void> {
+    const settings = {
+      wallet: options.wallet ?? this.wallet,
+      ...options,
+    };
+    invariant(settings.wallet, 'No wallet or signer set or given');
+    invariant(settings.to && isAddress(settings.to), 'No destination address given');
+    invariant(settings.amount && settings.amount > 0, 'No amount given');
+
+    return Promise.all([this.fetchAccountInfo(), settings.wallet.getAddress()])
+      .then(([accountData, fromAddress]) => {
+        const tx = AccountCore.generateTransferTransaction(
+          accountData.nonce,
+          fromAddress,
+          settings.to,
+          settings.amount
+        );
+        return this.accountService.signTransaction(tx, settings.wallet);
+      })
+      .then((signedTx) => this.chainService.submitTx(signedTx))
+      .then((txHash) => this.chainService.waitForTransaction(txHash));
   }
 
   /**
