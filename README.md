@@ -549,7 +549,7 @@ const voteId = await client.submitVote(vote);
 
 ## Examples
 
-You can find a [full featured CRA][example-cra] application with all the previous
+You can find a [full featured vite][example-vote] application with all the previous
 steps in the [examples] folder. In that folder you'll also find a
 [es modules example][example-esm], creating and voting an election process.
 
@@ -589,7 +589,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [election-lifecycle-states]: https://developer.vocdoni.io/get-started/intro#election-lifecycle-states
 [election params interface]: ./src/types/election/election.ts#23
 [examples]: ./examples
-[example-cra]: ./examples/cra
+[example-vite]: ./examples/vite-react-app
 [example-esm]: ./examples/esm
 [quadratic voting example]: ./examples/typescript/src/quadratic.ts
 [quadratic voting documentation]: https://developer.vocdoni.io/protocol/ballot#quadratic-voting
