@@ -16,9 +16,9 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Install deps and build CRA example
+      - name: Install deps and build Vite example
         run: |
-          cd examples/cra
+          cd examples/vite-react-app
           yarn
           yarn build
         env:
@@ -28,4 +28,4 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
-          folder: examples/cra/build
+          folder: examples/vite-react-app/dist
