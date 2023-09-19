@@ -1,7 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Account, VocdoniSDKClient } from '../../src';
-import { strip0x } from '../../src/util/common';
-import { FaucetAPI } from '../../src';
+import { Account, FaucetAPI, strip0x, VocdoniSDKClient } from '../../src';
 import { FAUCET_AUTH_TOKEN, FAUCET_URL } from '../../src/util/constants';
 // @ts-ignore
 import { clientParams } from './util/client.params';
@@ -138,4 +136,24 @@ describe('Account integration tests', () => {
       default: 'test2',
     });
   }, 75000);
+  it('should send tokens from one account to another', async () => {
+    const SEND_TX_COST = 1; // Ideally should be dynamic
+    const TOKENS_AMOUNT = 10;
+
+    const accountInfo = await client.createAccount();
+    expect(accountInfo.balance).toBeGreaterThan(0);
+
+    const destinationAccount = Wallet.createRandom();
+    const destinationClient = new VocdoniSDKClient(clientParams(destinationAccount));
+    const destinationInfo = await destinationClient.createAccount();
+    expect(destinationInfo.balance).toBeGreaterThan(0);
+    expect(destinationInfo.balance).toEqual(accountInfo.balance);
+
+    await client
+      .sendTokens({ to: destinationAccount.address, amount: TOKENS_AMOUNT })
+      .then(() => client.fetchAccountInfo())
+      .then((accountData) => expect(accountData.balance).toEqual(accountInfo.balance - TOKENS_AMOUNT - SEND_TX_COST))
+      .then(() => destinationClient.fetchAccountInfo())
+      .then((destinationData) => expect(destinationData.balance).toEqual(destinationInfo.balance + TOKENS_AMOUNT));
+  }, 85000);
 });

@@ -119,7 +119,7 @@ export class ChainService extends Service implements ChainServiceProperties {
     const waitTime = wait ?? this.txWait?.retryTime;
     const attemptsNum = attempts ?? this.txWait?.attempts;
     invariant(waitTime, 'No transaction wait time set');
-    invariant(attemptsNum, 'No transaction attempts set');
+    invariant(attemptsNum >= 0, 'No transaction attempts set');
 
     return attemptsNum === 0
       ? Promise.reject('Time out waiting for transaction: ' + tx)
