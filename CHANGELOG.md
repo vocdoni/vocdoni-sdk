@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `createElectionSteps` function in client for using async generators and control creation flow.
 - New `sendTokens` function in client for transferring tokens between accounts.
 
+### Changed
+
+- New user-friendly text for SIK payload signing.
+
+### Fixed
+
+- Added `ethers` as embedded in rollup configuration for `circomlibjs` dependencies.
+
 ## [0.3.0] - 2023-09-13
 
 ### Fixed
