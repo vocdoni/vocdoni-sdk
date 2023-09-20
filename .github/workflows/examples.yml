@@ -23,7 +23,6 @@ jobs:
           yarn build
         env:
          CI: ""
-         PUBLIC_URL: "/vocdoni-sdk"
          BASE_URL: "/vocdoni-sdk"
 
       - name: Deploy to GitHub Pages
