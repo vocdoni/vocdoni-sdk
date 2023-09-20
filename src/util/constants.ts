@@ -32,4 +32,6 @@ export const TX_WAIT_OPTIONS = {
 };
 
 export const VOCDONI_SIK_SIGNATURE_LENGTH = 64;
-export const VOCDONI_SIK_PAYLOAD = 'vocdoni-sik-payload';
+export const VOCDONI_SIK_PAYLOAD =
+  'This signature request is used to create your own secret identity key (SIK) for the Vocdoni protocol and generate your anonymous account.\n' +
+  'Only accept this signature request if you fully trust the application. This request will not trigger a blockchain transaction or cost any gas fees.';
