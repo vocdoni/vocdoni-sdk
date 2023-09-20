@@ -16,6 +16,7 @@ const embeded = [
   'ffjavascript',
   'crypto',
   'os',
+  'ethers',
   'snarkjs',
   'circom_runtime',
   '@iden3/binfileutils',
