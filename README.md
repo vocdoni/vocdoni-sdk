@@ -1,3 +1,18 @@
+<p align="center" width="100%">
+    <img src="https://docs.vocdoni.io/Logotype.svg">
+</p>
+
+<div align="center">
+
+![npm](https://img.shields.io/npm/v/%40vocdoni%2Fsdk)
+![GitHub commit activity (main)](https://img.shields.io/github/commit-activity/m/vocdoni/vocdoni-sdk)
+[![Example workflow](https://github.com/vocdoni/vocdoni-sdk/actions/workflows/examples.yml/badge.svg)](https://vocdoni.github.io/vocdoni-sdk/)
+![Main workflow](https://github.com/vocdoni/vocdoni-sdk/actions/workflows/main.yml/badge.svg)
+[![Join Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://discord.gg/xFTh8Np2ga)
+[![Twitter Follow](https://img.shields.io/twitter/follow/vocdoni.svg?style=social&label=Follow)](https://twitter.com/vocdoni)
+
+</div>
+
 # Vocdoni SDK 
 
 The Vocdoni SDK is a convenient way to interact with the Vocdoni Protocol
@@ -549,7 +564,7 @@ const voteId = await client.submitVote(vote);
 
 ## Examples
 
-You can find a [full featured vite][example-vote] application with all the previous
+You can find a [full featured vite][example-vite] application with all the previous
 steps in the [examples] folder. In that folder you'll also find a
 [es modules example][example-esm], creating and voting an election process.
 
