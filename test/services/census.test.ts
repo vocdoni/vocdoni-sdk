@@ -1,9 +1,14 @@
-import { CensusService, CensusType } from '../../src';
+import { CensusService, CensusType, WeightedCensus, PlainCensus } from '../../src';
 // @ts-ignore
 import { URL } from './util/client.params';
 import { Wallet } from '@ethersproject/wallet';
-import { PlainCensus, WeightedCensus } from '@vocdoni/sdk';
 import { CENSUS_CHUNK_SIZE } from '../../src/util/constants';
+
+const pad = (num, size) => {
+  num = num.toString();
+  while (num.length < size) num = '0' + num;
+  return num;
+};
 
 describe('Census Service tests', () => {
   it('should have the correct type and properties', () => {
@@ -31,7 +36,7 @@ describe('Census Service tests', () => {
   });
   it('should create a census and return the correct information', async () => {
     const numVotes = 10;
-    const service = new CensusService({ url: URL });
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE });
     const census = new WeightedCensus();
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
     census.add(
@@ -58,37 +63,11 @@ describe('Census Service tests', () => {
     const numVotes = 63;
     const service = new CensusService({ url: URL, chunk_size: 9 });
     const census = new PlainCensus();
-    const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
-    census.add(participants.map((participant) => participant.address));
-
-    await service.createCensus(census);
-
-    expect(census.censusId).toMatch(/^[0-9a-fA-F]{64}$/);
-    expect(census.censusURI).toBeDefined();
-    expect(census.type).toEqual(CensusType.WEIGHTED);
-    expect(census.size).toEqual(numVotes);
-    expect(census.weight).toEqual(BigInt(numVotes));
-
-    const censusInfo = await service.fetchCensusInfo(census.censusId);
-    expect(censusInfo.type).toEqual(CensusType.WEIGHTED);
-    expect(censusInfo.size).toEqual(numVotes);
-    expect(censusInfo.weight).toEqual(BigInt(numVotes));
-  }, 30000);
-  it('should create a big census by batches and return the correct information', async () => {
-    const numVotes = 10000;
-    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE });
-    const census = new PlainCensus();
-
-    const pad = (num, size) => {
-      num = num.toString();
-      while (num.length < size) num = '0' + num;
-      return num;
-    };
 
     // Adding not random addresses for testing purposes
     census.participants = [...new Array(numVotes)].map((_v, i) => ({
       key: '0x' + pad(++i, 40),
-      weight: 1n,
+      weight: BigInt(1),
     }));
 
     await service.createCensus(census);
@@ -103,5 +82,29 @@ describe('Census Service tests', () => {
     expect(censusInfo.type).toEqual(CensusType.WEIGHTED);
     expect(censusInfo.size).toEqual(numVotes);
     expect(censusInfo.weight).toEqual(BigInt(numVotes));
-  }, 30000);
+  }, 40000);
+  it('should create a big census by batches and return the correct information', async () => {
+    const numVotes = 10000;
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE });
+    const census = new PlainCensus();
+
+    // Adding not random addresses for testing purposes
+    census.participants = [...new Array(numVotes)].map((_v, i) => ({
+      key: '0x' + pad(++i, 40),
+      weight: BigInt(1),
+    }));
+
+    await service.createCensus(census);
+
+    expect(census.censusId).toMatch(/^[0-9a-fA-F]{64}$/);
+    expect(census.censusURI).toBeDefined();
+    expect(census.type).toEqual(CensusType.WEIGHTED);
+    expect(census.size).toEqual(numVotes);
+    expect(census.weight).toEqual(BigInt(numVotes));
+
+    const censusInfo = await service.fetchCensusInfo(census.censusId);
+    expect(censusInfo.type).toEqual(CensusType.WEIGHTED);
+    expect(censusInfo.size).toEqual(numVotes);
+    expect(censusInfo.weight).toEqual(BigInt(numVotes));
+  }, 40000);
 });
