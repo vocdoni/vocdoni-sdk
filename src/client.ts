@@ -23,7 +23,14 @@ import {
   Vote,
   WeightedCensus,
 } from './types';
-import { API_URL, EXPLORER_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
+import {
+  API_URL,
+  CENSUS_CHUNK_SIZE,
+  EXPLORER_URL,
+  FAUCET_AUTH_TOKEN,
+  FAUCET_URL,
+  TX_WAIT_OPTIONS,
+} from './util/constants';
 import {
   AccountData,
   AccountService,
@@ -120,7 +127,7 @@ export class VocdoniSDKClient {
     this.wallet = opts.wallet;
     this.electionId = opts.electionId;
     this.explorerUrl = EXPLORER_URL[opts.env];
-    this.censusService = new CensusService({ url: this.url });
+    this.censusService = new CensusService({ url: this.url, chunk_size: CENSUS_CHUNK_SIZE });
     this.fileService = new FileService({ url: this.url });
     this.chainService = new ChainService({
       url: this.url,
