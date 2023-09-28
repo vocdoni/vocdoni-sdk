@@ -22,7 +22,7 @@ interface ICensusCreateResponse {
 
 interface ICensusAddResponse {}
 
-interface ICensusPublishResponse {
+export interface ICensusPublishResponse {
   /**
    * The identifier of the published census
    */

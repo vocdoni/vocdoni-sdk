@@ -1,11 +1,12 @@
 import { Service, ServiceProperties } from './service';
-import { CensusType, PlainCensus, WeightedCensus } from '../types';
-import { CensusAPI, WalletAPI } from '../api';
+import { CensusType, ICensusParticipant, PlainCensus, WeightedCensus } from '../types';
+import { CensusAPI, ICensusPublishResponse, WalletAPI } from '../api';
 import { Wallet } from '@ethersproject/wallet';
 import invariant from 'tiny-invariant';
 
 interface CensusServiceProperties {
   auth: CensusAuth;
+  chunk_size: number;
 }
 
 type CensusServiceParameters = ServiceProperties & CensusServiceProperties;
@@ -46,6 +47,7 @@ export type CspCensusProof = {
 
 export class CensusService extends Service implements CensusServiceProperties {
   public auth: CensusAuth;
+  public chunk_size: number;
 
   /**
    * Instantiate the census service.
@@ -65,6 +67,7 @@ export class CensusService extends Service implements CensusServiceProperties {
    */
   fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
     invariant(this.url, 'No URL set');
+
     return Promise.all([
       CensusAPI.size(this.url, censusId),
       CensusAPI.weight(this.url, censusId),
@@ -91,6 +94,7 @@ export class CensusService extends Service implements CensusServiceProperties {
    */
   async fetchProof(censusId: string, key: string): Promise<CensusProof> {
     invariant(this.url, 'No URL set');
+
     return CensusAPI.proof(this.url, censusId, key).then((censusProof) => ({
       type: censusProof.type,
       weight: censusProof.weight,
@@ -101,6 +105,70 @@ export class CensusService extends Service implements CensusServiceProperties {
     }));
   }
 
+  create(censusType: CensusType): Promise<string> {
+    invariant(this.url, 'No URL set');
+
+    return this.fetchAccountToken()
+      .then(() => CensusAPI.create(this.url, this.auth.identifier, censusType))
+      .then((response) => response.censusID);
+  }
+
+  async add(censusId: string, participants: ICensusParticipant[]) {
+    invariant(this.url, 'No URL set');
+    invariant(this.auth, 'No census auth set');
+    invariant(this.chunk_size, 'No chunk size set');
+
+    const participantsChunked = participants.reduce((result, item, index) => {
+      const chunkIndex = Math.floor(index / this.chunk_size);
+
+      if (!result[chunkIndex]) {
+        result[chunkIndex] = [];
+      }
+
+      result[chunkIndex].push(item);
+
+      return result;
+    }, []);
+
+    for (const chunk of participantsChunked) {
+      await CensusAPI.add(this.url, this.auth.identifier, censusId, chunk);
+    }
+
+    return censusId;
+  }
+
+  private addParallel(censusId: string, participants: ICensusParticipant[]) {
+    invariant(this.url, 'No URL set');
+    invariant(this.auth, 'No census auth set');
+    invariant(this.chunk_size, 'No chunk size set');
+
+    const participantsChunked = participants.reduce((result, item, index) => {
+      const chunkIndex = Math.floor(index / this.chunk_size);
+
+      if (!result[chunkIndex]) {
+        result[chunkIndex] = [];
+      }
+
+      result[chunkIndex].push(item);
+
+      return result;
+    }, []);
+
+    return participantsChunked.map((chunk) => CensusAPI.add(this.url, this.auth.identifier, censusId, chunk));
+  }
+
+  /**
+   * Publishes the given census identifier.
+   *
+   * @param {string} censusId The census identifier
+   */
+  publish(censusId: string): Promise<ICensusPublishResponse> {
+    invariant(this.url, 'No URL set');
+    invariant(this.auth, 'No census auth set');
+
+    return CensusAPI.publish(this.url, this.auth.identifier, censusId);
+  }
+
   /**
    * Publishes the given census.
    *
@@ -108,17 +176,9 @@ export class CensusService extends Service implements CensusServiceProperties {
    * @returns {Promise<void>}
    */
   createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
-    invariant(this.url, 'No URL set');
-    const censusCreation = this.fetchAccountToken().then(() =>
-      CensusAPI.create(this.url, this.auth.identifier, census.type)
-    );
-
-    const censusAdding = censusCreation.then((censusCreateResponse) =>
-      CensusAPI.add(this.url, this.auth.identifier, censusCreateResponse.censusID, census.participants)
-    );
-
-    return Promise.all([censusCreation, censusAdding])
-      .then((censusData) => CensusAPI.publish(this.url, this.auth.identifier, censusData[0].censusID))
+    return this.create(census.type)
+      .then((censusId) => this.add(censusId, census.participants))
+      .then((censusId) => this.publish(censusId))
       .then((censusPublish) => {
         census.censusId = censusPublish.censusID;
         census.censusURI = censusPublish.uri;
@@ -128,6 +188,29 @@ export class CensusService extends Service implements CensusServiceProperties {
           BigInt(0)
         );
       });
+  }
+
+  /**
+   * Publishes the given census.
+   *
+   * @param {PlainCensus | WeightedCensus} census The census to be published.
+   * @returns {Promise<void>}
+   */
+  // @ts-ignore
+  private createCensusParallel(census: PlainCensus | WeightedCensus): Promise<void> {
+    return this.create(census.type).then((censusId) =>
+      Promise.all(this.addParallel(censusId, census.participants))
+        .then(() => this.publish(censusId))
+        .then((censusPublish) => {
+          census.censusId = censusPublish.censusID;
+          census.censusURI = censusPublish.uri;
+          census.size = census.participants.length;
+          census.weight = census.participants.reduce(
+            (currentValue, participant) => currentValue + participant.weight,
+            BigInt(0)
+          );
+        })
+    );
   }
 
   /**
