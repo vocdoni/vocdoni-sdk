@@ -79,10 +79,13 @@ export class AccountService extends Service implements AccountServiceProperties 
     return AccountAPI.setInfo(this.url, tx, metadata).then((response) => response.txHash);
   }
 
-  async signTransaction(tx: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
+  async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     invariant(this.chainService, 'No chain service set');
-    return this.chainService
-      .fetchChainData()
-      .then((chainData) => AccountCore.signTransaction(tx, chainData.chainId, walletOrSigner));
+    return this.chainService.fetchChainData().then((chainData) => {
+      const payload = message
+        .replace('{hash}', AccountCore.hashTransaction(tx))
+        .replace('{chainId}', chainData.chainId);
+      return AccountCore.signTransaction(tx, payload, walletOrSigner);
+    });
   }
 }

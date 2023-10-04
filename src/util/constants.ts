@@ -1,5 +1,5 @@
 export const API_URL = {
-  dev: 'https://api-dev.vocdoni.net/v2',
+  dev: 'https://celoni.vocdoni.net/v2',
   stg: 'https://api-stg.vocdoni.net/v2',
   prod: 'https://api.vocdoni.net/v2',
 };
@@ -17,7 +17,7 @@ export const CENSUS3_URL = {
 };
 
 export const FAUCET_URL = {
-  dev: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/dev',
+  dev: 'https://celoni.vocdoni.net/v2/faucet/dev',
   stg: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/stage',
 };
 
@@ -37,3 +37,10 @@ export const VOCDONI_SIK_PAYLOAD =
   'Only accept this signature request if you fully trust the application. This request will not trigger a blockchain transaction or cost any gas fees.';
 
 export const CENSUS_CHUNK_SIZE = 8192;
+
+export enum TxMessage {
+  REGISTER_SIK = 'Signing a Vocdoni transaction of type REGISTER_SIK for secret identity key {sik}. The hash of the transaction is {hash} and the destination chainID is {chainId}}.',
+  SET_ACCOUNT = 'Signing a Vocdoni transaction of type SET_ACCOUNT/{type}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  COLLECT_FAUCET = 'Signing a Vocdoni transaction of type COLLECT_FAUCET. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  SEND_TOKENS = 'Signing a Vocdoni transaction of type SEND_TOKENS for an amount of {amount} VOC tokens to destination address {to}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+}

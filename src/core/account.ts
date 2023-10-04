@@ -15,6 +15,7 @@ import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
 import { strip0x } from '../util/common';
 import { AccountData, CensusProof, FaucetPackage } from '../services';
+import { TxMessage } from '../util/constants';
 
 export abstract class AccountCore extends TransactionCore {
   /**
@@ -30,7 +31,8 @@ export abstract class AccountCore extends TransactionCore {
     cid: string,
     faucetPackage: FaucetPackage,
     sik: string
-  ): { tx: Uint8Array; metadata: string } {
+  ): { tx: Uint8Array; metadata: string; message: string } {
+    const message = TxMessage.SET_ACCOUNT.replace('{type}', 'CREATE_ACCOUNT');
     const txData = this.prepareSetAccountData({
       address,
       nonce: 0,
@@ -39,14 +41,18 @@ export abstract class AccountCore extends TransactionCore {
       faucetPackage,
       sik,
     });
-    return this.generateSetAccountTransaction(txData);
+    return {
+      message,
+      ...this.generateSetAccountTransaction(txData),
+    };
   }
 
   public static generateUpdateAccountTransaction(
     accountData: AccountData,
     account: Account,
     cid: string
-  ): { tx: Uint8Array; metadata: string } {
+  ): { tx: Uint8Array; metadata: string; message: string } {
+    const message = TxMessage.SET_ACCOUNT.replace('{type}', 'SET_ACCOUNT_INFO_URI');
     const txData = this.prepareSetAccountData(
       {
         address: accountData.address,
@@ -56,7 +62,10 @@ export abstract class AccountCore extends TransactionCore {
       },
       false
     );
-    return this.generateSetAccountTransaction(txData);
+    return {
+      message,
+      ...this.generateSetAccountTransaction(txData),
+    };
   }
 
   private static generateSetAccountTransaction(txData: { metadata: string; accountData: object }): {
@@ -74,15 +83,29 @@ export abstract class AccountCore extends TransactionCore {
     };
   }
 
-  public static generateCollectFaucetTransaction(accountData: AccountData, faucetPackage: FaucetPackage): Uint8Array {
+  public static generateCollectFaucetTransaction(
+    accountData: AccountData,
+    faucetPackage: FaucetPackage
+  ): { tx: Uint8Array; message: string } {
     const txData = this.prepareCollectFaucetData(accountData, faucetPackage);
+    const message = TxMessage.COLLECT_FAUCET;
     const collectFaucet = CollectFaucetTx.fromPartial(txData);
-    return Tx.encode({
+    const tx = Tx.encode({
       payload: { $case: 'collectFaucet', collectFaucet },
     }).finish();
+
+    return {
+      message,
+      tx,
+    };
   }
 
-  public static generateRegisterSIKTransaction(electionId: string, sik: string, proof: CensusProof): Uint8Array {
+  public static generateRegisterSIKTransaction(
+    electionId: string,
+    sik: string,
+    proof: CensusProof
+  ): { tx: Uint8Array; message: string } {
+    const message = TxMessage.REGISTER_SIK.replace('{sik}', sik);
     const aProof = ProofArbo.fromPartial({
       siblings: Uint8Array.from(Buffer.from(proof.proof, 'hex')),
       type: ProofArbo_Type.POSEIDON,
@@ -98,12 +121,26 @@ export abstract class AccountCore extends TransactionCore {
       }),
     });
 
-    return Tx.encode({
+    const tx = Tx.encode({
       payload: { $case: 'registerSIK', registerSIK },
     }).finish();
+
+    return {
+      message,
+      tx,
+    };
   }
 
-  public static generateTransferTransaction(nonce: number, from: string, to: string, amount): Uint8Array {
+  public static generateTransferTransaction(
+    nonce: number,
+    from: string,
+    to: string,
+    amount: number
+  ): { tx: Uint8Array; message: string } {
+    const message = TxMessage.SEND_TOKENS.replace('{amount}', amount.toString()).replace(
+      '{to}',
+      strip0x(to).toLowerCase()
+    );
     const sendTokens = SendTokensTx.fromPartial({
       txtype: TxType.SEND_TOKENS,
       nonce: nonce,
@@ -112,9 +149,11 @@ export abstract class AccountCore extends TransactionCore {
       value: amount,
     });
 
-    return Tx.encode({
+    const tx = Tx.encode({
       payload: { $case: 'sendTokens', sendTokens },
     }).finish();
+
+    return { tx, message };
   }
 
   private static prepareSetAccountData(

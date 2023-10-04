@@ -226,7 +226,7 @@ export class VocdoniSDKClient {
       .then((address) => AnonymousService.calcSik(address, sik, password))
       .then((calculatedSIK) => {
         const registerSIKTx = AccountCore.generateRegisterSIKTransaction(electionId, calculatedSIK, censusProof);
-        return this.accountService.signTransaction(registerSIKTx, wallet);
+        return this.accountService.signTransaction(registerSIKTx.tx, registerSIKTx.message, wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.chainService.waitForTransaction(hash));
@@ -334,9 +334,11 @@ export class VocdoniSDKClient {
    * @param {Promise<{ tx: Uint8Array; metadata: string }>} promAccountData Account data promise in Tx form.
    * @returns {Promise<AccountData>}
    */
-  private setAccountInfo(promAccountData: Promise<{ tx: Uint8Array; metadata: string }>): Promise<AccountData> {
+  private setAccountInfo(
+    promAccountData: Promise<{ tx: Uint8Array; metadata: string; message: string }>
+  ): Promise<AccountData> {
     const accountTx = promAccountData.then((setAccountInfoTx) =>
-      this.accountService.signTransaction(setAccountInfoTx.tx, this.wallet)
+      this.accountService.signTransaction(setAccountInfoTx.tx, setAccountInfoTx.message, this.wallet)
     );
 
     return Promise.all([promAccountData, accountTx])
@@ -402,13 +404,13 @@ export class VocdoniSDKClient {
 
     return Promise.all([this.fetchAccountInfo(), settings.wallet.getAddress()])
       .then(([accountData, fromAddress]) => {
-        const tx = AccountCore.generateTransferTransaction(
+        const transferTx = AccountCore.generateTransferTransaction(
           accountData.nonce,
           fromAddress,
           settings.to,
           settings.amount
         );
-        return this.accountService.signTransaction(tx, settings.wallet);
+        return this.accountService.signTransaction(transferTx.tx, transferTx.message, settings.wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((txHash) => this.chainService.waitForTransaction(txHash));
@@ -429,7 +431,7 @@ export class VocdoniSDKClient {
       .then(([account, faucet]) => {
         const faucetPackage = this.faucetService.parseFaucetPackage(faucet);
         const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account, faucetPackage);
-        return this.accountService.signTransaction(collectFaucetTx, this.wallet);
+        return this.accountService.signTransaction(collectFaucetTx.tx, collectFaucetTx.message, this.wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.chainService.waitForTransaction(hash))
