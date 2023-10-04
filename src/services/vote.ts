@@ -29,11 +29,12 @@ export class VoteService extends Service implements VoteServiceProperties {
     Object.assign(this, params);
   }
 
-  public async signTransaction(tx: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
+  public async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     invariant(this.chainService, 'No chain service set');
-    return this.chainService
-      .fetchChainData()
-      .then((chainData) => VoteCore.signTransaction(tx, chainData.chainId, walletOrSigner));
+    return this.chainService.fetchChainData().then((chainData) => {
+      const payload = message.replace('{hash}', VoteCore.hashTransaction(tx)).replace('{chainId}', chainData.chainId);
+      return VoteCore.signTransaction(tx, payload, walletOrSigner);
+    });
   }
 
   /**

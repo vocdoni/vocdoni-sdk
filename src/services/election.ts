@@ -59,11 +59,14 @@ export class ElectionService extends Service implements ElectionServicePropertie
     Object.assign(this, params);
   }
 
-  public async signTransaction(tx: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
+  public async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     invariant(this.chainService, 'No chain service set');
-    return this.chainService
-      .fetchChainData()
-      .then((chainData) => ElectionCore.signTransaction(tx, chainData.chainId, walletOrSigner));
+    return this.chainService.fetchChainData().then((chainData) => {
+      const payload = message
+        .replace('{hash}', ElectionCore.hashTransaction(tx))
+        .replace('{chainId}', chainData.chainId);
+      return ElectionCore.signTransaction(tx, payload, walletOrSigner);
+    });
   }
 
   /**
