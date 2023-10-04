@@ -43,4 +43,7 @@ export enum TxMessage {
   SET_ACCOUNT = 'Signing a Vocdoni transaction of type SET_ACCOUNT/{type}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   COLLECT_FAUCET = 'Signing a Vocdoni transaction of type COLLECT_FAUCET. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   SEND_TOKENS = 'Signing a Vocdoni transaction of type SEND_TOKENS for an amount of {amount} VOC tokens to destination address {to}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  NEW_PROCESS = 'Signing a Vocdoni transaction of type NEW_PROCESS. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  SET_PROCESS = 'Signing a Vocdoni transaction of type SET_PROCESS/{type} with process ID {processId}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  VOTE = 'Signing a Vocdoni transaction of type VOTE for process ID {processId}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
 }

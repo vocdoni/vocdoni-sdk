@@ -12,6 +12,7 @@ import { TransactionCore } from './transaction';
 import { Buffer } from 'buffer';
 import { strip0x } from '../util/common';
 import { AccountData, ChainCosts, ChainData } from '../services';
+import { TxMessage } from '../util/constants';
 
 export abstract class ElectionCore extends TransactionCore {
   private static readonly VOCHAIN_BLOCK_TIME_IN_SECONDS = 12;
@@ -23,28 +24,32 @@ export abstract class ElectionCore extends TransactionCore {
     super();
   }
 
-  public static async generateSetElectionStatusTransaction(
+  public static generateSetElectionStatusTransaction(
     electionId: string,
     accountNonce: number,
     newStatus: AllElectionStatus
-  ): Promise<Uint8Array> {
+  ): { tx: Uint8Array; message: string } {
+    const message = TxMessage.SET_PROCESS.replace('{type}', 'SET_PROCESS_STATUS').replace('{processId}', electionId);
     const setProcess = SetProcessTx.fromPartial({
       txtype: TxType.SET_PROCESS_STATUS,
       nonce: accountNonce,
       processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
       status: this.processStatusFromElectionStatus(newStatus),
     });
-    return Tx.encode({
+    const tx = Tx.encode({
       payload: { $case: 'setProcess', setProcess },
     }).finish();
+
+    return { tx, message };
   }
 
-  public static async generateSetElectionCensusTransaction(
+  public static generateSetElectionCensusTransaction(
     electionId: string,
     accountNonce: number,
     censusId: string,
     censusURI: string
-  ): Promise<Uint8Array> {
+  ): { tx: Uint8Array; message: string } {
+    const message = TxMessage.SET_PROCESS.replace('{type}', 'SET_PROCESS_CENSUS').replace('{processId}', electionId);
     const setProcess = SetProcessTx.fromPartial({
       txtype: TxType.SET_PROCESS_CENSUS,
       nonce: accountNonce,
@@ -52,9 +57,11 @@ export abstract class ElectionCore extends TransactionCore {
       censusRoot: Uint8Array.from(Buffer.from(strip0x(censusId), 'hex')),
       censusURI: censusURI,
     });
-    return Tx.encode({
+    const tx = Tx.encode({
       payload: { $case: 'setProcess', setProcess },
     }).finish();
+
+    return { tx, message };
   }
 
   public static async generateNewElectionTransaction(
@@ -62,7 +69,7 @@ export abstract class ElectionCore extends TransactionCore {
     cid: string,
     chainData: ChainData,
     accountData: AccountData
-  ): Promise<{ tx: Uint8Array; metadata: string }> {
+  ): Promise<{ tx: Uint8Array; metadata: string; message: string }> {
     const txData = this.prepareElectionData(election, cid, chainData, accountData);
 
     const newProcess = NewProcessTx.fromPartial({
@@ -74,6 +81,7 @@ export abstract class ElectionCore extends TransactionCore {
         payload: { $case: 'newProcess', newProcess },
       }).finish(),
       metadata: txData.metadata,
+      message: TxMessage.NEW_PROCESS,
     };
   }
 

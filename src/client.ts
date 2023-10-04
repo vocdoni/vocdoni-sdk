@@ -510,7 +510,11 @@ export class VocdoniSDKClient {
       key: ElectionCreationSteps.GENERATE_TX,
     };
 
-    const signedElectionTx = await this.electionService.signTransaction(electionTxData.tx, this.wallet);
+    const signedElectionTx = await this.electionService.signTransaction(
+      electionTxData.tx,
+      electionTxData.message,
+      this.wallet
+    );
     yield {
       key: ElectionCreationSteps.SIGN_TX,
     };
@@ -580,10 +584,14 @@ export class VocdoniSDKClient {
       throw Error('No election set');
     }
     return this.fetchAccountInfo()
-      .then((accountData) =>
-        ElectionCore.generateSetElectionStatusTransaction(electionId ?? this.electionId, accountData.nonce, newStatus)
-      )
-      .then((tx) => this.electionService.signTransaction(tx, this.wallet))
+      .then((accountData) => {
+        const setElectionStatusTx = ElectionCore.generateSetElectionStatusTransaction(
+          electionId ?? this.electionId,
+          accountData.nonce,
+          newStatus
+        );
+        return this.electionService.signTransaction(setElectionStatusTx.tx, setElectionStatusTx.message, this.wallet);
+      })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.chainService.waitForTransaction(hash));
   }
@@ -601,15 +609,15 @@ export class VocdoniSDKClient {
       throw Error('No election set');
     }
     return this.fetchAccountInfo()
-      .then((accountData) =>
-        ElectionCore.generateSetElectionCensusTransaction(
+      .then((accountData) => {
+        const setElectionCensusTx = ElectionCore.generateSetElectionCensusTransaction(
           electionId ?? this.electionId,
           accountData.nonce,
           censusId,
           censusURI
-        )
-      )
-      .then((tx) => this.electionService.signTransaction(tx, this.wallet))
+        );
+        return this.electionService.signTransaction(setElectionCensusTx.tx, setElectionCensusTx.message, this.wallet);
+      })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.chainService.waitForTransaction(hash));
   }
@@ -747,20 +755,20 @@ export class VocdoniSDKClient {
       throw new Error('No valid vote for this election');
     }
 
-    let voteTx;
+    let voteTx: { tx: Uint8Array; message: string };
     if (election?.electionType.secretUntilTheEnd) {
-      voteTx = this.electionService.keys(election.id).then((encryptionKeys) =>
+      voteTx = await this.electionService.keys(election.id).then((encryptionKeys) =>
         VoteCore.generateVoteTransaction(election, censusProof, vote, {
           encryptionPubKeys: encryptionKeys.publicKeys,
         })
       );
     } else {
-      voteTx = Promise.resolve(VoteCore.generateVoteTransaction(election, censusProof, vote));
+      voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote);
     }
 
     // Vote
-    return voteTx
-      .then((tx) => this.voteService.signTransaction(tx, this.wallet))
+    return this.voteService
+      .signTransaction(voteTx.tx, voteTx.message, this.wallet)
       .then((signedTx) => this.voteService.vote(signedTx))
       .then((apiResponse) => this.chainService.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
   }

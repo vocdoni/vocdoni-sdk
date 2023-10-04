@@ -16,6 +16,7 @@ import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
 import { TransactionCore } from './transaction';
 import { AnonymousService, CensusProof, CspCensusProof, ZkProof } from '../services';
+import { TxMessage } from '../util/constants';
 
 export type IProofArbo = { siblings: string; weight?: bigint };
 export type IProofCA = {
@@ -57,12 +58,15 @@ export abstract class VoteCore extends TransactionCore {
     censusProof: CensusProof | CspCensusProof | ZkProof,
     votePackage: Vote,
     processKeys?: ProcessKeys
-  ): Uint8Array {
+  ): { tx: Uint8Array; message: string } {
+    const message = TxMessage.VOTE.replace('{processId}', strip0x(election.id));
     const txData = this.prepareVoteData(election, censusProof, votePackage, processKeys);
     const vote = VoteEnvelope.fromPartial(txData);
-    return Tx.encode({
+    const tx = Tx.encode({
       payload: { $case: 'vote', vote },
     }).finish();
+
+    return { tx, message };
   }
 
   private static prepareVoteData(
