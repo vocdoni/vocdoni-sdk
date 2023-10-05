@@ -39,7 +39,7 @@ export const VOCDONI_SIK_PAYLOAD =
 export const CENSUS_CHUNK_SIZE = 8192;
 
 export enum TxMessage {
-  REGISTER_SIK = 'Signing a Vocdoni transaction of type REGISTER_SIK for secret identity key {sik}. The hash of the transaction is {hash} and the destination chainID is {chainId}}.',
+  REGISTER_SIK = 'Signing a Vocdoni transaction of type REGISTER_SIK for secret identity key {sik}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   SET_ACCOUNT = 'Signing a Vocdoni transaction of type SET_ACCOUNT/{type}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   COLLECT_FAUCET = 'Signing a Vocdoni transaction of type COLLECT_FAUCET. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   SEND_TOKENS = 'Signing a Vocdoni transaction of type SEND_TOKENS for an amount of {amount} VOC tokens to destination address {to}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',

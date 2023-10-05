@@ -112,17 +112,17 @@ describe('zkSNARK test', () => {
     // User that votes with account with SIK
     census.add({
       key: (client.wallet as Wallet).address,
-      weight: 12n,
+      weight: BigInt(12),
     });
     // User that votes and has no account
     census.add({
       key: voter1.address,
-      weight: 120n,
+      weight: BigInt(120),
     });
     // User that votes with account without SIK
     census.add({
       key: voter2.address,
-      weight: 1200n,
+      weight: BigInt(1200),
     });
 
     const election = createElection(census, {
@@ -172,7 +172,7 @@ describe('zkSNARK test', () => {
         expect(election.results[0][0]).toEqual('132');
         expect(election.results[0][1]).toEqual('1200');
         expect(election.census.size).toEqual(3);
-        expect(election.census.weight).toEqual(BigInt(12n + 120n + 1200n));
+        expect(election.census.weight).toEqual(BigInt(12 + 120 + 1200));
       });
   }, 285000);
   it('should create an anonymous election with 12 participants and each of them should vote correctly', async () => {
