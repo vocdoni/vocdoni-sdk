@@ -32,7 +32,7 @@ export abstract class AccountCore extends TransactionCore {
     faucetPackage: FaucetPackage,
     sik: string
   ): { tx: Uint8Array; metadata: string; message: string } {
-    const message = TxMessage.SET_ACCOUNT.replace('{type}', 'CREATE_ACCOUNT');
+    const message = TxMessage.CREATE_ACCOUNT.replace('{address}', strip0x(address).toLowerCase());
     const txData = this.prepareSetAccountData({
       address,
       nonce: 0,
@@ -52,7 +52,10 @@ export abstract class AccountCore extends TransactionCore {
     account: Account,
     cid: string
   ): { tx: Uint8Array; metadata: string; message: string } {
-    const message = TxMessage.SET_ACCOUNT.replace('{type}', 'SET_ACCOUNT_INFO_URI');
+    const message = TxMessage.UPDATE_ACCOUNT.replace('{address}', strip0x(accountData.address).toLowerCase()).replace(
+      '{uri}',
+      cid
+    );
     const txData = this.prepareSetAccountData(
       {
         address: accountData.address,

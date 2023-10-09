@@ -41,9 +41,13 @@ export const CENSUS_CHUNK_SIZE = 8192;
 export enum TxMessage {
   REGISTER_SIK = 'Signing a Vocdoni transaction of type REGISTER_SIK for secret identity key {sik}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   SET_ACCOUNT = 'Signing a Vocdoni transaction of type SET_ACCOUNT/{type}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  CREATE_ACCOUNT = 'Signing a Vocdoni transaction of type CREATE_ACCOUNT for address {address}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  UPDATE_ACCOUNT = 'Signing a Vocdoni transaction of type SET_ACCOUNT_INFO_URI for address {address} with URI {uri}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   COLLECT_FAUCET = 'Signing a Vocdoni transaction of type COLLECT_FAUCET. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   SEND_TOKENS = 'Signing a Vocdoni transaction of type SEND_TOKENS for an amount of {amount} VOC tokens to destination address {to}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   NEW_PROCESS = 'Signing a Vocdoni transaction of type NEW_PROCESS. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   SET_PROCESS = 'Signing a Vocdoni transaction of type SET_PROCESS/{type} with process ID {processId}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  SET_PROCESS_CENSUS = 'Signing a Vocdoni transaction of type SET_PROCESS_CENSUS for process ID {processId} and census {censusId}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
+  SET_PROCESS_STATUS = 'Signing a Vocdoni transaction of type SET_PROCESS_STATUS for process ID {processId} and status {status}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
   VOTE = 'Signing a Vocdoni transaction of type VOTE for process ID {processId}. The hash of the transaction is {hash} and the destination chainID is {chainId}.',
 }

@@ -29,12 +29,16 @@ export abstract class ElectionCore extends TransactionCore {
     accountNonce: number,
     newStatus: AllElectionStatus
   ): { tx: Uint8Array; message: string } {
-    const message = TxMessage.SET_PROCESS.replace('{type}', 'SET_PROCESS_STATUS').replace('{processId}', electionId);
+    const status = this.processStatusFromElectionStatus(newStatus);
+    const message = TxMessage.SET_PROCESS_STATUS.replace(
+      '{status}',
+      Object.keys(ProcessStatus)[Object.values(ProcessStatus).indexOf(status)].toLowerCase()
+    ).replace('{processId}', electionId);
     const setProcess = SetProcessTx.fromPartial({
       txtype: TxType.SET_PROCESS_STATUS,
       nonce: accountNonce,
       processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
-      status: this.processStatusFromElectionStatus(newStatus),
+      status,
     });
     const tx = Tx.encode({
       payload: { $case: 'setProcess', setProcess },
@@ -49,7 +53,7 @@ export abstract class ElectionCore extends TransactionCore {
     censusId: string,
     censusURI: string
   ): { tx: Uint8Array; message: string } {
-    const message = TxMessage.SET_PROCESS.replace('{type}', 'SET_PROCESS_CENSUS').replace('{processId}', electionId);
+    const message = TxMessage.SET_PROCESS_CENSUS.replace('{censusId}', censusId).replace('{processId}', electionId);
     const setProcess = SetProcessTx.fromPartial({
       txtype: TxType.SET_PROCESS_CENSUS,
       nonce: accountNonce,
