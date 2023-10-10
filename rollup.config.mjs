@@ -17,6 +17,7 @@ const embeded = [
   'crypto',
   'os',
   'ethers',
+  'assert',
   'snarkjs',
   'circom_runtime',
   '@iden3/binfileutils',
