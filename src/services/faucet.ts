@@ -7,12 +7,9 @@ import { Buffer } from 'buffer';
  * Specify custom Faucet.
  *
  * @typedef FaucetOptions
- * @property {string} url
- * @property {string} auth_token
  * @property {number} token_limit
  */
 interface FaucetServiceProperties {
-  auth_token: string;
   token_limit: number;
 }
 
@@ -31,7 +28,6 @@ export type FaucetPackage = {
 export type FaucetOptions = FaucetServiceParameters;
 
 export class FaucetService extends Service implements FaucetServiceProperties {
-  public auth_token: string;
   public token_limit: number;
 
   /**
@@ -52,8 +48,7 @@ export class FaucetService extends Service implements FaucetServiceProperties {
    */
   fetchPayload(address: string): Promise<string> {
     invariant(this.url, 'No faucet URL');
-    invariant(this.auth_token, 'No faucet auth token');
-    return FaucetAPI.collect(this.url, this.auth_token, address).then((data) => data.faucetPackage);
+    return FaucetAPI.collect(this.url, address).then((data) => data.faucetPackage);
   }
 
   /**

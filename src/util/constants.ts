@@ -1,7 +1,13 @@
+export const APP_URL = {
+  dev: 'https://app-dev.vocdoni.io',
+  stg: 'https://app-stg.vocdoni.io',
+  prod: 'https://app.vocdoni.io',
+};
+
 export const API_URL = {
   dev: 'https://api-dev.vocdoni.net/v2',
   stg: 'https://api-stg.vocdoni.net/v2',
-  prod: 'https://api.vocdoni.net/v2',
+  prod: 'https://api.vocdoni.io/v2',
 };
 
 export const EXPLORER_URL = {
@@ -11,19 +17,15 @@ export const EXPLORER_URL = {
 };
 
 export const CENSUS3_URL = {
-  dev: 'https://census3.dev.vocdoni.net/api',
-  stg: 'https://census3.stg.vocdoni.net/api',
-  prod: 'https://census3.vocdoni.net/api',
+  dev: 'https://census3-dev.vocdoni.net/api',
+  stg: 'https://census3-stg.vocdoni.net/api',
+  prod: 'https://census3.vocdoni.io/api',
 };
 
 export const FAUCET_URL = {
-  dev: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/dev',
-  stg: 'https://faucet-azeno.vocdoni.net/faucet/vocdoni/stage',
-};
-
-export const FAUCET_AUTH_TOKEN = {
-  dev: '158a58ba-bd3e-479e-b230-2814a34fae8f',
-  stg: '158a58ba-bd3e-479e-b230-2814a34fae8f',
+  dev: 'https://api-dev.faucet.vocdoni.net/v2/open/claim',
+  stg: 'https://api-stg.faucet.vocdoni.net/v2/open/claim',
+  prod: 'https://api-faucet.vocdoni.io/v2/open/claim',
 };
 
 export const TX_WAIT_OPTIONS = {

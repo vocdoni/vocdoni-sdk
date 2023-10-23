@@ -23,14 +23,7 @@ import {
   Vote,
   WeightedCensus,
 } from './types';
-import {
-  API_URL,
-  CENSUS_CHUNK_SIZE,
-  EXPLORER_URL,
-  FAUCET_AUTH_TOKEN,
-  FAUCET_URL,
-  TX_WAIT_OPTIONS,
-} from './util/constants';
+import { API_URL, CENSUS_CHUNK_SIZE, EXPLORER_URL, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import {
   AccountData,
   AccountService,
@@ -138,7 +131,6 @@ export class VocdoniSDKClient {
     });
     this.faucetService = new FaucetService({
       url: opts.faucet?.url ?? FAUCET_URL[opts.env] ?? undefined,
-      auth_token: opts.faucet?.auth_token ?? FAUCET_AUTH_TOKEN[opts.env] ?? undefined,
       token_limit: opts.faucet?.token_limit,
     });
     this.anonymousService = new AnonymousService({ url: this.url });
