@@ -9,6 +9,7 @@ let wallet: Wallet;
 beforeEach(async () => {
   wallet = Wallet.createRandom();
   client = new VocdoniSDKClient(clientParams(wallet));
+  client.faucetService.url = process.env.FAUCET_URL ?? client.faucetService.url;
 });
 
 describe('Account integration tests', () => {
