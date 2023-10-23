@@ -1,6 +1,6 @@
 import { Wallet } from '@ethersproject/wallet';
 import { EnvOptions, VocdoniSDKClient } from '../../../src';
-import { API_URL, FAUCET_AUTH_TOKEN, FAUCET_URL, TX_WAIT_OPTIONS } from '../../../src/util/constants';
+import { API_URL, FAUCET_URL, TX_WAIT_OPTIONS } from '../../../src/util/constants';
 
 describe('Client tests', () => {
   it('should have the correct type', () => {
@@ -11,7 +11,6 @@ describe('Client tests', () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.DEV });
     expect(client.url).toEqual(API_URL.dev);
     expect(client.faucetService.url).toEqual(FAUCET_URL.dev);
-    expect(client.faucetService.auth_token).toEqual(FAUCET_AUTH_TOKEN.dev);
     expect(client.faucetService.token_limit).toBeUndefined();
     expect(client.chainService.txWait.retryTime).toEqual(TX_WAIT_OPTIONS.retry_time);
     expect(client.chainService.txWait.attempts).toEqual(TX_WAIT_OPTIONS.attempts);
@@ -20,7 +19,6 @@ describe('Client tests', () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.STG });
     expect(client.url).toEqual(API_URL.stg);
     expect(client.faucetService.url).toEqual(FAUCET_URL.stg);
-    expect(client.faucetService.auth_token).toEqual(FAUCET_AUTH_TOKEN.stg);
     expect(client.faucetService.token_limit).toBeUndefined();
     expect(client.chainService.txWait.retryTime).toEqual(TX_WAIT_OPTIONS.retry_time);
     expect(client.chainService.txWait.attempts).toEqual(TX_WAIT_OPTIONS.attempts);
@@ -29,7 +27,6 @@ describe('Client tests', () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.PROD });
     expect(client.url).toEqual(API_URL.prod);
     expect(client.faucetService.url).toBeUndefined();
-    expect(client.faucetService.auth_token).toBeUndefined();
     expect(client.faucetService.token_limit).toBeUndefined();
     expect(client.chainService.txWait.retryTime).toEqual(TX_WAIT_OPTIONS.retry_time);
     expect(client.chainService.txWait.attempts).toEqual(TX_WAIT_OPTIONS.attempts);

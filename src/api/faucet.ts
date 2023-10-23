@@ -22,20 +22,15 @@ export abstract class FaucetAPI extends API {
   }
 
   /**
-   * Calls the collect tokens method. Only works under development.
+   * Calls the collect tokens method.
    *
    * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
    * @param {string} address Address to send the tokens to
    * @returns {Promise<IFaucetCollectResponse>}
    */
-  public static collect(url: string, authToken: string, address: string): Promise<IFaucetCollectResponse> {
+  public static collect(url: string, address: string): Promise<IFaucetCollectResponse> {
     return axios
-      .get<IFaucetCollectResponse>(url + '/' + address, {
-        headers: {
-          Authorization: 'Bearer ' + authToken,
-        },
-      })
+      .get<IFaucetCollectResponse>(url + '/' + address)
       .then((response) => response.data)
       .catch(this.isApiError);
   }

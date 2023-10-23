@@ -1,6 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
 import { Account, FaucetAPI, strip0x, VocdoniSDKClient } from '../../src';
-import { FAUCET_AUTH_TOKEN, FAUCET_URL } from '../../src/util/constants';
 // @ts-ignore
 import { clientParams } from './util/client.params';
 
@@ -24,17 +23,16 @@ describe('Account integration tests', () => {
     expect(accountInfo.nonce).toEqual(0);
   }, 75000);
   it('should bootstrap a new account using a raw faucet package payload', async () => {
-    const faucetPackage = await FaucetAPI.collect(FAUCET_URL.dev, FAUCET_AUTH_TOKEN.dev, await wallet.getAddress());
+    const faucetPackage = await FaucetAPI.collect(client.faucetService.url, await wallet.getAddress());
     const accountInfo = await client.createAccount({ faucetPackage: faucetPackage.faucetPackage });
     expect(accountInfo.balance).toBeGreaterThan(0);
   }, 75000);
-  it('should bootstrap a new account and fetch tokens from faucet more than once', async () => {
+  it('should bootstrap a new account and fail when fetching tokens from faucet more than once', async () => {
     const accountInfo = await client.createAccount();
     expect(accountInfo.balance).toBeGreaterThan(0);
-
-    await client
-      .collectFaucetTokens()
-      .then((finalAccountInfo) => expect(finalAccountInfo.balance).toBeGreaterThan(accountInfo.balance));
+    await expect(async () => {
+      await client.collectFaucetTokens();
+    }).rejects;
   }, 75000);
   it('should bootstrap a new account and fetch tokens from raw faucet package', async () => {
     const accountInfo = await client.createAccount();
