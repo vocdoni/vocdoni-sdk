@@ -42,6 +42,14 @@ jobs:
         node: ['18.x']
         os: [ci1]
 
+    env:
+      COMPOSE_PROJECT_NAME: ci_${{ github.run_id }}
+      BLINDCSP_PRIVKEY: f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
+      # that BLINDCSP_PRIVKEY corresponds to address 0xc3E925C7D971601c85eB042032F415852E56A038
+      # and CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
+      BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
+      FAUCET_TOKEN_LIMIT: 100
+
     steps:
       # TODO: somehow reuse artifact from ubuntu-latest 'build' job?
       # instead of building from scratch on self-hosted
@@ -59,18 +67,6 @@ jobs:
 
       - name: Install deps
         run: yarn
-
-      - name: Set env vars for all the following steps
-        run: |
-          cat << EOF >> $GITHUB_ENV
-          COMPOSE_PROJECT_NAME=ci_${{ github.run_id }}
-          BLINDCSP_PRIVKEY=f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
-          BLINDCSP_PUBKEY=039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          FAUCET_TOKEN_LIMIT=100
-          EOF
-          # that BLINDCSP_PRIVKEY is hardcoded in docker-compose.yml and corresponds to:
-          # address 0xc3E925C7D971601c85eB042032F415852E56A038
-          # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
 
       - name: Start voconed, blind-csp, vocfaucet
         run: |
