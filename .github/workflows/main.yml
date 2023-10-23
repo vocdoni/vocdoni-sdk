@@ -66,12 +66,14 @@ jobs:
       - name: Start voconed (ephemeral vochain for integration test)
         run: |
           docker-compose -f test/integration/util/docker-compose.yml pull -q
-          docker-compose -f test/integration/util/docker-compose.yml up -d
+          docker-compose -f test/integration/util/docker-compose.yml up -d --build
           docker-compose -f test/integration/util/docker-compose.yml images # check logs to see version used
           echo -n "voconed_hostport=" >> $GITHUB_ENV
           docker-compose -f test/integration/util/docker-compose.yml port voconed 9095 >> $GITHUB_ENV
           echo -n "blindcsp_hostport=" >> $GITHUB_ENV
           docker-compose -f test/integration/util/docker-compose.yml port blind-csp 5000 >> $GITHUB_ENV
+          echo -n "vocfaucet_hostport=" >> $GITHUB_ENV
+          docker-compose -f test/integration/util/docker-compose.yml port vocfaucet 8080 >> $GITHUB_ENV
 
       - name: Wait until voconed is ready
         env:
@@ -92,8 +94,7 @@ jobs:
           # address 0xc3E925C7D971601c85eB042032F415852E56A038
           # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
           BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          FAUCET_URL: ${{ secrets.FAUCET_URL }}
-          FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
+          FAUCET_URL: http://${{ env.vocfaucet_hostport }}/v2/faucet/
           FAUCET_TOKEN_LIMIT: 100
 
       - name: Service tests
@@ -106,8 +107,7 @@ jobs:
           # address 0xc3E925C7D971601c85eB042032F415852E56A038
           # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
           BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          FAUCET_URL: ${{ secrets.FAUCET_URL }}
-          FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
+          FAUCET_URL: http://${{ env.vocfaucet_hostport }}/v2/faucet/
           FAUCET_TOKEN_LIMIT: 100
 
       - name: Anonymous integration tests
@@ -120,8 +120,7 @@ jobs:
           # address 0xc3E925C7D971601c85eB042032F415852E56A038
           # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
           BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          FAUCET_URL: ${{ secrets.FAUCET_URL }}
-          FAUCET_AUTH_TOKEN: ${{ secrets.FAUCET_AUTH_TOKEN }}
+          FAUCET_URL: http://${{ env.vocfaucet_hostport }}/v2/faucet/
           FAUCET_TOKEN_LIMIT: 100
 
       - name: Debug voconed logs on failure
