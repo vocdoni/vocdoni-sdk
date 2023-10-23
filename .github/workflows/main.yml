@@ -60,24 +60,35 @@ jobs:
       - name: Install deps
         run: yarn
 
-      - name: Set COMPOSE_PROJECT_NAME for voconed
-        run: echo COMPOSE_PROJECT_NAME=${RANDOM}${RANDOM}_ci >> $GITHUB_ENV
+      - name: Set env vars for all the following steps
+        run: |
+          cat << EOF >> $GITHUB_ENV
+          COMPOSE_PROJECT_NAME=ci_${{ github.run_id }}
+          BLINDCSP_PRIVKEY=f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
+          BLINDCSP_PUBKEY=039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
+          FAUCET_TOKEN_LIMIT=100
+          EOF
+          # that BLINDCSP_PRIVKEY is hardcoded in docker-compose.yml and corresponds to:
+          # address 0xc3E925C7D971601c85eB042032F415852E56A038
+          # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
 
-      - name: Start voconed (ephemeral vochain for integration test)
+      - name: Start voconed, blind-csp, vocfaucet
         run: |
           docker-compose -f test/integration/util/docker-compose.yml pull -q
           docker-compose -f test/integration/util/docker-compose.yml up -d --build
           docker-compose -f test/integration/util/docker-compose.yml images # check logs to see version used
-          echo -n "voconed_hostport=" >> $GITHUB_ENV
-          docker-compose -f test/integration/util/docker-compose.yml port voconed 9095 >> $GITHUB_ENV
-          echo -n "blindcsp_hostport=" >> $GITHUB_ENV
-          docker-compose -f test/integration/util/docker-compose.yml port blind-csp 5000 >> $GITHUB_ENV
-          echo -n "vocfaucet_hostport=" >> $GITHUB_ENV
-          docker-compose -f test/integration/util/docker-compose.yml port vocfaucet 8080 >> $GITHUB_ENV
+
+          voconed_hostport=$(docker-compose -f test/integration/util/docker-compose.yml port voconed 9095)
+          blindcsp_hostport=$(docker-compose -f test/integration/util/docker-compose.yml port blind-csp 5000)
+          vocfaucet_hostport=$(docker-compose -f test/integration/util/docker-compose.yml port vocfaucet 8080)
+
+          cat << EOF >> $GITHUB_ENV
+          API_URL=http://$voconed_hostport/v2
+          BLINDCSP_URL=http://$blindcsp_hostport/v1
+          FAUCET_URL=http://$vocfaucet_hostport/v2/faucet/
+          EOF
 
       - name: Wait until voconed is ready
-        env:
-          API_URL: http://${{ env.voconed_hostport }}/v2
         run: |
           for i in {1..20}; do
             date
@@ -86,47 +97,17 @@ jobs:
 
       - name: Integration tests
         run: yarn test:integration --ci --coverage --maxWorkers=2
-        env:
-          API_URL: http://${{ env.voconed_hostport }}/v2
-          BLINDCSP_URL: http://${{ env.blindcsp_hostport }}/v1
-          BLINDCSP_PRIVKEY: f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
-          # that privkey is hardcoded in docker-compose.yml and corresponds to:
-          # address 0xc3E925C7D971601c85eB042032F415852E56A038
-          # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          FAUCET_URL: http://${{ env.vocfaucet_hostport }}/v2/faucet/
-          FAUCET_TOKEN_LIMIT: 100
 
       - name: Service tests
         run: yarn test:service --ci --coverage --maxWorkers=2
-        env:
-          API_URL: http://${{ env.voconed_hostport }}/v2
-          BLINDCSP_URL: http://${{ env.blindcsp_hostport }}/v1
-          BLINDCSP_PRIVKEY: f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
-          # that privkey is hardcoded in docker-compose.yml and corresponds to:
-          # address 0xc3E925C7D971601c85eB042032F415852E56A038
-          # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          FAUCET_URL: http://${{ env.vocfaucet_hostport }}/v2/faucet/
-          FAUCET_TOKEN_LIMIT: 100
 
       - name: Anonymous integration tests
         run: yarn test:integration:zk --ci --coverage
-        env:
-          API_URL: http://${{ env.voconed_hostport }}/v2
-          BLINDCSP_URL: http://${{ env.blindcsp_hostport }}/v1
-          BLINDCSP_PRIVKEY: f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
-          # that privkey is hardcoded in docker-compose.yml and corresponds to:
-          # address 0xc3E925C7D971601c85eB042032F415852E56A038
-          # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-          FAUCET_URL: http://${{ env.vocfaucet_hostport }}/v2/faucet/
-          FAUCET_TOKEN_LIMIT: 100
 
       - name: Debug voconed logs on failure
         if: failure()
         run: docker-compose -f test/integration/util/docker-compose.yml logs
 
       - name: Stop voconed (ephemeral vochain for integration test)
-        if: success() || failure()
+        if: always()
         run: docker-compose -f test/integration/util/docker-compose.yml down -v
