@@ -23,7 +23,8 @@ describe('Account integration tests', () => {
     expect(accountInfo.nonce).toEqual(0);
   }, 75000);
   it('should bootstrap a new account using a raw faucet package payload', async () => {
-    const faucetPackage = await FaucetAPI.collect(client.faucetService.url, await wallet.getAddress());
+    const faucetUrl = process.env.FAUCET_URL ?? client.faucetService.url;
+    const faucetPackage = await FaucetAPI.collect(faucetUrl, await wallet.getAddress());
     const accountInfo = await client.createAccount({ faucetPackage: faucetPackage.faucetPackage });
     expect(accountInfo.balance).toBeGreaterThan(0);
   }, 75000);
