@@ -75,7 +75,7 @@ jobs:
       - name: Start voconed, blind-csp, vocfaucet
         run: |
           docker-compose -f test/integration/util/docker-compose.yml pull -q
-          docker-compose -f test/integration/util/docker-compose.yml up -d --build
+          docker-compose -f test/integration/util/docker-compose.yml up -d
           docker-compose -f test/integration/util/docker-compose.yml images # check logs to see version used
 
           voconed_hostport=$(docker-compose -f test/integration/util/docker-compose.yml port voconed 9095)
