@@ -48,10 +48,8 @@ services:
         max-size: "20m"
         max-file: "10"
   vocfaucet:
-    # build main branch to ensure we're testing against bleeding edge
-    build:
-      context: https://github.com/vocdoni/vocfaucet.git
-    image: vocdoni/vocfaucet:main
+    # pull main tag (instead of latest) to ensure we're testing against bleeding edge
+    image: ghcr.io/vocdoni/vocfaucet:main
     ports:
       - 127.0.0.1::8080
     command:
