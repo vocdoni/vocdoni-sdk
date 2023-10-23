@@ -85,7 +85,7 @@ jobs:
           cat << EOF >> $GITHUB_ENV
           API_URL=http://$voconed_hostport/v2
           BLINDCSP_URL=http://$blindcsp_hostport/v1
-          FAUCET_URL=http://$vocfaucet_hostport/v2/faucet/
+          FAUCET_URL=http://$vocfaucet_hostport/v2/faucet/open/claim
           EOF
 
       - name: Wait until voconed is ready
