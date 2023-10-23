@@ -26,7 +26,7 @@ describe('Client tests', () => {
   it('should have the correct default values for production environment', () => {
     const client = new VocdoniSDKClient({ env: EnvOptions.PROD });
     expect(client.url).toEqual(API_URL.prod);
-    expect(client.faucetService.url).toBeUndefined();
+    expect(client.faucetService.url).toEqual(FAUCET_URL.prod);
     expect(client.faucetService.token_limit).toBeUndefined();
     expect(client.chainService.txWait.retryTime).toEqual(TX_WAIT_OPTIONS.retry_time);
     expect(client.chainService.txWait.attempts).toEqual(TX_WAIT_OPTIONS.attempts);
@@ -41,12 +41,6 @@ describe('Client tests', () => {
     await expect(async () => {
       await client.fetchFaucetPayload();
     }).rejects.toThrow('No wallet or signer set');
-  });
-  it('should throw when trying to fetch tokens from production environment', async () => {
-    const client = new VocdoniSDKClient({ env: EnvOptions.PROD, wallet: Wallet.createRandom() });
-    await expect(async () => {
-      await client.fetchFaucetPayload();
-    }).rejects.toThrow('No faucet URL');
   });
   it('should calculate the deterministic wallet based on data', async () => {
     const w1 = VocdoniSDKClient.generateWalletFromData('test');
