@@ -44,11 +44,8 @@ jobs:
 
     env:
       COMPOSE_PROJECT_NAME: ci_${{ github.run_id }}
-      BLINDCSP_PRIVKEY: f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
-      # that BLINDCSP_PRIVKEY corresponds to address 0xc3E925C7D971601c85eB042032F415852E56A038
-      # and CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-      BLINDCSP_PUBKEY: 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-      FAUCET_TOKEN_LIMIT: 100
+      COMPOSE_FILE: ./test/integration/util/docker-compose.yml
+      COMPOSE_ENV: ./test/integration/util/.env
 
     steps:
       # TODO: somehow reuse artifact from ubuntu-latest 'build' job?
@@ -68,15 +65,15 @@ jobs:
       - name: Install deps
         run: yarn
 
-      - name: Start voconed, blind-csp, vocfaucet
+      - name: Start docker containers (voconed, blind-csp, vocfaucet)
         run: |
-          docker-compose -f test/integration/util/docker-compose.yml pull -q
-          docker-compose -f test/integration/util/docker-compose.yml up -d
-          docker-compose -f test/integration/util/docker-compose.yml images # check logs to see version used
+          docker-compose pull -q
+          docker-compose up -d
+          docker-compose images # check logs to see version used
 
-          voconed_hostport=$(docker-compose -f test/integration/util/docker-compose.yml port voconed 9095)
-          blindcsp_hostport=$(docker-compose -f test/integration/util/docker-compose.yml port blind-csp 5000)
-          vocfaucet_hostport=$(docker-compose -f test/integration/util/docker-compose.yml port vocfaucet 8080)
+          voconed_hostport=$(docker-compose port voconed 9095)
+          blindcsp_hostport=$(docker-compose port blind-csp 5000)
+          vocfaucet_hostport=$(docker-compose port vocfaucet 8080)
 
           cat << EOF >> $GITHUB_ENV
           API_URL=http://$voconed_hostport/v2
@@ -84,12 +81,21 @@ jobs:
           FAUCET_URL=http://$vocfaucet_hostport/v2/open/claim
           EOF
 
+          # source all env vars in ${{ env.COMPOSE_ENV }}
+          # and merge them into GHA environment, some are needed in the following steps
+          env -i sh -o allexport -c '. ${{ env.COMPOSE_ENV }} ; env' >> $GITHUB_ENV
+
       - name: Wait until voconed is ready
         run: |
           for i in {1..20}; do
+            if curl -s --fail ${{ env.API_URL }}/chain/info 2>/dev/null ; then
+              exit 0
+            fi
             date
-            curl -s --fail ${{ env.API_URL }}/chain/info 2>/dev/null && break || sleep 1
+            sleep 1
           done
+          echo "timed out waiting"
+          exit 1
 
       - name: Integration tests
         run: yarn test:integration --ci --coverage --maxWorkers=2
@@ -100,10 +106,10 @@ jobs:
       - name: Anonymous integration tests
         run: yarn test:integration:zk --ci --coverage
 
-      - name: Debug voconed logs on failure
+      - name: Debug docker logs in case of failure
         if: failure()
-        run: docker-compose -f test/integration/util/docker-compose.yml logs
+        run: docker-compose logs
 
-      - name: Stop voconed (ephemeral vochain for integration test)
+      - name: Stop and cleanup docker containers
         if: always()
-        run: docker-compose -f test/integration/util/docker-compose.yml down -v
+        run: docker-compose down -v
