@@ -1,74 +1,50 @@
 version: "3.4"
 
+x-common: &common
+  env_file: .env # the container env will inherit all vars defined in this file
+  sysctls:
+    net.core.somaxconn: 8128
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "10"
+
+# TODO: all of these services should really implement viper to read all flags from environment
+# but they do not (yet), so we need to pass them as cmdline args
+
 services:
   voconed:
-    # pull main tag (instead of latest) to ensure we're testing against bleeding edge
     image: "vocdoni/vocdoni-node:main"
     entrypoint: "/app/voconed"
-    env_file: voconed.env
-    # TODO: the following flags should really go into voconed.env
-    # but voconed doesn't yet support it as an env, only as cmdline arg
     command: |
-      --setTxCosts --txCosts 10
-      --fundedAccounts 0x3e951345Fd7f3fE62606356C31a1a7CD948ea101:1000
-      --fundedAccounts 0xC7C6E17059801b6962cc144a374eCc3ba1b8A9e0:1000000
-      --fundedAccounts 0x7C3a4A5f142ed27C07966b7C7C3F085521154b40:100000000
-      --fundedAccounts 0x032FaEf5d0F2c76bbD804215e822A5203e83385d:100000000
-    # account 0x3e951345Fd7f3fE62606356C31a1a7CD948ea101 corresponds to privkey:
-    # 8b254cdf202856f9e2f0a6b493bb8d1598302c33ec3e79b729eb1963358073d5
-    # and will be funded with 1000 tokens.
-    # account 0xC7C6E17059801b6962cc144a374eCc3ba1b8A9e0 (old faucet) gets 1000000 tokens
-    # vocfaucet uses accounts 0x7C3a4A5f142ed27C07966b7C7C3F085521154b40
-    # and 0x032FaEf5d0F2c76bbD804215e822A5203e83385d
-    volumes:
-      - "run:/app/run"
+      --setTxCosts --txCosts ${VOCONED_TXCOSTS}
+      --fundedAccounts ${FAUCET_ACCOUNT}:${FAUCET_ACCOUNT_FUNDS}
+    # voconed will fund FAUCET_ACCOUNT so that faucet packages signed by vocfaucet actually work
     ports:
-      - 127.0.0.1::9095
-    sysctls:
-      net.core.somaxconn: 8128
-    logging:
-      driver: json-file
-      options:
-        max-size: "20m"
-        max-file: "10"
-  blind-csp:
-    # pull master tag (instead of latest) to ensure we're testing against bleeding edge
-    image: "vocdoni/blind-csp:master"
-    entrypoint: "/app/blind-csp"
-    command: |
-      --key f6e530882cde11e2050989d04c3fc523412b2fc2723c0a6155932a62ffafc2b6
-    # that's random but hardcoded so the test can create the election, it corresponds to:
-    # address 0xc3E925C7D971601c85eB042032F415852E56A038
-    # CSP root key 039d3ea0d911f4497903e3701b19b9c2efa2b7c3c646f3fc63d46d0a684b781b82
-    ports:
-      - 127.0.0.1::5000
-    sysctls:
-      net.core.somaxconn: 8128
-    logging:
-      driver: json-file
-      options:
-        max-size: "20m"
-        max-file: "10"
-  vocfaucet:
-    # pull main tag (instead of latest) to ensure we're testing against bleeding edge
-    image: ghcr.io/vocdoni/vocfaucet:main
-    ports:
-      - 127.0.0.1::8080
-    command:
-      - "--amounts=800"
-      - "--listenPort=8080"
-      - "--logLevel=debug"
-      - "--dataDir=/app/data/faucet"
-      - "--waitPeriod=10m"
-      - "--dbType=pebble"
-      - "--baseRoute=/v2"
-      - "--auth=open"
-      - "--privKey=d52a488fa1511a07778cc94ed9d8130fb255537783ea7c669f38292b4f53ac4f"
-      # that's random but hardcoded and corresponds (somehow?) to two addresses:
-      # 0x7C3a4A5f142ed27C07966b7C7C3F085521154b40
-      # 0x032FaEf5d0F2c76bbD804215e822A5203e83385d
-    sysctls:
-      net.core.somaxconn: 8128
+      - "127.0.0.1::${VOCONED_PORT}"
+    <<: *common
 
-volumes:
-  run: {}
+  blind-csp:
+    image: "vocdoni/blind-csp:master"
+    command: |
+      --key ${BLINDCSP_PRIVKEY}
+    ports:
+      - "127.0.0.1::${BLINDCSP_PORT}"
+    <<: *common
+
+  vocfaucet:
+    image: "ghcr.io/vocdoni/vocfaucet:main"
+    command: |
+      --amounts=${FAUCET_AMOUNTS}
+      --listenPort=${FAUCET_LISTENPORT}
+      --logLevel=${FAUCET_LOGLEVEL}
+      --dataDir=${FAUCET_DATADIR}
+      --waitPeriod=${FAUCET_WAITPERIOD}
+      --dbType=${FAUCET_DBTYPE}
+      --baseRoute=${FAUCET_BASEROUTE}
+      --auth=${FAUCET_AUTH}
+      --privKey=${FAUCET_PRIVKEY}
+    ports:
+      - "127.0.0.1::${FAUCET_LISTENPORT}"
+    <<: *common
