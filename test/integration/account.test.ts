@@ -136,6 +136,7 @@ describe('Account integration tests', () => {
 
     const destinationAccount = Wallet.createRandom();
     const destinationClient = new VocdoniSDKClient(clientParams(destinationAccount));
+    destinationClient.faucetService.url = process.env.FAUCET_URL ?? destinationClient.faucetService.url;
     const destinationInfo = await destinationClient.createAccount();
     expect(destinationInfo.balance).toBeGreaterThan(0);
     expect(destinationInfo.balance).toEqual(accountInfo.balance);
