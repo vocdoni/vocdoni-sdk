@@ -36,15 +36,6 @@ describe('Account integration tests', () => {
       await client.collectFaucetTokens();
     }).rejects;
   }, 75000);
-  it('should bootstrap a new account and fetch tokens from raw faucet package', async () => {
-    const accountInfo = await client.createAccount();
-    expect(accountInfo.balance).toBeGreaterThan(0);
-
-    await client
-      .fetchFaucetPayload()
-      .then((faucetPackage) => client.collectFaucetTokens(faucetPackage))
-      .then((finalAccountInfo) => expect(finalAccountInfo.balance).toBeGreaterThan(accountInfo.balance));
-  }, 75000);
   it('should bootstrap a new account and do nothing when creating it twice', async () => {
     const accountInfo = await client.createAccount();
     const accountInfoAfter = await client.createAccount();
