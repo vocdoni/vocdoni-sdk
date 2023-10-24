@@ -1,7 +1,7 @@
 import { Wallet } from '@ethersproject/wallet';
 import { Account, FaucetAPI, strip0x, VocdoniSDKClient } from '../../src';
 // @ts-ignore
-import { clientParams } from './util/client.params';
+import { clientParams, setFaucetURL } from './util/client.params';
 
 let client: VocdoniSDKClient;
 let wallet: Wallet;
@@ -9,7 +9,7 @@ let wallet: Wallet;
 beforeEach(async () => {
   wallet = Wallet.createRandom();
   client = new VocdoniSDKClient(clientParams(wallet));
-  client.faucetService.url = process.env.FAUCET_URL ?? client.faucetService.url;
+  client = setFaucetURL(client);
 });
 
 describe('Account integration tests', () => {
@@ -135,8 +135,8 @@ describe('Account integration tests', () => {
     expect(accountInfo.balance).toBeGreaterThan(0);
 
     const destinationAccount = Wallet.createRandom();
-    const destinationClient = new VocdoniSDKClient(clientParams(destinationAccount));
-    destinationClient.faucetService.url = process.env.FAUCET_URL ?? destinationClient.faucetService.url;
+    let destinationClient = new VocdoniSDKClient(clientParams(destinationAccount));
+    destinationClient = setFaucetURL(destinationClient);
     const destinationInfo = await destinationClient.createAccount();
     expect(destinationInfo.balance).toBeGreaterThan(0);
     expect(destinationInfo.balance).toEqual(accountInfo.balance);
