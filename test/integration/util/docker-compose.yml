@@ -13,11 +13,13 @@ services:
       --fundedAccounts 0x3e951345Fd7f3fE62606356C31a1a7CD948ea101:1000
       --fundedAccounts 0xC7C6E17059801b6962cc144a374eCc3ba1b8A9e0:1000000
       --fundedAccounts 0x7C3a4A5f142ed27C07966b7C7C3F085521154b40:100000000
+      --fundedAccounts 0x032FaEf5d0F2c76bbD804215e822A5203e83385d:100000000
     # account 0x3e951345Fd7f3fE62606356C31a1a7CD948ea101 corresponds to privkey:
     # 8b254cdf202856f9e2f0a6b493bb8d1598302c33ec3e79b729eb1963358073d5
     # and will be funded with 1000 tokens.
-    # account 0xC7C6E17059801b6962cc144a374eCc3ba1b8A9e0 will have 1000000 tokens
-    # and account 0x7C3a4A5f142ed27C07966b7C7C3F085521154b40 is used by vocfaucet
+    # account 0xC7C6E17059801b6962cc144a374eCc3ba1b8A9e0 (old faucet) gets 1000000 tokens
+    # vocfaucet uses accounts 0x7C3a4A5f142ed27C07966b7C7C3F085521154b40
+    # and 0x032FaEf5d0F2c76bbD804215e822A5203e83385d
     volumes:
       - "run:/app/run"
     ports:
@@ -62,8 +64,9 @@ services:
       - "--baseRoute=/v2"
       - "--auth=open"
       - "--privKey=d52a488fa1511a07778cc94ed9d8130fb255537783ea7c669f38292b4f53ac4f"
-      # that's random but hardcoded and corresponds to address:
+      # that's random but hardcoded and corresponds (somehow?) to two addresses:
       # 0x7C3a4A5f142ed27C07966b7C7C3F085521154b40
+      # 0x032FaEf5d0F2c76bbD804215e822A5203e83385d
     sysctls:
       net.core.somaxconn: 8128
 
