@@ -1,6 +1,6 @@
 import { Election, EnvOptions, PlainCensus, VocdoniSDKClient, Vote } from '../../src';
 // @ts-ignore
-import { URL } from './util/client.params';
+import { URL, setFaucetURL } from './util/client.params';
 import { ErrElectionNotStarted } from '../../src';
 import { Wallet } from '@ethersproject/wallet';
 
@@ -14,6 +14,7 @@ beforeEach(async () => {
     api_url: URL,
     wallet,
   });
+  client = setFaucetURL(client);
 });
 
 const createElection = (census, electionType?, voteType?) => {

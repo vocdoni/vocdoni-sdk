@@ -11,7 +11,7 @@ import {
   WeightedCensus,
 } from '../../src';
 // @ts-ignore
-import { clientParams } from './util/client.params';
+import { clientParams, setFaucetURL } from './util/client.params';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
 import { SDK_VERSION } from '../../src/version';
@@ -22,6 +22,7 @@ let wallet: Wallet;
 beforeEach(async () => {
   wallet = Wallet.createRandom();
   client = new VocdoniSDKClient(clientParams(wallet));
+  client = setFaucetURL(client);
 });
 
 const createElection = (census, electionType?, voteType?, maxCensusSize?) => {

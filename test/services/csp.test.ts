@@ -1,6 +1,6 @@
 import { CspService, Election, CspCensus, VocdoniSDKClient, EnvOptions } from '../../src';
 // @ts-ignore
-import { URL } from './util/client.params';
+import { setFaucetURL, URL } from './util/client.params';
 import { Wallet } from '@ethersproject/wallet';
 
 const service = new CspService({});
@@ -11,11 +11,12 @@ const CSP_PUBKEY = process.env.BLINDCSP_PUBKEY ?? '0299f6984fddd0fab09c364d18e27
 const createElection = async () => {
   const census = new CspCensus(CSP_PUBKEY, CSP_URL);
 
-  const client = new VocdoniSDKClient({
+  let client = new VocdoniSDKClient({
     env: EnvOptions.DEV,
     api_url: process.env.API_URL,
     wallet: Wallet.createRandom(),
   });
+  client = setFaucetURL(client);
 
   const election = Election.from({
     title: 'Election title',

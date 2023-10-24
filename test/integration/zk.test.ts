@@ -1,5 +1,5 @@
 // @ts-ignore
-import { clientParams } from './util/client.params';
+import { clientParams, setFaucetURL } from './util/client.params';
 import { Election, PlainCensus, WeightedCensus, VocdoniSDKClient, Vote } from '../../src';
 import { Wallet } from '@ethersproject/wallet';
 // @ts-ignore
@@ -16,6 +16,7 @@ beforeAll(() => {
 beforeEach(async () => {
   wallet = Wallet.createRandom();
   client = new VocdoniSDKClient(clientParams(wallet));
+  client = setFaucetURL(client);
 });
 
 const createElection = (census, electionType?, voteType?, maxCensusSize?) => {

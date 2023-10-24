@@ -3,7 +3,7 @@ import { Wallet } from '@ethersproject/wallet';
 import { Election, VocdoniSDKClient, Vote } from '../../src';
 import { CspCensus } from '../../src';
 // @ts-ignore
-import { clientParams } from './util/client.params';
+import { clientParams, setFaucetURL } from './util/client.params';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
 
@@ -17,7 +17,8 @@ describe('CSP tests', () => {
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
 
     const wallet = Wallet.createRandom();
-    const client = new VocdoniSDKClient(clientParams(wallet));
+    let client = new VocdoniSDKClient(clientParams(wallet));
+    client = setFaucetURL(client);
 
     const election = Election.from({
       title: 'Election title',
