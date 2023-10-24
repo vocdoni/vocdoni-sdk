@@ -57,7 +57,7 @@ services:
     command:
       - "--amounts=800"
       - "--listenPort=8080"
-      - "--logLevel=info"
+      - "--logLevel=debug"
       - "--dataDir=/app/data/faucet"
       - "--waitPeriod=10m"
       - "--dbType=pebble"
