@@ -1,6 +1,6 @@
 import { Service, ServiceProperties } from './service';
 import { CensusType, ICensusParticipant, PlainCensus, WeightedCensus } from '../types';
-import { CensusAPI, ICensusPublishResponse, WalletAPI } from '../api';
+import { CensusAPI, ICensusImportResponse, ICensusPublishResponse, WalletAPI } from '../api';
 import { Wallet } from '@ethersproject/wallet';
 import invariant from 'tiny-invariant';
 
@@ -13,7 +13,7 @@ type CensusServiceParameters = ServiceProperties & CensusServiceProperties;
 
 type CensusAuth = {
   identifier: string;
-  wallet: Wallet;
+  wallet?: Wallet;
 };
 
 /**
@@ -29,6 +29,20 @@ export type CensusProof = {
   proof: string;
   value: string;
   siblings?: Array<string>;
+};
+
+/**
+ * @typedef CensusImportExport
+ * @property {number} type
+ * @property {string} rootHash
+ * @property {string} data
+ * @property {number} maxLevels
+ */
+export type CensusImportExport = {
+  type: number;
+  rootHash: string;
+  data: string;
+  maxLevels: number;
 };
 
 /**
@@ -63,9 +77,9 @@ export class CensusService extends Service implements CensusServiceProperties {
    * Fetches the information of a given census.
    *
    * @param censusId
-   * @returns {Promise<{size: number, weight: bigint}>}
+   * @returns {Promise<{size: number, weight: bigint, type: CensusType}>}
    */
-  fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
+  get(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
     invariant(this.url, 'No URL set');
 
     return Promise.all([
@@ -105,12 +119,12 @@ export class CensusService extends Service implements CensusServiceProperties {
     }));
   }
 
-  create(censusType: CensusType): Promise<string> {
+  create(censusType: CensusType): Promise<{ id: string; auth: string }> {
     invariant(this.url, 'No URL set');
 
     return this.fetchAccountToken()
       .then(() => CensusAPI.create(this.url, this.auth.identifier, censusType))
-      .then((response) => response.censusID);
+      .then((response) => ({ id: response.censusID, auth: this.auth.identifier }));
   }
 
   async add(censusId: string, participants: ICensusParticipant[]) {
@@ -170,6 +184,31 @@ export class CensusService extends Service implements CensusServiceProperties {
   }
 
   /**
+   * Exports the given census identifier.
+   *
+   * @param {string} censusId The census identifier
+   */
+  export(censusId: string): Promise<CensusImportExport> {
+    invariant(this.url, 'No URL set');
+    invariant(this.auth, 'No census auth set');
+
+    return CensusAPI.export(this.url, this.auth.identifier, censusId);
+  }
+
+  /**
+   * Imports data into the given census identifier.
+   *
+   * @param {string} censusId The census identifier
+   * @param {CensusImportExport} data The census data
+   */
+  import(censusId: string, data: CensusImportExport): Promise<ICensusImportResponse> {
+    invariant(this.url, 'No URL set');
+    invariant(this.auth, 'No census auth set');
+
+    return CensusAPI.import(this.url, this.auth.identifier, censusId, data.type, data.rootHash, data.data);
+  }
+
+  /**
    * Publishes the given census.
    *
    * @param {PlainCensus | WeightedCensus} census The census to be published.
@@ -177,7 +216,7 @@ export class CensusService extends Service implements CensusServiceProperties {
    */
   createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
     return this.create(census.type)
-      .then((censusId) => this.add(censusId, census.participants))
+      .then((censusInfo) => this.add(censusInfo.id, census.participants))
       .then((censusId) => this.publish(censusId))
       .then((censusPublish) => {
         census.censusId = censusPublish.censusID;
@@ -198,9 +237,9 @@ export class CensusService extends Service implements CensusServiceProperties {
    */
   // @ts-ignore
   private createCensusParallel(census: PlainCensus | WeightedCensus): Promise<void> {
-    return this.create(census.type).then((censusId) =>
-      Promise.all(this.addParallel(censusId, census.participants))
-        .then(() => this.publish(censusId))
+    return this.create(census.type).then((censusInfo) =>
+      Promise.all(this.addParallel(censusInfo.id, census.participants))
+        .then(() => this.publish(censusInfo.id))
         .then((censusPublish) => {
           census.censusId = censusPublish.censusID;
           census.censusURI = censusPublish.uri;

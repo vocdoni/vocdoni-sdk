@@ -11,6 +11,8 @@ enum CensusAPIMethods {
   SIZE = '/censuses/{id}/size',
   WEIGHT = '/censuses/{id}/weight',
   TYPE = '/censuses/{id}/type',
+  EXPORT = '/censuses/{id}/export',
+  IMPORT = '/censuses/{id}/import',
 }
 
 interface ICensusCreateResponse {
@@ -33,6 +35,30 @@ export interface ICensusPublishResponse {
    */
   uri: string;
 }
+
+export interface ICensusExportResponse {
+  /**
+   * The type of the census
+   */
+  type: number;
+
+  /**
+   * The root hash of the census
+   */
+  rootHash: string;
+
+  /**
+   * The data of the census
+   */
+  data: string;
+
+  /**
+   * The max levels of the census
+   */
+  maxLevels: number;
+}
+
+export interface ICensusImportResponse {}
 
 export interface ICensusProofResponse {
   /**
@@ -181,6 +207,58 @@ export abstract class CensusAPI extends API {
   public static proof(url: string, censusId: string, key: string): Promise<ICensusProofResponse> {
     return axios
       .get<ICensusProofResponse>(url + CensusAPIMethods.PROOF.replace('{id}', censusId) + '/' + strip0x(key))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Exports the given census identifier
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} authToken Authentication token
+   * @param {string} censusId The census ID we want to export
+   * @returns {Promise<ICensusExportResponse>} on success
+   */
+  public static export(url: string, authToken: string, censusId: string): Promise<ICensusExportResponse> {
+    return axios
+      .get<ICensusExportResponse>(url + CensusAPIMethods.EXPORT.replace('{id}', censusId), {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Imports data into the given census identifier
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} authToken Authentication token
+   * @param {string} censusId The census ID we want to export
+   * @param {number} type The type of the census
+   * @param {string} rootHash The root hash of the census
+   * @param {string} data The census data to be imported
+   * @returns {Promise<void>} on success
+   */
+  public static import(
+    url: string,
+    authToken: string,
+    censusId: string,
+    type: number,
+    rootHash: string,
+    data: string
+  ): Promise<ICensusImportResponse> {
+    return axios
+      .post<ICensusImportResponse>(
+        url + CensusAPIMethods.IMPORT.replace('{id}', censusId),
+        { type, rootHash, data },
+        {
+          headers: {
+            Authorization: 'Bearer ' + authToken,
+          },
+        }
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }

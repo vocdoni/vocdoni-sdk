@@ -471,7 +471,7 @@ export class VocdoniSDKClient {
     if (!election.census.isPublished) {
       await this.censusService.createCensus(election.census as PlainCensus | WeightedCensus);
     } else if (!election.maxCensusSize && !election.census.size) {
-      await this.censusService.fetchCensusInfo(election.census.censusId).then((censusInfo) => {
+      await this.censusService.get(election.census.censusId).then((censusInfo) => {
         election.census.size = censusInfo.size;
         election.census.weight = censusInfo.weight;
       });
@@ -820,7 +820,7 @@ export class VocdoniSDKClient {
    * @returns {Promise<{size: number, weight: bigint}>}
    */
   fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
-    return this.censusService.fetchCensusInfo(censusId);
+    return this.censusService.get(censusId);
   }
 
   /**

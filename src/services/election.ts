@@ -82,7 +82,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
     const electionInfo = await ElectionAPI.info(this.url, electionId);
 
     return this.censusService
-      .fetchCensusInfo(electionInfo.census.censusRoot)
+      .get(electionInfo.census.censusRoot)
       .then((censusInfo) =>
         PublishedElection.build({
           id: electionInfo.electionId,
