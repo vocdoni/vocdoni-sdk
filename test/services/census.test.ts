@@ -10,6 +10,8 @@ const pad = (num, size) => {
   return num;
 };
 
+let census, censusPublish;
+
 describe('Census Service tests', () => {
   it('should have the correct type and properties', () => {
     const service = new CensusService({});
@@ -54,7 +56,7 @@ describe('Census Service tests', () => {
     expect(census.size).toEqual(numVotes);
     expect(census.weight).toEqual(BigInt(55));
 
-    const censusInfo = await service.fetchCensusInfo(census.censusId);
+    const censusInfo = await service.get(census.censusId);
     expect(censusInfo.type).toEqual(CensusType.WEIGHTED);
     expect(censusInfo.size).toEqual(10);
     expect(censusInfo.weight).toEqual(BigInt(55));
@@ -78,7 +80,7 @@ describe('Census Service tests', () => {
     expect(census.size).toEqual(numVotes);
     expect(census.weight).toEqual(BigInt(numVotes));
 
-    const censusInfo = await service.fetchCensusInfo(census.censusId);
+    const censusInfo = await service.get(census.censusId);
     expect(censusInfo.type).toEqual(CensusType.WEIGHTED);
     expect(censusInfo.size).toEqual(numVotes);
     expect(censusInfo.weight).toEqual(BigInt(numVotes));
@@ -102,9 +104,50 @@ describe('Census Service tests', () => {
     expect(census.size).toEqual(numVotes);
     expect(census.weight).toEqual(BigInt(numVotes));
 
-    const censusInfo = await service.fetchCensusInfo(census.censusId);
+    const censusInfo = await service.get(census.censusId);
     expect(censusInfo.type).toEqual(CensusType.WEIGHTED);
     expect(censusInfo.size).toEqual(numVotes);
     expect(censusInfo.weight).toEqual(BigInt(numVotes));
   }, 40000);
+  it('should create a census and export/import it correctly', async () => {
+    const numVotes = 10;
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE });
+    const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
+
+    census = await service.create(CensusType.WEIGHTED);
+    const newCensus = await service.create(CensusType.WEIGHTED);
+
+    await service.add(
+      census.id,
+      participants.map((p) => ({ key: p.address, weight: BigInt(1) }))
+    );
+
+    const exportedCensus = await service.export(census.id);
+    await service.import(newCensus.id, exportedCensus);
+    censusPublish = await service.publish(census.id);
+
+    const censusInfo = await service.get(census.id);
+    const newCensusInfo = await service.get(newCensus.id);
+
+    expect(censusInfo.type).toEqual(newCensusInfo.type);
+    expect(censusInfo.size).toEqual(newCensusInfo.size);
+    expect(censusInfo.weight).toEqual(newCensusInfo.weight);
+  }, 30000);
+  it('should reuse a census, modify it and publish it again', async () => {
+    if (!census) {
+      return;
+    }
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE, auth: { identifier: census.auth } });
+    const oldCensusInfo = await service.get(census.id);
+
+    await service.add(census.id, [{ key: Wallet.createRandom().address, weight: BigInt(1) }]);
+
+    const newCensusPublish = await service.publish(census.id);
+    const newCensusInfo = await service.get(census.id);
+
+    expect(newCensusInfo.type).toEqual(oldCensusInfo.type);
+    expect(newCensusInfo.size).toEqual(oldCensusInfo.size + 1);
+    expect(newCensusInfo.weight).toEqual(oldCensusInfo.weight + BigInt(1));
+    expect(newCensusPublish.uri).not.toEqual(censusPublish.uri);
+  }, 30000);
 });
