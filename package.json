@@ -101,7 +101,7 @@
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "ffjavascript": "^0.2.59",
+    "ffjavascript": "0.2.59",
     "husky": "^8.0.2",
     "jest": "^29.3.0",
     "prettier": "^2.7.1",
@@ -140,5 +140,8 @@
     "wasmcurves": "0.2.1",
     "web-worker": "^1.2.0",
     "yup": "^0.32.11"
+  },
+  "resolutions": {
+    "ffjavascript": "0.2.59"
   }
 }
