@@ -41,7 +41,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "\"@vocdoni/sdk\":[^\n]+"
-          replace: "\"@vocdoni/sdk\": \"file:../../../sdk-bundle-tests.tgz\""
+          replace: "\"@vocdoni/sdk\": \"../../../sdk-bundle-tests.tgz\""
           regex: true
           include: "test/bundle/${{ matrix.example }}/package.json"
 
