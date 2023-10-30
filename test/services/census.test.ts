@@ -150,4 +150,21 @@ describe('Census Service tests', () => {
     expect(newCensusInfo.weight).toEqual(oldCensusInfo.weight + BigInt(1));
     expect(newCensusPublish.uri).not.toEqual(censusPublish.uri);
   }, 30000);
+  it('should delete an existing census', async () => {
+    if (!census) {
+      return;
+    }
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE, auth: { identifier: census.auth } });
+    const oldCensusInfo = await service.get(census.id);
+    await service.delete(census.id);
+    const newCensusInfo = await service.get(census.id);
+
+    expect(oldCensusInfo.type).toBeDefined();
+    expect(oldCensusInfo.size).toBeDefined();
+    expect(oldCensusInfo.weight).toBeDefined();
+
+    expect(newCensusInfo.type).toBeUndefined();
+    expect(newCensusInfo.size).toBeUndefined();
+    expect(newCensusInfo.weight).toBeUndefined();
+  }, 30000);
 });

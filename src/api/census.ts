@@ -6,6 +6,7 @@ import { API } from './api';
 enum CensusAPIMethods {
   CREATE = '/censuses',
   ADD = '/censuses/{id}/participants',
+  DELETE = '/censuses/{id}',
   PUBLISH = '/censuses/{id}/publish',
   PROOF = '/censuses/{id}/proof',
   SIZE = '/censuses/{id}/size',
@@ -259,6 +260,25 @@ export abstract class CensusAPI extends API {
           },
         }
       )
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Deletes the given census
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} authToken Authentication token
+   * @param {string} censusId The census ID we want to export
+   * @returns {Promise<void>} on success
+   */
+  public static delete(url: string, authToken: string, censusId: string): Promise<void> {
+    return axios
+      .delete<void>(url + CensusAPIMethods.DELETE.replace('{id}', censusId), {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
