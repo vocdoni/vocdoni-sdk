@@ -23,9 +23,9 @@ export const CENSUS3_URL = {
 };
 
 export const FAUCET_URL = {
-  dev: 'https://api-dev.faucet.vocdoni.net/v2/open/claim',
-  stg: 'https://api-stg.faucet.vocdoni.net/v2/open/claim',
-  prod: 'https://api-faucet.vocdoni.io/v2/open/claim',
+  dev: 'https://api-dev.faucet.vocdoni.net/v2',
+  stg: 'https://api-stg.faucet.vocdoni.net/v2',
+  prod: 'https://api-faucet.vocdoni.io/v2',
 };
 
 export const TX_WAIT_OPTIONS = {

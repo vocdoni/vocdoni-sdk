@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { API } from './api';
 
+enum FaucetAPIMethods {
+  CLAIM = '/open/claim',
+}
+
 interface IFaucetCollectResponse {
   /**
    * The amount of tokens.
@@ -30,7 +34,7 @@ export abstract class FaucetAPI extends API {
    */
   public static collect(url: string, address: string): Promise<IFaucetCollectResponse> {
     return axios
-      .get<IFaucetCollectResponse>(url + '/' + address)
+      .get<IFaucetCollectResponse>(url + FaucetAPIMethods.CLAIM + '/' + address)
       .then((response) => response.data)
       .catch(this.isApiError);
   }
