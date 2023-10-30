@@ -100,6 +100,19 @@ export class CensusService extends Service implements CensusServiceProperties {
   }
 
   /**
+   * Deletes the given census.
+   *
+   * @param censusId
+   * @returns {Promise<void>}
+   */
+  delete(censusId: string): Promise<void> {
+    invariant(this.url, 'No URL set');
+    invariant(this.auth, 'No census auth set');
+
+    return CensusAPI.delete(this.url, this.auth.identifier, censusId);
+  }
+
+  /**
    * Fetches proof that an address is part of the specified census.
    *
    * @param {string} censusId Census we want to check the address against
