@@ -37,13 +37,9 @@ jobs:
       - name: Create tarball for importing in bundle checks
         run: yarn pack --filename sdk-bundle-tests.tgz
 
-      - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "\"@vocdoni/sdk\":[^\n]+"
-          replace: "\"@vocdoni/sdk\": \"file:../../../sdk-bundle-tests.tgz\""
-          regex: true
-          include: "test/bundle/${{ matrix.example }}/package.json"
+      - name: Install sdk-bundle-tests.tgz
+        working-directory: test/bundle/${{ matrix.example }}
+        run: yarn add ../../../sdk-bundle-tests.tgz
 
       - name: Run yarn install ${{ matrix.example }}
         working-directory: test/bundle/${{ matrix.example }}
