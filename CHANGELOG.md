@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed faucet path from default URLs.
+- Updated `@vocdoni/proto` dependency to `1.15.4`.
 
 ### Added
 
 - Import, export and delete census functionality in census service.
+- Added new election parameter `temporarySecretIdentity` for deleting temporary SIKs once election is finished.
 
 ### Fixed
 
