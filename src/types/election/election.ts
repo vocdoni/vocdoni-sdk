@@ -145,6 +145,11 @@ export interface IElectionParameters {
   maxCensusSize?: number;
 
   /**
+   * Is used to remove the secret identities of the voters once the process is done.
+   */
+  temporarySecretIdentity?: boolean;
+
+  /**
    * Used to add the SDK version to the election metadata
    */
   addSDKVersion?: boolean;
@@ -166,6 +171,7 @@ export abstract class Election {
   protected _questions: IQuestion[];
   protected _census: Census;
   protected _maxCensusSize: number;
+  protected _temporarySecretIdentity: boolean;
   protected _addSDKVersion: boolean;
 
   /**
@@ -187,6 +193,7 @@ export abstract class Election {
       this._questions = params.questions ?? [];
       this._census = params.census;
       this._maxCensusSize = params.maxCensusSize;
+      this._temporarySecretIdentity = params.temporarySecretIdentity ?? false;
       this._addSDKVersion = params.addSDKVersion ?? true;
     }
   }
@@ -246,6 +253,10 @@ export abstract class Election {
 
   get maxCensusSize(): number {
     return this._maxCensusSize;
+  }
+
+  get temporarySecretIdentity(): boolean {
+    return this._temporarySecretIdentity;
   }
 
   get addSDKVersion(): boolean {

@@ -34,6 +34,7 @@ export class UnpublishedElection extends Election {
     this.voteType = UnpublishedElection.fullVoteType(params.voteType);
     this.questions = params.questions ?? [];
     this.maxCensusSize = params.maxCensusSize;
+    this.temporarySecretIdentity = params.temporarySecretIdentity;
     this.addSDKVersion = params.addSDKVersion ?? true;
   }
 
@@ -218,6 +219,14 @@ export class UnpublishedElection extends Election {
   set maxCensusSize(value: number) {
     invariant(value == null || value > 0, 'Maximum census size cannot be zero or negative');
     this._maxCensusSize = value;
+  }
+
+  get temporarySecretIdentity(): boolean {
+    return super.temporarySecretIdentity;
+  }
+
+  set temporarySecretIdentity(value: boolean) {
+    this._temporarySecretIdentity = value;
   }
 
   get addSDKVersion(): boolean {

@@ -1,10 +1,17 @@
 // @ts-ignore
 import { clientParams, setFaucetURL } from './util/client.params';
-import { Election, PlainCensus, WeightedCensus, VocdoniSDKClient, Vote } from '../../src';
+import {
+  AnonymousVote,
+  Election,
+  ElectionStatus,
+  PlainCensus,
+  VocdoniSDKClient,
+  Vote,
+  WeightedCensus,
+} from '../../src';
 import { Wallet } from '@ethersproject/wallet';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
-import { AnonymousVote } from '../../src';
 
 let client: VocdoniSDKClient;
 let wallet: Wallet;
@@ -228,6 +235,64 @@ describe('zkSNARK test', () => {
       .then((election) => {
         expect(election.electionType.anonymous).toBeTruthy();
         expect(election.voteCount).toEqual(numVotes);
+      });
+  }, 720000);
+  it('should create an anonymous election with temporary SIKs and they should be removed once the election is finished', async () => {
+    const census = new PlainCensus();
+    const creator = client.wallet;
+    const voter1 = Wallet.createRandom();
+    const voter2 = Wallet.createRandom();
+    census.add(voter1.address);
+    census.add(voter2.address);
+
+    const election = createElection(census, {
+      anonymous: true,
+    });
+    election.temporarySecretIdentity = true;
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return waitForElectionReady(client, electionId);
+      })
+      .then(async () => {
+        await expect(async () => {
+          await client.anonymousService.fetchAccountSIK(voter1.address);
+        }).rejects.toThrow();
+        await expect(async () => {
+          await client.anonymousService.fetchAccountSIK(voter2.address);
+        }).rejects.toThrow();
+
+        client.wallet = voter1;
+        await client.submitVote(new Vote([0]));
+        client.wallet = voter2;
+        await client.submitVote(new Vote([1]));
+
+        await expect(async () => {
+          await client.anonymousService.fetchAccountSIK(voter1.address);
+        }).resolves;
+        await expect(async () => {
+          await client.anonymousService.fetchAccountSIK(voter2.address);
+        }).resolves;
+
+        client.wallet = creator;
+        return client.endElection();
+      })
+      .then(async () => {
+        let electionInfo = await client.fetchElection();
+        while (electionInfo.status === ElectionStatus.ENDED) {
+          electionInfo = await client.fetchElection();
+        }
+        await expect(async () => {
+          await client.anonymousService.fetchAccountSIK(voter1.address);
+        }).rejects.toThrow();
+        await expect(async () => {
+          await client.anonymousService.fetchAccountSIK(voter2.address);
+        }).rejects.toThrow();
       });
   }, 720000);
 });
