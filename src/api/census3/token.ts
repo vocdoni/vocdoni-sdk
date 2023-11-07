@@ -2,17 +2,18 @@ import axios from 'axios';
 import { Census3API } from './api';
 
 enum Census3TokenAPIMethods {
-  LIST = '/token',
-  CREATE = '/token',
-  TYPES = '/token/types',
-  TOKEN = '/token/{id}',
+  LIST = '/tokens',
+  CREATE = '/tokens',
+  TYPES = '/tokens/types',
+  TOKEN = '/tokens/{tokenID}?chainID={chainID}',
+  HOLDER = '/tokens/{tokenID}/holders/{holderID}?chainID={chainID}',
 }
 
-export interface ICensus3Token {
+export type Census3Token = {
   /**
    * The id (address) of the token.
    */
-  id: string;
+  ID: string;
 
   /**
    * The name of the token.
@@ -28,6 +29,16 @@ export interface ICensus3Token {
    * The chain id of the token.
    */
   chainID: number;
+
+  /**
+   * The external identifier of the token.
+   */
+  externalID?: string;
+
+  /**
+   * The chain address of the token.
+   */
+  chainAddress: string;
 
   /**
    * The creation block.
@@ -55,14 +66,9 @@ export interface ICensus3Token {
   defaultStrategy: number;
 
   /**
-   * The number of token holders of the token
-   */
-  size: number;
-
-  /**
    * The tags of the token.
    */
-  tag?: string;
+  tags?: string;
 
   /**
    * The census3 status of the token.
@@ -83,50 +89,18 @@ export interface ICensus3Token {
      */
     progress: number;
   };
-}
+};
 
-export interface ICensus3TokenSummary {
-  /**
-   * The id (address) of the token.
-   */
-  id: string;
-
-  /**
-   * The name of the token.
-   */
-  name: string;
-
-  /**
-   * The symbol of the token.
-   */
-  symbol: string;
-
-  /**
-   * The type of the token.
-   */
-  type: string;
-
-  /**
-   * The chain id of the token.
-   */
-  chainID: number;
-
-  /**
-   * The creation block.
-   */
-  startBlock: number;
-
-  /**
-   * The tags of the token.
-   */
-  tag?: string;
-}
+export type Census3TokenSummary = Pick<
+  Census3Token,
+  'ID' | 'name' | 'type' | 'startBlock' | 'symbol' | 'tags' | 'chainID' | 'externalID' | 'chainAddress' | 'status'
+>;
 
 export interface ICensus3TokenListResponse {
   /**
    * The list of the tokens
    */
-  tokens: Array<ICensus3TokenSummary>;
+  tokens: Array<Census3TokenSummary>;
 }
 
 export interface ICensus3TokenTypesResponse {
@@ -152,7 +126,7 @@ export abstract class Census3TokenAPI extends Census3API {
    */
   public static list(url: string): Promise<ICensus3TokenListResponse> {
     return axios
-      .get<ICensus3TokenListResponse>(url + Census3TokenAPIMethods.LIST)
+      .get<ICensus3TokenListResponse>(url + Census3TokenAPIMethods.LIST + '?pageSize=-1') // TODO: pagination
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -174,13 +148,48 @@ export abstract class Census3TokenAPI extends Census3API {
    * Fetch the full token information
    *
    * @param {string} url API endpoint URL
-   * @param {string} id The id of the token
-   * @returns {Promise<ICensus3Token>}
+   * @param {string} tokenId The identifier of the token
+   * @param {number} chainId The chain identifier of the token
+   * @param {string} externalId The identifier used by external provider
+   * @returns {Promise<Census3Token>}
    */
-  public static token(url: string, id: string): Promise<ICensus3Token> {
+  public static token(url: string, tokenId: string, chainId: number, externalId?: string): Promise<Census3Token> {
     return axios
-      .get<ICensus3Token>(url + Census3TokenAPIMethods.TOKEN.replace('{id}', id))
+      .get<Census3Token>(
+        url +
+          Census3TokenAPIMethods.TOKEN.replace('{tokenID}', tokenId).replace('{chainID}', String(chainId)) +
+          (externalId ? '&externalID=' + externalId : '')
+      )
       .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns if the holder ID is already registered in the database as a holder of the token ID and chain ID provided.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} tokenId The identifier of the token
+   * @param {number} chainId The chain identifier of the token
+   * @param {string} holderId The identifier of the holder
+   * @param {string} externalId The identifier used by external provider
+   * @returns {Promise<boolean>} If the holder exists in the database as a holder
+   */
+  public static holder(
+    url: string,
+    tokenId: string,
+    chainId: number,
+    holderId: string,
+    externalId?: string
+  ): Promise<boolean> {
+    return axios
+      .get<boolean>(
+        url +
+          Census3TokenAPIMethods.HOLDER.replace('{tokenID}', tokenId)
+            .replace('{holderID}', holderId)
+            .replace('{chainID}', String(chainId)) +
+          (externalId ? '&externalID=' + externalId : '')
+      )
+      .then((response) => response.data === true)
       .catch(this.isApiError);
   }
 
@@ -192,7 +201,8 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param {string} type The type of the token
    * @param {number} chainId The chain id of the token
    * @param {number} startBlock The start block
-   * @param {string[]} tag The tags assigned for the token
+   * @param {string[]} tags The tags assigned for the token
+   * @param {string} externalId The identifier used by external provider
    * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
    */
   public static create(
@@ -201,10 +211,18 @@ export abstract class Census3TokenAPI extends Census3API {
     type: string,
     chainId: number,
     startBlock: number,
-    tag?: string[]
+    tags?: string,
+    externalId?: string
   ): Promise<void> {
     return axios
-      .post(url + Census3TokenAPIMethods.CREATE, { id, type, chainID: chainId, startBlock, tag: tag?.join() })
+      .post(url + Census3TokenAPIMethods.CREATE, {
+        ID: id,
+        type,
+        chainID: chainId,
+        startBlock,
+        tags,
+        externalID: externalId,
+      })
       .then((response) => response.data)
       .catch(this.isApiError);
   }

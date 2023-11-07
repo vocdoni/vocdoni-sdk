@@ -88,3 +88,17 @@ export class ErrCantGetTokenCount extends Error {
     super(message ? message : 'error counting census size');
   }
 }
+
+export class ErrMalformedCensusQueueID extends Error {
+  static readonly code: number = 4011;
+  constructor(message?: string) {
+    super(message ? message : 'malformed queue ID');
+  }
+}
+
+export class ErrEncodeQueueItem extends Error {
+  static readonly code: number = 5022;
+  constructor(message?: string) {
+    super(message ? message : 'error encoding census queue item');
+  }
+}

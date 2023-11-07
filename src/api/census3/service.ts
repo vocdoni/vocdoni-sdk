@@ -5,11 +5,28 @@ enum Census3ServiceAPIMethods {
   INFO = '/info',
 }
 
+export interface ICensus3SupportedChain {
+  /**
+   * The identifier of the chain
+   */
+  chainID: number;
+
+  /**
+   * The short name of the chain
+   */
+  shortName: string;
+
+  /**
+   * The name of the chain
+   */
+  name: string;
+}
+
 export interface ICensus3ServiceInfoResponse {
   /**
    * The list of supported chains
    */
-  chainIDs: Array<number>;
+  supportedChains: Array<ICensus3SupportedChain>;
 }
 
 export abstract class Census3ServiceAPI extends Census3API {

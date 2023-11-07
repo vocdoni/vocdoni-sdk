@@ -11,3 +11,17 @@ export class ErrCantGetLastBlockNumber extends Error {
     super(message ? message : 'error getting last block number from web3 endpoint');
   }
 }
+
+export class ErrEncodeAPIInfo extends Error {
+  static readonly code: number = 5023;
+  constructor(message?: string) {
+    super(message ? message : 'error encoding API info');
+  }
+}
+
+export class ErrMalformedPagination extends Error {
+  static readonly code: number = 4022;
+  constructor(message?: string) {
+    super(message ? message : 'malformed pagination params');
+  }
+}
