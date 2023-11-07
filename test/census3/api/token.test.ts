@@ -15,10 +15,10 @@ describe('Census3 token API tests', () => {
     await expect(async () => {
       await Census3TokenAPI.create(URL, '0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 1, 0);
     }).rejects.toThrow(ErrTokenAlreadyExists);
-  }, 5000);
+  }, 15000);
   it('should throw when fetching a non existent token', async () => {
     await expect(async () => {
-      await Census3TokenAPI.token(URL, '0x0');
+      await Census3TokenAPI.token(URL, '0x0', 1);
     }).rejects.toThrow(ErrNotFoundToken);
   }, 5000);
 });

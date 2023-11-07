@@ -2,10 +2,10 @@ import axios from 'axios';
 import { Census3API } from './api';
 
 enum Census3StrategyAPIMethods {
-  LIST = '/strategy/page/{page}',
-  CREATE = '/strategy',
-  LIST_BY_TOKEN = '/strategy/token/{id}',
-  STRATEGY = '/strategy/{id}',
+  LIST = '/strategies/page/{page}',
+  CREATE = '/strategies',
+  LIST_BY_TOKEN = '/strategies/token/{id}',
+  STRATEGY = '/strategies/{id}',
 }
 
 export interface ICensus3StrategiesListResponse {

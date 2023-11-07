@@ -12,8 +12,11 @@ import {
   ErrCantGetTokenCount,
   ErrCantGetTokenHolders,
   ErrCantGetTokens,
+  ErrChainIDNotSupported,
+  ErrEncodeAPIInfo,
   ErrEncodeCensus,
   ErrEncodeCensuses,
+  ErrEncodeQueueItem,
   ErrEncodeStrategies,
   ErrEncodeStrategy,
   ErrEncodeStrategyHolders,
@@ -23,6 +26,9 @@ import {
   ErrEncodeTokenTypes,
   ErrInitializingWeb3,
   ErrMalformedCensusID,
+  ErrMalformedCensusQueueID,
+  ErrMalformedChainID,
+  ErrMalformedPagination,
   ErrMalformedStrategyID,
   ErrMalformedToken,
   ErrNoStrategies,
@@ -112,6 +118,18 @@ export abstract class Census3API extends API {
           throw new ErrEncodeTokenHolders(err['error']);
         case ErrCantGetTokenCount.code:
           throw new ErrCantGetTokenCount(err['error']);
+        case ErrEncodeAPIInfo.code:
+          throw new ErrEncodeAPIInfo(err['error']);
+        case ErrMalformedPagination.code:
+          throw new ErrMalformedPagination(err['error']);
+        case ErrChainIDNotSupported.code:
+          throw new ErrChainIDNotSupported(err['error']);
+        case ErrMalformedChainID.code:
+          throw new ErrMalformedChainID(err['error']);
+        case ErrMalformedCensusQueueID.code:
+          throw new ErrMalformedCensusQueueID(err['error']);
+        case ErrEncodeQueueItem.code:
+          throw new ErrEncodeQueueItem(err['error']);
         default:
           return API.isUndefinedError(error, err['error']);
       }

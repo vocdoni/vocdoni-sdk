@@ -67,3 +67,17 @@ export class ErrEncodeTokenHolders extends Error {
     super(message ? message : 'error encoding token holders');
   }
 }
+
+export class ErrChainIDNotSupported extends Error {
+  static readonly code: number = 4013;
+  constructor(message?: string) {
+    super(message ? message : 'chain ID provided not supported');
+  }
+}
+
+export class ErrMalformedChainID extends Error {
+  static readonly code: number = 4018;
+  constructor(message?: string) {
+    super(message ? message : 'malformed chain ID');
+  }
+}

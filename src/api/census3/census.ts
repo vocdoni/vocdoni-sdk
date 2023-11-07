@@ -2,29 +2,29 @@ import axios from 'axios';
 import { Census3API } from './api';
 
 enum Census3CensusAPIMethods {
-  LIST_BY_STRATEGY = '/census/strategy/{id}',
-  CREATE = '/census',
-  CENSUS = '/census/{id}',
-  QUEUE = '/census/queue/{id}',
+  LIST_BY_STRATEGY = '/censuses/strategy/{id}',
+  CREATE = '/censuses',
+  CENSUS = '/censuses/{id}',
+  QUEUE = '/censuses/queue/{id}',
 }
 
 export interface ICensus3CensusListResponse {
   /**
    * The list of the strategies identifiers
    */
-  censuses: Array<number>;
+  censuses: Array<ICensus3CensusResponse>;
 }
 
 export interface ICensus3CensusResponse {
   /**
    * The identifier of the census
    */
-  censusId: number;
+  censusID: number;
 
   /**
    * The identifier of the strategy of the built census
    */
-  strategyId: number;
+  strategyID: number;
 
   /**
    * The root of the census
@@ -45,11 +45,6 @@ export interface ICensus3CensusResponse {
    * The weight of the census (weight of all token holders)
    */
   weight: string;
-
-  /**
-   * The chain identifier
-   */
-  chainId: string;
 
   /**
    * If the census is anonymous or not
@@ -88,7 +83,7 @@ export interface ICensus3CensusCreateResponse {
   /**
    * The identifier of queue for the census creation
    */
-  queueId: string;
+  queueID: string;
 }
 
 export abstract class Census3CensusAPI extends Census3API {
@@ -157,7 +152,11 @@ export abstract class Census3CensusAPI extends Census3API {
     blockNumber?: number
   ): Promise<ICensus3CensusCreateResponse> {
     return axios
-      .post<ICensus3CensusCreateResponse>(url + Census3CensusAPIMethods.CREATE, { strategyId, blockNumber, anonymous })
+      .post<ICensus3CensusCreateResponse>(url + Census3CensusAPIMethods.CREATE, {
+        strategyID: strategyId,
+        blockNumber,
+        anonymous,
+      })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
