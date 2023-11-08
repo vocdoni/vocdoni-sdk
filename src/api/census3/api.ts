@@ -41,12 +41,38 @@ import {
   ErrTokenAlreadyExists,
 } from './errors';
 
+export type Census3Pagination = {
+  /**
+   * The next cursor.
+   */
+  nextCursor?: string;
+
+  /**
+   * The previous cursor.
+   */
+  prevCursor?: string;
+
+  /**
+   * The page size.
+   */
+  pageSize?: number;
+};
+
 export abstract class Census3API extends API {
   /**
    * Cannot be constructed.
    */
   protected constructor() {
     super();
+  }
+
+  protected static serializePagination(pagination?: Census3Pagination): string {
+    if (!pagination) return '';
+    let serialized = '?';
+    if (pagination.nextCursor) serialized += `nextCursor=${pagination.nextCursor}&`;
+    if (pagination.prevCursor) serialized += `prevCursor=${pagination.prevCursor}&`;
+    if (pagination.pageSize) serialized += `pageSize=${pagination.pageSize}`;
+    return serialized;
   }
 
   protected static isApiError(error: AxiosError): never {

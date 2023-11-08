@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Census3API } from './api';
+import { Census3API, Census3Pagination } from './api';
 
 enum Census3TokenAPIMethods {
   LIST = '/tokens',
@@ -122,11 +122,12 @@ export abstract class Census3TokenAPI extends Census3API {
    * Fetches list of already added tokens
    *
    * @param {string} url API endpoint URL
+   * @param {Census3Pagination} pagination Pagination options
    * @returns {Promise<ICensus3TokenListResponse>}
    */
-  public static list(url: string): Promise<ICensus3TokenListResponse> {
+  public static list(url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponse> {
     return axios
-      .get<ICensus3TokenListResponse>(url + Census3TokenAPIMethods.LIST + '?pageSize=-1') // TODO: pagination
+      .get<ICensus3TokenListResponse>(url + Census3TokenAPIMethods.LIST + this.serializePagination(pagination))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
