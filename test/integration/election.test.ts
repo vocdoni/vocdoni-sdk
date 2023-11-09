@@ -115,6 +115,7 @@ describe('Election integration tests', () => {
           maxTotalCost: 0,
         });
         expect(publishedElection.manuallyEnded).toBeFalsy();
+        expect(publishedElection.fromArchive).toBeFalsy();
         expect(publishedElection.maxCensusSize).toEqual(1);
       });
   }, 85000);

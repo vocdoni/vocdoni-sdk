@@ -197,6 +197,11 @@ export interface IElectionInfoResponse {
   manuallyEnded: boolean;
 
   /**
+   * If the election comes from the archive
+   */
+  fromArchive: boolean;
+
+  /**
    * The census of the election
    */
   census: ICensus;
