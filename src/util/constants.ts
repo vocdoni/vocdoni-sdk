@@ -33,6 +33,11 @@ export const TX_WAIT_OPTIONS = {
   attempts: 6,
 };
 
+export const QUEUE_WAIT_OPTIONS = {
+  retry_time: 2000,
+  attempts: 10,
+};
+
 export const VOCDONI_SIK_SIGNATURE_LENGTH = 64;
 export const VOCDONI_SIK_PAYLOAD =
   'This signature request is used to create your own secret identity key (SIK) for the Vocdoni protocol and generate your anonymous account.\n' +

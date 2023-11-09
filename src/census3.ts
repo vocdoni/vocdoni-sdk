@@ -1,4 +1,4 @@
-import { CENSUS3_URL } from './util/constants';
+import { CENSUS3_URL, QUEUE_WAIT_OPTIONS } from './util/constants';
 import { ClientOptions } from './client';
 import {
   Census3CensusAPI,
@@ -14,6 +14,7 @@ import {
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
 import { TokenCensus } from './types';
+import { delay } from './util/common';
 
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
 export type TokenSummary = Census3TokenSummary;
@@ -23,6 +24,7 @@ export type SupportedChain = ICensus3SupportedChain;
 
 export class VocdoniCensus3Client {
   public url: string;
+  public queueWait: { retryTime: number; attempts: number };
 
   /**
    * Instantiate new VocdoniCensus3 client.
@@ -35,6 +37,10 @@ export class VocdoniCensus3Client {
    */
   constructor(opts: ClientOptions) {
     this.url = opts.api_url ?? CENSUS3_URL[opts.env];
+    this.queueWait = {
+      retryTime: opts.tx_wait?.retry_time ?? QUEUE_WAIT_OPTIONS.retry_time,
+      attempts: opts.tx_wait?.attempts ?? QUEUE_WAIT_OPTIONS.attempts,
+    };
   }
 
   /**
@@ -218,17 +224,24 @@ export class VocdoniCensus3Client {
   createCensus(strategyId: number, anonymous: boolean = false, blockNumber?: number): Promise<Census3Census> {
     invariant(strategyId || strategyId >= 0, 'No strategy id');
 
-    const waitForQueue = (queueId: string): Promise<Census3Census> => {
-      return Census3CensusAPI.queue(this.url, queueId).then((queue) => {
-        switch (true) {
-          case queue.done && queue.error?.code?.toString().length > 0:
-            return Promise.reject(new Error('Could not create the census'));
-          case queue.done:
-            return Promise.resolve(queue.census);
-          default:
-            return waitForQueue(queueId);
-        }
-      });
+    const waitForQueue = (queueId: string, wait?: number, attempts?: number): Promise<Census3Census> => {
+      const waitTime = wait ?? this.queueWait?.retryTime;
+      const attemptsNum = attempts ?? this.queueWait?.attempts;
+      invariant(waitTime, 'No queue wait time set');
+      invariant(attemptsNum >= 0, 'No queue attempts set');
+
+      return attemptsNum === 0
+        ? Promise.reject('Time out waiting for queue with id: ' + queueId)
+        : Census3CensusAPI.queue(this.url, queueId).then((queue) => {
+            switch (true) {
+              case queue.done && queue.error?.code?.toString().length > 0:
+                return Promise.reject(new Error('Could not create the census'));
+              case queue.done:
+                return Promise.resolve(queue.census);
+              default:
+                return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
+            }
+          });
     };
 
     return Census3CensusAPI.create(this.url, strategyId, anonymous, blockNumber)
