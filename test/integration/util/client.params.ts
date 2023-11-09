@@ -1,6 +1,5 @@
-import { ClientOptions, EnvOptions } from '../../../src';
+import { ClientOptions, EnvOptions, VocdoniSDKClient } from '../../../src';
 import { Wallet } from '@ethersproject/wallet';
-import { VocdoniSDKClient } from '@vocdoni/sdk';
 
 export const clientParams = (wallet?: Wallet): ClientOptions => ({
   env: EnvOptions.DEV,
