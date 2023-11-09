@@ -71,7 +71,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
     });
   }
 
-  private buildElectionCensus(electionInfo): Promise<PublishedCensus> {
+  private buildPublishedCensus(electionInfo): Promise<PublishedCensus> {
     return this.censusService
       .get(electionInfo.census.censusRoot)
       .then(
@@ -93,7 +93,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @param {string} electionId The id of the election
    * @returns {Promise<UnpublishedElection>}
    */
-  async fetchElection(electionId: string): Promise<PublishedElection> {
+  async fetchElection(electionId: string): Promise<PublishedElection | ArchivedElection> {
     invariant(this.url, 'No URL set');
     invariant(this.censusService, 'No census service set');
 
@@ -114,7 +114,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       endDate: electionInfo.endDate,
       census: electionInfo.fromArchive
         ? new ArchivedCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL)
-        : await this.buildElectionCensus(electionInfo),
+        : await this.buildPublishedCensus(electionInfo),
       maxCensusSize: electionInfo.census.maxCensusSize,
       manuallyEnded: electionInfo.manuallyEnded,
       fromArchive: electionInfo.fromArchive,
@@ -157,7 +157,9 @@ export class ElectionService extends Service implements ElectionServicePropertie
       : new PublishedElection(electionParameters);
   }
 
-  async fetchElections(params: Partial<FetchElectionsParameters>): Promise<Array<PublishedElection | InvalidElection>> {
+  async fetchElections(
+    params: Partial<FetchElectionsParameters>
+  ): Promise<Array<PublishedElection | ArchivedElection | InvalidElection>> {
     invariant(this.url, 'No URL set');
     const settings = {
       account: null,
