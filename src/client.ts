@@ -44,6 +44,7 @@ import {
   ZkProof,
 } from './services';
 import { isAddress } from '@ethersproject/address';
+import { ArchivedElection } from './types/election/archived';
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -182,16 +183,19 @@ export class VocdoniSDKClient {
    * Fetches info about an election.
    *
    * @param {string} electionId The id of the election
-   * @returns {Promise<UnpublishedElection>}
+   * @returns {Promise<PublishedElection | ArchivedElection>}
    */
-  async fetchElection(electionId?: string): Promise<PublishedElection> {
+  async fetchElection(electionId?: string): Promise<PublishedElection | ArchivedElection> {
     invariant(this.electionId || electionId, 'No election set');
 
     this.election = await this.electionService.fetchElection(electionId ?? this.electionId);
     return this.election;
   }
 
-  async fetchElections(account?: string, page: number = 0): Promise<Array<PublishedElection | InvalidElection>> {
+  async fetchElections(
+    account?: string,
+    page: number = 0
+  ): Promise<Array<PublishedElection | InvalidElection | ArchivedElection>> {
     return this.electionService.fetchElections({ account: account ?? (await this.wallet?.getAddress()), page });
   }
 
