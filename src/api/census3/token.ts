@@ -71,6 +71,11 @@ export type Census3Token = {
   tags?: string;
 
   /**
+   * The icon URI of the token.
+   */
+  iconURI?: string;
+
+  /**
    * The census3 status of the token.
    */
   status: {
