@@ -6,10 +6,13 @@ import {
   Census3StrategyAPI,
   Census3TokenAPI,
   ICensus3CensusResponse,
-  ICensus3StrategyResponse,
   ICensus3SupportedChain,
   Census3Token,
   Census3TokenSummary,
+  Census3Strategy,
+  Census3CreateStrategyToken,
+  ICensus3ValidatePredicateResponse,
+  ICensus3StrategiesOperatorsResponse,
 } from './api';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
@@ -18,9 +21,11 @@ import { delay } from './util/common';
 
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
 export type TokenSummary = Census3TokenSummary;
-export type Strategy = ICensus3StrategyResponse;
+export type Strategy = Census3Strategy;
+export type StrategyToken = Census3CreateStrategyToken;
 export type Census3Census = ICensus3CensusResponse;
 export type SupportedChain = ICensus3SupportedChain;
+export type ParsedPredicate = ICensus3ValidatePredicateResponse;
 
 export class VocdoniCensus3Client {
   public url: string;
@@ -67,7 +72,16 @@ export class VocdoniCensus3Client {
    * @returns {Promise<string[]>} Supported tokens type list
    */
   getSupportedTypes(): Promise<string[]> {
-    return Census3TokenAPI.types(this.url).then((types) => types.supportedTypes);
+    return Census3TokenAPI.types(this.url).then((types) => types.supportedTypes ?? []);
+  }
+
+  /**
+   * Returns a list of supported strategies operators
+   *
+   * @returns {Promise<ICensus3StrategiesOperatorsResponse>} Supported strategies operators list
+   */
+  getSupportedOperators(): Promise<ICensus3StrategiesOperatorsResponse> {
+    return Census3StrategyAPI.operators(this.url).then((operators) => operators);
   }
 
   /**
@@ -128,26 +142,27 @@ export class VocdoniCensus3Client {
   }
 
   /**
-   * Returns the strategies identifiers list
+   * Returns the strategies
    *
-   * @param {{ page?: number; token?: string }} options The options for listing
-   * @returns {Promise<number[]>} The list of strategies identifiers
+   * @returns {Promise<Census3Strategy[]>} The list of strategies
    */
-  getStrategiesList(options?: { page?: number; token?: string }): Promise<number[]> {
-    return Census3StrategyAPI.list(this.url, options?.page ?? 0, options?.token).then(
-      (strategies) => strategies.strategies
-    );
+  getStrategies(): Promise<Census3Strategy[]> {
+    return Census3StrategyAPI.list(this.url, { pageSize: -1 }).then((strategies) => strategies.strategies ?? []);
   }
 
   /**
-   * Returns the strategies list
+   * Returns the strategies from the given token
    *
-   * @param {{ page?: number; token?: string }} options The options for listing
-   * @returns {Promise<Strategy[]>} The list of strategies
+   * @param {string} id The id (address) of the token
+   * @param {number} chainId The id of the chain
+   * @param {string} externalId The identifier used by external provider
+   * @returns {Promise<Census3Strategy[]>} The list of strategies
    */
-  getStrategies(options?: { page?: number; token?: string }): Promise<Strategy[]> {
-    return this.getStrategiesList(options).then((strategies) =>
-      Promise.all(strategies.map((strategyId) => this.getStrategy(strategyId)))
+  getStrategiesByToken(id: string, chainId: number, externalId?: string): Promise<Census3Strategy[]> {
+    invariant(id, 'No token id');
+    invariant(chainId, 'No chain id');
+    return Census3StrategyAPI.listByToken(this.url, id, chainId, externalId).then(
+      (strategies) => strategies.strategies
     );
   }
 
@@ -163,20 +178,98 @@ export class VocdoniCensus3Client {
   }
 
   /**
+   * Returns the size of the strategy based on the id
+   *
+   * @param {number} id The id of the strategy
+   * @returns {Promise<Strategy>} The strategy size
+   */
+  getStrategySize(id: number): Promise<number> {
+    invariant(id || id >= 0, 'No strategy id');
+    const waitForQueue = (queueId: string, wait?: number, attempts?: number): Promise<number> => {
+      const waitTime = wait ?? this.queueWait?.retryTime;
+      const attemptsNum = attempts ?? this.queueWait?.attempts;
+      invariant(waitTime, 'No queue wait time set');
+      invariant(attemptsNum >= 0, 'No queue attempts set');
+
+      return attemptsNum === 0
+        ? Promise.reject('Time out waiting for queue with id: ' + queueId)
+        : Census3StrategyAPI.sizeQueue(this.url, id, queueId).then((queue) => {
+            switch (true) {
+              case queue.done && queue.error?.code?.toString().length > 0:
+                return Promise.reject(new Error('Could not create the census'));
+              case queue.done:
+                return Promise.resolve(queue.size);
+              default:
+                return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
+            }
+          });
+    };
+
+    return Census3StrategyAPI.size(this.url, id)
+      .then((queueResponse) => queueResponse.queueID)
+      .then((queueId) => waitForQueue(queueId));
+  }
+
+  /**
    * Creates a new strategy based on the given tokens and predicate
    *
-   * @param {Array<{ id: string; name: string; minBalance: string; method: string }>} tokens The tokens information
-   * @param {string} strategy The strategy predicate
+   * @param {string} alias The alias of the strategy
+   * @param {string} predicate The predicate of the strategy
+   * @param tokens The token list for the strategy
    * @returns {Promise<number>} The strategy id
    */
-  createStrategy(
-    tokens: Array<{ id: string; name: string; minBalance: string; method: string }>,
-    strategy: string
-  ): Promise<number> {
-    invariant(strategy, 'No strategy set');
-    invariant(tokens.length > 0, 'No tokens set');
-    tokens.map((token) => invariant(isAddress(token.id), 'Invalid token address'));
-    return Census3StrategyAPI.create(this.url, tokens, strategy).then((createStrategy) => createStrategy.strategyId);
+  createStrategy(alias: string, predicate: string, tokens: { [key: string]: StrategyToken }): Promise<number> {
+    invariant(alias, 'No alias set');
+    invariant(predicate, 'No predicate set');
+    invariant(tokens, 'No tokens set');
+    return Census3StrategyAPI.create(this.url, alias, predicate, tokens).then(
+      (createStrategy) => createStrategy.strategyID
+    );
+  }
+
+  /**
+   * Imports a strategy from IPFS from the given cid.
+   *
+   * @param {number} cid The IPFS cid of the strategy to import
+   * @returns {Promise<Strategy>} The strategy information
+   */
+  importStrategy(cid: string): Promise<Strategy> {
+    invariant(cid, 'No CID set');
+
+    const waitForQueue = (queueId: string, wait?: number, attempts?: number): Promise<Strategy> => {
+      const waitTime = wait ?? this.queueWait?.retryTime;
+      const attemptsNum = attempts ?? this.queueWait?.attempts;
+      invariant(waitTime, 'No queue wait time set');
+      invariant(attemptsNum >= 0, 'No queue attempts set');
+
+      return attemptsNum === 0
+        ? Promise.reject('Time out waiting for queue with id: ' + queueId)
+        : Census3StrategyAPI.importQueue(this.url, queueId).then((queue) => {
+            switch (true) {
+              case queue.done && queue.error?.code?.toString().length > 0:
+                return Promise.reject(new Error('Could not import the strategy'));
+              case queue.done:
+                return Promise.resolve(queue.strategy);
+              default:
+                return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
+            }
+          });
+    };
+
+    return Census3StrategyAPI.import(this.url, cid)
+      .then((importStrategy) => importStrategy.queueID)
+      .then((queueId) => waitForQueue(queueId));
+  }
+
+  /**
+   * Validates a predicate
+   *
+   * @param {string} predicate The predicate of the strategy
+   * @returns {Promise<ParsedPredicate>} The parsed predicate
+   */
+  validatePredicate(predicate: string): Promise<ParsedPredicate> {
+    invariant(predicate, 'No predicate set');
+    return Census3StrategyAPI.validatePredicate(this.url, predicate).then((validatePredicate) => validatePredicate);
   }
 
   /**

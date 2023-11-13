@@ -103,6 +103,13 @@ export interface ICensus3TokenListResponse {
   tokens: Array<Census3TokenSummary>;
 }
 
+export interface ICensus3TokenListResponsePaginated extends ICensus3TokenListResponse {
+  /**
+   * The pagination information
+   */
+  pagination: Census3Pagination;
+}
+
 export interface ICensus3TokenTypesResponse {
   /**
    * The list of the tokens types
@@ -123,11 +130,11 @@ export abstract class Census3TokenAPI extends Census3API {
    *
    * @param {string} url API endpoint URL
    * @param {Census3Pagination} pagination Pagination options
-   * @returns {Promise<ICensus3TokenListResponse>}
+   * @returns {Promise<ICensus3TokenListResponsePaginated>}
    */
-  public static list(url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponse> {
+  public static list(url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponsePaginated> {
     return axios
-      .get<ICensus3TokenListResponse>(url + Census3TokenAPIMethods.LIST + this.serializePagination(pagination))
+      .get<ICensus3TokenListResponsePaginated>(url + Census3TokenAPIMethods.LIST + this.serializePagination(pagination))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
