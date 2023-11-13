@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Census3API } from './api';
+import { Census3API, ICensus3QueueResponse } from './api';
 
 enum Census3CensusAPIMethods {
   LIST_BY_STRATEGY = '/censuses/strategy/{id}',
@@ -79,13 +79,6 @@ export interface ICensus3CensusQueueResponse {
   census: ICensus3CensusResponse;
 }
 
-export interface ICensus3CensusCreateResponse {
-  /**
-   * The identifier of queue for the census creation
-   */
-  queueID: string;
-}
-
 export abstract class Census3CensusAPI extends Census3API {
   /**
    * Cannot be constructed.
@@ -143,16 +136,16 @@ export abstract class Census3CensusAPI extends Census3API {
    * @param {number} strategyId The strategy identifier
    * @param {boolean} anonymous If the census has to be anonymous
    * @param {number} blockNumber The number of the block
-   * @returns {Promise<ICensus3CensusCreateResponse>} promised ICensus3CensusCreateResponse
+   * @returns {Promise<ICensus3QueueResponse>} The queue identifier
    */
   public static create(
     url: string,
     strategyId: number,
     anonymous: boolean = false,
     blockNumber?: number
-  ): Promise<ICensus3CensusCreateResponse> {
+  ): Promise<ICensus3QueueResponse> {
     return axios
-      .post<ICensus3CensusCreateResponse>(url + Census3CensusAPIMethods.CREATE, {
+      .post<ICensus3QueueResponse>(url + Census3CensusAPIMethods.CREATE, {
         strategyID: strategyId,
         blockNumber,
         anonymous,

@@ -58,6 +58,13 @@ export type Census3Pagination = {
   pageSize?: number;
 };
 
+export interface ICensus3QueueResponse {
+  /**
+   * The identifier of queue for the census creation
+   */
+  queueID: string;
+}
+
 export abstract class Census3API extends API {
   /**
    * Cannot be constructed.
