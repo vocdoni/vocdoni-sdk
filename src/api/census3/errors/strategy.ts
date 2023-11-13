@@ -46,3 +46,59 @@ export class ErrEncodeStrategy extends Error {
     super(message ? message : 'error encoding strategy');
   }
 }
+
+export class ErrMalformedStrategy extends Error {
+  static readonly code: number = 4014;
+  constructor(message?: string) {
+    super(message ? message : 'malformed strategy provided');
+  }
+}
+
+export class ErrInvalidStrategyPredicate extends Error {
+  static readonly code: number = 4015;
+  constructor(message?: string) {
+    super(message ? message : 'the predicate provided is not valid');
+  }
+}
+
+export class ErrNoEnoughtStrategyTokens extends Error {
+  static readonly code: number = 4016;
+  constructor(message?: string) {
+    super(message ? message : 'the predicate includes tokens that are not included in the request');
+  }
+}
+
+export class ErrCantCreateStrategy extends Error {
+  static readonly code: number = 5025;
+  constructor(message?: string) {
+    super(message ? message : 'error creating strategy');
+  }
+}
+
+export class ErrNoStrategyHolders extends Error {
+  static readonly code: number = 4017;
+  constructor(message?: string) {
+    super(message ? message : 'strategy has not registered holders');
+  }
+}
+
+export class ErrEvalStrategyPredicate extends Error {
+  static readonly code: number = 5026;
+  constructor(message?: string) {
+    super(message ? message : 'error evaluating strategy predicate');
+  }
+}
+
+export class ErrEncodeValidPredicate extends Error {
+  static readonly code: number = 5024;
+  constructor(message?: string) {
+    super(message ? message : 'error encoding validated strategy predicate');
+  }
+}
+
+export class ErrEncodeStrategyPredicateOperators extends Error {
+  static readonly code: number = 5027;
+  constructor(message?: string) {
+    super(message ? message : 'error encoding supported strategy predicate operators');
+  }
+}
