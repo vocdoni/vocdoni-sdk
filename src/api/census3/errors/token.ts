@@ -81,3 +81,10 @@ export class ErrMalformedChainID extends Error {
     super(message ? message : 'malformed chain ID');
   }
 }
+
+export class ErrMalformedHolder extends Error {
+  static readonly code: number = 4021;
+  constructor(message?: string) {
+    super(message ? message : 'malformed holder information');
+  }
+}

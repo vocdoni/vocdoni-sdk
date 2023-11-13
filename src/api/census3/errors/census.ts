@@ -109,3 +109,10 @@ export class ErrMalformedStrategyQueueID extends Error {
     super(message ? message : 'malformed queue ID');
   }
 }
+
+export class ErrCensusAlreadyExists extends Error {
+  static readonly code: number = 4012;
+  constructor(message?: string) {
+    super(message ? message : 'census already exists');
+  }
+}

@@ -102,3 +102,24 @@ export class ErrEncodeStrategyPredicateOperators extends Error {
     super(message ? message : 'error encoding supported strategy predicate operators');
   }
 }
+
+export class ErrNoStrategyTokens extends Error {
+  static readonly code: number = 4010;
+  constructor(message?: string) {
+    super(message ? message : 'no tokens found for the strategy provided');
+  }
+}
+
+export class ErrNoIPFSUri extends Error {
+  static readonly code: number = 4019;
+  constructor(message?: string) {
+    super(message ? message : 'no IPFS uri provided');
+  }
+}
+
+export class ErrCantImportStrategy extends Error {
+  static readonly code: number = 5028;
+  constructor(message?: string) {
+    super(message ? message : 'error importing strategy');
+  }
+}
