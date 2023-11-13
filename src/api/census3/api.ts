@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios';
 import {
   ErrCantAddHoldersToCensus,
   ErrCantCreateCensus,
+  ErrCantCreateStrategy,
   ErrCantCreateToken,
   ErrCantGetCensus,
   ErrCantGetLastBlockNumber,
@@ -20,18 +21,26 @@ import {
   ErrEncodeStrategies,
   ErrEncodeStrategy,
   ErrEncodeStrategyHolders,
+  ErrEncodeStrategyPredicateOperators,
   ErrEncodeToken,
   ErrEncodeTokenHolders,
   ErrEncodeTokens,
   ErrEncodeTokenTypes,
+  ErrEncodeValidPredicate,
+  ErrEvalStrategyPredicate,
   ErrInitializingWeb3,
+  ErrInvalidStrategyPredicate,
   ErrMalformedCensusID,
   ErrMalformedCensusQueueID,
   ErrMalformedChainID,
   ErrMalformedPagination,
+  ErrMalformedStrategy,
   ErrMalformedStrategyID,
+  ErrMalformedStrategyQueueID,
   ErrMalformedToken,
+  ErrNoEnoughtStrategyTokens,
   ErrNoStrategies,
+  ErrNoStrategyHolders,
   ErrNotFoundCensus,
   ErrNotFoundStrategy,
   ErrNotFoundToken,
@@ -163,6 +172,24 @@ export abstract class Census3API extends API {
           throw new ErrMalformedCensusQueueID(err['error']);
         case ErrEncodeQueueItem.code:
           throw new ErrEncodeQueueItem(err['error']);
+        case ErrMalformedStrategy.code:
+          throw new ErrMalformedStrategy(err['error']);
+        case ErrInvalidStrategyPredicate.code:
+          throw new ErrInvalidStrategyPredicate(err['error']);
+        case ErrNoEnoughtStrategyTokens.code:
+          throw new ErrNoEnoughtStrategyTokens(err['error']);
+        case ErrCantCreateStrategy.code:
+          throw new ErrCantCreateStrategy(err['error']);
+        case ErrMalformedStrategyQueueID.code:
+          throw new ErrMalformedStrategyQueueID(err['error']);
+        case ErrNoStrategyHolders.code:
+          throw new ErrNoStrategyHolders(err['error']);
+        case ErrEvalStrategyPredicate.code:
+          throw new ErrEvalStrategyPredicate(err['error']);
+        case ErrEncodeValidPredicate.code:
+          throw new ErrEncodeValidPredicate(err['error']);
+        case ErrEncodeStrategyPredicateOperators.code:
+          throw new ErrEncodeStrategyPredicateOperators(err['error']);
         default:
           return API.isUndefinedError(error, err['error']);
       }

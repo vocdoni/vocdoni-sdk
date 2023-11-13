@@ -102,3 +102,10 @@ export class ErrEncodeQueueItem extends Error {
     super(message ? message : 'error encoding census queue item');
   }
 }
+
+export class ErrMalformedStrategyQueueID extends Error {
+  static readonly code: number = 4020;
+  constructor(message?: string) {
+    super(message ? message : 'malformed queue ID');
+  }
+}
