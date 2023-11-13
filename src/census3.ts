@@ -12,7 +12,7 @@ import {
   Census3Strategy,
   Census3CreateStrategyToken,
   ICensus3ValidatePredicateResponse,
-  ICensus3StrategiesOperatorsResponse,
+  ICensus3StrategiesOperator,
 } from './api';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
@@ -25,6 +25,7 @@ export type Strategy = Census3Strategy;
 export type StrategyToken = Census3CreateStrategyToken;
 export type Census3Census = ICensus3CensusResponse;
 export type SupportedChain = ICensus3SupportedChain;
+export type SupportedOperator = ICensus3StrategiesOperator;
 export type ParsedPredicate = ICensus3ValidatePredicateResponse;
 
 export class VocdoniCensus3Client {
@@ -60,7 +61,7 @@ export class VocdoniCensus3Client {
   /**
    * Returns a list of supported chain identifiers
    *
-   * @returns {Promise<number[]>} Supported chain list
+   * @returns {Promise<SupportedChain[]>} Supported chain list
    */
   getSupportedChains(): Promise<SupportedChain[]> {
     return Census3ServiceAPI.info(this.url).then((info) => info.supportedChains ?? []);
@@ -78,10 +79,10 @@ export class VocdoniCensus3Client {
   /**
    * Returns a list of supported strategies operators
    *
-   * @returns {Promise<ICensus3StrategiesOperatorsResponse>} Supported strategies operators list
+   * @returns {Promise<SupportedOperator[]>} Supported strategies operators list
    */
-  getSupportedOperators(): Promise<ICensus3StrategiesOperatorsResponse> {
-    return Census3StrategyAPI.operators(this.url).then((operators) => operators);
+  getSupportedOperators(): Promise<SupportedOperator[]> {
+    return Census3StrategyAPI.operators(this.url).then((operators) => operators.operators ?? []);
   }
 
   /**
@@ -273,26 +274,14 @@ export class VocdoniCensus3Client {
   }
 
   /**
-   * Returns the census3 censuses identifiers list
+   * Returns the census3 censuses
    *
-   * @param {{ strategyId?: number }} options The options for listing
-   * @returns {Promise<number[]>} The list of census3 censuses identifiers
+   * @param {string} strategyId The strategy identifier
+   * @returns {Promise<number[]>} The list of census3 censuses
    */
-  getCensusesList(options?: { strategyId?: number }): Promise<Census3Census[]> {
-    invariant(options.strategyId || options.strategyId >= 0, 'No strategy id');
-    return Census3CensusAPI.list(this.url, options?.strategyId).then((response) => response.censuses);
-  }
-
-  /**
-   * Returns the census3 censuses list
-   *
-   * @param {{ strategyId?: number }} options The options for listing
-   * @returns {Promise<Census3Census[]>} The list of census3 censuses
-   */
-  getCensuses(options?: { strategyId?: number }): Promise<Census3Census[]> {
-    return this.getCensusesList(options).then((censuses) =>
-      Promise.all(censuses.map((census) => this.getCensus(census.censusID)))
-    );
+  getCensuses(strategyId: number): Promise<Census3Census[]> {
+    invariant(strategyId, 'No strategy set');
+    return Census3CensusAPI.list(this.url, strategyId).then((response) => response.censuses);
   }
 
   /**
@@ -343,7 +332,7 @@ export class VocdoniCensus3Client {
   }
 
   /**
-   * Returns the actual census based on the given token
+   * Returns the actual census based on the given token using the default strategy set
    *
    * @param {string} address The address of the token
    * @param {number} chainId The id of the chain

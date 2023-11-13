@@ -94,7 +94,7 @@ describe('Census3 strategies integration tests', () => {
   it('should return the supported strategies operators', async () => {
     const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
     const operators = await client.getSupportedOperators();
-    operators.operators.forEach((strategy) => {
+    operators.forEach((strategy) => {
       expect(strategy).toMatchObject({
         description: expect.any(String),
         tag: expect.any(String),
