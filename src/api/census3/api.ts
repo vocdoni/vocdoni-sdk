@@ -13,6 +13,8 @@ import {
   ErrCantGetTokenCount,
   ErrCantGetTokenHolders,
   ErrCantGetTokens,
+  ErrCantImportStrategy,
+  ErrCensusAlreadyExists,
   ErrChainIDNotSupported,
   ErrEncodeAPIInfo,
   ErrEncodeCensus,
@@ -33,14 +35,17 @@ import {
   ErrMalformedCensusID,
   ErrMalformedCensusQueueID,
   ErrMalformedChainID,
+  ErrMalformedHolder,
   ErrMalformedPagination,
   ErrMalformedStrategy,
   ErrMalformedStrategyID,
   ErrMalformedStrategyQueueID,
   ErrMalformedToken,
   ErrNoEnoughtStrategyTokens,
+  ErrNoIPFSUri,
   ErrNoStrategies,
   ErrNoStrategyHolders,
+  ErrNoStrategyTokens,
   ErrNotFoundCensus,
   ErrNotFoundStrategy,
   ErrNotFoundToken,
@@ -190,6 +195,16 @@ export abstract class Census3API extends API {
           throw new ErrEncodeValidPredicate(err['error']);
         case ErrEncodeStrategyPredicateOperators.code:
           throw new ErrEncodeStrategyPredicateOperators(err['error']);
+        case ErrCensusAlreadyExists.code:
+          throw new ErrCensusAlreadyExists(err['error']);
+        case ErrNoStrategyTokens.code:
+          throw new ErrNoStrategyTokens(err['error']);
+        case ErrNoIPFSUri.code:
+          throw new ErrNoIPFSUri(err['error']);
+        case ErrMalformedHolder.code:
+          throw new ErrMalformedHolder(err['error']);
+        case ErrCantImportStrategy.code:
+          throw new ErrCantImportStrategy(err['error']);
         default:
           return API.isUndefinedError(error, err['error']);
       }
