@@ -8,7 +8,6 @@ import {
   ICensus3CensusResponse,
   ICensus3SupportedChain,
   Census3Token,
-  Census3TokenSummary,
   Census3Strategy,
   Census3CreateStrategyToken,
   ICensus3ValidatePredicateResponse,
@@ -20,7 +19,6 @@ import { TokenCensus } from './types';
 import { delay } from './util/common';
 
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
-export type TokenSummary = Census3TokenSummary;
 export type Strategy = Census3Strategy;
 export type StrategyToken = Census3CreateStrategyToken;
 export type Census3Census = ICensus3CensusResponse;
@@ -50,12 +48,18 @@ export class VocdoniCensus3Client {
   }
 
   /**
-   * Returns a list of summarized tokens supported by the service
+   * Returns a list of tokens supported by the service
    *
-   * @returns {Promise<TokenSummary[]>} Token summary list
+   * @returns {Promise<Token[]>} Token list
    */
-  getSupportedTokens(): Promise<TokenSummary[]> {
-    return Census3TokenAPI.list(this.url, { pageSize: -1 }).then((list) => list.tokens ?? []);
+  getSupportedTokens(): Promise<Token[]> {
+    return Census3TokenAPI.list(this.url, { pageSize: -1 }).then(
+      (list) =>
+        list?.tokens?.map((token) => ({
+          ...token,
+          tags: token.tags?.split(',') ?? [],
+        })) ?? []
+    );
   }
 
   /**
@@ -126,20 +130,18 @@ export class VocdoniCensus3Client {
    * @param {number} chainId The chain id of the token
    * @param {string} externalId The identifier used by external provider
    * @param {string} tags The tag list to associate the token with
-   * @param {string} startBlock The start block where to start scanning
    */
   createToken(
     address: string,
     type: string,
     chainId: number = 1,
     externalId: string = '',
-    tags: string[] = [],
-    startBlock: number = 0
+    tags: string[] = []
   ): Promise<void> {
     invariant(address, 'No token address');
     invariant(type, 'No token type');
     invariant(isAddress(address), 'Incorrect token address');
-    return Census3TokenAPI.create(this.url, address, type, chainId, startBlock, tags?.join(), externalId);
+    return Census3TokenAPI.create(this.url, address, type, chainId, tags?.join(), externalId);
   }
 
   /**
@@ -300,10 +302,9 @@ export class VocdoniCensus3Client {
    *
    * @param {number} strategyId The id of the strategy
    * @param {boolean} anonymous If the census has to be anonymous
-   * @param {number} blockNumber The block number
    * @returns {Promise<Census3Census>} The census information
    */
-  createCensus(strategyId: number, anonymous: boolean = false, blockNumber?: number): Promise<Census3Census> {
+  createCensus(strategyId: number, anonymous: boolean = false): Promise<Census3Census> {
     invariant(strategyId || strategyId >= 0, 'No strategy id');
 
     const waitForQueue = (queueId: string, wait?: number, attempts?: number): Promise<Census3Census> => {
@@ -326,7 +327,7 @@ export class VocdoniCensus3Client {
           });
     };
 
-    return Census3CensusAPI.create(this.url, strategyId, anonymous, blockNumber)
+    return Census3CensusAPI.create(this.url, strategyId, anonymous)
       .then((createCensus) => createCensus.queueID)
       .then((queueId) => waitForQueue(queueId));
   }

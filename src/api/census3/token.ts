@@ -96,16 +96,11 @@ export type Census3Token = {
   };
 };
 
-export type Census3TokenSummary = Pick<
-  Census3Token,
-  'ID' | 'name' | 'type' | 'startBlock' | 'symbol' | 'tags' | 'chainID' | 'externalID' | 'chainAddress' | 'status'
->;
-
 export interface ICensus3TokenListResponse {
   /**
    * The list of the tokens
    */
-  tokens: Array<Census3TokenSummary>;
+  tokens: Array<Census3Token>;
 }
 
 export interface ICensus3TokenListResponsePaginated extends ICensus3TokenListResponse {
@@ -207,13 +202,12 @@ export abstract class Census3TokenAPI extends Census3API {
   }
 
   /**
-   * Triggers a new scan for the provided token, starting from the defined block.
+   * Triggers a new scan for the provided token.
    *
    * @param {string} url API endpoint URL
    * @param {string} id The token address
    * @param {string} type The type of the token
    * @param {number} chainId The chain id of the token
-   * @param {number} startBlock The start block
    * @param {string[]} tags The tags assigned for the token
    * @param {string} externalId The identifier used by external provider
    * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
@@ -223,7 +217,6 @@ export abstract class Census3TokenAPI extends Census3API {
     id: string,
     type: string,
     chainId: number,
-    startBlock: number,
     tags?: string,
     externalId?: string
   ): Promise<void> {
@@ -232,7 +225,6 @@ export abstract class Census3TokenAPI extends Census3API {
         ID: id,
         type,
         chainID: chainId,
-        startBlock,
         tags,
         externalID: externalId,
       })

@@ -19,7 +19,7 @@ export interface ICensus3CensusResponse {
   /**
    * The identifier of the census
    */
-  censusID: number;
+  ID: number;
 
   /**
    * The identifier of the strategy of the built census
@@ -70,7 +70,7 @@ export interface ICensus3CensusQueueResponse {
     /**
      * The string of the error
      */
-    err: string;
+    error: string;
   };
 
   /**
@@ -130,24 +130,17 @@ export abstract class Census3CensusAPI extends Census3API {
   }
 
   /**
-   * Requests the creation of a new census with the strategy provided for the blockNumber.
+   * Requests the creation of a new census with the strategy provided.
    *
    * @param {string} url API endpoint URL
    * @param {number} strategyId The strategy identifier
    * @param {boolean} anonymous If the census has to be anonymous
-   * @param {number} blockNumber The number of the block
    * @returns {Promise<ICensus3QueueResponse>} The queue identifier
    */
-  public static create(
-    url: string,
-    strategyId: number,
-    anonymous: boolean = false,
-    blockNumber?: number
-  ): Promise<ICensus3QueueResponse> {
+  public static create(url: string, strategyId: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
     return axios
       .post<ICensus3QueueResponse>(url + Census3CensusAPIMethods.CREATE, {
         strategyID: strategyId,
-        blockNumber,
         anonymous,
       })
       .then((response) => response.data)

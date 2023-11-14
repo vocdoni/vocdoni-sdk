@@ -562,6 +562,414 @@ const vote = client.cspVote(new Vote([index % 2]), signature);
 const voteId = await client.submitVote(vote);
 ~~~
 
+## Census3
+
+### What is Census3?
+
+Census3 is an API service to create censuses for elections with holders of a single token or a combination of them.
+The service creates a list of holder addresses and balances and keeps it updated in real time, for every registered token.
+Then, it allows creating a merkle tree census (compatible with [Vocdoni](https://vocdoni.io/)) with those holders, using their balances as vote weights.
+
+More information about Census3 can be found [here](https://github.com/vocdoni/census3).
+
+### Using Census3
+
+The SDK comes with an implementation of the [Census3 API](https://github.com/vocdoni/census3/blob/main/api/README.md).
+
+#### Creating a Census3 client
+
+~~~ts
+const client = new VocdoniCensus3Client({
+  env: EnvOptions.DEV // dev environment
+})
+~~~
+
+#### Getting basic service information
+
+~~~ts
+// Get the supported chains
+const supportedChains = await client.getSupportedChains();
+// [
+//     {
+//     "chainID": 1,
+//     "shortName": "eth",
+//     "name": "Ethereum Mainnet"
+//     }, 
+//     {
+//       "chainID": 5,
+//       "shortName": "gor",
+//       "name": "Goerli"
+//     },
+//     {
+//       "chainID": 137,
+//       "shortName": "matic",
+//       "name": "Polygon Mainnet"
+//     },
+//     {
+//       "chainID": 80001,
+//       "shortName": "maticmum",
+//       "name": "Mumbai"
+//     }
+// ]
+~~~
+
+~~~ts
+// Get the supported token types
+const supportedTypes = await client.getSupportedTypes();
+// ["erc20", "erc777", "poap", "unknown", "erc721burned", "erc1155", "nation3", "want", "erc721"]
+~~~
+
+#### Getting tokens information and creating them
+
+~~~ts
+// Get the supported tokens
+const supportedTokens = await client.getSupportedTokens();
+// [
+//   {
+//     "ID": "0x0AaCfbeC6a24756c20D41914F2caba817C0d8521",
+//     "type": "erc20",
+//     "decimals": 18,
+//     "startBlock": 10886913,
+//     "symbol": "YAM",
+//     "totalSupply": "",
+//     "name": "YAM",
+//     "status": {
+//       "atBlock": 18565762,
+//       "synced": true,
+//       "progress": 100
+//     },
+//     "size": 14999,
+//     "defaultStrategy": 19,
+//     "chainID": 1,
+//     "chainAddress": "eth:0x0AaCfbeC6a24756c20D41914F2caba817C0d8521"
+//   },
+//   {
+//     "ID": "0x0b38210ea11411557c13457D4dA7dC6ea731B88a",
+//     "type": "erc20",
+//     "decimals": 18,
+//     "startBlock": 11203771,
+//     "symbol": "API3",
+//     "totalSupply": "",
+//     "name": "API3",
+//     "status": {
+//       "atBlock": 18565763,
+//       "synced": true,
+//       "progress": 100
+//     },
+//     "size": 51178,
+//     "defaultStrategy": 8,
+//     "chainID": 1,
+//     "chainAddress": "eth:0x0b38210ea11411557c13457D4dA7dC6ea731B88a"
+//   },
+//   ...
+// ]
+~~~
+
+~~~ts
+// Get a token by its ID (address) and chain identifier
+const token = await client.getToken('0x0AaCfbeC6a24756c20D41914F2caba817C0d8521', 1);
+// {
+//   "ID": "0x0AaCfbeC6a24756c20D41914F2caba817C0d8521",
+//   "type": "erc20",
+//   "decimals": 18,
+//   "startBlock": 10886913,
+//   "symbol": "YAM",
+//   "totalSupply": "15164231312592159866595366",
+//   "name": "YAM",
+//   "status": {
+//     "atBlock": 18565783,
+//     "synced": true,
+//     "progress": 100
+//   },
+//   "size": 14999,
+//   "defaultStrategy": 19,
+//   "chainID": 1,
+//   "chainAddress": "eth:0x0AaCfbeC6a24756c20D41914F2caba817C0d8521",
+//   "tags": []
+// }
+~~~
+
+~~~ts
+// Check if a holder is registered for a given token
+const token = await client.isHolderInToken(
+  '0x0AaCfbeC6a24756c20D41914F2caba817C0d8521', 
+  1, 
+  '0x111000000000000000000000000000000000dEaD'
+);
+// false
+~~~
+
+~~~ts
+// Creates a new token by passing the address, the type and the chain identifier
+const token = await client.createToken('0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 1);
+~~~
+
+#### Getting strategies information and creating them
+
+~~~ts
+// Get the supported strategies
+const supportedStrategies = await client.getStrategies();
+// [
+//   {
+//     "ID": 1,
+//     "alias": "Default strategy for token CRV",
+//     "predicate": "CRV",
+//     "uri": "ipfs://bafybeicjqjklqpumewpaue6weg47byz6fwmbg6ozief3w2pgqx7zlwl5ea",
+//     "tokens": {
+//       "CRV": {
+//         "ID": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+//         "chainID": 1,
+//         "minBalance": "0",
+//         "chainAddress": "eth:0xD533a949740bb3306d119CC777fa900bA034cd52"
+//       }
+//     }
+//   },
+//   {
+//     "ID": 2,
+//     "alias": "Default strategy for token UNI",
+//     "predicate": "UNI",
+//     "uri": "ipfs://bafybeiesxbsbvp2agcuolezec6hvimntqdg3w43xs62mecdj2fyeh5anxu",
+//     "tokens": {
+//       "UNI": {
+//         "ID": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+//         "chainID": 1,
+//         "minBalance": "0",
+//         "chainAddress": "eth:0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+//       }
+//     }
+//   },
+//   ...
+// ]
+~~~
+
+~~~ts
+// Get the supported strategies by token and chain identifier
+const supportedStrategiesByToken = await client.getStrategiesByToken('0x0AaCfbeC6a24756c20D41914F2caba817C0d8521', 1);
+// [
+//   {
+//     "ID": 19,
+//     "alias": "Default strategy for token YAM",
+//     "predicate": "YAM",
+//     "uri": "ipfs://bafybeicddxfktpcmbkvrflifbod6eeaizfab7l5ijggswnn5jwu3uhv4i4",
+//     "tokens": {
+//       "YAM": {
+//         "ID": "0x0AaCfbeC6a24756c20D41914F2caba817C0d8521",
+//         "chainID": 1,
+//         "minBalance": "0",
+//         "chainAddress": "eth:0x0AaCfbeC6a24756c20D41914F2caba817C0d8521"
+//       }
+//     }
+//   },
+//   {
+//     "ID": 37,
+//     "alias": "testStrategy_1699887257144",
+//     "predicate": "(YAM OR API3) AND 1INCH",
+//     "uri": "ipfs://bafybeic2gw6nb75ledp3jbz46rmdrnti33hgtlm5icfluxn5ol4enqps7i",
+//     "tokens": {
+//       "1INCH": {
+//         "ID": "0x111111111117dC0aa78b770fA6A738034120C302",
+//         "chainID": 1,
+//         "minBalance": "50",
+//         "chainAddress": "eth:0x111111111117dC0aa78b770fA6A738034120C302"
+//       },
+//       "API3": {
+//         "ID": "0x0b38210ea11411557c13457D4dA7dC6ea731B88a",
+//         "chainID": 1,
+//         "minBalance": "0",
+//         "chainAddress": "eth:0x0b38210ea11411557c13457D4dA7dC6ea731B88a"
+//       },
+//       "YAM": {
+//         "ID": "0x0AaCfbeC6a24756c20D41914F2caba817C0d8521",
+//         "chainID": 1,
+//         "minBalance": "10000",
+//         "chainAddress": "eth:0x0AaCfbeC6a24756c20D41914F2caba817C0d8521"
+//       }
+//     }
+//   },
+//   ...
+// ]
+~~~
+
+~~~ts
+// Get a strategy on a given identifier
+const strategy = await client.getStrategy(1);
+// {
+//   "ID": 1,
+//   "alias": "Default strategy for token CRV",
+//   "predicate": "CRV",
+//   "uri": "ipfs://bafybeicjqjklqpumewpaue6weg47byz6fwmbg6ozief3w2pgqx7zlwl5ea",
+//   "tokens": {
+//       "CRV": {
+//         "ID": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+//         "chainID": 1,
+//         "minBalance": "0",
+//         "chainAddress": "eth:0xD533a949740bb3306d119CC777fa900bA034cd52"
+//       }
+//   }
+// }
+~~~
+
+~~~ts
+// Get strategy size
+const size = await client.getStrategySize(1);
+// 12455
+~~~
+
+~~~ts
+// Creates a new strategy by passing the alias, the predicate and the tokens information
+const strategyId = await client.createStrategy('test_strategy', '(wANT OR ANT) AND USDC', {
+  "wANT": {
+    "ID": "0x1324",
+    "chainID": 1,
+    "minBalance": "10000"
+  },
+  "ANT": {
+    "ID": "0x1324",
+    "chainID": 5,
+  },
+  "USDC": {
+    "ID": "0x1324",
+    "chainID": 1,
+    "minBalance": "50"
+  },
+});
+console.log(strategyId) // strategy identifier
+~~~
+
+~~~ts
+// Imports a strategy from IPFS by the given cid
+const strategy = await client.importStrategy('bafybeicjqjklqpumewpaue6weg47byz6fwmbg6ozief3w2pgqx7zlwl5ea');
+// {
+//   "ID": 1,
+//   "alias": "Default strategy for token CRV",
+//   "predicate": "CRV",
+//   "uri": "ipfs://bafybeicjqjklqpumewpaue6weg47byz6fwmbg6ozief3w2pgqx7zlwl5ea",
+//   "tokens": {
+//       "CRV": {
+//         "ID": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+//         "chainID": 1,
+//         "minBalance": "0",
+//         "chainAddress": "eth:0xD533a949740bb3306d119CC777fa900bA034cd52"
+//       }
+//   }
+// }
+~~~
+
+~~~ts
+// Validates a predicate for a strategy and returns the parsed predicate in JSON
+const validatePredicate = await client.validatePredicate('1INCH AND (YAM OR API3)');
+// {
+//   "result": {
+//   "childs": {
+//     "operator": "AND",
+//       "tokens": [
+//       {
+//         "childs": {
+//           "operator": "OR",
+//           "tokens": [
+//             {
+//               "literal": "YAM"
+//             },
+//             {
+//               "literal": "API3"
+//             }
+//           ]
+//         }
+//       },
+//       {
+//         "literal": "1INCH"
+//       }
+//     ]
+//   }
+// }
+// }
+~~~
+
+~~~ts
+// Gets the supported predicate operators
+const operators = await client.getSupportedOperators();
+// [
+//   {
+//     "description": "AND logical operator that returns the common token holders between symbols with fixed balance to 1",
+//     "tag": "AND"
+//   },
+//   {
+//     "description": "AND:sum logical operator that returns the common token holders between symbols with the sum of their balances on both tokens",
+//     "tag": "AND:sum"
+//   },
+//   {
+//     "description": "AND:mul logical operator that returns the common token holders between symbols with the multiplication of their balances on both tokens",
+//     "tag": "AND:mul"
+//   },
+//   ...
+// ]
+~~~
+
+#### Getting censuses information and creating them
+
+~~~ts
+// Get the supported censuses by strategy identifier
+const strategyID = 18;
+const censusesByStrategy = await client.getCensuses(strategyID);
+// [
+//   {
+//     "ID": 18569955180,
+//     "strategyID": 18,
+//     "merkleRoot": "9b1ac0ed374a66b781a22ec5e1b1382324adc0759662e1e6f85fc87f5a23407e",
+//     "uri": "ipfs://bafybeihwz2mbkkphgs2ni5laymgtfokaskujg2qfqcvoxhkccbdqp6k7ly",
+//     "size": 14999,
+//     "weight": "81637958624197446065983341792",
+//     "anonymous": false
+//   },
+//   {
+//     "ID": 18569991180,
+//     "strategyID": 18,
+//     "merkleRoot": "ab1c003b923c4fec0b24f84893ddda8835fd3990904dc64f06c1fc0eadef402f",
+//     "uri": "ipfs://bafybeig5jrzw7ayxb442evan4pwa4rfksznh3smyt4exyjkubet2u5ldjm",
+//     "size": 14999,
+//     "weight": "653103668993579568527866734336",
+//     "anonymous": false
+//   },
+//   ...
+// ]
+~~~
+
+~~~ts
+// Get a census on a given identifier
+const census = await client.getCensus(18569955180);
+// {
+//   "ID": 18569955180,
+//   "strategyID": 18,
+//   "merkleRoot": "9b1ac0ed374a66b781a22ec5e1b1382324adc0759662e1e6f85fc87f5a23407e",
+//   "uri": "ipfs://bafybeihwz2mbkkphgs2ni5laymgtfokaskujg2qfqcvoxhkccbdqp6k7ly",
+//   "size": 14999,
+//   "weight": "1514939612264202552941935398517220938016694806267744586724593217517874",
+//   "anonymous": false
+// }
+~~~
+
+~~~ts
+// Creates a new census by passing the strategy identifier
+const strategyID = 18;
+const census = await client.createCensus(strategyID);
+// {
+//   "ID": 18570184180,
+//   "strategyID": 18,
+//   "merkleRoot": "542166dd4757904449e71d5c21058597ab4179f040ee1f9e7dd29eec622ca5ed",
+//   "uri": "ipfs://bafybeifbhmytl6olebkdoas6uftj3ae5akutmji4io6k37ilzu5uli2nle",
+//   "size": 14999,
+//   "weight": "42801802051163230603042274301444096",
+//   "anonymous": false
+// }
+~~~
+
+~~~ts
+// Creates a new census by passing the token address, using the default strategy and returns
+// an instance of `TokenCensus` which can be directly used as a census in the Vocdoni chain
+const census = await client.createTokenCensus('0x0AaCfbeC6a24756c20D41914F2caba817C0d8521', 1);
+console.log(typeof census); // TokenCensus
+~~~
+
 ## Examples
 
 You can find a [full featured vite][example-vite] application with all the previous

@@ -48,7 +48,7 @@ describe('Census3 token integration tests', () => {
   it('should create the given token in the census3 service', async () => {
     const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
     try {
-      await client.createToken('0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 1, null, ['test', 'test2'], 0);
+      await client.createToken('0xa117000000f279d81a1d3cc75430faa017fa5a2e', 'erc20', 1, null, ['test', 'test2']);
     } catch (e) {}
     const token = await client.getToken('0xa117000000f279d81a1d3cc75430faa017fa5a2e', 1);
     expect(token).toMatchObject({
@@ -66,7 +66,7 @@ describe('Census3 token integration tests', () => {
       chainAddress: expect.any(String),
       tags: expect.any(Array),
     });
-  }, 5000);
+  }, 25000);
   it('should check if the given holder in a token exists', async () => {
     const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
     const supportedTokens = await client.getSupportedTokens();
