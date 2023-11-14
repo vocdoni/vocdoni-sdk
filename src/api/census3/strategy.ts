@@ -10,7 +10,7 @@ enum Census3StrategyAPIMethods {
   STRATEGY = '/strategies/{id}',
   SIZE = '/strategies/{id}/size',
   SIZE_QUEUE = '/strategies/{id}/size/queue/{queueId}',
-  VALIDATE_PREDICATE = '/strategies/predicate/parse',
+  VALIDATE_PREDICATE = '/strategies/predicate/validate',
   OPERATORS = '/strategies/predicate/operators',
 }
 
@@ -101,7 +101,7 @@ export interface ICensus3StrategySizeQueueResponse {
     /**
      * The string of the error
      */
-    err: string;
+    error: string;
   };
 
   /**
@@ -128,7 +128,7 @@ export interface ICensus3StrategyImportQueueResponse {
     /**
      * The string of the error
      */
-    err: string;
+    error: string;
   };
 
   /**
