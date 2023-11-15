@@ -118,6 +118,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       maxCensusSize: electionInfo.census.maxCensusSize,
       manuallyEnded: electionInfo.manuallyEnded,
       fromArchive: electionInfo.fromArchive,
+      chainId: electionInfo.chainId,
       status: electionInfo.status,
       voteCount: electionInfo.voteCount,
       finalResults: electionInfo.finalResults,

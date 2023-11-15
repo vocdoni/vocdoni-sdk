@@ -116,6 +116,7 @@ describe('Election integration tests', () => {
         });
         expect(publishedElection.manuallyEnded).toBeFalsy();
         expect(publishedElection.fromArchive).toBeFalsy();
+        expect(publishedElection.chainId).toBeDefined();
         expect(publishedElection.maxCensusSize).toEqual(1);
       });
   }, 85000);
