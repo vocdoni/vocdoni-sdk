@@ -202,6 +202,11 @@ export interface IElectionInfoResponse {
   fromArchive: boolean;
 
   /**
+   * The chain identifier of the election
+   */
+  chainId: string;
+
+  /**
    * The census of the election
    */
   census: ICensus;
