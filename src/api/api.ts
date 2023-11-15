@@ -39,7 +39,8 @@ export abstract class API {
           return API.isUndefinedError(error, err['error']);
       }
     } else if (err) {
-      return API.isUndefinedError(error, err as string);
+      const errorMessage = err['error'] ? (err['error'] as string) : (err as string);
+      return API.isUndefinedError(error, errorMessage);
     }
     return API.isUndefinedError(error);
   }
