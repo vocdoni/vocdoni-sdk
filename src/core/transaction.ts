@@ -17,11 +17,20 @@ export abstract class TransactionCore {
     payload: string,
     walletOrSigner: Wallet | Signer
   ): Promise<string> {
-    return Signing.signTransaction(payload, walletOrSigner).then((hexSignature) => {
+    return Signing.signTransaction(payload, walletOrSigner).then((hexSignature) =>
+      this.encodeTransaction(tx, hexSignature)
+    );
+  }
+
+  public static encodeTransaction(tx: Uint8Array, hexSignature?: string): string {
+    let signedTx: Uint8Array;
+    if (hexSignature) {
       const signature = new Uint8Array(Buffer.from(strip0x(hexSignature), 'hex'));
-      const signedTx = SignedTx.encode({ tx, signature }).finish();
-      return Buffer.from(signedTx).toString('base64');
-    });
+      signedTx = SignedTx.encode({ tx, signature }).finish();
+    } else {
+      signedTx = SignedTx.encode({ tx }).finish();
+    }
+    return Buffer.from(signedTx).toString('base64');
   }
 
   public static hashTransaction(tx: Uint8Array): string {
