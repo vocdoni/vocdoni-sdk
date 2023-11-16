@@ -37,6 +37,10 @@ export class VoteService extends Service implements VoteServiceProperties {
     });
   }
 
+  public encodeTransaction(tx: Uint8Array): string {
+    return VoteCore.encodeTransaction(tx);
+  }
+
   /**
    * Get the vote information
    *

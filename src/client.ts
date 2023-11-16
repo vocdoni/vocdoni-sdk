@@ -44,7 +44,7 @@ import {
   ZkProof,
 } from './services';
 import { isAddress } from '@ethersproject/address';
-import { ArchivedElection } from './types/election/archived';
+import { ArchivedElection } from './types';
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -762,10 +762,16 @@ export class VocdoniSDKClient {
       voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote);
     }
 
+    let payload: string;
+    if (!this.election.electionType.anonymous) {
+      payload = await this.voteService.signTransaction(voteTx.tx, voteTx.message, this.wallet);
+    } else {
+      payload = this.voteService.encodeTransaction(voteTx.tx);
+    }
+
     // Vote
     return this.voteService
-      .signTransaction(voteTx.tx, voteTx.message, this.wallet)
-      .then((signedTx) => this.voteService.vote(signedTx))
+      .vote(payload)
       .then((apiResponse) => this.chainService.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
   }
 
