@@ -98,7 +98,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
     invariant(this.censusService, 'No census service set');
 
     const electionInfo = await ElectionAPI.info(this.url, electionId).catch((err) => {
-      err.electionId = electionInfo.electionId;
+      err.electionId = electionId;
       throw err;
     });
 
