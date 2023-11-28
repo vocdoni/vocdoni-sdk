@@ -14,13 +14,17 @@ import {
   CspVote,
   ElectionStatus,
   ElectionStatusReady,
+  HasAlreadyVotedOptions,
   InvalidElection,
+  IsAbleToVoteOptions,
+  IsInCensusOptions,
   PlainCensus,
   PublishedElection,
   SendTokensOptions,
   TokenCensus,
   UnpublishedElection,
   Vote,
+  VotesLeftCountOptions,
   WeightedCensus,
 } from './types';
 import { API_URL, CENSUS_CHUNK_SIZE, EXPLORER_URL, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
@@ -212,14 +216,14 @@ export class VocdoniSDKClient {
 
   private setAccountSIK(
     electionId: string,
-    sik: string,
+    signature: string,
     password: string,
     censusProof: CensusProof,
     wallet: Wallet | Signer
   ): Promise<void> {
     return wallet
       .getAddress()
-      .then((address) => AnonymousService.calcSik(address, sik, password))
+      .then((address) => AnonymousService.calcSik(address, signature, password))
       .then((calculatedSIK) => {
         const registerSIKTx = AccountCore.generateRegisterSIKTransaction(electionId, calculatedSIK, censusProof);
         return this.accountService.signTransaction(registerSIKTx.tx, registerSIKTx.message, wallet);
@@ -233,30 +237,31 @@ export class VocdoniSDKClient {
    *
    * @param election
    * @param wallet
+   * @param signature
    * @param password
    * @returns {Promise<ZkProof>}
    */
   private async calcZKProofForWallet(
     election: PublishedElection,
     wallet: Wallet | Signer,
+    signature: string,
     password: string = '0'
   ): Promise<ZkProof> {
-    const [address, sik, censusProof] = await Promise.all([
+    const [address, censusProof] = await Promise.all([
       wallet.getAddress(),
-      this.anonymousService.signSIKPayload(wallet),
       this.fetchProofForWallet(election.census.censusId, wallet),
     ]);
 
     return this.anonymousService
       .fetchAccountSIK(address)
-      .catch(() => this.setAccountSIK(election.id, sik, password, censusProof, wallet))
+      .catch(() => this.setAccountSIK(election.id, signature, password, censusProof, wallet))
       .then(() => this.anonymousService.fetchZKProof(address))
       .then((zkProof) =>
         AnonymousService.prepareCircuitInputs(
           election.id,
           address,
           password,
-          sik,
+          signature,
           censusProof.value,
           censusProof.value,
           zkProof.censusRoot,
@@ -621,55 +626,52 @@ export class VocdoniSDKClient {
   /**
    * Checks if the user is in census.
    *
-   * @param {string} electionId The id of the election
-   * @param {Object} key The key in the census to check
+   * @param {HasAlreadyVotedOptions} options Options for is in census
    * @returns {Promise<boolean>}
    */
-  async isInCensus(electionId?: string, key?: string): Promise<boolean> {
-    if (!this.electionId && !electionId) {
-      throw Error('No election set');
-    }
-    if (!this.wallet && !key) {
-      throw Error('No key given or Wallet not found');
-    }
+  async isInCensus(options?: IsInCensusOptions): Promise<boolean> {
+    const settings = {
+      wallet: options?.wallet ?? this.wallet,
+      electionId: options?.electionId ?? this.electionId,
+      ...options,
+    };
+    invariant(settings.wallet, 'No wallet or signer set or given');
+    invariant(settings.electionId, 'No election identifier set or given');
 
-    const election = await this.fetchElection(electionId ?? this.electionId);
-    let proofPromise;
-
-    if (key) {
-      proofPromise = this.censusService.fetchProof(election.census.censusId, key);
-    } else if (election) {
-      proofPromise = this.fetchProofForWallet(election.census.censusId, this.wallet);
-    } else {
-      proofPromise = Promise.reject();
-    }
-
-    return proofPromise.then(() => true).catch(() => false);
+    return this.fetchElection(settings.electionId)
+      .then((election) => this.fetchProofForWallet(election.census.censusId, settings.wallet))
+      .then(() => true)
+      .catch(() => false);
   }
 
   /**
    * Checks if the user has already voted
    *
-   * @param {string} electionId The id of the election
+   * @param {HasAlreadyVotedOptions} options Options for has already voted
    * @returns {Promise<string>} The id of the vote
    */
-  async hasAlreadyVoted(electionId?: string): Promise<string> {
-    if (!this.electionId && !electionId) {
-      throw Error('No election set');
-    }
-    if (!this.wallet) {
-      throw Error('No wallet found');
+  async hasAlreadyVoted(options?: HasAlreadyVotedOptions): Promise<string> {
+    const settings = {
+      wallet: options?.wallet ?? this.wallet,
+      electionId: options?.electionId ?? this.electionId,
+      ...options,
+    };
+    invariant(settings.wallet, 'No wallet or signer set or given');
+    invariant(settings.electionId, 'No election identifier set or given');
+
+    const election = await this.fetchElection(settings.electionId);
+
+    if (election.electionType.anonymous && !settings?.voteId) {
+      throw Error('This function cannot be used without a vote identifier for an anonymous election');
     }
 
-    const election = await this.fetchElection(electionId ?? this.electionId);
-
-    if (election.electionType.anonymous) {
-      throw Error('This function cannot be used with an anonymous election');
-    }
-
-    return this.wallet
+    return settings.wallet
       .getAddress()
-      .then((address) => this.voteService.info(address.toLowerCase(), election.id))
+      .then((address) =>
+        this.voteService.info(
+          election.electionType.anonymous ? settings.voteId : keccak256(address.toLowerCase() + election.id)
+        )
+      )
       .then((voteInfo) => voteInfo.voteID)
       .catch(() => null);
   }
@@ -677,41 +679,46 @@ export class VocdoniSDKClient {
   /**
    * Checks if the user is able to vote
    *
-   * @param {string} electionId The id of the election
+   * @param {IsAbleToVoteOptions} options Options for is able to vote
    * @returns {Promise<boolean>}
    */
-  isAbleToVote(electionId?: string): Promise<boolean> {
-    return this.votesLeftCount(electionId).then((votesLeftCount) => votesLeftCount > 0);
+  isAbleToVote(options?: IsAbleToVoteOptions): Promise<boolean> {
+    return this.votesLeftCount(options).then((votesLeftCount) => votesLeftCount > 0);
   }
 
   /**
    * Checks how many times a user can submit their vote
    *
-   * @param {string} electionId The id of the election
+   * @param {VotesLeftCountOptions} options Options for votes left count
    * @returns {Promise<number>}
    */
-  async votesLeftCount(electionId?: string): Promise<number> {
-    if (!this.electionId && !electionId) {
-      throw Error('No election set');
-    }
-    if (!this.wallet) {
-      throw Error('No wallet found');
+  async votesLeftCount(options?: VotesLeftCountOptions): Promise<number> {
+    const settings = {
+      wallet: options?.wallet ?? this.wallet,
+      electionId: options?.electionId ?? this.electionId,
+      ...options,
+    };
+    invariant(settings.wallet, 'No wallet or signer set or given');
+    invariant(settings.electionId, 'No election identifier set or given');
+
+    const election = await this.fetchElection(settings.electionId);
+
+    if (election.electionType.anonymous && !settings?.voteId) {
+      throw Error('This function cannot be used without a vote identifier for an anonymous election');
     }
 
-    const election = await this.fetchElection(electionId ?? this.electionId);
-
-    if (election.electionType.anonymous) {
-      throw Error('This function cannot be used with an anonymous election');
-    }
-
-    const isInCensus = await this.isInCensus(election.id);
+    const isInCensus = await this.isInCensus({ electionId: election.id });
     if (!isInCensus) {
       return Promise.resolve(0);
     }
 
     return this.wallet
       .getAddress()
-      .then((address) => this.voteService.info(address.toLowerCase(), election.id))
+      .then((address) =>
+        this.voteService.info(
+          election.electionType.anonymous ? settings.voteId : keccak256(address.toLowerCase() + election.id)
+        )
+      )
       .then((voteInfo) => election.voteType.maxVoteOverwrites - voteInfo.overwriteCount)
       .catch(() => election.voteType.maxVoteOverwrites + 1);
   }
@@ -737,10 +744,16 @@ export class VocdoniSDKClient {
     if (election.census.type == CensusType.WEIGHTED) {
       censusProof = await this.fetchProofForWallet(election.census.censusId, this.wallet);
     } else if (election.census.type == CensusType.ANONYMOUS) {
+      let signature: string;
       if (vote instanceof AnonymousVote) {
-        censusProof = await this.calcZKProofForWallet(election, this.wallet, vote.password);
+        signature = vote.signature ?? (await this.anonymousService.signSIKPayload(this.wallet));
       } else {
-        censusProof = await this.calcZKProofForWallet(election, this.wallet);
+        signature = await this.anonymousService.signSIKPayload(this.wallet);
+      }
+      if (vote instanceof AnonymousVote) {
+        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature, vote.password);
+      } else {
+        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature);
       }
     } else if (election.census.type == CensusType.CSP && vote instanceof CspVote) {
       censusProof = {

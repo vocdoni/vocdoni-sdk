@@ -203,35 +203,46 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     censusRoot: string,
     censusSiblings: string[]
   ): Promise<CircuitInputs> {
-    signature = AnonymousService.signatureToVocdoniSikSignature(strip0x(signature));
-
-    const arboElectionId = await AnonymousService.arbo_utils.toHash(electionId);
-    const ffsignature = AnonymousService.ff_utils.hexToFFBigInt(strip0x(signature)).toString();
-    const ffpassword = AnonymousService.ff_utils.hexToFFBigInt(hexlify(toUtf8Bytes(password))).toString();
-
     return Promise.all([
-      AnonymousService.calcNullifier(ffsignature, ffpassword, arboElectionId),
+      AnonymousService.calcCircuitInputs(signature, password, electionId),
       AnonymousService.arbo_utils.toHash(AnonymousService.hex_utils.fromBigInt(BigInt(ensure0x(availableWeight)))),
-    ]).then((data) => ({
-      electionId: arboElectionId,
-      nullifier: data[0].toString(),
+    ]).then(([circuitInputs, voteHash]) => ({
+      electionId: circuitInputs.arboElectionId,
+      nullifier: circuitInputs.nullifier.toString(),
       availableWeight: AnonymousService.arbo_utils.toBigInt(availableWeight).toString(),
-      voteHash: data[1],
+      voteHash,
       sikRoot: AnonymousService.arbo_utils.toBigInt(sikRoot).toString(),
       censusRoot: AnonymousService.arbo_utils.toBigInt(censusRoot).toString(),
       address: AnonymousService.arbo_utils.toBigInt(strip0x(address)).toString(),
-      password: ffpassword,
-      signature: ffsignature,
+      password: circuitInputs.ffpassword,
+      signature: circuitInputs.ffsignature,
       voteWeight: AnonymousService.arbo_utils.toBigInt(voteWeight).toString(),
       sikSiblings,
       censusSiblings,
     }));
   }
 
-  static async calcNullifier(ffsignature: string, ffpassword: string, arboElectionId: string[]): Promise<bigint> {
+  static async calcCircuitInputs(signature: string, password: string, electionId: string) {
+    signature = AnonymousService.signatureToVocdoniSikSignature(strip0x(signature));
+    const arboElectionId = await AnonymousService.arbo_utils.toHash(electionId);
+    const ffsignature = AnonymousService.ff_utils.hexToFFBigInt(strip0x(signature)).toString();
+    const ffpassword = AnonymousService.ff_utils.hexToFFBigInt(hexlify(toUtf8Bytes(password))).toString();
+
     const poseidon = await buildPoseidon();
     const hash = poseidon([ffsignature, ffpassword, arboElectionId[0], arboElectionId[1]]);
-    return poseidon.F.toObject(hash);
+    const nullifier = poseidon.F.toObject(hash);
+
+    return { nullifier, arboElectionId, ffsignature, ffpassword };
+  }
+
+  static async calcNullifier(signature: string, password: string, electionId: string): Promise<bigint> {
+    return this.calcCircuitInputs(signature, password, electionId).then((circuitInputs) => circuitInputs.nullifier);
+  }
+
+  static async calcVoteId(signature: string, password: string, electionId: string): Promise<string> {
+    return this.calcNullifier(signature, password ?? '0', electionId).then((nullifier) =>
+      nullifier.toString().length === 76 ? nullifier.toString() : nullifier.toString() + '0'
+    );
   }
 
   static async calcSik(address: string, personal_sign: string, password: string = '0'): Promise<string> {

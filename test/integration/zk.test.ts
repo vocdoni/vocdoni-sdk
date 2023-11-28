@@ -1,6 +1,7 @@
 // @ts-ignore
 import { clientParams, setFaucetURL } from './util/client.params';
 import {
+  AnonymousService,
   AnonymousVote,
   Election,
   ElectionStatus,
@@ -87,12 +88,12 @@ describe('zkSNARK test', () => {
         await expect(async () => {
           await client.submitVote(new Vote([0]));
         }).rejects.toThrow();
-        const vote = new AnonymousVote([0], 'password123');
+        const vote = new AnonymousVote([0], null, 'password123');
         return client.submitVote(vote);
       })
       .then(() => {
         client.wallet = voter1;
-        const vote = new AnonymousVote([0], 'password456');
+        const vote = new AnonymousVote([0], null, 'password456');
         return client.submitVote(vote);
       })
       .then(() => {
@@ -111,6 +112,56 @@ describe('zkSNARK test', () => {
         expect(election.results[0][1]).toEqual('1');
         expect(election.census.size).toEqual(3);
         expect(election.census.weight).toEqual(BigInt(3));
+      });
+  }, 285000);
+  it('should create an anonymous election, vote and check if the user has voted successfully', async () => {
+    const census = new PlainCensus();
+    census.add((client.wallet as Wallet).address);
+
+    const election = createElection(
+      census,
+      {
+        anonymous: true,
+      },
+      {
+        maxVoteOverwrites: 9,
+      }
+    );
+
+    let nullifier: string;
+    let vote: AnonymousVote;
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((publishedElection) => {
+        expect(publishedElection.electionType.anonymous).toBeTruthy();
+        return waitForElectionReady(client, publishedElection.id);
+      })
+      .then(async () => {
+        const signature = await client.anonymousService.signSIKPayload(client.wallet);
+
+        vote = new AnonymousVote([0], signature);
+        nullifier = await AnonymousService.calcVoteId(signature, null, client.electionId);
+
+        const hasAlreadyVoted = await client.hasAlreadyVoted({ voteId: nullifier });
+        expect(hasAlreadyVoted).toBeFalsy();
+
+        return client.submitVote(vote);
+      })
+      .then(() => client.submitVote(vote))
+      .then(async (voteId) => {
+        expect(voteId).toEqual(nullifier);
+        const hasAlreadyVoted = await client.hasAlreadyVoted({ voteId });
+        expect(hasAlreadyVoted).toBeTruthy();
+        const votesLeftCount = await client.votesLeftCount({ voteId });
+        expect(votesLeftCount).toEqual(8); // The user voted twice
       });
   }, 285000);
   it('should create a weighted anonymous election and vote successfully', async () => {
@@ -157,12 +208,12 @@ describe('zkSNARK test', () => {
         await expect(async () => {
           await client.submitVote(new Vote([0]));
         }).rejects.toThrow();
-        const vote = new AnonymousVote([0], 'password123');
+        const vote = new AnonymousVote([0], null, 'password123');
         return client.submitVote(vote);
       })
       .then(() => {
         client.wallet = voter1;
-        const vote = new AnonymousVote([0], 'password456');
+        const vote = new AnonymousVote([0], null, 'password456');
         return client.submitVote(vote);
       })
       .then(() => {
@@ -214,9 +265,9 @@ describe('zkSNARK test', () => {
               password: participants[i].address,
             });
             await expect(async () => {
-              await client.submitVote(new AnonymousVote([i % 2], 'wrongpassword'));
+              await client.submitVote(new AnonymousVote([i % 2], null, 'wrongpassword'));
             }).rejects.toThrow();
-            vote = new AnonymousVote([i % 2], participants[i].address);
+            vote = new AnonymousVote([i % 2], null, participants[i].address);
           } else if (i % 3 == 1) {
             await client.createAccount({ sik: false });
           }
