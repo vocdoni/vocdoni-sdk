@@ -5,26 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.3] - 2023-11-28
 
 ### Added
 
 - New account methods supported for listing, counting and checking account transfers in `AccountAPI`.
 
-## [0.5.2] - 2023-10-16
+### Fixed
+
+- Archived elections without census URI are now accepted.
+
+### Changed
+
+- Faucet options don't require `token_limit` anymore.
+
+## [0.5.2] - 2023-11-16
 
 ### Fixed
 
 - Anonymous vote packages are no longer signed.
 
-## [0.5.1] - 2023-10-15
+## [0.5.1] - 2023-11-15
 
 ### Fixed
 
 - Missing exported election type `ArchivedElection`.
 - Faucet errors correctly shown with message.
 
-## [0.5.0] - 2023-10-14
+## [0.5.0] - 2023-11-14
 
 ### Changed
 
@@ -352,6 +360,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.5.3]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.5.3
 [0.5.2]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.5.2
 [0.5.1]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.5.1
 [0.5.0]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.5.0
