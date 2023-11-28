@@ -199,6 +199,25 @@ export class ElectionService extends Service implements ElectionServicePropertie
   }
 
   /**
+   * Returns the next election id.
+   *
+   * @param {string} address The address of the account
+   * @param {UnpublishedElection} election The unpublished election
+   * @returns {Promise<string>} The next election identifier
+   */
+  nextElectionId(address: string, election: UnpublishedElection): Promise<string> {
+    invariant(this.url, 'No URL set');
+    const censusOrigin = ElectionCore.censusOriginFromCensusType(election.census.type);
+    return ElectionAPI.nextElectionId(this.url, address, censusOrigin, {
+      serial: false, // TODO
+      anonymous: election.electionType.anonymous,
+      encryptedVotes: election.electionType.secretUntilTheEnd,
+      uniqueValues: election.voteType.uniqueChoices,
+      costFromWeight: election.voteType.costFromWeight,
+    }).then((response) => response.electionID);
+  }
+
+  /**
    * Fetches the encryption keys from the specified process.
    *
    * @param {string} electionId The identifier of the election
