@@ -79,7 +79,7 @@ export type ClientOptions = {
   api_url?: string;
   wallet?: Wallet | Signer;
   electionId?: string;
-  faucet?: FaucetOptions;
+  faucet?: Partial<FaucetOptions>;
   tx_wait?: TxWaitOptions;
 };
 
