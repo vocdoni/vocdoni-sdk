@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2023-11-28
+
+### Added
+
+- New election service functions `nextElectionId` and `getElectionSalt`.
+
+### Changed
+
+- [**BREAKING**] Refactored options for `isInCensus`, `hasAlreadyVoted`, `isAbleToVote` and `votesLeftCount`.
+- [**BREAKING**] New options for `AnonymousVote` which enable to add the user's signature.
+- [**BREAKING**] New internal anonymous flow when signature is given by the consumer.
+
 ## [0.5.3] - 2023-11-28
 
 ### Added

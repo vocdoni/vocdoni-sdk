@@ -1,5 +1,12 @@
 import { Service, ServiceProperties } from './service';
-import { Census, InvalidElection, PublishedCensus, PublishedElection, UnpublishedElection } from '../types';
+import {
+  ArchivedElection,
+  Census,
+  InvalidElection,
+  PublishedCensus,
+  PublishedElection,
+  UnpublishedElection,
+} from '../types';
 import { AccountAPI, ElectionAPI, IElectionCreateResponse, IElectionKeysResponse } from '../api';
 import { CensusService } from './census';
 import { allSettled } from '../util/promise';
@@ -9,7 +16,8 @@ import { ChainService } from './chain';
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
 import { ArchivedCensus } from '../types/census/archived';
-import { ArchivedElection } from '../types/election/archived';
+import { keccak256 } from '@ethersproject/keccak256';
+import { Buffer } from 'buffer';
 
 interface ElectionServiceProperties {
   censusService: CensusService;
@@ -215,6 +223,34 @@ export class ElectionService extends Service implements ElectionServicePropertie
       uniqueValues: election.voteType.uniqueChoices,
       costFromWeight: election.voteType.costFromWeight,
     }).then((response) => response.electionID);
+  }
+
+  /**
+   * Returns an election salt for address
+   *
+   * @param {string} address The address of the account
+   * @param {number} electionCount The election count
+   * @returns {Promise<string>} The election salt
+   */
+  getElectionSalt(address: string, electionCount: number): Promise<string> {
+    invariant(this.url, 'No URL set');
+    invariant(this.chainService, 'No chain service set');
+    return this.chainService.fetchChainData().then((chainData) => {
+      return keccak256(Buffer.from(address + chainData.chainId + electionCount.toString()));
+    });
+  }
+
+  /**
+   * Returns a numeric election identifier
+   *
+   * @param {string} electionId The identifier of the election
+   * @returns {number} The numeric identifier
+   */
+  getNumericElectionId(electionId: string): number {
+    const arr = electionId.substring(electionId.length - 8, electionId.length).match(/.{1,2}/g);
+    const uint32Array = new Uint8Array(arr.map((byte) => parseInt(byte, 16)));
+    const dataView = new DataView(uint32Array.buffer);
+    return dataView.getUint32(0);
   }
 
   /**

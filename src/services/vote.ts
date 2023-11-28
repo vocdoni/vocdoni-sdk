@@ -5,7 +5,6 @@ import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
 import { VoteCore } from '../core/vote';
 import { IVoteInfoResponse, IVoteSubmitResponse, VoteAPI } from '../api';
-import { keccak256 } from '@ethersproject/keccak256';
 
 interface VoteServiceProperties {
   chainService: ChainService;
@@ -44,14 +43,13 @@ export class VoteService extends Service implements VoteServiceProperties {
   /**
    * Get the vote information
    *
-   * @param {string} address The address of the voter
-   * @param {string} electionId The id of the election
+   * @param {string} voteId The identifier of the vote
    *
    * @returns {Promise<VoteInfo>}
    */
-  info(address: string, electionId: string): Promise<VoteInfo> {
+  info(voteId: string): Promise<VoteInfo> {
     invariant(this.url, 'No URL set');
-    return VoteAPI.info(this.url, keccak256(address.toLowerCase() + electionId));
+    return VoteAPI.info(this.url, voteId);
   }
 
   /**
