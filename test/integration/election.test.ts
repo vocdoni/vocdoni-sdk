@@ -916,4 +916,24 @@ describe('Election integration tests', () => {
         expect(election.census.censusURI).toEqual(census2.censusURI);
       });
   }, 185000);
+  it('should return the next election id', async () => {
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+
+    const election = createElection(census);
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return waitForElectionReady(client, electionId);
+      })
+      .then(async () => {
+        const nextElectionId = await client.electionService.nextElectionId(await client.wallet.getAddress(), election);
+        expect(nextElectionId).toEqual(client.electionId.slice(0, -1) + '1');
+      });
+  }, 85000);
 });

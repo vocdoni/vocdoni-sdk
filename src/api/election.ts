@@ -4,6 +4,7 @@ import { API } from './api';
 
 enum ElectionAPIMethods {
   INFO = '/elections',
+  NEXT_ELECTION_ID = '/elections/id',
   PRICE = '/elections/price',
   KEYS = '/elections/{id}/keys',
   CREATE = '/elections',
@@ -136,6 +137,13 @@ export interface IElectionCreateResponse {
    * The metadata URL
    */
   metadataURL: number;
+}
+
+export interface IElectionNextIdResponse {
+  /**
+   * The next election identifier
+   */
+  electionID: string;
 }
 
 export enum CensusTypeEnum {
@@ -405,6 +413,31 @@ export abstract class ElectionAPI extends API {
   public static create(url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
     return axios
       .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, { txPayload: payload, metadata })
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the next election id.
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} organizationId The identifier of the organization
+   * @param {number} censusOrigin The census origin
+   * @param {IVoteMode} envelopeType The envelope type
+   * @returns {Promise<IElectionNextIdResponse>}
+   */
+  public static nextElectionId(
+    url: string,
+    organizationId: string,
+    censusOrigin: number,
+    envelopeType?: Partial<IVoteMode>
+  ): Promise<IElectionNextIdResponse> {
+    return axios
+      .post<IElectionNextIdResponse>(url + ElectionAPIMethods.NEXT_ELECTION_ID, {
+        organizationId,
+        censusOrigin,
+        envelopeType,
+      })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
