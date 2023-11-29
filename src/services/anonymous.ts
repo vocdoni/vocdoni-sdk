@@ -79,9 +79,15 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     );
   }
 
-  async fetchAccountSIK(address: string) {
+  async fetchAccountSIK(address: string): Promise<string> {
     invariant(this.url, 'No URL set');
-    return ZkAPI.sik(this.url, address);
+    return ZkAPI.sik(this.url, address).then((response) => response.sik);
+  }
+
+  async hasRegisteredSIK(address: string, signature: string, password?: string): Promise<boolean> {
+    return Promise.all([AnonymousService.calcSik(address, signature, password), this.fetchAccountSIK(address)])
+      .then(([calcSik, fetchSik]) => calcSik === fetchSik)
+      .catch(() => false);
   }
 
   async fetchZKProof(address: string) {
