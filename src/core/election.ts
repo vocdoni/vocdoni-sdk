@@ -307,6 +307,23 @@ export abstract class ElectionCore extends TransactionCore {
     if (typeof dateTime == 'number') dateTime = new Date(dateTime);
     else if (!(dateTime instanceof Date)) return null;
 
+    const outliers = (arr: number[]): number[] => {
+      const values = arr.concat();
+      values.sort((a, b) => a - b);
+
+      const q1 = values[Math.floor(values.length / 4)];
+      const q3 = values[Math.ceil(values.length * (3 / 4))];
+      const iqr = q3 - q1;
+      const maxValue = q3 + iqr * 1.5;
+      const minValue = q1 - iqr * 1.5;
+
+      return values.filter((x) => x <= maxValue && x >= minValue);
+    };
+
+    chainData.blockTime = chainData.blockTime.map((part) => {
+      return outliers(chainData.blockTime).includes(part) ? part : 0;
+    });
+
     let averageBlockTime = this.VOCHAIN_BLOCK_TIME_IN_SECONDS * 1000;
     let weightA: number, weightB: number;
 
