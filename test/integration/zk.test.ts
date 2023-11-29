@@ -164,6 +164,59 @@ describe('zkSNARK test', () => {
         expect(votesLeftCount).toEqual(8); // The user voted twice
       });
   }, 285000);
+  it('should create an anonymous election, vote and check if the user has the SIK registered', async () => {
+    const census = new PlainCensus();
+    const voter = VocdoniSDKClient.generateWalletFromData('just dummy data' + Math.random());
+    census.add(voter.address);
+
+    const election = createElection(
+      census,
+      {
+        anonymous: true,
+      },
+      {
+        maxVoteOverwrites: 9,
+      }
+    );
+
+    let nullifier: string;
+    let signature: string;
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((publishedElection) => {
+        expect(publishedElection.electionType.anonymous).toBeTruthy();
+        return waitForElectionReady(client, publishedElection.id);
+      })
+      .then(async () => {
+        client.wallet = voter;
+        signature = await client.anonymousService.signSIKPayload(voter);
+
+        const vote = new AnonymousVote([0], signature, 'realpassword');
+        nullifier = await AnonymousService.calcVoteId(signature, 'realpassword', client.electionId);
+
+        const hasAlreadyVoted = await client.hasAlreadyVoted({ voteId: nullifier });
+        expect(hasAlreadyVoted).toBeFalsy();
+
+        return client.submitVote(vote);
+      })
+      .then(async (voteId) => {
+        expect(voteId).toEqual(nullifier);
+        const hasAlreadyVoted = await client.hasAlreadyVoted({ voteId });
+        expect(hasAlreadyVoted).toBeTruthy();
+        const votesLeftCount = await client.votesLeftCount({ voteId });
+        expect(votesLeftCount).toEqual(9);
+        expect(await client.anonymousService.hasRegisteredSIK(voter.address, signature, 'realpassword')).toBeTruthy();
+        expect(await client.anonymousService.hasRegisteredSIK(voter.address, signature, 'wrongpassword')).toBeFalsy();
+      });
+  }, 285000);
   it('should create a weighted anonymous election and vote successfully', async () => {
     const census = new WeightedCensus();
     const voter1 = Wallet.createRandom();
