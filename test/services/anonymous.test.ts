@@ -1,7 +1,7 @@
 import { AnonymousService, ChainCircuits } from '../../src';
 // @ts-ignore
 import { URL } from './util/client.params';
-import { sha256 } from '@ethersproject/sha2';
+import { sha256 } from 'js-sha256';
 
 describe('Anonymous Service tests', () => {
   it('should have the correct type and properties', () => {

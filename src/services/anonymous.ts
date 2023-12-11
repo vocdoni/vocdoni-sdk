@@ -2,7 +2,7 @@ import { Service, ServiceProperties } from './service';
 import { ChainAPI } from '../api';
 import invariant from 'tiny-invariant';
 import { ensure0x, strip0x } from '../util/common';
-import { sha256 } from '@ethersproject/sha2';
+import { sha256 } from 'js-sha256';
 import { groth16 } from 'snarkjs';
 import { hexlify } from '@ethersproject/bytes';
 import { toUtf8Bytes } from '@ethersproject/strings';
