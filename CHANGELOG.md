@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Changed sha256 library from `@ethersproject/sha2` to `js-sha256` for web workers.
+- Using API endpoint for estimating blocks from dates when creating an election.
 
 ## [0.6.1] - 2023-11-29
 
