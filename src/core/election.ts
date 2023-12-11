@@ -71,10 +71,10 @@ export abstract class ElectionCore extends TransactionCore {
   public static async generateNewElectionTransaction(
     election: UnpublishedElection,
     cid: string,
-    chainData: ChainData,
+    blocks: { actual: number; start: number; end: number },
     accountData: AccountData
   ): Promise<{ tx: Uint8Array; metadata: string; message: string }> {
-    const txData = this.prepareElectionData(election, cid, chainData, accountData);
+    const txData = this.prepareElectionData(election, cid, blocks, accountData);
 
     const newProcess = NewProcessTx.fromPartial({
       txtype: TxType.NEW_PROCESS,
@@ -92,26 +92,17 @@ export abstract class ElectionCore extends TransactionCore {
   private static prepareElectionData(
     election: UnpublishedElection,
     cid: string,
-    chainData: ChainData,
+    blocks: { actual: number; start: number; end: number },
     accountData: AccountData
   ): { metadata: string; electionData: object } {
-    let startBlock = 0;
-    let actualBlock = 0;
-    if (election.startDate) {
-      startBlock = this.estimateBlockAtDateTime(election.startDate, chainData);
-    } else {
-      actualBlock = this.estimateBlockAtDateTime(new Date(), chainData);
-    }
-    const endBlock = this.estimateBlockAtDateTime(election.endDate, chainData);
-
     return {
       metadata: Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64'),
       electionData: {
         nonce: accountData.nonce,
         process: {
           entityId: Uint8Array.from(Buffer.from(accountData.address, 'hex')),
-          startBlock: election.startDate ? startBlock : 0,
-          blockCount: endBlock - (election.startDate ? startBlock : actualBlock),
+          startBlock: election.startDate ? blocks.start : 0,
+          blockCount: blocks.end - (election.startDate ? blocks.start : blocks.actual),
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),
           censusURI: election.census.censusURI,
           status: ProcessStatus.READY,

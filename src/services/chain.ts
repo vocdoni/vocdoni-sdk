@@ -106,6 +106,17 @@ export class ChainService extends Service implements ChainServiceProperties {
   }
 
   /**
+   * Returns the block number for a given date.
+   *
+   * @param {Date} date The date which we want to retrieve the block number from
+   * @returns {Promise<number>} The block number
+   */
+  dateToBlock(date: Date): Promise<number> {
+    invariant(this.url, 'No URL set');
+    return ChainAPI.dateToBlock(this.url, Math.floor(date.getTime() / 1000)).then((response) => response.height);
+  }
+
+  /**
    * A convenience method to wait for a transaction to be executed. It will
    * loop trying to get the transaction information, and will retry every time
    * it fails.
