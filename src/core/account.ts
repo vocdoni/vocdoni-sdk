@@ -14,7 +14,7 @@ import { Buffer } from 'buffer';
 import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
 import { strip0x } from '../util/common';
-import { AccountData, CensusProof, FaucetPackage } from '../services';
+import { CensusProof, FaucetPackage } from '../services';
 import { TxMessage } from '../util/constants';
 
 export abstract class AccountCore extends TransactionCore {
@@ -48,23 +48,13 @@ export abstract class AccountCore extends TransactionCore {
   }
 
   public static generateUpdateAccountTransaction(
-    accountData: AccountData,
+    address: string,
+    nonce: number,
     account: Account,
     cid: string
   ): { tx: Uint8Array; metadata: string; message: string } {
-    const message = TxMessage.UPDATE_ACCOUNT.replace('{address}', strip0x(accountData.address).toLowerCase()).replace(
-      '{uri}',
-      cid
-    );
-    const txData = this.prepareSetAccountData(
-      {
-        address: accountData.address,
-        nonce: accountData.nonce,
-        metadata: account.generateMetadata(),
-        cid,
-      },
-      false
-    );
+    const message = TxMessage.UPDATE_ACCOUNT.replace('{address}', strip0x(address).toLowerCase()).replace('{uri}', cid);
+    const txData = this.prepareSetAccountData({ address, nonce, metadata: account.generateMetadata(), cid }, false);
     return {
       message,
       ...this.generateSetAccountTransaction(txData),
@@ -87,10 +77,10 @@ export abstract class AccountCore extends TransactionCore {
   }
 
   public static generateCollectFaucetTransaction(
-    accountData: AccountData,
+    nonce: number,
     faucetPackage: FaucetPackage
   ): { tx: Uint8Array; message: string } {
-    const txData = this.prepareCollectFaucetData(accountData, faucetPackage);
+    const txData = this.prepareCollectFaucetData(nonce, faucetPackage);
     const message = TxMessage.COLLECT_FAUCET;
     const collectFaucet = CollectFaucetTx.fromPartial(txData);
     const tx = Tx.encode({
@@ -183,9 +173,9 @@ export abstract class AccountCore extends TransactionCore {
     };
   }
 
-  private static prepareCollectFaucetData(accountData: AccountData, faucetPackage: FaucetPackage) {
+  private static prepareCollectFaucetData(nonce: number, faucetPackage: FaucetPackage) {
     return {
-      nonce: accountData.nonce,
+      nonce,
       faucetPackage: this.prepareFaucetPackage(faucetPackage),
     };
   }
