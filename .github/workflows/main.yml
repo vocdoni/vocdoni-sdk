@@ -97,9 +97,6 @@ jobs:
           echo "timed out waiting"
           exit 1
 
-      - name: Wait until block times are stable
-        run: sleep 60
-
       - name: Integration tests
         run: yarn test:integration --ci --coverage --maxWorkers=2
 
