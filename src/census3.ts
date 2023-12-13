@@ -181,14 +181,18 @@ export class VocdoniCensus3Client {
   }
 
   /**
-   * Returns the size of the strategy based on the id
+   * Returns the estimation of size and time (in milliseconds) to create the census generated for the provided strategy
    *
    * @param {number} id The id of the strategy
-   * @returns {Promise<Strategy>} The strategy size
+   * @returns {Promise<Strategy>} The strategy estimation
    */
-  getStrategySize(id: number): Promise<number> {
+  getStrategyEstimation(id: number): Promise<{ size: number; timeToCreateCensus: number }> {
     invariant(id || id >= 0, 'No strategy id');
-    const waitForQueue = (queueId: string, wait?: number, attempts?: number): Promise<number> => {
+    const waitForQueue = (
+      queueId: string,
+      wait?: number,
+      attempts?: number
+    ): Promise<{ size: number; timeToCreateCensus: number }> => {
       const waitTime = wait ?? this.queueWait?.retryTime;
       const attemptsNum = attempts ?? this.queueWait?.attempts;
       invariant(waitTime, 'No queue wait time set');
@@ -196,19 +200,19 @@ export class VocdoniCensus3Client {
 
       return attemptsNum === 0
         ? Promise.reject('Time out waiting for queue with id: ' + queueId)
-        : Census3StrategyAPI.sizeQueue(this.url, id, queueId).then((queue) => {
+        : Census3StrategyAPI.estimationQueue(this.url, id, queueId).then((queue) => {
             switch (true) {
               case queue.done && queue.error?.code?.toString().length > 0:
                 return Promise.reject(new Error('Could not create the census'));
               case queue.done:
-                return Promise.resolve(queue.size);
+                return Promise.resolve(queue.estimation);
               default:
                 return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
             }
           });
     };
 
-    return Census3StrategyAPI.size(this.url, id)
+    return Census3StrategyAPI.estimation(this.url, id)
       .then((queueResponse) => queueResponse.queueID)
       .then((queueId) => waitForQueue(queueId));
   }
