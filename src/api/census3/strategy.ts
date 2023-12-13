@@ -8,8 +8,8 @@ enum Census3StrategyAPIMethods {
   IMPORT = '/strategies/import/{cid}',
   IMPORT_QUEUE = '/strategies/import/queue/{queueId}',
   STRATEGY = '/strategies/{id}',
-  SIZE = '/strategies/{id}/size',
-  SIZE_QUEUE = '/strategies/{id}/size/queue/{queueId}',
+  ESTIMATION = '/strategies/{id}/estimation',
+  ESTIMATION_QUEUE = '/strategies/{id}/estimation/queue/{queueId}',
   VALIDATE_PREDICATE = '/strategies/predicate/validate',
   OPERATORS = '/strategies/predicate/operators',
 }
@@ -83,7 +83,7 @@ export type Census3StrategyToken = {
 
 export type Census3CreateStrategyToken = Omit<Census3StrategyToken, 'chainAddress'>;
 
-export interface ICensus3StrategySizeQueueResponse {
+export interface ICensus3StrategyEstimationQueueResponse {
   /**
    * If the queue has been done
    */
@@ -105,9 +105,19 @@ export interface ICensus3StrategySizeQueueResponse {
   };
 
   /**
-   * The size of the strategy
+   * The estimation of the strategy
    */
-  size: number;
+  estimation: {
+    /**
+     * The estimation of the size
+     */
+    size: number;
+
+    /**
+     * The estimation of the time to create the census
+     */
+    timeToCreateCensus: number;
+  };
 }
 
 export interface ICensus3StrategyImportQueueResponse {
@@ -280,35 +290,36 @@ export abstract class Census3StrategyAPI extends Census3API {
   }
 
   /**
-   * Returns the size of the strategy
+   * Returns the estimation of size and time (in milliseconds) to create the census generated for the provided strategy
    *
    * @param {string} url API endpoint URL
    * @param {number} id The identifier of the strategy
    * @returns {Promise<ICensus3QueueResponse>} The queue identifier
    */
-  public static size(url: string, id: number): Promise<ICensus3QueueResponse> {
+  public static estimation(url: string, id: number): Promise<ICensus3QueueResponse> {
     return axios
-      .get<ICensus3QueueResponse>(url + Census3StrategyAPIMethods.SIZE.replace('{id}', String(id)))
+      .get<ICensus3QueueResponse>(url + Census3StrategyAPIMethods.ESTIMATION.replace('{id}', String(id)))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
 
   /**
-   * Returns the information of the strategy size queue
+   * Returns the information of the strategy estimation queue
    *
    * @param {string} url API endpoint URL
    * @param {number} strategyId The identifier of the strategy
-   * @param {string} queueId The identifier of the strategy size queue
-   * @returns {Promise<ICensus3StrategySizeQueueResponse>}
+   * @param {string} queueId The identifier of the strategy estimation queue
+   * @returns {Promise<ICensus3StrategyEstimationQueueResponse>}
    */
-  public static sizeQueue(
+  public static estimationQueue(
     url: string,
     strategyId: number,
     queueId: string
-  ): Promise<ICensus3StrategySizeQueueResponse> {
+  ): Promise<ICensus3StrategyEstimationQueueResponse> {
     return axios
-      .get<ICensus3StrategySizeQueueResponse>(
-        url + Census3StrategyAPIMethods.SIZE_QUEUE.replace('{id}', String(strategyId)).replace('{queueId}', queueId)
+      .get<ICensus3StrategyEstimationQueueResponse>(
+        url +
+          Census3StrategyAPIMethods.ESTIMATION_QUEUE.replace('{id}', String(strategyId)).replace('{queueId}', queueId)
       )
       .then((response) => response.data)
       .catch(this.isApiError);

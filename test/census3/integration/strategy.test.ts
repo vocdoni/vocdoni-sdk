@@ -45,12 +45,14 @@ describe('Census3 strategies integration tests', () => {
       });
     }
   }, 5000);
-  it('should return the given strategy size', async () => {
+  it('should return the given strategy estimation', async () => {
     const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
     const strategies = await client.getStrategies();
     if (strategies.length > 0) {
-      const size = await client.getStrategySize(strategies[0].ID);
-      expect(typeof size).toBe('number');
+      const estimation = await client.getStrategyEstimation(strategies[0].ID);
+      expect(typeof estimation).toBe('object');
+      expect(typeof estimation.size).toBe('number');
+      expect(typeof estimation.timeToCreateCensus).toBe('number');
     }
   }, 25000);
   it('should create a new strategy', async () => {
