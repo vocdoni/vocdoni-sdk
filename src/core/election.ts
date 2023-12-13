@@ -11,7 +11,7 @@ import { AllElectionStatus, CensusType, ElectionStatus, UnpublishedElection } fr
 import { TransactionCore } from './transaction';
 import { Buffer } from 'buffer';
 import { strip0x } from '../util/common';
-import { AccountData, ChainCosts, ChainData } from '../services';
+import { ChainCosts, ChainData } from '../services';
 import { TxMessage } from '../util/constants';
 
 export abstract class ElectionCore extends TransactionCore {
@@ -68,13 +68,14 @@ export abstract class ElectionCore extends TransactionCore {
     return { tx, message };
   }
 
-  public static async generateNewElectionTransaction(
+  public static generateNewElectionTransaction(
     election: UnpublishedElection,
     cid: string,
     blocks: { actual: number; start: number; end: number },
-    accountData: AccountData
-  ): Promise<{ tx: Uint8Array; metadata: string; message: string }> {
-    const txData = this.prepareElectionData(election, cid, blocks, accountData);
+    address: string,
+    nonce: number
+  ): { tx: Uint8Array; metadata: string; message: string } {
+    const txData = this.prepareElectionData(election, cid, blocks, address, nonce);
 
     const newProcess = NewProcessTx.fromPartial({
       txtype: TxType.NEW_PROCESS,
@@ -93,14 +94,15 @@ export abstract class ElectionCore extends TransactionCore {
     election: UnpublishedElection,
     cid: string,
     blocks: { actual: number; start: number; end: number },
-    accountData: AccountData
+    address: string,
+    nonce: number
   ): { metadata: string; electionData: object } {
     return {
       metadata: Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64'),
       electionData: {
-        nonce: accountData.nonce,
+        nonce: nonce,
         process: {
-          entityId: Uint8Array.from(Buffer.from(accountData.address, 'hex')),
+          entityId: Uint8Array.from(Buffer.from(address, 'hex')),
           startBlock: election.startDate ? blocks.start : 0,
           blockCount: blocks.end - (election.startDate ? blocks.start : blocks.actual),
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),

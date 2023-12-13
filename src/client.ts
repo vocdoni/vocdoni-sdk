@@ -324,7 +324,7 @@ export class VocdoniSDKClient {
       this.fetchAccountInfo(),
       this.fetchChainId(),
       this.fileService.calculateCID(JSON.stringify(account.generateMetadata())),
-    ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0], account, data[2]));
+    ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0].address, data[0].nonce, account, data[2]));
 
     return this.setAccountInfo(accountData);
   }
@@ -431,7 +431,7 @@ export class VocdoniSDKClient {
     return Promise.all([this.fetchAccountInfo(), faucet])
       .then(([account, faucet]) => {
         const faucetPackage = this.faucetService.parseFaucetPackage(faucet);
-        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account, faucetPackage);
+        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account.nonce, faucetPackage);
         return this.accountService.signTransaction(collectFaucetTx.tx, collectFaucetTx.message, this.wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
@@ -519,7 +519,13 @@ export class VocdoniSDKClient {
       key: ElectionCreationSteps.ESTIMATE_BLOCK_TIMES,
     };
 
-    const electionTxData = await ElectionCore.generateNewElectionTransaction(election, cid, blocks, account);
+    const electionTxData = ElectionCore.generateNewElectionTransaction(
+      election,
+      cid,
+      blocks,
+      account.address,
+      account.nonce
+    );
     yield {
       key: ElectionCreationSteps.GENERATE_TX,
     };
