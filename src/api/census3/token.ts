@@ -9,6 +9,8 @@ enum Census3TokenAPIMethods {
   HOLDER = '/tokens/{tokenID}/holders/{holderID}?chainID={chainID}',
 }
 
+export type Census3SummaryToken = Omit<Census3Token, 'status' | 'size'> & { synced: boolean };
+
 export type Census3Token = {
   /**
    * The id (address) of the token.
@@ -19,6 +21,11 @@ export type Census3Token = {
    * The name of the token.
    */
   name: string;
+
+  /**
+   * The size (token holders) of the token.
+   */
+  size: number;
 
   /**
    * The type of the token.
@@ -100,7 +107,7 @@ export interface ICensus3TokenListResponse {
   /**
    * The list of the tokens
    */
-  tokens: Array<Census3Token>;
+  tokens: Array<Census3SummaryToken>;
 }
 
 export interface ICensus3TokenListResponsePaginated extends ICensus3TokenListResponse {
