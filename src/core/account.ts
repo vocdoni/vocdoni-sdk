@@ -11,10 +11,8 @@ import {
   TxType,
 } from '@vocdoni/proto/vochain';
 import { Buffer } from 'buffer';
-import { Account, AccountMetadata } from '../types';
 import { TransactionCore } from './transaction';
 import { strip0x } from '../util/common';
-import { CensusProof, FaucetPackage } from '../services';
 import { TxMessage } from '../util/constants';
 
 export abstract class AccountCore extends TransactionCore {
@@ -27,18 +25,19 @@ export abstract class AccountCore extends TransactionCore {
 
   public static generateCreateAccountTransaction(
     address: string,
-    account: Account,
+    metadata: string,
     cid: string,
-    faucetPackage: FaucetPackage,
+    faucetPayload: string,
+    faucetSignature: string,
     sik: string
   ): { tx: Uint8Array; metadata: string; message: string } {
     const message = TxMessage.CREATE_ACCOUNT.replace('{address}', strip0x(address).toLowerCase());
     const txData = this.prepareSetAccountData({
       address,
       nonce: 0,
-      metadata: account.generateMetadata(),
+      metadata,
       cid,
-      faucetPackage,
+      faucet: { payload: faucetPayload, signature: faucetSignature },
       sik,
     });
     return {
@@ -50,11 +49,11 @@ export abstract class AccountCore extends TransactionCore {
   public static generateUpdateAccountTransaction(
     address: string,
     nonce: number,
-    account: Account,
+    metadata: string,
     cid: string
   ): { tx: Uint8Array; metadata: string; message: string } {
     const message = TxMessage.UPDATE_ACCOUNT.replace('{address}', strip0x(address).toLowerCase()).replace('{uri}', cid);
-    const txData = this.prepareSetAccountData({ address, nonce, metadata: account.generateMetadata(), cid }, false);
+    const txData = this.prepareSetAccountData({ address, nonce, metadata, cid }, false);
     return {
       message,
       ...this.generateSetAccountTransaction(txData),
@@ -78,9 +77,10 @@ export abstract class AccountCore extends TransactionCore {
 
   public static generateCollectFaucetTransaction(
     nonce: number,
-    faucetPackage: FaucetPackage
+    faucetPayload: string,
+    faucetSignature: string
   ): { tx: Uint8Array; message: string } {
-    const txData = this.prepareCollectFaucetData(nonce, faucetPackage);
+    const txData = this.prepareCollectFaucetData(nonce, { payload: faucetPayload, signature: faucetSignature });
     const message = TxMessage.COLLECT_FAUCET;
     const collectFaucet = CollectFaucetTx.fromPartial(txData);
     const tx = Tx.encode({
@@ -96,13 +96,14 @@ export abstract class AccountCore extends TransactionCore {
   public static generateRegisterSIKTransaction(
     electionId: string,
     sik: string,
-    proof: CensusProof
+    proof: string,
+    value: string
   ): { tx: Uint8Array; message: string } {
     const message = TxMessage.REGISTER_SIK.replace('{sik}', sik);
     const aProof = ProofArbo.fromPartial({
-      siblings: Uint8Array.from(Buffer.from(proof.proof, 'hex')),
+      siblings: Uint8Array.from(Buffer.from(proof, 'hex')),
       type: ProofArbo_Type.POSEIDON,
-      availableWeight: new Uint8Array(Buffer.from(proof.value, 'hex')),
+      availableWeight: new Uint8Array(Buffer.from(value, 'hex')),
       keyType: ProofArbo_KeyType.ADDRESS,
     });
 
@@ -153,37 +154,37 @@ export abstract class AccountCore extends TransactionCore {
     data: {
       address: string;
       nonce: number;
-      metadata: AccountMetadata;
+      metadata: string;
       cid: string;
-      faucetPackage?: FaucetPackage;
+      faucet?: { payload: string; signature: string };
       sik?: string;
     },
     create: boolean = true
   ): { metadata: string; accountData: object } {
     return {
-      metadata: Buffer.from(JSON.stringify(data.metadata), 'utf8').toString('base64'),
+      metadata: Buffer.from(data.metadata, 'utf8').toString('base64'),
       accountData: {
         txtype: create ? TxType.CREATE_ACCOUNT : TxType.SET_ACCOUNT_INFO_URI,
         nonce: data.nonce,
         account: new Uint8Array(Buffer.from(strip0x(data.address), 'hex')),
         infoURI: data.cid,
-        faucetPackage: data.faucetPackage ? this.prepareFaucetPackage(data.faucetPackage) : null,
+        faucetPackage: data.faucet ? this.prepareFaucetPackage(data.faucet) : null,
         SIK: data.sik ? new Uint8Array(Buffer.from(strip0x(data.sik), 'hex')) : null,
       },
     };
   }
 
-  private static prepareCollectFaucetData(nonce: number, faucetPackage: FaucetPackage) {
+  private static prepareCollectFaucetData(nonce: number, faucet: { payload: string; signature: string }) {
     return {
       nonce,
-      faucetPackage: this.prepareFaucetPackage(faucetPackage),
+      faucetPackage: this.prepareFaucetPackage(faucet),
     };
   }
 
-  private static prepareFaucetPackage(faucetPackage: FaucetPackage) {
+  private static prepareFaucetPackage(faucet: { payload: string; signature: string }) {
     return {
-      payload: Uint8Array.from(Buffer.from(faucetPackage.payload, 'base64')),
-      signature: Uint8Array.from(Buffer.from(faucetPackage.signature, 'base64')),
+      payload: Uint8Array.from(Buffer.from(faucet.payload, 'base64')),
+      signature: Uint8Array.from(Buffer.from(faucet.signature, 'base64')),
     };
   }
 }
