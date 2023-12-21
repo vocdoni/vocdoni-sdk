@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Supported tokens from Census3 using `getSupportedTokens()` returns now a token summary.
+
 ### Added
 
 - Added `ArchivedAccountData` for dealing with archived accounts and new `fetchAccount` function in client.
