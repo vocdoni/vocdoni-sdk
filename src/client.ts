@@ -254,7 +254,12 @@ export class VocdoniSDKClient {
       .getAddress()
       .then((address) => AnonymousService.calcSik(address, signature, password))
       .then((calculatedSIK) => {
-        const registerSIKTx = AccountCore.generateRegisterSIKTransaction(electionId, calculatedSIK, censusProof);
+        const registerSIKTx = AccountCore.generateRegisterSIKTransaction(
+          electionId,
+          calculatedSIK,
+          censusProof.proof,
+          censusProof.value
+        );
         return this.accountService.signTransaction(registerSIKTx.tx, registerSIKTx.message, wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
@@ -333,7 +338,14 @@ export class VocdoniSDKClient {
       this.fetchChainId(),
       this.fileService.calculateCID(JSON.stringify(options.account.generateMetadata())),
     ]).then((data) =>
-      AccountCore.generateCreateAccountTransaction(address, options.account, data[1], faucetPackage, calculatedSik)
+      AccountCore.generateCreateAccountTransaction(
+        address,
+        JSON.stringify(options.account.generateMetadata()),
+        data[1],
+        faucetPackage.payload,
+        faucetPackage.signature,
+        calculatedSik
+      )
     );
 
     return this.setAccountInfo(accountData);
@@ -353,7 +365,14 @@ export class VocdoniSDKClient {
       this.fetchAccount(),
       this.fetchChainId(),
       this.fileService.calculateCID(JSON.stringify(account.generateMetadata())),
-    ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0].address, data[0].nonce, account, data[2]));
+    ]).then((data) =>
+      AccountCore.generateUpdateAccountTransaction(
+        data[0].address,
+        data[0].nonce,
+        JSON.stringify(account.generateMetadata()),
+        data[2]
+      )
+    );
 
     return this.setAccountInfo(accountData);
   }
@@ -460,7 +479,11 @@ export class VocdoniSDKClient {
     return Promise.all([this.fetchAccount(), faucet])
       .then(([account, faucet]) => {
         const faucetPackage = this.faucetService.parseFaucetPackage(faucet);
-        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account.nonce, faucetPackage);
+        const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(
+          account.nonce,
+          faucetPackage.payload,
+          faucetPackage.signature
+        );
         return this.accountService.signTransaction(collectFaucetTx.tx, collectFaucetTx.message, this.wallet);
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
