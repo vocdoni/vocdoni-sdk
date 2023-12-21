@@ -12,6 +12,7 @@ import {
   Census3CreateStrategyToken,
   ICensus3ValidatePredicateResponse,
   ICensus3StrategiesOperator,
+  Census3SummaryToken,
 } from './api';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
@@ -19,6 +20,7 @@ import { TokenCensus } from './types';
 import { delay } from './util/common';
 
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
+export type TokenSummary = Omit<Census3SummaryToken, 'tags'> & { tags: string[] };
 export type Strategy = Census3Strategy;
 export type StrategyToken = Census3CreateStrategyToken;
 export type Census3Census = ICensus3CensusResponse;
@@ -48,11 +50,11 @@ export class VocdoniCensus3Client {
   }
 
   /**
-   * Returns a list of tokens supported by the service
+   * Returns a list of summary tokens supported by the service
    *
-   * @returns {Promise<Token[]>} Token list
+   * @returns {Promise<TokenSummary[]>} Token summary list
    */
-  getSupportedTokens(): Promise<Token[]> {
+  getSupportedTokens(): Promise<TokenSummary[]> {
     return Census3TokenAPI.list(this.url, { pageSize: -1 }).then(
       (list) =>
         list?.tokens?.map((token) => ({
