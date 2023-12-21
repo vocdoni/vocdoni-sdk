@@ -28,8 +28,11 @@ export type AccountData = {
   nonce: number;
   electionIndex: number;
   infoURL?: string;
+  sik?: string;
   account: Account;
 };
+
+export type ArchivedAccountData = Pick<AccountData, 'address' | 'account'>;
 
 export class AccountService extends Service implements AccountServiceProperties {
   public chainService: ChainService;
@@ -50,21 +53,37 @@ export class AccountService extends Service implements AccountServiceProperties 
    * @param {string} address The account address to fetch the information
    * @returns {Promise<AccountData>}
    */
-  async fetchAccountInfo(address: string): Promise<AccountData> {
+  async fetchAccountInfo(address: string): Promise<AccountData | ArchivedAccountData> {
     invariant(this.url, 'No URL set');
-    return AccountAPI.info(this.url, address).then((accountInfo) => ({
-      account: Account.build({
-        languages: accountInfo.metadata?.languages,
-        name: accountInfo.metadata?.name,
-        description: accountInfo.metadata?.description,
-        feed: accountInfo.metadata?.newsFeed,
-        header: accountInfo.metadata?.media?.header,
-        avatar: accountInfo.metadata?.media?.avatar,
-        logo: accountInfo.metadata?.media?.logo,
-        meta: Object.entries(accountInfo.metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
-      }),
-      ...accountInfo,
-    }));
+    return AccountAPI.info(this.url, address)
+      .then((accountInfo) => ({
+        account: Account.build({
+          languages: accountInfo.metadata?.languages,
+          name: accountInfo.metadata?.name,
+          description: accountInfo.metadata?.description,
+          feed: accountInfo.metadata?.newsFeed,
+          header: accountInfo.metadata?.media?.header,
+          avatar: accountInfo.metadata?.media?.avatar,
+          logo: accountInfo.metadata?.media?.logo,
+          meta: Object.entries(accountInfo.metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
+        }),
+        ...accountInfo,
+      }))
+      .catch(() =>
+        AccountAPI.metadata(this.url, address).then((metadata) => ({
+          address,
+          account: Account.build({
+            languages: metadata?.languages,
+            name: metadata?.name,
+            description: metadata?.description,
+            feed: metadata?.newsFeed,
+            header: metadata?.media?.header,
+            avatar: metadata?.media?.avatar,
+            logo: metadata?.media?.logo,
+            meta: Object.entries(metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
+          }),
+        }))
+      );
   }
 
   /**

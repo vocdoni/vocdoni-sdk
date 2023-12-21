@@ -143,9 +143,9 @@ describe('Account integration tests', () => {
 
     await client
       .sendTokens({ to: destinationAccount.address, amount: TOKENS_AMOUNT })
-      .then(() => client.fetchAccountInfo())
+      .then(() => client.fetchAccount())
       .then((accountData) => expect(accountData.balance).toEqual(accountInfo.balance - TOKENS_AMOUNT - SEND_TX_COST))
-      .then(() => destinationClient.fetchAccountInfo())
+      .then(() => destinationClient.fetchAccount())
       .then((destinationData) => expect(destinationData.balance).toEqual(destinationInfo.balance + TOKENS_AMOUNT));
   }, 85000);
 });

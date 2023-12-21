@@ -7,6 +7,7 @@ enum AccountAPIMethods {
   LIST = '/accounts/page',
   NUM_ACCOUNTS = '/accounts/count',
   INFO = '/accounts/{accountId}',
+  METADATA = '/accounts/{accountId}/metadata',
   SET_INFO = '/accounts',
   ELECTIONS = '/accounts/{accountId}/elections/page',
   TRANSFERS = '/accounts/{accountId}/transfers/page',
@@ -146,6 +147,20 @@ export abstract class AccountAPI extends API {
   public static info(url: string, accountId: string): Promise<IAccountInfoResponse> {
     return axios
       .get<IAccountInfoResponse>(url + AccountAPIMethods.INFO.replace('{accountId}', accountId))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches the account metadata
+   *
+   * @param {string} url API endpoint URL
+   * @param {string} accountId The account we want the info from
+   * @returns {Promise<AccountMetadata>}
+   */
+  public static metadata(url: string, accountId: string): Promise<AccountMetadata> {
+    return axios
+      .get<AccountMetadata>(url + AccountAPIMethods.METADATA.replace('{accountId}', accountId))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
