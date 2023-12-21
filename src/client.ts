@@ -32,6 +32,7 @@ import {
   AccountData,
   AccountService,
   AnonymousService,
+  ArchivedAccountData,
   CensusProof,
   CensusService,
   ChainCircuits,
@@ -93,7 +94,7 @@ export type ClientOptions = {
  * point.
  */
 export class VocdoniSDKClient {
-  private accountData: AccountData | null = null;
+  private accountData: AccountData | ArchivedAccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
 
   public censusService: CensusService;
@@ -168,9 +169,9 @@ export class VocdoniSDKClient {
    * Fetches account information.
    *
    * @param {string} address The account address to fetch the information
-   * @returns {Promise<AccountData>}
+   * @returns {Promise<AccountData | ArchivedAccountData>}
    */
-  async fetchAccountInfo(address?: string): Promise<AccountData> {
+  async fetchAccountInfo(address?: string): Promise<AccountData | ArchivedAccountData> {
     if (!this.wallet && !address) {
       throw Error('No account set');
     } else if (address) {
@@ -180,6 +181,34 @@ export class VocdoniSDKClient {
         .getAddress()
         .then((address) => this.accountService.fetchAccountInfo(address));
     }
+    return this.accountData;
+  }
+
+  /**
+   * Fetches account.
+   *
+   * @param {string} address The account address to fetch the information
+   * @returns {Promise<AccountData>}
+   */
+  async fetchAccount(address?: string): Promise<AccountData> {
+    if (!this.wallet && !address) {
+      throw Error('No account set');
+    } else if (address) {
+      this.accountData = await this.accountService.fetchAccountInfo(address);
+    } else {
+      this.accountData = await this.wallet
+        .getAddress()
+        .then((address) => this.accountService.fetchAccountInfo(address));
+    }
+
+    const isAccount = (account: AccountData | ArchivedAccountData): account is AccountData => {
+      return (account as AccountData).nonce !== undefined;
+    };
+
+    if (!isAccount(this.accountData)) {
+      throw Error('Account is archived');
+    }
+
     return this.accountData;
   }
 
@@ -321,7 +350,7 @@ export class VocdoniSDKClient {
     invariant(account, 'No account');
 
     const accountData = Promise.all([
-      this.fetchAccountInfo(),
+      this.fetchAccount(),
       this.fetchChainId(),
       this.fileService.calculateCID(JSON.stringify(account.generateMetadata())),
     ]).then((data) => AccountCore.generateUpdateAccountTransaction(data[0].address, data[0].nonce, account, data[2]));
@@ -345,7 +374,7 @@ export class VocdoniSDKClient {
     return Promise.all([promAccountData, accountTx])
       .then((accountInfo) => this.accountService.setInfo(accountInfo[1], accountInfo[0].metadata))
       .then((txHash) => this.chainService.waitForTransaction(txHash))
-      .then(() => this.fetchAccountInfo());
+      .then(() => this.fetchAccount());
   }
 
   /**
@@ -370,7 +399,7 @@ export class VocdoniSDKClient {
       ...options,
     };
 
-    return this.fetchAccountInfo().catch(() => {
+    return this.fetchAccount().catch(() => {
       if (settings?.sik) {
         return this.anonymousService.signSIKPayload(this.wallet).then((signedPayload) =>
           this.createAccountInfo({
@@ -403,7 +432,7 @@ export class VocdoniSDKClient {
     invariant(settings.to && isAddress(settings.to), 'No destination address given');
     invariant(settings.amount && settings.amount > 0, 'No amount given');
 
-    return Promise.all([this.fetchAccountInfo(), settings.wallet.getAddress()])
+    return Promise.all([this.fetchAccount(), settings.wallet.getAddress()])
       .then(([accountData, fromAddress]) => {
         const transferTx = AccountCore.generateTransferTransaction(
           accountData.nonce,
@@ -428,7 +457,7 @@ export class VocdoniSDKClient {
     const faucet = faucetPackage
       ? Promise.resolve(faucetPackage)
       : this.wallet.getAddress().then((address) => this.faucetService.fetchPayload(address));
-    return Promise.all([this.fetchAccountInfo(), faucet])
+    return Promise.all([this.fetchAccount(), faucet])
       .then(([account, faucet]) => {
         const faucetPackage = this.faucetService.parseFaucetPackage(faucet);
         const collectFaucetTx = AccountCore.generateCollectFaucetTransaction(account.nonce, faucetPackage);
@@ -436,7 +465,7 @@ export class VocdoniSDKClient {
       })
       .then((signedTx) => this.chainService.submitTx(signedTx))
       .then((hash) => this.chainService.waitForTransaction(hash))
-      .then(() => this.fetchAccountInfo());
+      .then(() => this.fetchAccount());
   }
 
   /**
@@ -496,7 +525,7 @@ export class VocdoniSDKClient {
       key: ElectionCreationSteps.CENSUS_CREATED,
     };
 
-    const account = await this.fetchAccountInfo();
+    const account = await this.fetchAccount();
     yield {
       key: ElectionCreationSteps.GET_ACCOUNT_DATA,
     };
@@ -603,7 +632,7 @@ export class VocdoniSDKClient {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
-    return this.fetchAccountInfo()
+    return this.fetchAccount()
       .then((accountData) => {
         const setElectionStatusTx = ElectionCore.generateSetElectionStatusTransaction(
           electionId ?? this.electionId,
@@ -628,7 +657,7 @@ export class VocdoniSDKClient {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
-    return this.fetchAccountInfo()
+    return this.fetchAccount()
       .then((accountData) => {
         const setElectionCensusTx = ElectionCore.generateSetElectionCensusTransaction(
           electionId ?? this.electionId,
