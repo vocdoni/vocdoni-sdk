@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Supported tokens from Census3 using `getSupportedTokens()` returns now a token summary.
 
+### Fixed
+
+- Removed `nullifier` from vote package.
+
 ### Added
 
 - Added `ArchivedAccountData` for dealing with archived accounts and new `fetchAccount` function in client.
