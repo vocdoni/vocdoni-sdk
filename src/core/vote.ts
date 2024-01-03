@@ -15,22 +15,8 @@ import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
 import { TransactionCore } from './transaction';
-import { AnonymousService, CensusProof, CspCensusProof, ZkProof } from '../services';
+import { CensusProof, CspCensusProof, ZkProof } from '../services';
 import { TxMessage } from '../util/constants';
-
-export type IProofArbo = { siblings: string; weight?: bigint };
-export type IProofCA = {
-  type: number;
-  voterAddress: string;
-  signature: string;
-  weight?: bigint;
-};
-export type IProofEVM = {
-  key: string;
-  proof: string[];
-  value: string;
-  weight?: bigint;
-};
 
 export type ProcessKeys = {
   encryptionPubKeys: { index: number; key: string }[];
@@ -91,18 +77,12 @@ export abstract class VoteCore extends TransactionCore {
       const nonce = Buffer.from(strip0x(getHex()), 'hex');
       const { votePackage, keyIndexes } = this.packageVoteContent(vote.votes, processKeys);
 
-      const nullifier =
-        election.census.type == CensusType.ANONYMOUS
-          ? AnonymousService.hex_utils.toArrayBuffer((censusProof as ZkProof).publicSignals[2])
-          : new Uint8Array();
-
       return {
         proof,
         processId: new Uint8Array(Buffer.from(strip0x(election.id), 'hex')),
         nonce: new Uint8Array(nonce),
         votePackage: new Uint8Array(votePackage),
         encryptionKeyIndexes: keyIndexes || [],
-        nullifier,
       };
     } catch (error) {
       throw new Error('The poll vote envelope could not be generated');
