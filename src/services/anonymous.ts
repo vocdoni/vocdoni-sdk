@@ -247,7 +247,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
 
   static async calcVoteId(signature: string, password: string, electionId: string): Promise<string> {
     return this.calcNullifier(signature, password ?? '0', electionId).then((nullifier) =>
-      nullifier.toString().length === 76 ? nullifier.toString() : nullifier.toString() + '0'
+      this.hex_utils.fromBigInt(nullifier)
     );
   }
 
