@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant';
 import { CensusType, CspVote, Election, Vote } from '../types';
 import { CspAPI, ICspInfoResponse } from '../api/csp';
 import { CensusBlind, getBlindedPayload } from '../util/blind-signing';
+import { CspProofType } from '../core/vote';
 
 interface CspServiceProperties {
   info: ICspInfoResponse;
@@ -64,11 +65,11 @@ export class CspService extends Service implements CspServiceProperties {
     );
   }
 
-  cspVote(vote: Vote, signature: string): CspVote {
-    return CspService.cspVote(vote, signature);
+  cspVote(vote: Vote, signature: string, proof_type?: CspProofType): CspVote {
+    return CspService.cspVote(vote, signature, proof_type);
   }
 
-  static cspVote(vote: Vote, signature: string): CspVote {
-    return new CspVote(vote.votes, signature);
+  static cspVote(vote: Vote, signature: string, proof_type?: CspProofType): CspVote {
+    return new CspVote(vote.votes, signature, proof_type);
   }
 }

@@ -6,6 +6,7 @@ import { CspCensus } from '../../src';
 import { clientParams, setFaucetURL } from './util/client.params';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
+import { CspProofType } from '../../src/core/vote';
 
 const CSP_URL = process.env.BLINDCSP_URL ?? 'https://csp-dev-simplemath.vocdoni.net/v1';
 const CSP_PUBKEY = process.env.BLINDCSP_PUBKEY ?? '025de8cb8de1005aa939c1403e37e1fa165ebc758da49cb37215c6237d01591104';
@@ -66,7 +67,7 @@ describe('CSP tests', () => {
               step0.authToken
             )) as ICspFinalStepResponse;
             const signature = await pClient.cspSign(participant.address, step1.token);
-            const vote = pClient.cspVote(new Vote([index % 2]), signature);
+            const vote = pClient.cspVote(new Vote([index % 2]), signature, CspProofType.ECDSA_BLIND_PIDSALTED);
             return pClient.submitVote(vote);
           })
         );

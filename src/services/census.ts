@@ -3,6 +3,7 @@ import { CensusType, ICensusParticipant, PlainCensus, WeightedCensus } from '../
 import { CensusAPI, ICensusImportResponse, ICensusPublishResponse, WalletAPI } from '../api';
 import { Wallet } from '@ethersproject/wallet';
 import invariant from 'tiny-invariant';
+import { CspProofType } from '../core/vote';
 
 interface CensusServiceProperties {
   auth: CensusAuth;
@@ -57,6 +58,7 @@ export type CspCensusProof = {
   address: string;
   signature: string;
   weight?: bigint;
+  proof_type?: CspProofType;
 };
 
 export class CensusService extends Service implements CensusServiceProperties {

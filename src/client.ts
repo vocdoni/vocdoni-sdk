@@ -5,7 +5,7 @@ import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
-import { VoteCore } from './core/vote';
+import { CspProofType, VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
@@ -863,6 +863,7 @@ export class VocdoniSDKClient {
       censusProof = {
         address: await this.wallet.getAddress(),
         signature: vote.signature,
+        proof_type: vote.proof_type,
       };
       yield {
         key: VoteSteps.GET_PROOF,
@@ -1005,8 +1006,8 @@ export class VocdoniSDKClient {
     return this.cspService.cspSign(this.electionId, address, token);
   }
 
-  cspVote(vote: Vote, signature: string) {
-    return this.cspService.cspVote(vote, signature);
+  cspVote(vote: Vote, signature: string, proof_type?: CspProofType) {
+    return this.cspService.cspVote(vote, signature, proof_type);
   }
 
   /**

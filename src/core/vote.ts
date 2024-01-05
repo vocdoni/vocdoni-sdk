@@ -31,6 +31,13 @@ export type VotePackage = {
   votes: VoteValues;
 };
 
+export enum CspProofType {
+  ECDSA = ProofCA_Type.ECDSA,
+  ECDSA_PIDSALTED = ProofCA_Type.ECDSA_PIDSALTED,
+  ECDSA_BLIND = ProofCA_Type.ECDSA_BLIND,
+  ECDSA_BLIND_PIDSALTED = ProofCA_Type.ECDSA_BLIND_PIDSALTED,
+}
+
 export abstract class VoteCore extends TransactionCore {
   /**
    * Cannot be constructed.
@@ -130,7 +137,7 @@ export abstract class VoteCore extends TransactionCore {
 
       // Populate the proof
       const caProof = ProofCA.fromPartial({
-        type: ProofCA_Type.ECDSA_BLIND_PIDSALTED,
+        type: proof.proof_type ? (proof.proof_type as unknown as ProofCA_Type) : ProofCA_Type.ECDSA_BLIND_PIDSALTED,
         signature: new Uint8Array(Buffer.from(strip0x(proof.signature), 'hex')),
         bundle: this.cspCaBundle(electionId, proof.address),
       });
