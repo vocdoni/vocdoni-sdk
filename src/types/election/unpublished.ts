@@ -5,10 +5,11 @@ import {
   ElectionMetadataTemplate,
   IChoice,
   IQuestion,
+  Metadata,
 } from '../metadata';
 import invariant from 'tiny-invariant';
 import { Census } from '../census';
-import { Election, ElectionMeta, IElectionParameters, IElectionType, IVoteType } from './election';
+import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
 import { SDK_VERSION } from '../../version';
 
 /**
@@ -188,11 +189,11 @@ export class UnpublishedElection extends Election {
     this._streamUri = value;
   }
 
-  get meta(): ElectionMeta {
+  get meta(): Metadata {
     return super.meta;
   }
 
-  set meta(value: ElectionMeta) {
+  set meta(value: Metadata) {
     invariant(!value || value['sdk'] === undefined, 'Field `sdk` is restricted in metadata');
     this._meta = value;
   }

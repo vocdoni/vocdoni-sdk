@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { IElectionListResponse } from './election';
 import { API } from './api';
-import { AccountMetadata } from '../types';
+import { IAccountMetadata } from '../types';
 
 enum AccountAPIMethods {
   LIST = '/accounts/page',
@@ -45,12 +45,12 @@ interface IAccountInfoResponse {
   /**
    * The information URI of the account
    */
-  infoURI?: string;
+  infoURL?: string;
 
   /**
    * The metadata of the account
    */
-  metadata: AccountMetadata;
+  metadata: IAccountMetadata;
 }
 
 interface IAccountSetInfoResponse {
@@ -156,11 +156,11 @@ export abstract class AccountAPI extends API {
    *
    * @param {string} url API endpoint URL
    * @param {string} accountId The account we want the info from
-   * @returns {Promise<AccountMetadata>}
+   * @returns {Promise<IAccountMetadata>}
    */
-  public static metadata(url: string, accountId: string): Promise<AccountMetadata> {
+  public static metadata(url: string, accountId: string): Promise<IAccountMetadata> {
     return axios
-      .get<AccountMetadata>(url + AccountAPIMethods.METADATA.replace('{accountId}', accountId))
+      .get<IAccountMetadata>(url + AccountAPIMethods.METADATA.replace('{accountId}', accountId))
       .then((response) => response.data)
       .catch(this.isApiError);
   }

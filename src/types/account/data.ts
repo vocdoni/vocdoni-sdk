@@ -1,7 +1,7 @@
-import { MultiLanguage } from '../util/lang';
-import { AccountMetadata, AccountMetadataTemplate, checkValidAccountMetadata } from './metadata';
+import { MultiLanguage } from '../../util/lang';
+import { AccountMetadataTemplate, checkValidAccountMetadata, IAccountMetadata, Metadata } from '../metadata';
 
-export interface IAccount {
+export interface IAccountData {
   languages?: string[];
   name?: string | MultiLanguage<string>;
   description?: string | MultiLanguage<string>;
@@ -9,13 +9,13 @@ export interface IAccount {
   header?: string;
   avatar?: string;
   logo?: string;
-  meta?: Array<{ key: string; value: any }>;
+  meta?: Metadata;
 }
 
 /**
  * Represents an account
  */
-export class Account {
+export class AccountData {
   private _languages: string[];
   private _name: MultiLanguage<string>;
   private _description: MultiLanguage<string>;
@@ -23,14 +23,14 @@ export class Account {
   private _header: string;
   private _avatar: string;
   private _logo: string;
-  private _meta: Array<{ key: string; value: any }>;
+  private _meta: Metadata;
 
   /**
    * Constructs an account
    *
    * @param params Account parameters
    */
-  public constructor(params?: IAccount) {
+  public constructor(params?: IAccountData) {
     this.languages = params?.languages ?? [];
     this.name = params?.name
       ? typeof params?.name === 'string'
@@ -50,7 +50,7 @@ export class Account {
     this.header = params?.header ?? '';
     this.avatar = params?.avatar ?? '';
     this.logo = params?.logo ?? '';
-    this.meta = params?.meta ?? [];
+    this.meta = params?.meta ?? {};
   }
 
   /**
@@ -58,11 +58,11 @@ export class Account {
    *
    * @param params Account parameters
    */
-  public static build(params: IAccount) {
-    return new Account(params);
+  public static build(params: IAccountData) {
+    return new AccountData(params);
   }
 
-  public generateMetadata(): AccountMetadata {
+  public generateMetadata(): IAccountMetadata {
     const metadata = AccountMetadataTemplate;
 
     metadata.languages = this.languages;
@@ -74,7 +74,7 @@ export class Account {
       header: this.header,
       logo: this.logo,
     };
-    metadata.meta = this.meta.reduce((a, v) => ({ ...a, [v.key]: v.value }), {});
+    metadata.meta = this.meta ?? {};
 
     checkValidAccountMetadata(metadata);
 
@@ -129,11 +129,11 @@ export class Account {
     this._feed = value;
   }
 
-  get meta(): Array<{ key: string; value: any }> {
+  get meta(): Metadata {
     return this._meta;
   }
 
-  set meta(value: Array<{ key: string; value: any }>) {
+  set meta(value: Metadata) {
     this._meta = value;
   }
 

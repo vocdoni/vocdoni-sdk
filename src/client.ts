@@ -8,9 +8,11 @@ import { ElectionCore } from './core/election';
 import { VoteCore } from './core/vote';
 import {
   Account,
+  AccountData,
   AllElectionStatus,
   AnonymousVote,
   ArchivedElection,
+  ArchivedAccount,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -30,10 +32,8 @@ import {
 } from './types';
 import { API_URL, CENSUS_CHUNK_SIZE, EXPLORER_URL, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
 import {
-  AccountData,
   AccountService,
   AnonymousService,
-  ArchivedAccountData,
   CensusProof,
   CensusService,
   ChainCircuits,
@@ -96,7 +96,6 @@ export type ClientOptions = {
  * point.
  */
 export class VocdoniSDKClient {
-  private accountData: AccountData | ArchivedAccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
 
   public censusService: CensusService;
@@ -171,47 +170,41 @@ export class VocdoniSDKClient {
    * Fetches account information.
    *
    * @param {string} address The account address to fetch the information
-   * @returns {Promise<AccountData | ArchivedAccountData>}
+   * @returns {Promise<AccountData | ArchivedAccount>}
    */
-  async fetchAccountInfo(address?: string): Promise<AccountData | ArchivedAccountData> {
+  async fetchAccountInfo(address?: string): Promise<Account | ArchivedAccount> {
+    let account;
     if (!this.wallet && !address) {
       throw Error('No account set');
     } else if (address) {
-      this.accountData = await this.accountService.fetchAccountInfo(address);
+      account = await this.accountService.fetchAccount(address);
     } else {
-      this.accountData = await this.wallet
-        .getAddress()
-        .then((address) => this.accountService.fetchAccountInfo(address));
+      account = await this.wallet.getAddress().then((address) => this.accountService.fetchAccount(address));
     }
-    return this.accountData;
+    return account;
   }
 
   /**
    * Fetches account.
    *
    * @param {string} address The account address to fetch the information
-   * @returns {Promise<AccountData>}
+   * @returns {Promise<Account>}
    */
-  async fetchAccount(address?: string): Promise<AccountData> {
+  async fetchAccount(address?: string): Promise<Account> {
+    let account;
     if (!this.wallet && !address) {
       throw Error('No account set');
     } else if (address) {
-      this.accountData = await this.accountService.fetchAccountInfo(address);
+      account = await this.accountService.fetchAccount(address);
     } else {
-      this.accountData = await this.wallet
-        .getAddress()
-        .then((address) => this.accountService.fetchAccountInfo(address));
+      account = await this.wallet.getAddress().then((address) => this.accountService.fetchAccount(address));
     }
 
-    const isAccount = (account: AccountData | ArchivedAccountData): account is AccountData => {
-      return (account as AccountData).nonce !== undefined;
-    };
-
-    if (!isAccount(this.accountData)) {
+    if (account instanceof ArchivedAccount) {
       throw Error('Account is archived');
     }
 
-    return this.accountData;
+    return account;
   }
 
   /**
@@ -312,18 +305,18 @@ export class VocdoniSDKClient {
   /**
    * Creates an account with information.
    *
-   * @param {{account: Account, faucetPackage: string | null, signedSikPayload: string | null}} options Additional options,
+   * @param {{account: AccountData, faucetPackage: string | null, signedSikPayload: string | null}} options Additional options,
    * like extra information of the account, or the faucet package string.
-   * @returns {Promise<AccountData>}
+   * @returns {Promise<Account>}
    */
   async createAccountInfo(options: {
-    account: Account;
+    accountData: AccountData;
     faucetPackage?: string;
     signedSikPayload?: string;
     password?: string;
-  }): Promise<AccountData> {
+  }): Promise<Account> {
     invariant(this.wallet, 'No wallet or signer set');
-    invariant(options.account, 'No account');
+    invariant(options.accountData, 'No account data');
 
     const faucetPayload =
       options.faucetPackage ??
@@ -338,11 +331,11 @@ export class VocdoniSDKClient {
 
     const accountData = Promise.all([
       this.fetchChainId(),
-      this.fileService.calculateCID(JSON.stringify(options.account.generateMetadata())),
+      this.fileService.calculateCID(JSON.stringify(options.accountData.generateMetadata())),
     ]).then((data) =>
       AccountCore.generateCreateAccountTransaction(
         address,
-        JSON.stringify(options.account.generateMetadata()),
+        JSON.stringify(options.accountData.generateMetadata()),
         data[1],
         faucetPackage.payload,
         faucetPackage.signature,
@@ -356,43 +349,43 @@ export class VocdoniSDKClient {
   /**
    * Updates an account with information
    *
-   * @param {Account} account Account data.
-   * @returns {Promise<AccountData>}
+   * @param {AccountData} accountData Account data.
+   * @returns {Promise<Account>} The account
    */
-  updateAccountInfo(account: Account): Promise<AccountData> {
+  updateAccountInfo(accountData: AccountData): Promise<Account> {
     invariant(this.wallet, 'No wallet or signer set');
-    invariant(account, 'No account');
+    invariant(accountData, 'No account');
 
-    const accountData = Promise.all([
+    const accountDataProm = Promise.all([
       this.fetchAccount(),
       this.fetchChainId(),
-      this.fileService.calculateCID(JSON.stringify(account.generateMetadata())),
+      this.fileService.calculateCID(JSON.stringify(accountData.generateMetadata())),
     ]).then((data) =>
       AccountCore.generateUpdateAccountTransaction(
         data[0].address,
         data[0].nonce,
-        JSON.stringify(account.generateMetadata()),
+        JSON.stringify(accountData.generateMetadata()),
         data[2]
       )
     );
 
-    return this.setAccountInfo(accountData);
+    return this.setAccountInfo(accountDataProm);
   }
 
   /**
    * Updates an account with information
    *
-   * @param {Promise<{ tx: Uint8Array; metadata: string }>} promAccountData Account data promise in Tx form.
-   * @returns {Promise<AccountData>}
+   * @param {Promise<{ tx: Uint8Array; metadata: string }>} promAccount Account data promise in Tx form.
+   * @returns {Promise<Account>}
    */
   private setAccountInfo(
-    promAccountData: Promise<{ tx: Uint8Array; metadata: string; message: string }>
-  ): Promise<AccountData> {
-    const accountTx = promAccountData.then((setAccountInfoTx) =>
+    promAccount: Promise<{ tx: Uint8Array; metadata: string; message: string }>
+  ): Promise<Account> {
+    const accountTx = promAccount.then((setAccountInfoTx) =>
       this.accountService.signTransaction(setAccountInfoTx.tx, setAccountInfoTx.message, this.wallet)
     );
 
-    return Promise.all([promAccountData, accountTx])
+    return Promise.all([promAccount, accountTx])
       .then((accountInfo) => this.accountService.setInfo(accountInfo[1], accountInfo[0].metadata))
       .then((txHash) => this.chainService.waitForTransaction(txHash))
       .then(() => this.fetchAccount());
@@ -401,16 +394,16 @@ export class VocdoniSDKClient {
   /**
    * Registers an account against vochain, so it can create new elections.
    *
-   * @param {{account: Account | null, faucetPackage: string | null, sik: boolean | null}} options Additional
+   * @param {{account: AccountData | null, faucetPackage: string | null, sik: boolean | null}} options Additional
    * options, like extra information of the account, or the faucet package string
-   * @returns {Promise<AccountData>}
+   * @returns {Promise<Account>}
    */
   createAccount(options?: {
-    account?: Account;
+    accountData?: AccountData;
     faucetPackage?: string;
     sik?: boolean;
     password?: string;
-  }): Promise<AccountData> {
+  }): Promise<Account> {
     invariant(this.wallet, 'No wallet or signer set');
     const settings = {
       account: null,
@@ -424,7 +417,7 @@ export class VocdoniSDKClient {
       if (settings?.sik) {
         return this.anonymousService.signSIKPayload(this.wallet).then((signedPayload) =>
           this.createAccountInfo({
-            account: settings?.account ?? new Account(),
+            accountData: settings?.accountData ?? AccountData.build({}),
             faucetPackage: settings?.faucetPackage,
             signedSikPayload: signedPayload,
             password: settings.password,
@@ -432,7 +425,7 @@ export class VocdoniSDKClient {
         );
       }
       return this.createAccountInfo({
-        account: settings?.account ?? new Account(),
+        accountData: settings?.accountData ?? AccountData.build({}),
         faucetPackage: settings?.faucetPackage,
       });
     });
@@ -471,9 +464,9 @@ export class VocdoniSDKClient {
    * Calls the faucet to get new tokens. Only under development.
    *
    * @param {string} faucetPackage The faucet package
-   * @returns {Promise<AccountData>} Account data information updated with new balance
+   * @returns {Promise<Account>} Account data information updated with new balance
    */
-  collectFaucetTokens(faucetPackage?: string): Promise<AccountData> {
+  collectFaucetTokens(faucetPackage?: string): Promise<Account> {
     invariant(this.wallet, 'No wallet or signer set');
     const faucet = faucetPackage
       ? Promise.resolve(faucetPackage)

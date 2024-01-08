@@ -1,4 +1,4 @@
-import { IQuestion } from '../metadata';
+import { IQuestion, Metadata } from '../metadata';
 import { Census } from '../census';
 import { MultiLanguage } from '../../util/lang';
 import { UnpublishedElection } from './unpublished';
@@ -92,14 +92,6 @@ export interface IElectionType {
   anonymous?: boolean;
 }
 
-type AnyJson = boolean | number | string | null | JsonArray | JsonMap | any;
-interface JsonMap {
-  [key: string]: AnyJson;
-}
-interface JsonArray extends Array<AnyJson> {}
-
-export type ElectionMeta = AnyJson | JsonArray | JsonMap;
-
 /**
  * Define election parameters.
  */
@@ -123,7 +115,7 @@ export interface IElectionParameters {
   /**
    * Metadata (anything added by the election creator)
    */
-  meta?: ElectionMeta;
+  meta?: Metadata;
   startDate?: string | number | Date;
   endDate: string | number | Date;
   census: Census;
@@ -163,7 +155,7 @@ export abstract class Election {
   protected _description: MultiLanguage<string>;
   protected _header: string;
   protected _streamUri: string;
-  protected _meta: ElectionMeta;
+  protected _meta: Metadata;
   protected _startDate: Date;
   protected _endDate: Date;
   protected _electionType: IElectionType;
@@ -223,7 +215,7 @@ export abstract class Election {
     return this._streamUri;
   }
 
-  get meta(): ElectionMeta {
+  get meta(): Metadata {
     return this._meta;
   }
 
