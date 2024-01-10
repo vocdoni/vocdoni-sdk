@@ -11,5 +11,8 @@
   "scripts": {
     "esm": "node --experimental-specifier-resolution=node --experimental-modules --no-warnings",
     "check:import": "yarn esm ./src/check.mjs"
+  },
+  "resolutions": {
+    "web-worker": "1.2.0"
   }
 }
