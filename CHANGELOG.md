@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Supported tokens from Census3 using `getSupportedTokens()` returns now a token summary.
+- Census3 `getStrategyEstimation` accepts `anonymous` flag and returns `accuracy` for anonymous censuses.
 
 ### Fixed
 

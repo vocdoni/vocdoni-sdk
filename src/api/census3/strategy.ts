@@ -117,6 +117,11 @@ export interface ICensus3StrategyEstimationQueueResponse {
      * The estimation of the time to create the census
      */
     timeToCreateCensus: number;
+
+    /**
+     * The accuracy for an anonymous census
+     */
+    accuracy: number;
   };
 }
 
@@ -294,11 +299,14 @@ export abstract class Census3StrategyAPI extends Census3API {
    *
    * @param {string} url API endpoint URL
    * @param {number} id The identifier of the strategy
+   * @param {boolean} anonymous If the estimation should be done for anonymous census
    * @returns {Promise<ICensus3QueueResponse>} The queue identifier
    */
-  public static estimation(url: string, id: number): Promise<ICensus3QueueResponse> {
+  public static estimation(url: string, id: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
     return axios
-      .get<ICensus3QueueResponse>(url + Census3StrategyAPIMethods.ESTIMATION.replace('{id}', String(id)))
+      .get<ICensus3QueueResponse>(
+        url + Census3StrategyAPIMethods.ESTIMATION.replace('{id}', String(id)) + '?anonymous=' + String(anonymous)
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }

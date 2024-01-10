@@ -810,9 +810,13 @@ const strategy = await client.getStrategy(1);
 ~~~
 
 ~~~ts
-// Get strategy size
-const size = await client.getStrategySize(1);
-// 12455
+// Get strategy estimation information for creating census
+const size = await client.getStrategyEstimation(1);
+// {
+//   "size": 5516,
+//   "timeToCreateCensus": 3296,
+//   "accuracy": 100
+// }
 ~~~
 
 ~~~ts

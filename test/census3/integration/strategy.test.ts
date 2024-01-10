@@ -53,6 +53,7 @@ describe('Census3 strategies integration tests', () => {
       expect(typeof estimation).toBe('object');
       expect(typeof estimation.size).toBe('number');
       expect(typeof estimation.timeToCreateCensus).toBe('number');
+      expect(typeof estimation.accuracy).toBe('number');
     }
   }, 25000);
   it('should create a new strategy', async () => {
