@@ -186,15 +186,19 @@ export class VocdoniCensus3Client {
    * Returns the estimation of size and time (in milliseconds) to create the census generated for the provided strategy
    *
    * @param {number} id The id of the strategy
+   * @param {boolean} anonymous If the estimation should be done for anonymous census
    * @returns {Promise<Strategy>} The strategy estimation
    */
-  getStrategyEstimation(id: number): Promise<{ size: number; timeToCreateCensus: number }> {
+  getStrategyEstimation(
+    id: number,
+    anonymous: boolean = false
+  ): Promise<{ size: number; timeToCreateCensus: number; accuracy: number }> {
     invariant(id || id >= 0, 'No strategy id');
     const waitForQueue = (
       queueId: string,
       wait?: number,
       attempts?: number
-    ): Promise<{ size: number; timeToCreateCensus: number }> => {
+    ): Promise<{ size: number; timeToCreateCensus: number; accuracy: number }> => {
       const waitTime = wait ?? this.queueWait?.retryTime;
       const attemptsNum = attempts ?? this.queueWait?.attempts;
       invariant(waitTime, 'No queue wait time set');
@@ -214,7 +218,7 @@ export class VocdoniCensus3Client {
           });
     };
 
-    return Census3StrategyAPI.estimation(this.url, id)
+    return Census3StrategyAPI.estimation(this.url, id, anonymous)
       .then((queueResponse) => queueResponse.queueID)
       .then((queueId) => waitForQueue(queueId));
   }

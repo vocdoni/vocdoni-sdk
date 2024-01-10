@@ -50,6 +50,11 @@ export interface ICensus3CensusResponse {
    * If the census is anonymous or not
    */
   anonymous: boolean;
+
+  /**
+   * The accuracy for an anonymous census
+   */
+  accuracy: number;
 }
 
 export interface ICensus3CensusQueueResponse {
