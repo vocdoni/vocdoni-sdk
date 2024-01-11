@@ -8,6 +8,7 @@ import {
   PublishedCensus,
   VocdoniSDKClient,
   Vote,
+  VoteSteps,
   WeightedCensus,
 } from '../../src';
 // @ts-ignore
@@ -934,6 +935,34 @@ describe('Election integration tests', () => {
       .then(async () => {
         const nextElectionId = await client.electionService.nextElectionId(await client.wallet.getAddress(), election);
         expect(nextElectionId).toEqual(client.electionId.slice(0, -1) + '1');
+      });
+  }, 85000);
+  it('should vote with steps', async () => {
+    const census = new PlainCensus();
+    const voter = Wallet.createRandom();
+    census.add(await voter.getAddress());
+
+    const election = createElection(census);
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return waitForElectionReady(client, electionId);
+      })
+      .then(async () => {
+        client.wallet = voter;
+        const vote = new Vote([1]);
+        for await (const value of client.submitVoteSteps(vote)) {
+          console.log(value);
+          expect(Object.values(VoteSteps)).toContain(value.key);
+          if (value.key === VoteSteps.DONE) {
+            expect(value.voteId).toMatch(/^[0-9a-fA-F]{64}$/);
+          }
+        }
       });
   }, 85000);
 });

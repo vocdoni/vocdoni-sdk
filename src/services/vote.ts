@@ -15,6 +15,25 @@ type VoteServiceParameters = ServiceProperties & VoteServiceProperties;
 export type VoteInfo = IVoteInfoResponse;
 export type VoteSubmit = IVoteSubmitResponse;
 
+export enum VoteSteps {
+  GET_ELECTION = 'get-election',
+  GET_PROOF = 'get-proof',
+  GET_SIGNATURE = 'get-signature',
+  CALC_ZK_PROOF = 'calc-zk-proof',
+  GENERATE_TX = 'generate-tx',
+  SIGN_TX = 'sign-tx',
+  DONE = 'done',
+}
+
+export type VoteStepValue =
+  | { key: VoteSteps.GET_ELECTION; electionId: string }
+  | { key: VoteSteps.GET_PROOF }
+  | { key: VoteSteps.GET_SIGNATURE; signature: string }
+  | { key: VoteSteps.CALC_ZK_PROOF }
+  | { key: VoteSteps.GENERATE_TX }
+  | { key: VoteSteps.SIGN_TX }
+  | { key: VoteSteps.DONE; voteId: string };
+
 export class VoteService extends Service implements VoteServiceProperties {
   public chainService: ChainService;
 

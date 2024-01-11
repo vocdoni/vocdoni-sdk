@@ -10,6 +10,7 @@ import {
   Account,
   AllElectionStatus,
   AnonymousVote,
+  ArchivedElection,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -46,10 +47,11 @@ import {
   FaucetService,
   FileService,
   VoteService,
+  VoteSteps,
+  VoteStepValue,
   ZkProof,
 } from './services';
 import { isAddress } from '@ethersproject/address';
-import { ArchivedElection } from './types';
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -795,12 +797,28 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Submits a vote to the current instance election id.
+   * Submits a vote.
    *
    * @param {Vote | CspVote | AnonymousVote} vote The vote (or votes) to be sent.
    * @returns {Promise<string>} Vote confirmation id.
    */
   async submitVote(vote: Vote | CspVote | AnonymousVote): Promise<string> {
+    for await (const step of this.submitVoteSteps(vote)) {
+      switch (step.key) {
+        case VoteSteps.DONE:
+          return step.voteId;
+      }
+    }
+    throw new Error('There was an error submitting the vote');
+  }
+
+  /**
+   * Submits a vote by steps.
+   *
+   * @param {Vote | CspVote | AnonymousVote} vote The vote (or votes) to be sent.
+   * @returns {Promise<string>} Vote confirmation id.
+   */
+  async *submitVoteSteps(vote: Vote | CspVote | AnonymousVote): AsyncGenerator<VoteStepValue> {
     if (this.election instanceof UnpublishedElection) {
       throw Error('Election is not published');
     }
@@ -811,9 +829,17 @@ export class VocdoniSDKClient {
 
     const election = await this.fetchElection();
 
+    yield {
+      key: VoteSteps.GET_ELECTION,
+      electionId: election.id,
+    };
+
     let censusProof: CspCensusProof | CensusProof | ZkProof;
     if (election.census.type == CensusType.WEIGHTED) {
       censusProof = await this.fetchProofForWallet(election.census.censusId, this.wallet);
+      yield {
+        key: VoteSteps.GET_PROOF,
+      };
     } else if (election.census.type == CensusType.ANONYMOUS) {
       let signature: string;
       if (vote instanceof AnonymousVote) {
@@ -821,15 +847,25 @@ export class VocdoniSDKClient {
       } else {
         signature = await this.anonymousService.signSIKPayload(this.wallet);
       }
+      yield {
+        key: VoteSteps.GET_SIGNATURE,
+        signature,
+      };
       if (vote instanceof AnonymousVote) {
         censusProof = await this.calcZKProofForWallet(election, this.wallet, signature, vote.password);
       } else {
         censusProof = await this.calcZKProofForWallet(election, this.wallet, signature);
       }
+      yield {
+        key: VoteSteps.CALC_ZK_PROOF,
+      };
     } else if (election.census.type == CensusType.CSP && vote instanceof CspVote) {
       censusProof = {
         address: await this.wallet.getAddress(),
         signature: vote.signature,
+      };
+      yield {
+        key: VoteSteps.GET_PROOF,
       };
     } else {
       throw new Error('No valid vote for this election');
@@ -845,18 +881,29 @@ export class VocdoniSDKClient {
     } else {
       voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote);
     }
+    yield {
+      key: VoteSteps.GENERATE_TX,
+    };
 
     let payload: string;
     if (!this.election.electionType.anonymous) {
       payload = await this.voteService.signTransaction(voteTx.tx, voteTx.message, this.wallet);
+      yield {
+        key: VoteSteps.SIGN_TX,
+      };
     } else {
       payload = this.voteService.encodeTransaction(voteTx.tx);
     }
 
     // Vote
-    return this.voteService
+    const voteId = await this.voteService
       .vote(payload)
       .then((apiResponse) => this.chainService.waitForTransaction(apiResponse.txHash).then(() => apiResponse.voteID));
+
+    yield {
+      key: VoteSteps.DONE,
+      voteId,
+    };
   }
 
   /**
