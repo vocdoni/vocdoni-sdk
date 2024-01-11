@@ -103,6 +103,9 @@ jobs:
       - name: Service tests
         run: yarn test:service --ci --coverage --maxWorkers=2
 
+      - name: API tests
+        run: yarn test:api --ci --coverage --maxWorkers=2
+
       - name: Anonymous integration tests
         run: yarn test:integration:zk --ci --coverage
 
