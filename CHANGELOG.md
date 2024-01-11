@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Removed `nullifier` from vote package.
+- Returning census from type `CspCensus` when election is for CSP.
 
 ### Added
 
