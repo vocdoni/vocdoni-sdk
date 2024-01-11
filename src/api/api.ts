@@ -5,8 +5,10 @@ import {
   ErrAPI,
   ErrCantParseElectionID,
   ErrCantParsePayloadAsJSON,
+  ErrElectionFinished,
   ErrElectionNotFound,
   ErrElectionNotStarted,
+  ErrFaucetAlreadyFunded,
   ErrNoElectionKeys,
 } from './errors';
 
@@ -33,6 +35,7 @@ export abstract class API {
           throw new ErrElectionNotFound(err['error']);
         case 4047:
           throw new ErrNoElectionKeys(err['error']);
+        case 5001:
         case 5003:
           return API.isVochainError(err['error']);
         default:
@@ -49,12 +52,17 @@ export abstract class API {
     switch (true) {
       case error.includes('starts at height') && error.includes('current height is'):
         throw new ErrElectionNotStarted(error);
+      case error.includes('finished at height') && error.includes('current height is'):
+        throw new ErrElectionFinished(error);
+      case error.includes('current state: ENDED'):
+        throw new ErrElectionFinished(error);
       default:
         throw error;
     }
   }
 
   protected static isUndefinedError(error: AxiosError, message?: string): never {
+    API.isFaucetError(message);
     switch (true) {
       case error.response?.status != null && error.response?.statusText != null:
         throw new ErrAPI(error.response.status + ' ' + error.response.statusText + ': ' + message, error);
@@ -64,6 +72,13 @@ export abstract class API {
         throw new ErrAPI(message, error);
       default:
         throw new ErrAPI('Undefined API error', error);
+    }
+  }
+
+  private static isFaucetError(error: string) {
+    switch (true) {
+      case error.includes('already funded') && error.includes('wait until'):
+        throw new ErrFaucetAlreadyFunded(error);
     }
   }
 }
