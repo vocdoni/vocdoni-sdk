@@ -77,6 +77,7 @@ describe('CSP tests', () => {
         expect(election.title).toEqual(election.title);
         expect(election.voteCount).toEqual(numVotes);
         expect(election.results[0][0]).toEqual(election.results[0][1]);
+        expect(election.census).toBeInstanceOf(CspCensus);
         expect(election.census.size).toBeUndefined();
         expect(election.census.weight).toBeUndefined();
       });
