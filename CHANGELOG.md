@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `ArchivedAccountData` for dealing with archived accounts and new `fetchAccount` function in client.
 - Added `ErrFaucetAlreadyFunded` for faucet limit requests.
 - Added `ErrElectionFinished` for doing actions when election is finished.
+- Added `submitVoteSteps` for voting using async generator steps.
 
 ## [0.7.0] - 2023-12-13
 
