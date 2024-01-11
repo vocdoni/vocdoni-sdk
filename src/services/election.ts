@@ -2,12 +2,13 @@ import { Service, ServiceProperties } from './service';
 import {
   ArchivedElection,
   Census,
+  CspCensus,
   InvalidElection,
   PublishedCensus,
   PublishedElection,
   UnpublishedElection,
 } from '../types';
-import { AccountAPI, ElectionAPI, IElectionCreateResponse, IElectionKeysResponse } from '../api';
+import { AccountAPI, CensusTypeEnum, ElectionAPI, IElectionCreateResponse, IElectionKeysResponse } from '../api';
 import { CensusService } from './census';
 import { allSettled } from '../util/promise';
 import invariant from 'tiny-invariant';
@@ -97,6 +98,15 @@ export class ElectionService extends Service implements ElectionServicePropertie
       );
   }
 
+  private buildCensus(electionInfo): Promise<PublishedCensus | ArchivedCensus> {
+    if (electionInfo.census.censusOrigin === CensusTypeEnum.OFF_CHAIN_CA) {
+      return Promise.resolve(new CspCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL));
+    }
+    return electionInfo.fromArchive
+      ? Promise.resolve(new ArchivedCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL))
+      : this.buildPublishedCensus(electionInfo);
+  }
+
   /**
    * Fetches info about an election.
    *
@@ -122,9 +132,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       meta: electionInfo.metadata?.meta,
       startDate: electionInfo.startDate,
       endDate: electionInfo.endDate,
-      census: electionInfo.fromArchive
-        ? new ArchivedCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL)
-        : await this.buildPublishedCensus(electionInfo),
+      census: await this.buildCensus(electionInfo),
       maxCensusSize: electionInfo.census.maxCensusSize,
       manuallyEnded: electionInfo.manuallyEnded,
       fromArchive: electionInfo.fromArchive,
