@@ -7,8 +7,11 @@
   "license": "MIT",
   "dependencies": {
     "@ethersproject/wallet": "^5.7.0",
-    "@vocdoni/sdk": "0.5.0",
+    "@vocdoni/sdk": "0.7.1",
     "chalk": "^5.1.2"
+  },
+  "resolutions": {
+    "web-worker": "1.2.0"
   },
   "scripts": {
     "esm": "node --experimental-specifier-resolution=node --experimental-modules --no-warnings",
