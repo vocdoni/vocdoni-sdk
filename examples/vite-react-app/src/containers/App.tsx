@@ -58,7 +58,7 @@ export const App = () => {
         // only for development purposes, request more tokens if balance is zero
         if (acc.balance <= 0) {
           await client.collectFaucetTokens()
-          acc = await client.fetchAccountInfo()
+          acc = await client.fetchAccount()
         }
 
         setAccount(acc.address)
