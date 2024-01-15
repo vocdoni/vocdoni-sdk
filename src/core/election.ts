@@ -108,32 +108,9 @@ export abstract class ElectionCore extends TransactionCore {
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),
           censusURI: election.census.censusURI,
           status: ProcessStatus.READY,
-          envelopeType: {
-            serial: false, // TODO
-            anonymous: election.electionType.anonymous,
-            encryptedVotes: election.electionType.secretUntilTheEnd,
-            uniqueValues: election.voteType.uniqueChoices,
-            costFromWeight: election.voteType.costFromWeight,
-          },
-          mode: {
-            autoStart: election.electionType.autoStart,
-            interruptible: election.electionType.interruptible,
-            dynamicCensus: election.electionType.dynamicCensus,
-            encryptedMetaData: false, // TODO
-            preRegister: false, // TODO
-          },
-          voteOptions: {
-            maxCount: election.voteType.maxCount ?? election.questions.length,
-            maxValue:
-              election.voteType.maxValue ??
-              election.questions.reduce((prev, cur) => {
-                const localMax = cur.choices.length - 1;
-                return localMax > prev ? localMax : prev;
-              }, 0),
-            maxVoteOverwrites: election.voteType.maxVoteOverwrites,
-            maxTotalCost: election.voteType.maxTotalCost ?? 0,
-            costExponent: election.voteType.costExponent,
-          },
+          envelopeType: this.generateEnvelopeType(election),
+          mode: this.generateMode(election),
+          voteOptions: this.generateVoteOptions(election),
           censusOrigin: this.censusOriginFromCensusType(election.census.type),
           metadata: cid,
           maxCensusSize: election.maxCensusSize ?? election.census.size ?? undefined,
@@ -141,6 +118,41 @@ export abstract class ElectionCore extends TransactionCore {
         },
       },
     };
+  }
+
+  private static generateVoteOptions(election: UnpublishedElection): object {
+    const maxCount = election.voteType.maxCount ?? election.questions.length;
+    const maxValue =
+      election.voteType.maxValue ??
+      election.questions.reduce((prev, cur) => {
+        const localMax = cur.choices.length - 1;
+        return localMax > prev ? localMax : prev;
+      }, 0);
+    const maxVoteOverwrites = election.voteType.maxVoteOverwrites;
+    const maxTotalCost = election.voteType.maxTotalCost ?? 0;
+    const costExponent = election.voteType.costExponent;
+
+    return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
+  }
+
+  private static generateEnvelopeType(election: UnpublishedElection): object {
+    const serial = false; // TODO
+    const anonymous = election.electionType.anonymous;
+    const encryptedVotes = election.electionType.secretUntilTheEnd;
+    const uniqueValues = election.voteType.uniqueChoices;
+    const costFromWeight = election.voteType.costFromWeight;
+
+    return { serial, anonymous, encryptedVotes, uniqueValues, costFromWeight };
+  }
+
+  private static generateMode(election: UnpublishedElection): object {
+    const autoStart = election.electionType.autoStart;
+    const interruptible = election.electionType.interruptible;
+    const dynamicCensus = election.electionType.dynamicCensus;
+    const encryptedMetaData = false; // TODO
+    const preRegister = false; // TODO
+
+    return { autoStart, interruptible, dynamicCensus, encryptedMetaData, preRegister };
   }
 
   private static processStatusFromElectionStatus(status: AllElectionStatus): ProcessStatus {
