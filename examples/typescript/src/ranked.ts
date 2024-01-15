@@ -117,7 +117,7 @@ async function main() {
   // Calculate the results array depending on the parameters above
   // This example only work if the VOTE_ARRAY is the same for all the voters
   const result = VOTE_ARRAY.map((vote) => {
-    let arr = Array(MAX_COUNT).fill('0');
+    let arr = Array(MAX_VALUE + 1).fill('0');
     arr[vote] = VOTERS_NUM.toString();
     return arr;
   });
