@@ -14,9 +14,11 @@ import {
   ArchivedElection,
   ArchivedAccount,
   CensusType,
+  CreateAccountOptions,
   CspVote,
   ElectionStatus,
   ElectionStatusReady,
+  FetchAccountOptions,
   HasAlreadyVotedOptions,
   InvalidElection,
   IsAbleToVoteOptions,
@@ -167,38 +169,18 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Fetches account information.
-   *
-   * @param {string} address The account address to fetch the information
-   * @returns {Promise<AccountData | ArchivedAccount>}
-   */
-  async fetchAccountInfo(address?: string): Promise<Account | ArchivedAccount> {
-    let account;
-    if (!this.wallet && !address) {
-      throw Error('No account set');
-    } else if (address) {
-      account = await this.accountService.fetchAccount(address);
-    } else {
-      account = await this.wallet.getAddress().then((address) => this.accountService.fetchAccount(address));
-    }
-    return account;
-  }
-
-  /**
    * Fetches account.
    *
-   * @param {string} address The account address to fetch the information
+   * @param {FetchAccountOptions} options The account address to fetch the information
    * @returns {Promise<Account>}
    */
-  async fetchAccount(address?: string): Promise<Account> {
-    let account;
-    if (!this.wallet && !address) {
-      throw Error('No account set');
-    } else if (address) {
-      account = await this.accountService.fetchAccount(address);
-    } else {
-      account = await this.wallet.getAddress().then((address) => this.accountService.fetchAccount(address));
-    }
+  async fetchAccount(options?: FetchAccountOptions): Promise<Account> {
+    const settings = {
+      address: options?.address ?? (await this.wallet.getAddress()),
+    };
+    invariant(settings.address, 'No account address set');
+
+    const account = await this.accountService.fetchAccount(settings.address);
 
     if (account instanceof ArchivedAccount) {
       throw Error('Account is archived');
@@ -309,33 +291,38 @@ export class VocdoniSDKClient {
    * like extra information of the account, or the faucet package string.
    * @returns {Promise<Account>}
    */
-  async createAccountInfo(options: {
-    accountData: AccountData;
-    faucetPackage?: string;
-    signedSikPayload?: string;
-    password?: string;
-  }): Promise<Account> {
-    invariant(this.wallet, 'No wallet or signer set');
-    invariant(options.accountData, 'No account data');
+  private async setAccount(options: Partial<CreateAccountOptions>): Promise<Account> {
+    const settings = {
+      wallet: this.wallet,
+      data: AccountData.build({}),
+      faucetPackage: null,
+      setSecretIdentity: true,
+      secretPayload: null,
+      secretPassword: '0',
+      ...options,
+    };
+    invariant(settings.wallet, 'No wallet or signer set or given');
 
-    const faucetPayload =
-      options.faucetPackage ??
-      (await this.wallet.getAddress().then((address) => this.faucetService.fetchPayload(address)));
+    if (settings.setSecretIdentity && !settings.secretPayload) {
+      settings.secretPayload = await this.anonymousService.signSIKPayload(this.wallet);
+    }
+
+    const address = await settings.wallet.getAddress();
+
+    const faucetPayload = settings.faucetPackage ?? (await this.faucetService.fetchPayload(address));
     const faucetPackage = this.faucetService.parseFaucetPackage(faucetPayload);
 
-    const address = await this.wallet.getAddress();
-
-    const calculatedSik = options?.signedSikPayload
-      ? await AnonymousService.calcSik(address, options.signedSikPayload, options.password)
+    const calculatedSik = settings.secretPayload
+      ? await AnonymousService.calcSik(address, settings.secretPayload, settings.secretPassword)
       : null;
 
     const accountData = Promise.all([
       this.fetchChainId(),
-      this.fileService.calculateCID(JSON.stringify(options.accountData.generateMetadata())),
+      this.fileService.calculateCID(JSON.stringify(settings.data.generateMetadata())),
     ]).then((data) =>
       AccountCore.generateCreateAccountTransaction(
         address,
-        JSON.stringify(options.accountData.generateMetadata()),
+        JSON.stringify(settings.data.generateMetadata()),
         data[1],
         faucetPackage.payload,
         faucetPackage.signature,
@@ -394,41 +381,25 @@ export class VocdoniSDKClient {
   /**
    * Registers an account against vochain, so it can create new elections.
    *
-   * @param {{account: AccountData | null, faucetPackage: string | null, sik: boolean | null}} options Additional
-   * options, like extra information of the account, or the faucet package string
+   * @param {CreateAccountOptions} options Create account options
    * @returns {Promise<Account>}
    */
-  createAccount(options?: {
-    accountData?: AccountData;
-    faucetPackage?: string;
-    sik?: boolean;
-    password?: string;
-  }): Promise<Account> {
-    invariant(this.wallet, 'No wallet or signer set');
+  createAccount(options?: Partial<CreateAccountOptions>): Promise<Account> {
     const settings = {
-      account: null,
+      wallet: this.wallet,
+      data: AccountData.build({}),
       faucetPackage: null,
-      sik: true,
-      password: '0',
+      setSecretIdentity: true,
+      secretPayload: null,
+      secretPassword: '0',
       ...options,
     };
+    invariant(settings.wallet, 'No wallet or signer set or given');
 
-    return this.fetchAccount().catch(() => {
-      if (settings?.sik) {
-        return this.anonymousService.signSIKPayload(this.wallet).then((signedPayload) =>
-          this.createAccountInfo({
-            accountData: settings?.accountData ?? AccountData.build({}),
-            faucetPackage: settings?.faucetPackage,
-            signedSikPayload: signedPayload,
-            password: settings.password,
-          })
-        );
-      }
-      return this.createAccountInfo({
-        accountData: settings?.accountData ?? AccountData.build({}),
-        faucetPackage: settings?.faucetPackage,
-      });
-    });
+    return settings.wallet
+      .getAddress()
+      .then((address) => this.fetchAccount({ address }))
+      .catch(() => this.setAccount(settings));
   }
 
   /**

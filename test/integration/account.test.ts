@@ -43,7 +43,7 @@ describe('Account integration tests', () => {
   }, 75000);
   it('should set information for an account', async () => {
     const account = await client.createAccount({
-      accountData: AccountData.build({
+      data: AccountData.build({
         languages: ['es'],
         name: {
           es: 'test',
@@ -79,7 +79,7 @@ describe('Account integration tests', () => {
   }, 75000);
   it('should set information for an account and then update it', async () => {
     await client.createAccount({
-      accountData: AccountData.build({
+      data: AccountData.build({
         languages: ['es'],
         name: {
           es: 'test',
