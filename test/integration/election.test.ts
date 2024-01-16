@@ -4,6 +4,7 @@ import {
   Election,
   ElectionCreationSteps,
   ElectionStatus,
+  MultiChoiceElection,
   PlainCensus,
   PublishedCensus,
   VocdoniSDKClient,
@@ -119,6 +120,8 @@ describe('Election integration tests', () => {
         expect(publishedElection.fromArchive).toBeFalsy();
         expect(publishedElection.chainId).toBeDefined();
         expect(publishedElection.maxCensusSize).toEqual(1);
+        expect(publishedElection.resultsType.name).toEqual('single-choice-multiquestion');
+        expect(publishedElection.resultsType.properties).toStrictEqual({});
       });
   }, 85000);
   it('should create an election step by step', async () => {
@@ -577,6 +580,54 @@ describe('Election integration tests', () => {
         expect([ElectionStatus.ONGOING, ElectionStatus.UPCOMING]).toContain(election.status);
       });
   }, 85000);
+  it('should create a multichoice election and have the correct values set', async () => {
+    const census = new PlainCensus();
+    census.add(Wallet.createRandom().address);
+
+    const election = MultiChoiceElection.from({
+      title: 'SDK Testing - Title',
+      description: 'SDK Testing - Description',
+      endDate: new Date().getTime() + 10000000,
+      census,
+      maxNumberOfChoices: 3,
+      canAbstain: true,
+      canRepeatChoices: false,
+    });
+
+    election.addQuestion('This is a title', 'This is a description', [
+      {
+        title: 'Red',
+      },
+      {
+        title: 'Green',
+      },
+      {
+        title: 'Blue',
+      },
+      {
+        title: 'White',
+      },
+      {
+        title: 'Black',
+      },
+    ]);
+
+    await client.createAccount();
+    await client
+      .createElection(election)
+      .then((electionId) => client.fetchElection(electionId))
+      .then((election) => {
+        expect(election.voteType.maxCount).toEqual(3);
+        expect(election.voteType.maxValue).toEqual(7);
+        expect(election.voteType.maxTotalCost).toEqual(0);
+        expect(election.voteType.uniqueChoices).toEqual(true);
+        expect(election.resultsType.name).toEqual('multiple-choice');
+        expect(election.resultsType.properties).toStrictEqual({
+          repeatChoice: false,
+          abstainValues: ['5', '6', '7'],
+        });
+      });
+  }, 850000);
   it('should create a quadratic election with 10 participants and the results should be correct', async () => {
     const VOTERS_NUM = 10;
     const COST_EXPONENT = 2;
@@ -957,7 +1008,6 @@ describe('Election integration tests', () => {
         client.wallet = voter;
         const vote = new Vote([1]);
         for await (const value of client.submitVoteSteps(vote)) {
-          console.log(value);
           expect(Object.values(VoteSteps)).toContain(value.key);
           if (value.key === VoteSteps.DONE) {
             expect(value.voteId).toMatch(/^[0-9a-fA-F]{64}$/);

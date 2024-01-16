@@ -33,6 +33,24 @@ export interface IQuestion {
   choices: Array<IChoice>;
 }
 
+export enum ElectionResultsTypeNames {
+  SINGLE_CHOICE_MULTIQUESTION = 'single-choice-multiquestion',
+  MULTIPLE_CHOICE = 'multiple-choice',
+}
+
+export type ElectionResultsType =
+  | {
+      name: ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION;
+      properties: {};
+    }
+  | {
+      name: ElectionResultsTypeNames.MULTIPLE_CHOICE;
+      properties: {
+        abstainValues: Array<string>;
+        repeatChoice: boolean;
+      };
+    };
+
 const electionMetadataSchema = object()
   .shape({
     version: string()
@@ -61,36 +79,18 @@ const electionMetadataSchema = object()
         })
       )
       .required(),
-    results: object()
+    type: object()
       .shape({
-        aggregation: string().required().oneOf(['index-weighted', 'discrete-counting']),
-        display: string()
+        name: string()
           .required()
-          .oneOf([
-            'rating',
-            'simple-question',
-            'multiple-choice',
-            'linear-weighted',
-            'quadratic-voting',
-            'multiple-question',
-            'raw',
-          ]),
+          .oneOf([ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION, ElectionResultsTypeNames.MULTIPLE_CHOICE]),
+        properties: object().optional().nullable(),
       })
       .required(),
   })
   .unknown(true); // allow deprecated or unknown fields beyond the required ones
 
-type ProtocolVersion = '1.1';
-
-export type ElectionResultsAggregation = 'index-weighted' | 'discrete-counting';
-export type ElectionResultsDisplay =
-  | 'rating'
-  | 'simple-question'
-  | 'multiple-choice'
-  | 'linear-weighted'
-  | 'quadratic-voting'
-  | 'multiple-question'
-  | 'raw';
+type ProtocolVersion = '1.1' | '1.2';
 
 /**
  * JSON metadata. Intended to be stored on IPFS or similar.
@@ -109,14 +109,11 @@ export interface ElectionMetadata {
     [key: string]: any;
   };
   questions: Array<IQuestion>;
-  results: {
-    aggregation: ElectionResultsAggregation;
-    display: ElectionResultsDisplay;
-  };
+  type: ElectionResultsType;
 }
 
 export const ElectionMetadataTemplate: ElectionMetadata = {
-  version: '1.1',
+  version: '1.2',
   title: {
     default: '', // Universal Basic Income
   },
@@ -152,8 +149,8 @@ export const ElectionMetadataTemplate: ElectionMetadata = {
       ],
     },
   ],
-  results: {
-    aggregation: 'discrete-counting',
-    display: 'multiple-question',
+  type: {
+    name: ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION,
+    properties: {},
   },
 };

@@ -1,6 +1,6 @@
 import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
 import { MultiLanguage } from '../../util/lang';
-import { IQuestion } from '../metadata';
+import { ElectionResultsType, IQuestion } from '../metadata';
 import { PublishedCensus } from '../census';
 
 export enum ElectionStatus {
@@ -31,6 +31,7 @@ export interface IPublishedElectionParameters extends IElectionParameters {
   chainId: string;
   creationTime: string;
   metadataURL: string;
+  resultsType: ElectionResultsType;
   raw: object;
 }
 
@@ -49,6 +50,7 @@ export class PublishedElection extends Election {
   private readonly _results: Array<Array<string>>;
   private readonly _creationTime: Date;
   private readonly _metadataURL: string;
+  private readonly _resultsType: ElectionResultsType;
   private readonly _raw: object;
 
   /**
@@ -82,6 +84,7 @@ export class PublishedElection extends Election {
     this._chainId = params.chainId;
     this._creationTime = new Date(params.creationTime);
     this._metadataURL = params.metadataURL;
+    this._resultsType = params.resultsType;
     this._raw = params.raw;
   }
 
@@ -189,6 +192,10 @@ export class PublishedElection extends Election {
 
   get metadataURL(): string {
     return this._metadataURL;
+  }
+
+  get resultsType(): ElectionResultsType {
+    return this._resultsType;
   }
 
   get raw(): object {
