@@ -3,6 +3,7 @@ import {
   CensusType,
   Election,
   ElectionCreationSteps,
+  ElectionResultsTypeNames,
   ElectionStatus,
   MultiChoiceElection,
   PlainCensus,
@@ -120,7 +121,7 @@ describe('Election integration tests', () => {
         expect(publishedElection.fromArchive).toBeFalsy();
         expect(publishedElection.chainId).toBeDefined();
         expect(publishedElection.maxCensusSize).toEqual(1);
-        expect(publishedElection.resultsType.name).toEqual('single-choice-multiquestion');
+        expect(publishedElection.resultsType.name).toEqual(ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION);
         expect(publishedElection.resultsType.properties).toStrictEqual({});
       });
   }, 85000);
@@ -621,7 +622,7 @@ describe('Election integration tests', () => {
         expect(election.voteType.maxValue).toEqual(7);
         expect(election.voteType.maxTotalCost).toEqual(0);
         expect(election.voteType.uniqueChoices).toEqual(true);
-        expect(election.resultsType.name).toEqual('multiple-choice');
+        expect(election.resultsType.name).toEqual(ElectionResultsTypeNames.MULTIPLE_CHOICE);
         expect(election.resultsType.properties).toStrictEqual({
           repeatChoice: false,
           abstainValues: ['5', '6', '7'],
