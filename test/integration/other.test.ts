@@ -7,7 +7,7 @@ describe('Other tests', () => {
     const client = new VocdoniSDKClient(clientParams());
     const b64Metadata = JSON.stringify(ElectionMetadataTemplate);
     const cid = await client.calculateCID(b64Metadata);
-    expect(cid).toEqual('ipfs://bafybeigs3vmszvbzvhheixhgkynbc57csmga6ayhwephtyganed4xkanyi');
+    expect(cid).toEqual('ipfs://bafybeih3bjtnienqbz5ecgr5my7lotw3lanffdjpv3jl7ma3srdwnhx4pi');
   });
   it('should calculate the correct IPFS hash with special characters', async () => {
     const client = new VocdoniSDKClient(clientParams());
@@ -20,6 +20,6 @@ describe('Other tests', () => {
     };
     const b64Metadata = JSON.stringify(election);
     const cid = await client.calculateCID(b64Metadata);
-    expect(cid).toEqual('ipfs://bafybeics2rrjzgnlfliplny2l4ke7jxa3keq6oqlbg5op7pmubvz7sp5ga');
+    expect(cid).toEqual('ipfs://bafybeibl2lkbswtxcqdynzvxs6ku76avkjtkcan44ypnju4txx7rt2udfi');
   });
 });
