@@ -85,8 +85,10 @@ export class UnpublishedElection extends Election {
     };
   }
 
-  public generateMetadata(): ElectionMetadata {
-    const metadata = ElectionMetadataTemplate;
+  public generateMetadata(metadata?: ElectionMetadata): ElectionMetadata {
+    if (!metadata) {
+      metadata = ElectionMetadataTemplate;
+    }
 
     metadata.title = this.title;
     metadata.description = this.description;
@@ -116,6 +118,21 @@ export class UnpublishedElection extends Election {
     checkValidElectionMetadata(metadata);
 
     return metadata;
+  }
+
+  public generateVoteOptions(): object {
+    const maxCount = this.voteType.maxCount ?? this.questions.length;
+    const maxValue =
+      this.voteType.maxValue ??
+      this.questions.reduce((prev, cur) => {
+        const localMax = cur.choices.length - 1;
+        return localMax > prev ? localMax : prev;
+      }, 0);
+    const maxVoteOverwrites = this.voteType.maxVoteOverwrites;
+    const maxTotalCost = this.voteType.maxTotalCost ?? 0;
+    const costExponent = this.voteType.costExponent;
+
+    return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
   get title(): MultiLanguage<string> {

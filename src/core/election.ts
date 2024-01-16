@@ -110,7 +110,7 @@ export abstract class ElectionCore extends TransactionCore {
           status: ProcessStatus.READY,
           envelopeType: this.generateEnvelopeType(election),
           mode: this.generateMode(election),
-          voteOptions: this.generateVoteOptions(election),
+          voteOptions: election.generateVoteOptions(),
           censusOrigin: this.censusOriginFromCensusType(election.census.type),
           metadata: cid,
           maxCensusSize: election.maxCensusSize ?? election.census.size ?? undefined,
@@ -118,21 +118,6 @@ export abstract class ElectionCore extends TransactionCore {
         },
       },
     };
-  }
-
-  private static generateVoteOptions(election: UnpublishedElection): object {
-    const maxCount = election.voteType.maxCount ?? election.questions.length;
-    const maxValue =
-      election.voteType.maxValue ??
-      election.questions.reduce((prev, cur) => {
-        const localMax = cur.choices.length - 1;
-        return localMax > prev ? localMax : prev;
-      }, 0);
-    const maxVoteOverwrites = election.voteType.maxVoteOverwrites;
-    const maxTotalCost = election.voteType.maxTotalCost ?? 0;
-    const costExponent = election.voteType.costExponent;
-
-    return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
   private static generateEnvelopeType(election: UnpublishedElection): object {

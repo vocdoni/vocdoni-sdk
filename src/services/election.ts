@@ -165,9 +165,14 @@ export class ElectionService extends Service implements ElectionServicePropertie
         choices: question.choices.map((choice, cIndex) => ({
           title: choice.title,
           value: choice.value,
-          results: electionInfo.result ? electionInfo.result[qIndex][cIndex] : null,
+          results: electionInfo.result
+            ? electionInfo.tallyMode.maxTotalCost > 0
+              ? electionInfo.result[cIndex][1]
+              : electionInfo.result[qIndex][cIndex]
+            : null,
         })),
       })),
+      resultsType: electionInfo.metadata.type,
       raw: electionInfo,
     };
 
