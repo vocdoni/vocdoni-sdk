@@ -326,8 +326,9 @@ export class ElectionService extends Service implements ElectionServicePropertie
    */
   estimateElectionCost(election: UnpublishedElection): Promise<number> {
     invariant(this.chainService, 'No chain service set');
-    return Promise.all([this.chainService.fetchChainCosts(), this.chainService.fetchChainData()])
-      .then(([chainCosts, chainData]) => ElectionCore.estimateElectionCost(election, chainCosts, chainData))
+    return this.chainService
+      .fetchChainCosts()
+      .then((chainCosts) => ElectionCore.estimateElectionCost(election, chainCosts))
       .then((cost) => Math.trunc(cost));
   }
 
@@ -337,20 +338,14 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @returns {Promise<number>} The cost in tokens.
    */
   calculateElectionCost(election: UnpublishedElection): Promise<number> {
-    invariant(this.chainService, 'No chain service set');
     invariant(this.url, 'No URL set');
-    return this.chainService
-      .fetchChainData()
-      .then((chainData) =>
-        ElectionAPI.price(
-          this.url,
-          election.maxCensusSize,
-          ElectionCore.estimateElectionBlocks(election, chainData),
-          election.electionType.secretUntilTheEnd,
-          election.electionType.anonymous,
-          election.voteType.maxVoteOverwrites
-        )
-      )
-      .then((cost) => cost.price);
+    return ElectionAPI.price(
+      this.url,
+      election.maxCensusSize,
+      election.duration,
+      election.electionType.secretUntilTheEnd,
+      election.electionType.anonymous,
+      election.voteType.maxVoteOverwrites
+    ).then((cost) => cost.price);
   }
 }

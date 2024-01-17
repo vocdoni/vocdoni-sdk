@@ -511,7 +511,7 @@ export abstract class ElectionAPI extends API {
    *
    * @param {string} url API endpoint URL
    * @param {number} maxCensusSize
-   * @param {number} electionBlocks
+   * @param {number} electionDuration
    * @param {boolean} encryptedVotes
    * @param {boolean} anonymousVotes
    * @param {number} maxVoteOverwrite
@@ -520,7 +520,7 @@ export abstract class ElectionAPI extends API {
   public static price(
     url: string,
     maxCensusSize: number,
-    electionBlocks: number,
+    electionDuration: number,
     encryptedVotes: boolean,
     anonymousVotes: boolean,
     maxVoteOverwrite: number
@@ -528,7 +528,7 @@ export abstract class ElectionAPI extends API {
     return axios
       .post<IElectionCalculatePriceResponse>(url + ElectionAPIMethods.PRICE, {
         maxCensusSize,
-        electionBlocks,
+        electionDuration,
         encryptedVotes,
         anonymousVotes,
         maxVoteOverwrite,

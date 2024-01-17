@@ -135,6 +135,12 @@ export class UnpublishedElection extends Election {
     return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
+  get duration(): number {
+    return this.startDate
+      ? Math.floor((this.endDate.getTime() - this.startDate.getTime()) / 1000)
+      : Math.floor((this.endDate.getTime() - Date.now()) / 1000);
+  }
+
   public generateEnvelopeType(): object {
     const serial = false; // TODO
     const anonymous = this.electionType.anonymous;
