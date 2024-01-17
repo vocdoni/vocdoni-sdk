@@ -135,6 +135,26 @@ export class UnpublishedElection extends Election {
     return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
+  public generateEnvelopeType(): object {
+    const serial = false; // TODO
+    const anonymous = this.electionType.anonymous;
+    const encryptedVotes = this.electionType.secretUntilTheEnd;
+    const uniqueValues = this.voteType.uniqueChoices;
+    const costFromWeight = this.voteType.costFromWeight;
+
+    return { serial, anonymous, encryptedVotes, uniqueValues, costFromWeight };
+  }
+
+  public generateMode(): object {
+    const autoStart = this.electionType.autoStart;
+    const interruptible = this.electionType.interruptible;
+    const dynamicCensus = this.electionType.dynamicCensus;
+    const encryptedMetaData = false; // TODO
+    const preRegister = false; // TODO
+
+    return { autoStart, interruptible, dynamicCensus, encryptedMetaData, preRegister };
+  }
+
   get title(): MultiLanguage<string> {
     return super.title;
   }
