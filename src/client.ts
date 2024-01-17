@@ -564,10 +564,6 @@ export class VocdoniSDKClient {
       key: ElectionCreationSteps.GET_DATA_PIN,
     };
 
-    yield {
-      key: ElectionCreationSteps.ESTIMATE_BLOCK_TIMES,
-    };
-
     const electionTxData = ElectionCore.generateNewElectionTransaction(election, cid, account.address, account.nonce);
     yield {
       key: ElectionCreationSteps.GENERATE_TX,
