@@ -31,7 +31,7 @@ const createElection = (census, electionType?, voteType?, maxCensusSize?) => {
   const election = Election.from({
     title: 'SDK Testing - Title',
     description: 'SDK Testing - Description',
-    endDate: new Date().getTime() + 10000000,
+    endDate: new Date().getTime() + 60 * 60 * 1000,
     census,
     maxCensusSize,
     electionType: electionType ?? null,
