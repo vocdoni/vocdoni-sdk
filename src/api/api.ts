@@ -50,14 +50,14 @@ export abstract class API {
 
   private static isVochainError(error: string): never {
     switch (true) {
-      case error.includes('starts at height') && error.includes('current height is'):
+      case error.includes('starts at') && error.includes('current'):
         throw new ErrElectionNotStarted(error);
-      case error.includes('finished at height') && error.includes('current height is'):
+      case error.includes('finished at') && error.includes('current'):
         throw new ErrElectionFinished(error);
       case error.includes('current state: ENDED'):
         throw new ErrElectionFinished(error);
       default:
-        throw error;
+        throw new ErrAPI(error);
     }
   }
 

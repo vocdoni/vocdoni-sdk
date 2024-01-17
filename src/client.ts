@@ -564,26 +564,11 @@ export class VocdoniSDKClient {
       key: ElectionCreationSteps.GET_DATA_PIN,
     };
 
-    const blocks = {
-      actual: chainData.height,
-      start: 0,
-      end: 0,
-    };
-    if (election.startDate) {
-      blocks.start = await this.chainService.dateToBlock(election.startDate);
-    }
-    blocks.end = await this.chainService.dateToBlock(election.endDate);
     yield {
       key: ElectionCreationSteps.ESTIMATE_BLOCK_TIMES,
     };
 
-    const electionTxData = ElectionCore.generateNewElectionTransaction(
-      election,
-      cid,
-      blocks,
-      account.address,
-      account.nonce
-    );
+    const electionTxData = ElectionCore.generateNewElectionTransaction(election, cid, account.address, account.nonce);
     yield {
       key: ElectionCreationSteps.GENERATE_TX,
     };

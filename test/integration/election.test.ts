@@ -35,7 +35,7 @@ const createElection = (census, electionType?, voteType?, maxCensusSize?) => {
   const election = Election.from({
     title: 'SDK Testing - Title',
     description: 'SDK Testing - Description',
-    endDate: new Date().getTime() + 10000000,
+    endDate: new Date().getTime() + 60 * 60 * 1000,
     census,
     maxCensusSize,
     electionType: electionType ?? null,
@@ -601,7 +601,7 @@ describe('Election integration tests', () => {
     const election = MultiChoiceElection.from({
       title: 'SDK Testing - Title',
       description: 'SDK Testing - Description',
-      endDate: new Date().getTime() + 10000000,
+      endDate: new Date().getTime() + 60 * 60 * 1000,
       census,
       maxNumberOfChoices: 3,
       canAbstain: true,

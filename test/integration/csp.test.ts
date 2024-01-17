@@ -25,7 +25,7 @@ describe('CSP tests', () => {
       description: 'Election description',
       header: 'https://source.unsplash.com/random',
       streamUri: 'https://source.unsplash.com/random',
-      endDate: new Date().getTime() + 10000000,
+      endDate: new Date().getTime() + 60 * 60 * 1000,
       census,
       maxCensusSize: numVotes,
     });

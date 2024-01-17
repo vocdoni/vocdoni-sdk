@@ -71,11 +71,10 @@ export abstract class ElectionCore extends TransactionCore {
   public static generateNewElectionTransaction(
     election: UnpublishedElection,
     cid: string,
-    blocks: { actual: number; start: number; end: number },
     address: string,
     nonce: number
   ): { tx: Uint8Array; metadata: string; message: string } {
-    const txData = this.prepareElectionData(election, cid, blocks, address, nonce);
+    const txData = this.prepareElectionData(election, cid, address, nonce);
 
     const newProcess = NewProcessTx.fromPartial({
       txtype: TxType.NEW_PROCESS,
@@ -93,7 +92,6 @@ export abstract class ElectionCore extends TransactionCore {
   private static prepareElectionData(
     election: UnpublishedElection,
     cid: string,
-    blocks: { actual: number; start: number; end: number },
     address: string,
     nonce: number
   ): { metadata: string; electionData: object } {
@@ -103,8 +101,10 @@ export abstract class ElectionCore extends TransactionCore {
         nonce: nonce,
         process: {
           entityId: Uint8Array.from(Buffer.from(address, 'hex')),
-          startBlock: election.startDate ? blocks.start : 0,
-          blockCount: blocks.end - (election.startDate ? blocks.start : blocks.actual),
+          startTime: election.startDate ? Math.floor(election.startDate.getTime() / 1000) : 0,
+          duration: election.startDate
+            ? Math.floor((election.endDate.getTime() - election.startDate.getTime()) / 1000)
+            : Math.floor((election.endDate.getTime() - Date.now()) / 1000),
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),
           censusURI: election.census.censusURI,
           status: ProcessStatus.READY,
