@@ -30,6 +30,7 @@ export interface IChoice {
 export interface IQuestion {
   title: MultiLanguage<string>;
   description?: MultiLanguage<string>;
+  numAbstains?: string;
   choices: Array<IChoice>;
 }
 

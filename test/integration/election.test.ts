@@ -627,7 +627,7 @@ describe('Election integration tests', () => {
           participants.map(async (participant) => {
             const pClient = new VocdoniSDKClient(clientParams(participant));
             pClient.setElectionId(electionId);
-            const vote = new Vote([0, 1, 2]);
+            const vote = new Vote([0, 5, 7]);
             return pClient.submitVote(vote);
           })
         )
@@ -646,9 +646,10 @@ describe('Election integration tests', () => {
         });
         expect(election.results).toStrictEqual([
           ['5', '0', '0', '0', '0', '0', '0', '0'],
-          ['0', '5', '0', '0', '0', '0', '0', '0'],
-          ['0', '0', '5', '0', '0', '0', '0', '0'],
+          ['0', '0', '0', '0', '0', '5', '0', '0'],
+          ['0', '0', '0', '0', '0', '0', '0', '5'],
         ]);
+        expect(election.questions[0].numAbstains).toEqual('10');
       });
   }, 850000);
   it('should create a budget election without weights and have the correct values set', async () => {

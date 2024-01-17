@@ -3,6 +3,7 @@ import {
   ArchivedElection,
   Census,
   CspCensus,
+  ElectionResultsTypeNames,
   InvalidElection,
   PublishedCensus,
   PublishedElection,
@@ -162,14 +163,11 @@ export class ElectionService extends Service implements ElectionServicePropertie
       questions: electionInfo.metadata?.questions.map((question, qIndex) => ({
         title: question.title,
         description: question.description,
+        numAbstains: this.calculateMultichoiceAbstains(electionInfo.metadata.type, electionInfo.result),
         choices: question.choices.map((choice, cIndex) => ({
           title: choice.title,
           value: choice.value,
-          results: electionInfo.result
-            ? electionInfo.tallyMode.maxTotalCost > 0
-              ? electionInfo.result[cIndex][1]
-              : electionInfo.result[qIndex][cIndex]
-            : null,
+          results: this.calculateChoiceResults(electionInfo.metadata.type.name, electionInfo.result, qIndex, cIndex),
         })),
       })),
       resultsType: electionInfo.metadata.type,
@@ -179,6 +177,46 @@ export class ElectionService extends Service implements ElectionServicePropertie
     return electionParameters.fromArchive
       ? new ArchivedElection(electionParameters)
       : new PublishedElection(electionParameters);
+  }
+
+  private calculateChoiceResults(electionType, result, qIndex, cIndex) {
+    try {
+      switch (electionType) {
+        case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
+          return result ? result[qIndex][cIndex] : null;
+        case ElectionResultsTypeNames.MULTIPLE_CHOICE:
+          return result
+            .reduce((prev, cur) => {
+              return prev + +cur[cIndex];
+            }, 0)
+            .toString();
+        case ElectionResultsTypeNames.BUDGET:
+          return result[cIndex][0];
+        default:
+          return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  private calculateMultichoiceAbstains(electionType, result) {
+    try {
+      switch (electionType.name) {
+        case ElectionResultsTypeNames.MULTIPLE_CHOICE:
+          let abstains = 0;
+          for (const pos of electionType.properties.abstainValues) {
+            abstains += result.reduce((prev, cur) => {
+              return prev + +cur[+pos];
+            }, 0);
+          }
+          return abstains.toString();
+        default:
+          return null;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 
   async fetchElections(
