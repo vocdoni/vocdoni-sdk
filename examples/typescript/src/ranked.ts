@@ -24,7 +24,7 @@ const MAX_COUNT = 5;
 
 /**
  * Specifies the maximum value that can be assigned to any single choice. For instance, if voters can rate
- * options on a scale of 0 to 3, `MAX_VALUE` should be set to `4`.
+ * options on a scale of 0 to 4, `MAX_VALUE` should be set to `4`.
  * */
 const MAX_VALUE = 4;
 
