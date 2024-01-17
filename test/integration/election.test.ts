@@ -1,5 +1,6 @@
 import { Wallet } from '@ethersproject/wallet';
 import {
+  BudgetElection,
   CensusType,
   Election,
   ElectionCreationSteps,
@@ -583,7 +584,8 @@ describe('Election integration tests', () => {
   }, 85000);
   it('should create a multichoice election and have the correct values set', async () => {
     const census = new PlainCensus();
-    census.add(Wallet.createRandom().address);
+    const participants: Wallet[] = [...new Array(5)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
 
     const election = MultiChoiceElection.from({
       title: 'SDK Testing - Title',
@@ -616,7 +618,21 @@ describe('Election integration tests', () => {
     await client.createAccount();
     await client
       .createElection(election)
-      .then((electionId) => client.fetchElection(electionId))
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return electionId;
+      })
+      .then((electionId) =>
+        Promise.all(
+          participants.map(async (participant) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionId);
+            const vote = new Vote([0, 1, 2]);
+            return pClient.submitVote(vote);
+          })
+        )
+      )
+      .then(() => client.fetchElection())
       .then((election) => {
         expect(election.voteType.maxCount).toEqual(3);
         expect(election.voteType.maxValue).toEqual(7);
@@ -624,9 +640,149 @@ describe('Election integration tests', () => {
         expect(election.voteType.uniqueChoices).toEqual(true);
         expect(election.resultsType.name).toEqual(ElectionResultsTypeNames.MULTIPLE_CHOICE);
         expect(election.resultsType.properties).toStrictEqual({
+          canAbstain: true,
           repeatChoice: false,
           abstainValues: ['5', '6', '7'],
         });
+        expect(election.results).toStrictEqual([
+          ['5', '0', '0', '0', '0', '0', '0', '0'],
+          ['0', '5', '0', '0', '0', '0', '0', '0'],
+          ['0', '0', '5', '0', '0', '0', '0', '0'],
+        ]);
+      });
+  }, 850000);
+  it('should create a budget election without weights and have the correct values set', async () => {
+    const census = new PlainCensus();
+    const participants: Wallet[] = [...new Array(5)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
+
+    const election = BudgetElection.from({
+      title: 'SDK Testing - Title',
+      description: 'SDK Testing - Description',
+      endDate: new Date().getTime() + 10000000,
+      census,
+      useCensusWeightAsBudget: false,
+      maxBudget: 20,
+    });
+
+    election.addQuestion('This is a title', 'This is a description', [
+      {
+        title: 'Red',
+      },
+      {
+        title: 'Green',
+      },
+      {
+        title: 'Blue',
+      },
+      {
+        title: 'White',
+      },
+      {
+        title: 'Black',
+      },
+    ]);
+
+    await client.createAccount();
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return electionId;
+      })
+      .then((electionId) =>
+        Promise.all(
+          participants.map(async (participant) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionId);
+            const vote = new Vote([15, 3, 1, 0, 0]);
+            return pClient.submitVote(vote);
+          })
+        )
+      )
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.voteType.maxCount).toEqual(5);
+        expect(election.voteType.maxValue).toEqual(0);
+        expect(election.voteType.maxTotalCost).toEqual(20);
+        expect(election.voteType.uniqueChoices).toEqual(false);
+        expect(election.resultsType.name).toEqual(ElectionResultsTypeNames.BUDGET);
+        expect(election.resultsType.properties).toStrictEqual({
+          useCensusWeightAsBudget: false,
+          maxBudget: 20,
+          forceFullBudget: false,
+          minStep: 1,
+        });
+        expect(election.results).toStrictEqual([['75'], ['15'], ['5'], ['0'], ['0']]);
+      });
+  }, 850000);
+  it('should create a budget election with weights and have the correct values set', async () => {
+    const census = new WeightedCensus();
+    const participants: Wallet[] = [...new Array(5)].map(() => Wallet.createRandom());
+    census.add(
+      participants.map((participant, index) => ({
+        key: participant.address,
+        weight: BigInt(index + 1),
+      }))
+    );
+
+    const election = BudgetElection.from({
+      title: 'SDK Testing - Title',
+      description: 'SDK Testing - Description',
+      endDate: new Date().getTime() + 10000000,
+      census,
+      useCensusWeightAsBudget: true,
+    });
+
+    election.addQuestion('This is a title', 'This is a description', [
+      {
+        title: 'Red',
+      },
+      {
+        title: 'Green',
+      },
+      {
+        title: 'Blue',
+      },
+      {
+        title: 'White',
+      },
+      {
+        title: 'Black',
+      },
+    ]);
+
+    await client.createAccount();
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return electionId;
+      })
+      .then((electionId) =>
+        Promise.all(
+          participants.map(async (participant, index) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionId);
+            const vote = new Vote([index, 0, 1, 0, 0]);
+            return pClient.submitVote(vote);
+          })
+        )
+      )
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.voteType.maxCount).toEqual(5);
+        expect(election.voteType.maxValue).toEqual(0);
+        expect(election.voteType.maxTotalCost).toEqual(0);
+        expect(election.voteType.uniqueChoices).toEqual(false);
+        expect(election.resultsType.name).toEqual(ElectionResultsTypeNames.BUDGET);
+        expect(election.resultsType.properties).toStrictEqual({
+          useCensusWeightAsBudget: true,
+          maxBudget: null,
+          forceFullBudget: false,
+          minStep: 1,
+        });
+        expect(election.results).toStrictEqual([['10'], ['0'], ['5'], ['0'], ['0']]);
       });
   }, 850000);
   it('should create a quadratic election with 10 participants and the results should be correct', async () => {

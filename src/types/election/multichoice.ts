@@ -61,12 +61,23 @@ export class MultiChoiceElection extends UnpublishedElection {
     return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
+  public generateEnvelopeType(): object {
+    const serial = false; // TODO
+    const anonymous = this.electionType.anonymous;
+    const encryptedVotes = this.electionType.secretUntilTheEnd;
+    const uniqueValues = !this.canRepeatChoices;
+    const costFromWeight = this.voteType.costFromWeight;
+
+    return { serial, anonymous, encryptedVotes, uniqueValues, costFromWeight };
+  }
+
   public generateMetadata(): ElectionMetadata {
     const metadata = ElectionMetadataTemplate;
 
     metadata.type = {
       name: ElectionResultsTypeNames.MULTIPLE_CHOICE,
       properties: {
+        canAbstain: this.canAbstain,
         abstainValues: [...new Array(this.canAbstain ? (this.canRepeatChoices ? 1 : this.maxNumberOfChoices) : 0)].map(
           (_v, index) => String(index + this.questions[0].choices.length)
         ),

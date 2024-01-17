@@ -36,6 +36,7 @@ export interface IQuestion {
 export enum ElectionResultsTypeNames {
   SINGLE_CHOICE_MULTIQUESTION = 'single-choice-multiquestion',
   MULTIPLE_CHOICE = 'multiple-choice',
+  BUDGET = 'budget-based',
 }
 
 export type ElectionResultsType =
@@ -46,8 +47,18 @@ export type ElectionResultsType =
   | {
       name: ElectionResultsTypeNames.MULTIPLE_CHOICE;
       properties: {
+        canAbstain: boolean;
         abstainValues: Array<string>;
         repeatChoice: boolean;
+      };
+    }
+  | {
+      name: ElectionResultsTypeNames.BUDGET;
+      properties: {
+        useCensusWeightAsBudget: boolean;
+        maxBudget: number;
+        minStep: number;
+        forceFullBudget: boolean;
       };
     };
 
@@ -83,7 +94,11 @@ const electionMetadataSchema = object()
       .shape({
         name: string()
           .required()
-          .oneOf([ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION, ElectionResultsTypeNames.MULTIPLE_CHOICE]),
+          .oneOf([
+            ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION,
+            ElectionResultsTypeNames.MULTIPLE_CHOICE,
+            ElectionResultsTypeNames.BUDGET,
+          ]),
         properties: object().optional().nullable(),
       })
       .required(),

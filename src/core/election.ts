@@ -108,8 +108,8 @@ export abstract class ElectionCore extends TransactionCore {
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),
           censusURI: election.census.censusURI,
           status: ProcessStatus.READY,
-          envelopeType: this.generateEnvelopeType(election),
-          mode: this.generateMode(election),
+          envelopeType: election.generateEnvelopeType(),
+          mode: election.generateMode(),
           voteOptions: election.generateVoteOptions(),
           censusOrigin: this.censusOriginFromCensusType(election.census.type),
           metadata: cid,
@@ -118,26 +118,6 @@ export abstract class ElectionCore extends TransactionCore {
         },
       },
     };
-  }
-
-  private static generateEnvelopeType(election: UnpublishedElection): object {
-    const serial = false; // TODO
-    const anonymous = election.electionType.anonymous;
-    const encryptedVotes = election.electionType.secretUntilTheEnd;
-    const uniqueValues = election.voteType.uniqueChoices;
-    const costFromWeight = election.voteType.costFromWeight;
-
-    return { serial, anonymous, encryptedVotes, uniqueValues, costFromWeight };
-  }
-
-  private static generateMode(election: UnpublishedElection): object {
-    const autoStart = election.electionType.autoStart;
-    const interruptible = election.electionType.interruptible;
-    const dynamicCensus = election.electionType.dynamicCensus;
-    const encryptedMetaData = false; // TODO
-    const preRegister = false; // TODO
-
-    return { autoStart, interruptible, dynamicCensus, encryptedMetaData, preRegister };
   }
 
   private static processStatusFromElectionStatus(status: AllElectionStatus): ProcessStatus {
