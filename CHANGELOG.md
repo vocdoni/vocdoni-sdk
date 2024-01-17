@@ -5,11 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.2] - 2024-01-17
 
 ### Added
 
 - Added new `MultiChoiceElection` election type for creating multi-choice elections easily.
+- Added new `BudgetElection` election type for creating budget elections easily.
+
+### Fixed
+
+- Results in published elections are now correctly returned for each type of election.
 
 ## [0.7.1] - 2024-01-11
 
@@ -415,6 +420,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.7.2]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.2
 [0.7.1]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.1
 [0.7.0]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.0
 [0.6.1]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.6.1
