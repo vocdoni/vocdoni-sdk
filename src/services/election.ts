@@ -170,7 +170,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
           results: this.calculateChoiceResults(electionInfo.metadata.type.name, electionInfo.result, qIndex, cIndex),
         })),
       })),
-      resultsType: electionInfo.metadata.type,
+      resultsType: electionInfo.metadata?.type,
       raw: electionInfo,
     };
 
