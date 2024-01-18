@@ -77,7 +77,7 @@ describe('Election tests', () => {
       uniqueChoices: false,
       maxVoteOverwrites: 0,
       costFromWeight: false,
-      costExponent: 10000,
+      costExponent: 1,
       maxCount: null,
       maxTotalCost: null,
       maxValue: null,
