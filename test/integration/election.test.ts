@@ -139,7 +139,7 @@ describe('Election integration tests', () => {
     }
   }, 850000);
   it('should cdasdsareate an election step by step', async () => {
-    const election = await client.fetchElection('63f57be98f802d643687e446a40ce00a7c71cacfa58bb1b2a2ae020000000000')
+    const election = await client.fetchElection('63f57be98f802d643687e446a40ce00a7c71cacfa58bb1b2a2ae020000000000');
     //const election = await client.fetchElection('63f57be98f80c6cb21d93fc55c0d854d6f37dbf1c5683158e1da020800000007')
     console.log(election);
   }, 850000);
