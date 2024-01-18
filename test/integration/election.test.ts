@@ -113,7 +113,7 @@ describe('Election integration tests', () => {
           uniqueChoices: false,
           maxVoteOverwrites: 0,
           costFromWeight: false,
-          costExponent: 10000,
+          costExponent: 1,
           maxCount: 1,
           maxValue: 1,
           maxTotalCost: 0,
