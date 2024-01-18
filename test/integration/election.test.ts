@@ -113,7 +113,7 @@ describe('Election integration tests', () => {
           uniqueChoices: false,
           maxVoteOverwrites: 0,
           costFromWeight: false,
-          costExponent: 10000,
+          costExponent: 1,
           maxCount: 1,
           maxValue: 1,
           maxTotalCost: 0,
@@ -137,6 +137,11 @@ describe('Election integration tests', () => {
     for await (const value of client.createElectionSteps(election)) {
       expect(Object.values(ElectionCreationSteps)).toContain(value.key);
     }
+  }, 850000);
+  it('should cdasdsareate an election step by step', async () => {
+    const election = await client.fetchElection('63f57be98f802d643687e446a40ce00a7c71cacfa58bb1b2a2ae020000000000')
+    //const election = await client.fetchElection('63f57be98f80c6cb21d93fc55c0d854d6f37dbf1c5683158e1da020800000007')
+    console.log(election);
   }, 850000);
   it('should create an election with addresses census', async () => {
     const census = new PlainCensus();
