@@ -3,13 +3,20 @@ import invariant from 'tiny-invariant';
 import { CensusType, CspVote, Election, Vote } from '../types';
 import { CspAPI, ICspInfoResponse } from '../api/csp';
 import { CensusBlind, getBlindedPayload } from '../util/blind-signing';
-import { CspProofType } from '../core/vote';
+import { ProofCA_Type } from '@vocdoni/proto/vochain';
 
 interface CspServiceProperties {
   info: ICspInfoResponse;
 }
 
 type CspServiceParameters = ServiceProperties & CspServiceProperties;
+
+export enum CspProofType {
+  ECDSA = ProofCA_Type.ECDSA,
+  ECDSA_PIDSALTED = ProofCA_Type.ECDSA_PIDSALTED,
+  ECDSA_BLIND = ProofCA_Type.ECDSA_BLIND,
+  ECDSA_BLIND_PIDSALTED = ProofCA_Type.ECDSA_BLIND_PIDSALTED,
+}
 
 export class CspService extends Service implements CspServiceProperties {
   public info: ICspInfoResponse;

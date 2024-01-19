@@ -1,12 +1,11 @@
 import { ICspFinalStepResponse, ICspIntermediateStepResponse } from '../../src/api/csp';
 import { Wallet } from '@ethersproject/wallet';
-import { Election, VocdoniSDKClient, Vote } from '../../src';
+import { CspProofType, Election, VocdoniSDKClient, Vote } from '../../src';
 import { CspCensus } from '../../src';
 // @ts-ignore
 import { clientParams, setFaucetURL } from './util/client.params';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
-import { CspProofType } from '../../src/core/vote';
 
 const CSP_URL = process.env.BLINDCSP_URL ?? 'https://csp-dev-simplemath.vocdoni.net/v1';
 const CSP_PUBKEY = process.env.BLINDCSP_PUBKEY ?? '025de8cb8de1005aa939c1403e37e1fa165ebc758da49cb37215c6237d01591104';

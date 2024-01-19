@@ -5,7 +5,7 @@ import { Buffer } from 'buffer';
 import invariant from 'tiny-invariant';
 import { AccountCore } from './core/account';
 import { ElectionCore } from './core/election';
-import { CspProofType, VoteCore } from './core/vote';
+import { VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
@@ -39,6 +39,7 @@ import {
   ChainCircuits,
   ChainService,
   CspCensusProof,
+  CspProofType,
   CspService,
   ElectionCreationSteps,
   ElectionCreationStepValue,
