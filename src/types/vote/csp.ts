@@ -1,5 +1,5 @@
 import { Vote } from './vote';
-import { CspProofType } from '../../core/vote';
+import { CspProofType } from '../../services';
 
 export class CspVote extends Vote {
   private _signature: string;
