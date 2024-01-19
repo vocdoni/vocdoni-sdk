@@ -1,5 +1,6 @@
 import { Wallet } from '@ethersproject/wallet';
 import {
+  ApprovalElection,
   BudgetElection,
   CensusType,
   Election,
@@ -784,6 +785,58 @@ describe('Election integration tests', () => {
           minStep: 1,
         });
         expect(election.results).toStrictEqual([['10'], ['0'], ['5'], ['0'], ['0']]);
+      });
+  }, 850000);
+  it('should create an approval election and have the correct values set', async () => {
+    const census = new PlainCensus();
+    const participants: Wallet[] = [...new Array(5)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
+
+    const election = ApprovalElection.from({
+      title: 'SDK Testing - Title',
+      description: 'SDK Testing - Description',
+      endDate: new Date().getTime() + 10000000,
+      census,
+    });
+
+    election.addQuestion('Statement 1', 'This is a description');
+    election.addQuestion('Statement 2', 'This is a description');
+    election.addQuestion('Statement 3', 'This is a description');
+
+    await client.createAccount();
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return electionId;
+      })
+      .then((electionId) =>
+        Promise.all(
+          participants.map(async (participant) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionId);
+            const vote = new Vote([1, 0, 1]);
+            return pClient.submitVote(vote);
+          })
+        )
+      )
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.voteType.maxCount).toEqual(3);
+        expect(election.voteType.maxValue).toEqual(1);
+        expect(election.voteType.maxTotalCost).toEqual(0);
+        expect(election.voteType.uniqueChoices).toEqual(false);
+        expect(election.resultsType.name).toEqual(ElectionResultsTypeNames.APPROVAL);
+        expect(election.resultsType.properties).toStrictEqual({
+          rejectValue: 1,
+          acceptValue: 1,
+        });
+        expect(election.results).toStrictEqual([
+          ['0', '5'],
+          ['5', '0'],
+          ['0', '5'],
+        ]);
+        console.log(election.questions);
       });
   }, 850000);
   it('should create a quadratic election with 10 participants and the results should be correct', async () => {
