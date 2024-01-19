@@ -183,6 +183,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
     try {
       switch (electionType) {
         case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
+        case ElectionResultsTypeNames.APPROVAL:
           return result ? result[qIndex][cIndex] : null;
         case ElectionResultsTypeNames.MULTIPLE_CHOICE:
           return result

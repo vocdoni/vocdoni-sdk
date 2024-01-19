@@ -38,6 +38,7 @@ export enum ElectionResultsTypeNames {
   SINGLE_CHOICE_MULTIQUESTION = 'single-choice-multiquestion',
   MULTIPLE_CHOICE = 'multiple-choice',
   BUDGET = 'budget-based',
+  APPROVAL = 'approval',
 }
 
 export type ElectionResultsType =
@@ -60,6 +61,13 @@ export type ElectionResultsType =
         maxBudget: number;
         minStep: number;
         forceFullBudget: boolean;
+      };
+    }
+  | {
+      name: ElectionResultsTypeNames.APPROVAL;
+      properties: {
+        rejectValue: number;
+        acceptValue: number;
       };
     };
 
@@ -99,6 +107,7 @@ const electionMetadataSchema = object()
             ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION,
             ElectionResultsTypeNames.MULTIPLE_CHOICE,
             ElectionResultsTypeNames.BUDGET,
+            ElectionResultsTypeNames.APPROVAL,
           ]),
         properties: object().optional().nullable(),
       })
