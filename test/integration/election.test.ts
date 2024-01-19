@@ -828,7 +828,7 @@ describe('Election integration tests', () => {
         expect(election.voteType.uniqueChoices).toEqual(false);
         expect(election.resultsType.name).toEqual(ElectionResultsTypeNames.APPROVAL);
         expect(election.resultsType.properties).toStrictEqual({
-          rejectValue: 1,
+          rejectValue: 0,
           acceptValue: 1,
         });
         expect(election.results).toStrictEqual([
