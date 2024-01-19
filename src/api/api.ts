@@ -75,10 +75,10 @@ export abstract class API {
     }
   }
 
-  private static isFaucetError(error: string) {
+  private static isFaucetError(message?: string) {
     switch (true) {
-      case error.includes('already funded') && error.includes('wait until'):
-        throw new ErrFaucetAlreadyFunded(error);
+      case message && message.includes('already funded') && message.includes('wait until'):
+        throw new ErrFaucetAlreadyFunded(message);
     }
   }
 }
