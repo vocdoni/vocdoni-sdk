@@ -194,10 +194,10 @@ export class ElectionService extends Service implements ElectionServicePropertie
         case ElectionResultsTypeNames.BUDGET:
           return result[cIndex][0];
         default:
-          return null;
+          return result ? result[qIndex][cIndex] : null;
       }
     } catch (e) {
-      return null;
+      return result ? result[qIndex][cIndex] : null;
     }
   }
 
