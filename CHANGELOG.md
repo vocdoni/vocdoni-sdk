@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.3] - 2024-01-23
 
 ### Added
 
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed `costExponent` to 1.
 - Fixed error when election has no metadata.
+- Fixed error with questions results for elections with no new type metadata.
 
 ## [0.7.2] - 2024-01-17
 
@@ -431,6 +432,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.7.3]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.3
 [0.7.2]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.2
 [0.7.1]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.1
 [0.7.0]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.0
