@@ -113,6 +113,8 @@ export class PublishedElection extends Election {
     switch (this.resultsType?.name) {
       case ElectionResultsTypeNames.MULTIPLE_CHOICE:
         return MultiChoiceElection.checkVote(vote, this.voteType);
+      case ElectionResultsTypeNames.APPROVAL:
+        return MultiChoiceElection.checkVote(vote, this.voteType);
       case ElectionResultsTypeNames.BUDGET:
         return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
       case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
