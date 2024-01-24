@@ -1,7 +1,8 @@
 import { MultiLanguage } from '../../util/lang';
-import { IElectionParameters } from './election';
+import { IElectionParameters, IVoteType } from './election';
 import { UnpublishedElection } from './unpublished';
-import { ElectionMetadata, ElectionMetadataTemplate, ElectionResultsTypeNames } from '../metadata';
+import { ElectionMetadata, ElectionMetadataTemplate, ElectionResultsType, ElectionResultsTypeNames } from '../metadata';
+import { Vote } from '../vote';
 
 export interface IBudgetElectionParametersInfo extends IElectionParameters {
   minStep?: number;
@@ -98,6 +99,26 @@ export class BudgetElection extends UnpublishedElection {
     };
 
     return super.generateMetadata(metadata);
+  }
+
+  public static checkVote(vote: Vote, resultsType: ElectionResultsType, voteType: IVoteType): void {
+    if (resultsType.name != ElectionResultsTypeNames.BUDGET) {
+      throw new Error('Invalid results type');
+    }
+
+    if (voteType.maxCount != vote.votes.length) {
+      throw new Error('Invalid number of choices');
+    }
+
+    if (!voteType.costFromWeight) {
+      const voteWeight = vote.votes.reduce((a, b) => BigInt(b) + BigInt(a), 0);
+      if (voteType.maxTotalCost < voteWeight) {
+        throw new Error('Too much budget spent');
+      }
+      if (resultsType.properties.forceFullBudget && voteType.maxTotalCost != voteWeight) {
+        throw new Error('Not full budget used');
+      }
+    }
   }
 
   get minStep(): number {
