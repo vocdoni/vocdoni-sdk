@@ -22,19 +22,27 @@ export class ApprovalElection extends UnpublishedElection {
     return new ApprovalElection(params);
   }
 
-  public addQuestion(title: string | MultiLanguage<string>, description: string | MultiLanguage<string>) {
+  public addQuestion(
+    title: string | MultiLanguage<string>,
+    description: string | MultiLanguage<string>,
+    choices: Array<{ title: string } | { title: MultiLanguage<string> }>
+  ) {
+    if (this.questions.length > 0) {
+      throw new Error('This type of election can only have one question');
+    }
+
     return super.addQuestion(
       title,
       description,
-      [...new Array(2)].map((_v, index) => ({
-        title: '',
+      choices.map((choice, index) => ({
+        title: typeof choice.title === 'string' ? { default: choice.title } : choice.title,
         value: index,
       }))
     );
   }
 
   public generateVoteOptions(): object {
-    const maxCount = this.questions.length;
+    const maxCount = this.questions[0].choices.length;
     const maxValue = 1;
     const maxVoteOverwrites = this.voteType.maxVoteOverwrites;
     const maxTotalCost = 0;

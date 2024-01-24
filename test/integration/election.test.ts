@@ -832,9 +832,17 @@ describe('Election integration tests', () => {
       census,
     });
 
-    election.addQuestion('Statement 1', 'This is a description');
-    election.addQuestion('Statement 2', 'This is a description');
-    election.addQuestion('Statement 3', 'This is a description');
+    election.addQuestion('Approve each point', 'This is a description', [
+      {
+        title: 'Statement 1',
+      },
+      {
+        title: 'Statement 2',
+      },
+      {
+        title: 'Statement 3',
+      },
+    ]);
 
     await client.createAccount();
     await client
@@ -845,10 +853,10 @@ describe('Election integration tests', () => {
       })
       .then((electionId) =>
         Promise.all(
-          participants.map(async (participant) => {
+          participants.map(async (participant, index) => {
             const pClient = new VocdoniSDKClient(clientParams(participant));
             pClient.setElectionId(electionId);
-            const vote = new Vote([1, 0, 1]);
+            const vote = new Vote([1, 0, index % 2]);
             return pClient.submitVote(vote);
           })
         )
@@ -867,9 +875,8 @@ describe('Election integration tests', () => {
         expect(election.results).toStrictEqual([
           ['0', '5'],
           ['5', '0'],
-          ['0', '5'],
+          ['3', '2'],
         ]);
-        console.log(election.questions);
       });
   }, 850000);
   it('should create a quadratic election with 10 participants and the results should be correct', async () => {
