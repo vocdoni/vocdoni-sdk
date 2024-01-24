@@ -227,6 +227,14 @@ describe('Election integration tests', () => {
         expect(election.census.weight).toEqual(BigInt(numVotes));
         expect(election.status).toEqual(ElectionStatus.ONGOING);
         expect(election.maxCensusSize).toEqual(numVotes);
+        expect(election.checkVote(new Vote([0]))).toBeUndefined();
+        expect(election.checkVote(new Vote([1]))).toBeUndefined();
+        expect(() => {
+          election.checkVote(new Vote([0, 1, 1]));
+        }).toThrow('Invalid number of choices');
+        expect(() => {
+          election.checkVote(new Vote([2]));
+        }).toThrow('Invalid choice value');
       })
       .then(() =>
         Promise.all(

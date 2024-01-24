@@ -115,9 +115,26 @@ export class PublishedElection extends Election {
         return MultiChoiceElection.checkVote(vote, this.voteType);
       case ElectionResultsTypeNames.BUDGET:
         return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
+      case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
       default:
-        return;
+        return PublishedElection.checkVote(vote, this.voteType);
     }
+  }
+
+  public static checkVote(vote: Vote, voteType: IVoteType): void {
+    if (voteType.uniqueChoices && new Set(vote.votes).size !== vote.votes.length) {
+      throw new Error('Choices are not unique');
+    }
+
+    if (voteType.maxCount < vote.votes.length) {
+      throw new Error('Invalid number of choices');
+    }
+
+    vote.votes.forEach((vote) => {
+      if (vote > voteType.maxValue) {
+        throw new Error('Invalid choice value');
+      }
+    });
   }
 
   get title(): MultiLanguage<string> {
