@@ -1,7 +1,8 @@
 import { MultiLanguage } from '../../util/lang';
-import { IElectionParameters } from './election';
+import { IElectionParameters, IVoteType } from './election';
 import { UnpublishedElection } from './unpublished';
 import { ElectionMetadata, ElectionMetadataTemplate, ElectionResultsTypeNames } from '../metadata';
+import { Vote } from '../vote';
 
 export interface IMultiChoiceElectionParameters extends IElectionParameters {
   maxNumberOfChoices: number;
@@ -86,6 +87,22 @@ export class MultiChoiceElection extends UnpublishedElection {
     };
 
     return super.generateMetadata(metadata);
+  }
+
+  public static checkVote(vote: Vote, voteType: IVoteType): void {
+    if (voteType.uniqueChoices && new Set(vote.votes).size !== vote.votes.length) {
+      throw new Error('Choices are not unique');
+    }
+
+    if (voteType.maxCount != vote.votes.length) {
+      throw new Error('Invalid number of choices');
+    }
+
+    vote.votes.forEach((vote) => {
+      if (vote > voteType.maxValue) {
+        throw new Error('Invalid choice value');
+      }
+    });
   }
 
   get maxNumberOfChoices(): number {

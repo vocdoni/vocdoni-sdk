@@ -651,6 +651,16 @@ describe('Election integration tests', () => {
           ['0', '0', '0', '0', '0', '0', '0', '5'],
         ]);
         expect(election.questions[0].numAbstains).toEqual('10');
+        expect(election.checkVote(new Vote([0, 5, 7]))).toBeUndefined();
+        expect(() => {
+          election.checkVote(new Vote([5, 5, 7]));
+        }).toThrow('Choices are not unique');
+        expect(() => {
+          election.checkVote(new Vote([0, 1, 5, 7]));
+        }).toThrow('Invalid number of choices');
+        expect(() => {
+          election.checkVote(new Vote([0, 15, 7]));
+        }).toThrow('Invalid choice value');
       });
   }, 850000);
   it('should create a budget election without weights and have the correct values set', async () => {
@@ -665,6 +675,7 @@ describe('Election integration tests', () => {
       census,
       useCensusWeightAsBudget: false,
       maxBudget: 20,
+      forceFullBudget: true,
     });
 
     election.addQuestion('This is a title', 'This is a description', [
@@ -697,7 +708,7 @@ describe('Election integration tests', () => {
           participants.map(async (participant) => {
             const pClient = new VocdoniSDKClient(clientParams(participant));
             pClient.setElectionId(electionId);
-            const vote = new Vote([15, 3, 1, 0, 0]);
+            const vote = new Vote([15, 4, 1, 0, 0]);
             return pClient.submitVote(vote);
           })
         )
@@ -712,10 +723,20 @@ describe('Election integration tests', () => {
         expect(election.resultsType.properties).toStrictEqual({
           useCensusWeightAsBudget: false,
           maxBudget: 20,
-          forceFullBudget: false,
+          forceFullBudget: true,
           minStep: 1,
         });
-        expect(election.results).toStrictEqual([['75'], ['15'], ['5'], ['0'], ['0']]);
+        expect(election.results).toStrictEqual([['75'], ['20'], ['5'], ['0'], ['0']]);
+        expect(election.checkVote(new Vote([15, 4, 1, 0, 0]))).toBeUndefined();
+        expect(() => {
+          election.checkVote(new Vote([15, 3, 1, 0]));
+        }).toThrow('Invalid number of choices');
+        expect(() => {
+          election.checkVote(new Vote([18, 3, 1, 0, 0]));
+        }).toThrow('Too much budget spent');
+        expect(() => {
+          election.checkVote(new Vote([15, 3, 1, 0, 0]));
+        }).toThrow('Not full budget used');
       });
   }, 850000);
   it('should create a budget election with weights and have the correct values set', async () => {
@@ -785,6 +806,10 @@ describe('Election integration tests', () => {
           minStep: 1,
         });
         expect(election.results).toStrictEqual([['10'], ['0'], ['5'], ['0'], ['0']]);
+        expect(election.checkVote(new Vote([15, 4, 1, 0, 0]))).toBeUndefined();
+        expect(() => {
+          election.checkVote(new Vote([15, 3, 1, 0]));
+        }).toThrow('Invalid number of choices');
       });
   }, 850000);
   it('should create an approval election and have the correct values set', async () => {

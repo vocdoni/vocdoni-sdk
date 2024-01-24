@@ -1,7 +1,10 @@
 import { Election, IElectionParameters, IElectionType, IVoteType } from './election';
 import { MultiLanguage } from '../../util/lang';
-import { ElectionResultsType, IQuestion } from '../metadata';
+import { ElectionResultsType, ElectionResultsTypeNames, IQuestion } from '../metadata';
 import { PublishedCensus } from '../census';
+import { Vote } from '../vote';
+import { MultiChoiceElection } from './multichoice';
+import { BudgetElection } from './budget';
 
 export enum ElectionStatus {
   PROCESS_UNKNOWN = 'PROCESS_UNKNOWN',
@@ -103,6 +106,17 @@ export class PublishedElection extends Election {
         return startDate <= new Date() ? ElectionStatus.ONGOING : ElectionStatus.UPCOMING;
       default:
         return status;
+    }
+  }
+
+  public checkVote(vote: Vote): void {
+    switch (this.resultsType?.name) {
+      case ElectionResultsTypeNames.MULTIPLE_CHOICE:
+        return MultiChoiceElection.checkVote(vote, this.voteType);
+      case ElectionResultsTypeNames.BUDGET:
+        return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
+      default:
+        return;
     }
   }
 
