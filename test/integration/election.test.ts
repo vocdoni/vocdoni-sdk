@@ -877,6 +877,13 @@ describe('Election integration tests', () => {
           ['5', '0'],
           ['3', '2'],
         ]);
+        expect(election.checkVote(new Vote([1, 0, 1]))).toBeUndefined();
+        expect(() => {
+          election.checkVote(new Vote([0, 1]));
+        }).toThrow('Invalid number of choices');
+        expect(() => {
+          election.checkVote(new Vote([0, 2, 1]));
+        }).toThrow('Invalid choice value');
       });
   }, 850000);
   it('should create a quadratic election with 10 participants and the results should be correct', async () => {
