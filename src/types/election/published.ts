@@ -5,6 +5,7 @@ import { PublishedCensus } from '../census';
 import { Vote } from '../vote';
 import { MultiChoiceElection } from './multichoice';
 import { BudgetElection } from './budget';
+import { ApprovalElection } from './approval';
 
 export enum ElectionStatus {
   PROCESS_UNKNOWN = 'PROCESS_UNKNOWN',
@@ -114,7 +115,7 @@ export class PublishedElection extends Election {
       case ElectionResultsTypeNames.MULTIPLE_CHOICE:
         return MultiChoiceElection.checkVote(vote, this.voteType);
       case ElectionResultsTypeNames.APPROVAL:
-        return MultiChoiceElection.checkVote(vote, this.voteType);
+        return ApprovalElection.checkVote(vote, this.voteType);
       case ElectionResultsTypeNames.BUDGET:
         return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
       case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
