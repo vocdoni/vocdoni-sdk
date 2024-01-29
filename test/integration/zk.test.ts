@@ -69,8 +69,8 @@ describe('zkSNARK test', () => {
     });
 
     await client.createAccount({
-      sik: true,
-      password: 'password123',
+      setSecretIdentity: true,
+      secretPassword: 'password123',
     });
 
     await client
@@ -98,7 +98,7 @@ describe('zkSNARK test', () => {
       })
       .then(() => {
         client.wallet = voter2;
-        return client.createAccount({ sik: false });
+        return client.createAccount({ setSecretIdentity: false });
       })
       .then(() => {
         const vote = new Vote([1]);
@@ -242,8 +242,8 @@ describe('zkSNARK test', () => {
     });
 
     await client.createAccount({
-      sik: true,
-      password: 'password123',
+      setSecretIdentity: true,
+      secretPassword: 'password123',
     });
 
     await client
@@ -271,7 +271,7 @@ describe('zkSNARK test', () => {
       })
       .then(() => {
         client.wallet = voter2;
-        return client.createAccount({ sik: false });
+        return client.createAccount({ setSecretIdentity: false });
       })
       .then(() => {
         const vote = new Vote([1]);
@@ -314,15 +314,15 @@ describe('zkSNARK test', () => {
 
           if (i % 3 == 0) {
             await client.createAccount({
-              sik: true,
-              password: participants[i].address,
+              setSecretIdentity: true,
+              secretPassword: participants[i].address,
             });
             await expect(async () => {
               await client.submitVote(new AnonymousVote([i % 2], null, 'wrongpassword'));
             }).rejects.toThrow();
             vote = new AnonymousVote([i % 2], null, participants[i].address);
           } else if (i % 3 == 1) {
-            await client.createAccount({ sik: false });
+            await client.createAccount({ setSecretIdentity: false });
           }
           const isInCensus = await client.isInCensus();
           expect(isInCensus).toBeTruthy();
