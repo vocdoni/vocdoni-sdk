@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4] - 2024-02-06
+
+### Added
+
+- Added new `CspProofType` type when voting in a CSP based election to choose the encryption type.
+
 ## [0.7.3] - 2024-01-23
 
 ### Added
@@ -432,6 +438,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.7.4]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.4
 [0.7.3]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.3
 [0.7.2]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.2
 [0.7.1]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.1
