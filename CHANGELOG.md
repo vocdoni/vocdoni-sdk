@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for getting token holder balance in Census3 using `tokenHolderBalance`.
+
 ### Fixed
 
 - Fixed `CensusOrigin` when election is using CSP census and anonymous.

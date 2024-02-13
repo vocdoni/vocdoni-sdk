@@ -13,6 +13,7 @@ import {
   ICensus3ValidatePredicateResponse,
   ICensus3StrategiesOperator,
   Census3SummaryToken,
+  ErrNoTokenHolderFound,
 } from './api';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
@@ -115,13 +116,36 @@ export class VocdoniCensus3Client {
    * @param {number} chainId The id of the chain
    * @param {string} holderId The identifier of the holder
    * @param {string} externalId The identifier used by external provider
-   * @returns {Promise<Token>} The token information
+   * @returns {Promise<boolean>} If the holder is in the token
    */
   isHolderInToken(tokenId: string, chainId: number, holderId: string, externalId?: string): Promise<boolean> {
     invariant(tokenId, 'No token id');
     invariant(holderId, 'No holder id');
     invariant(chainId, 'No chain id');
-    return Census3TokenAPI.holder(this.url, tokenId, chainId, holderId, externalId);
+    return Census3TokenAPI.holder(this.url, tokenId, chainId, holderId, externalId)
+      .then(() => true)
+      .catch((error) => {
+        if (error instanceof ErrNoTokenHolderFound) return false;
+        throw error;
+      });
+  }
+
+  /**
+   * Returns the balance of the holder based on the token and chain
+   *
+   * @param {string} tokenId The id (address) of the token
+   * @param {number} chainId The id of the chain
+   * @param {string} holderId The identifier of the holder
+   * @param {string} externalId The identifier used by external provider
+   * @returns {Promise<bigint>} The balance of the holder
+   */
+  tokenHolderBalance(tokenId: string, chainId: number, holderId: string, externalId?: string): Promise<bigint> {
+    invariant(tokenId, 'No token id');
+    invariant(holderId, 'No holder id');
+    invariant(chainId, 'No chain id');
+    return Census3TokenAPI.holder(this.url, tokenId, chainId, holderId, externalId).then((response) =>
+      BigInt(response.balance)
+    );
   }
 
   /**

@@ -50,6 +50,7 @@ import {
   ErrNotFoundStrategy,
   ErrNotFoundToken,
   ErrNotFoundTokenHolders,
+  ErrNoTokenHolderFound,
   ErrNoTokens,
   ErrPruningCensus,
   ErrTokenAlreadyExists,
@@ -205,6 +206,8 @@ export abstract class Census3API extends API {
           throw new ErrMalformedHolder(err['error']);
         case ErrCantImportStrategy.code:
           throw new ErrCantImportStrategy(err['error']);
+        case ErrNoTokenHolderFound.code:
+          throw new ErrNoTokenHolderFound(err['error']);
         default:
           return API.isUndefinedError(error, err['error']);
       }
