@@ -110,6 +110,13 @@ export interface ICensus3TokenListResponse {
   tokens: Array<Census3SummaryToken>;
 }
 
+export interface ICensus3TokenHolderResponse {
+  /**
+   * The balance of the holder
+   */
+  balance: string;
+}
+
 export interface ICensus3TokenListResponsePaginated extends ICensus3TokenListResponse {
   /**
    * The pagination information
@@ -187,7 +194,7 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param {number} chainId The chain identifier of the token
    * @param {string} holderId The identifier of the holder
    * @param {string} externalId The identifier used by external provider
-   * @returns {Promise<boolean>} If the holder exists in the database as a holder
+   * @returns {Promise<ICensus3TokenHolderResponse>} The balance of holder
    */
   public static holder(
     url: string,
@@ -195,16 +202,16 @@ export abstract class Census3TokenAPI extends Census3API {
     chainId: number,
     holderId: string,
     externalId?: string
-  ): Promise<boolean> {
+  ): Promise<ICensus3TokenHolderResponse> {
     return axios
-      .get<boolean>(
+      .get<ICensus3TokenHolderResponse>(
         url +
           Census3TokenAPIMethods.HOLDER.replace('{tokenID}', tokenId)
             .replace('{holderID}', holderId)
             .replace('{chainID}', String(chainId)) +
           (externalId ? '&externalID=' + externalId : '')
       )
-      .then((response) => response.data === true)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 

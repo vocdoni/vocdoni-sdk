@@ -88,3 +88,10 @@ export class ErrMalformedHolder extends Error {
     super(message ? message : 'malformed holder information');
   }
 }
+
+export class ErrNoTokenHolderFound extends Error {
+  static readonly code: number = 4023;
+  constructor(message?: string) {
+    super(message ? message : 'token holder not found for the token provided');
+  }
+}
