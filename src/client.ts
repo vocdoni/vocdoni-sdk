@@ -528,7 +528,7 @@ export class VocdoniSDKClient {
       key: ElectionCreationSteps.GET_CHAIN_DATA,
     };
 
-    if (election.electionType.anonymous) {
+    if (election.electionType.anonymous && election.census.type !== CensusType.CSP) {
       election.census.type = CensusType.ANONYMOUS;
     }
 
