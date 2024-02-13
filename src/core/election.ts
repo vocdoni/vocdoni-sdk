@@ -129,11 +129,11 @@ export abstract class ElectionCore extends TransactionCore {
 
   public static censusOriginFromCensusType(censusType: CensusType): CensusOrigin {
     switch (censusType) {
+      case CensusType.CSP:
+        return CensusOrigin.OFF_CHAIN_CA;
       case CensusType.WEIGHTED:
       case CensusType.ANONYMOUS:
         return CensusOrigin.OFF_CHAIN_TREE_WEIGHTED;
-      case CensusType.CSP:
-        return CensusOrigin.OFF_CHAIN_CA;
       default:
         throw new Error('Census origin not defined by the census type');
     }
