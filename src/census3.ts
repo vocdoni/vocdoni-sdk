@@ -19,11 +19,13 @@ import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
 import { TokenCensus } from './types';
 import { delay } from './util/common';
+import { Census3Pagination } from './api/census3/api';
 
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
 export type TokenSummary = Omit<Census3SummaryToken, 'tags'> & { tags: string[] };
 export type Strategy = Census3Strategy;
 export type StrategyHolder = { holder: string; weight: bigint };
+export type StrategyHolders = { holders: StrategyHolder[]; pagination: Census3Pagination };
 export type StrategyToken = Census3CreateStrategyToken;
 export type Census3Census = ICensus3CensusResponse;
 export type SupportedChain = ICensus3SupportedChain;
@@ -184,13 +186,14 @@ export class VocdoniCensus3Client {
    * Returns the strategy holders
    *
    * @param {number} id The id of the strategy
-   * @returns {Promise<StrategyHolder[]>} The list strategy holders
+   * @param {Census3Pagination} pagination Pagination options
+   * @returns {Promise<StrategyHolders>} The list strategy holders
    */
-  getStrategyHolders(id: number): Promise<StrategyHolder[]> {
-    return Census3StrategyAPI.holders(this.url, id, { pageSize: -1 }).then(
-      (response) =>
-        Object.entries(response.holders).map(([key, value]) => ({ holder: key, weight: BigInt(value) })) ?? []
-    );
+  getStrategyHolders(id: number, pagination: Census3Pagination = { pageSize: -1 }): Promise<StrategyHolders> {
+    return Census3StrategyAPI.holders(this.url, id, pagination).then((response) => ({
+      holders: Object.entries(response.holders).map(([key, value]) => ({ holder: key, weight: BigInt(value) })) ?? [],
+      pagination: response.pagination,
+    }));
   }
 
   /**
