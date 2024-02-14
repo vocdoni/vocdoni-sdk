@@ -9,6 +9,7 @@ import {
   ErrCantGetLastBlockNumber,
   ErrCantGetStrategies,
   ErrCantGetStrategy,
+  ErrCantGetStrategyHolders,
   ErrCantGetToken,
   ErrCantGetTokenCount,
   ErrCantGetTokenHolders,
@@ -208,6 +209,8 @@ export abstract class Census3API extends API {
           throw new ErrCantImportStrategy(err['error']);
         case ErrNoTokenHolderFound.code:
           throw new ErrNoTokenHolderFound(err['error']);
+        case ErrCantGetStrategyHolders.code:
+          throw new ErrCantGetStrategyHolders(err['error']);
         default:
           return API.isUndefinedError(error, err['error']);
       }

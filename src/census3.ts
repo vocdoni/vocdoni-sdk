@@ -23,6 +23,7 @@ import { delay } from './util/common';
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
 export type TokenSummary = Omit<Census3SummaryToken, 'tags'> & { tags: string[] };
 export type Strategy = Census3Strategy;
+export type StrategyHolder = { holder: string; weight: bigint };
 export type StrategyToken = Census3CreateStrategyToken;
 export type Census3Census = ICensus3CensusResponse;
 export type SupportedChain = ICensus3SupportedChain;
@@ -177,6 +178,19 @@ export class VocdoniCensus3Client {
    */
   getStrategies(): Promise<Census3Strategy[]> {
     return Census3StrategyAPI.list(this.url, { pageSize: -1 }).then((strategies) => strategies.strategies ?? []);
+  }
+
+  /**
+   * Returns the strategy holders
+   *
+   * @param {number} id The id of the strategy
+   * @returns {Promise<StrategyHolder[]>} The list strategy holders
+   */
+  getStrategyHolders(id: number): Promise<StrategyHolder[]> {
+    return Census3StrategyAPI.holders(this.url, id, { pageSize: -1 }).then(
+      (response) =>
+        Object.entries(response.holders).map(([key, value]) => ({ holder: key, weight: BigInt(value) })) ?? []
+    );
   }
 
   /**

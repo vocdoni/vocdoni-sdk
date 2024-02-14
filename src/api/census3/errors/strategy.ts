@@ -123,3 +123,10 @@ export class ErrCantImportStrategy extends Error {
     super(message ? message : 'error importing strategy');
   }
 }
+
+export class ErrCantGetStrategyHolders extends Error {
+  static readonly code: number = 5030;
+  constructor(message?: string) {
+    super(message ? message : 'error getting strategy holders');
+  }
+}

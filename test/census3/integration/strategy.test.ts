@@ -1,4 +1,5 @@
 import { EnvOptions, VocdoniCensus3Client } from '../../../src';
+import { isAddress } from '@ethersproject/address';
 
 describe('Census3 strategies integration tests', () => {
   it('should return the supported strategies', async () => {
@@ -28,6 +29,17 @@ describe('Census3 strategies integration tests', () => {
           tokens: expect.any(Object),
         });
         expect(strategy.tokens).toHaveProperty(supportedTokens[0].symbol);
+      });
+    }
+  }, 5000);
+  it('should return the holders by strategy', async () => {
+    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const strategies = await client.getStrategies();
+    if (strategies.length > 0) {
+      const holders = await client.getStrategyHolders(strategies[0].ID);
+      holders.forEach((holder) => {
+        expect(isAddress(holder.holder)).toBe(true);
+        expect(typeof holder.weight).toBe('bigint');
       });
     }
   }, 5000);

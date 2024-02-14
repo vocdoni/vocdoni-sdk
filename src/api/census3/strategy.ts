@@ -12,6 +12,7 @@ enum Census3StrategyAPIMethods {
   ESTIMATION_QUEUE = '/strategies/{id}/estimation/queue/{queueId}',
   VALIDATE_PREDICATE = '/strategies/predicate/validate',
   OPERATORS = '/strategies/predicate/operators',
+  HOLDERS = '/strategies/{id}/holders',
 }
 
 export interface ICensus3StrategiesListResponse {
@@ -20,7 +21,22 @@ export interface ICensus3StrategiesListResponse {
    */
   strategies: Array<Census3Strategy>;
 }
+
 export interface ICensus3StrategiesListResponsePaginated extends ICensus3StrategiesListResponse {
+  /**
+   * The pagination information
+   */
+  pagination: Census3Pagination;
+}
+
+export interface ICensus3StrategyHoldersResponse {
+  /**
+   * The list of the strategy holders
+   */
+  holders: { [key: string]: string };
+}
+
+export interface ICensus3StrategyHoldersResponsePaginated extends ICensus3StrategyHoldersResponse {
   /**
    * The pagination information
    */
@@ -250,6 +266,27 @@ export abstract class Census3StrategyAPI extends Census3API {
     return axios
       .get<ICensus3StrategiesListResponsePaginated>(
         url + Census3StrategyAPIMethods.LIST + this.serializePagination(pagination)
+      )
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches list of holders by strategy
+   *
+   * @param {string} url API endpoint URL
+   * @param {number} id The identifier of the strategy
+   * @param {Census3Pagination} pagination Pagination options
+   * @returns {Promise<ICensus3StrategyHoldersResponsePaginated>}
+   */
+  public static holders(
+    url: string,
+    id: number,
+    pagination?: Census3Pagination
+  ): Promise<ICensus3StrategyHoldersResponsePaginated> {
+    return axios
+      .get<ICensus3StrategyHoldersResponsePaginated>(
+        url + Census3StrategyAPIMethods.HOLDERS.replace('{id}', String(id)) + this.serializePagination(pagination)
       )
       .then((response) => response.data)
       .catch(this.isApiError);
