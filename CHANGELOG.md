@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added support for getting token holder balance in Census3 using `tokenHolderBalance`.
+- Added support for getting token holders based on strategy using `getStrategyHolders`.
 
 ### Fixed
 
