@@ -51,31 +51,31 @@
 //   return election;
 // };
 //
-// describe('Vote API tests', () => {
-//   it('should throw trying to vote when election has not started and when is already finished', async () => {
-//     const voter = Wallet.createRandom();
-//     const census = new PlainCensus();
-//     census.add(await voter.getAddress());
-//
-//     const election = createElection(census);
-//     await client.createAccount();
-//     const electionId = await client.createElection(election);
-//
-//     client.wallet = voter;
-//     client.setElectionId(electionId);
-//     const vote = new Vote([1]);
-//
-//     await expect(async () => {
-//       await client.submitVote(vote);
-//     }).rejects.toThrow(ErrElectionNotStarted);
-//
-//     let publishedElection;
-//     do {
-//       publishedElection = await client.fetchElection(electionId);
-//     } while (publishedElection.status !== ElectionStatus.ENDED);
-//
-//     await expect(async () => {
-//       await client.submitVote(vote);
-//     }).rejects.toThrow(ErrElectionFinished);
-//   }, 120000);
-// });
+describe('Vote API tests', () => {
+  it('should throw trying to vote when election has not started and when is already finished', async () => {
+    //     const voter = Wallet.createRandom();
+    //     const census = new PlainCensus();
+    //     census.add(await voter.getAddress());
+    //
+    //     const election = createElection(census);
+    //     await client.createAccount();
+    //     const electionId = await client.createElection(election);
+    //
+    //     client.wallet = voter;
+    //     client.setElectionId(electionId);
+    //     const vote = new Vote([1]);
+    //
+    //     await expect(async () => {
+    //       await client.submitVote(vote);
+    //     }).rejects.toThrow(ErrElectionNotStarted);
+    //
+    //     let publishedElection;
+    //     do {
+    //       publishedElection = await client.fetchElection(electionId);
+    //     } while (publishedElection.status !== ElectionStatus.ENDED);
+    //
+    //     await expect(async () => {
+    //       await client.submitVote(vote);
+    //     }).rejects.toThrow(ErrElectionFinished);
+  }, 120000);
+});
