@@ -42,14 +42,15 @@ export abstract class VoteCore extends TransactionCore {
   public static generateVoteTransaction(
     election: PublishedElection,
     censusProof: CensusProof | CspCensusProof | ZkProof,
-    votePackage: Vote,
-    processKeys?: ProcessKeys
+    vote: Vote,
+    processKeys?: ProcessKeys,
+    votePackage?: Buffer
   ): { tx: Uint8Array; message: string } {
     const message = TxMessage.VOTE.replace('{processId}', strip0x(election.id));
-    const txData = this.prepareVoteData(election, censusProof, votePackage, processKeys);
-    const vote = VoteEnvelope.fromPartial(txData);
+    const txData = this.prepareVoteData(election, censusProof, vote, processKeys, votePackage);
+    const voteEnvelope = VoteEnvelope.fromPartial(txData);
     const tx = Tx.encode({
-      payload: { $case: 'vote', vote },
+      payload: { $case: 'vote', vote: voteEnvelope },
     }).finish();
 
     return { tx, message };
@@ -59,18 +60,9 @@ export abstract class VoteCore extends TransactionCore {
     election: PublishedElection,
     censusProof: CensusProof | CspCensusProof | ZkProof,
     vote: Vote,
-    processKeys?: ProcessKeys
+    processKeys: ProcessKeys,
+    generatedVotePackage: Buffer
   ): object {
-    // if (!params) throw new Error("Invalid parameters")
-    // else if (!Array.isArray(params.votes)) throw new Error("Invalid votes array")
-    // else if (typeof params.processId != "string" || !params.processId.match(/^(0x)?[0-9a-zA-Z]+$/)) throw new Error("Invalid processId")
-    // else if (params.processKeys) {
-    //   if (!Array.isArray(params.processKeys.encryptionPubKeys) || !params.processKeys.encryptionPubKeys.every(
-    //       item => item && typeof item.idx == "number" && typeof item.key == "string" && item.key.match(/^(0x)?[0-9a-zA-Z]+$/))) {
-    //     throw new Error("Some encryption public keys are not valid")
-    //   }
-    // }
-
     try {
       const proof = this.packageSignedProof(election.id, election.census.type, censusProof);
       // const nonce = hexStringToBuffer(Random.getHex());
@@ -81,7 +73,7 @@ export abstract class VoteCore extends TransactionCore {
         proof,
         processId: new Uint8Array(Buffer.from(strip0x(election.id), 'hex')),
         nonce: new Uint8Array(nonce),
-        votePackage: new Uint8Array(votePackage),
+        votePackage: new Uint8Array(generatedVotePackage ?? votePackage),
         encryptionKeyIndexes: keyIndexes || [],
       };
     } catch (error) {
@@ -180,25 +172,7 @@ export abstract class VoteCore extends TransactionCore {
     return CAbundle.encode(bundle).finish();
   }
 
-  private static packageVoteContent(votes: VoteValues, processKeys?: ProcessKeys) {
-    // if (!Array.isArray(votes)) throw new Error('Invalid votes');
-    // else if (votes.some(vote => typeof vote !== 'number'))
-    //   throw new Error('Votes needs to be an array of numbers');
-    // else if (processKeys) {
-    //   if (
-    //     !Array.isArray(processKeys.encryptionPubKeys) ||
-    //     !processKeys.encryptionPubKeys.every(
-    //       item =>
-    //         item &&
-    //         typeof item.idx === 'number' &&
-    //         typeof item.key === 'string' &&
-    //         item.key.match(/^(0x)?[0-9a-zA-Z]+$/)
-    //     )
-    //   ) {
-    //     throw new Error('Some encryption public keys are not valid');
-    //   }
-    // }
-
+  public static packageVoteContent(votes: VoteValues, processKeys?: ProcessKeys) {
     // produce a 8 byte nonce
     const nonce = getHex().substring(2, 18);
 

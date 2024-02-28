@@ -3,6 +3,7 @@ import { clientParams, setFaucetURL } from './util/client.params';
 import {
   AnonymousService,
   AnonymousVote,
+  delay,
   Election,
   ElectionStatus,
   PlainCensus,
@@ -110,6 +111,67 @@ describe('zkSNARK test', () => {
         expect(election.voteCount).toEqual(3);
         expect(election.results[0][0]).toEqual('2');
         expect(election.results[0][1]).toEqual('1');
+        expect(election.census.size).toEqual(3);
+        expect(election.census.weight).toEqual(BigInt(3));
+      });
+  }, 285000);
+  it('should create an encrypted anonymous election and vote successfully', async () => {
+    const census = new PlainCensus();
+    const voter1 = Wallet.createRandom();
+    const voter2 = Wallet.createRandom();
+    // User that votes with account with SIK
+    census.add((client.wallet as Wallet).address);
+    // User that votes and has no account
+    census.add(voter1.address);
+    // User that votes with account without SIK
+    census.add(voter2.address);
+
+    const election = createElection(census, {
+      anonymous: true,
+      secretUntilTheEnd: true,
+    });
+
+    await client.createAccount({
+      sik: true,
+      password: 'password123',
+    });
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        client.setElectionId(electionId);
+        return client.fetchElection();
+      })
+      .then((publishedElection) => {
+        expect(publishedElection.electionType.anonymous).toBeTruthy();
+        expect(election.electionType.secretUntilTheEnd).toBeTruthy();
+        return waitForElectionReady(client, publishedElection.id);
+      })
+      .then(async () => {
+        await delay(15000); // wait for process keys to be ready
+        await expect(async () => {
+          await client.submitVote(new Vote([0]));
+        }).rejects.toThrow();
+        const vote = new AnonymousVote([0], null, 'password123');
+        return client.submitVote(vote);
+      })
+      .then(() => {
+        client.wallet = voter1;
+        const vote = new AnonymousVote([0], null, 'password456');
+        return client.submitVote(vote);
+      })
+      .then(() => {
+        client.wallet = voter2;
+        return client.createAccount({ sik: false });
+      })
+      .then(() => {
+        const vote = new Vote([1]);
+        return client.submitVote(vote);
+      })
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.voteCount).toEqual(3);
         expect(election.census.size).toEqual(3);
         expect(election.census.weight).toEqual(BigInt(3));
       });
