@@ -275,6 +275,7 @@ export class VocdoniSDKClient {
    * @param election
    * @param wallet
    * @param signature
+   * @param votePackage
    * @param password
    * @returns {Promise<ZkProof>}
    */
@@ -282,6 +283,7 @@ export class VocdoniSDKClient {
     election: PublishedElection,
     wallet: Wallet | Signer,
     signature: string,
+    votePackage: Buffer,
     password: string = '0'
   ): Promise<ZkProof> {
     const [address, censusProof] = await Promise.all([
@@ -304,7 +306,8 @@ export class VocdoniSDKClient {
           zkProof.censusRoot,
           zkProof.censusSiblings,
           censusProof.root,
-          censusProof.siblings
+          censusProof.siblings,
+          votePackage
         )
       )
       .then((circuits) => this.anonymousService.generateZkProof(circuits));
@@ -835,6 +838,14 @@ export class VocdoniSDKClient {
       electionId: election.id,
     };
 
+    let processKeys = null;
+    if (election?.electionType.secretUntilTheEnd) {
+      processKeys = await this.electionService.keys(election.id).then((encryptionKeys) => ({
+        encryptionPubKeys: encryptionKeys.publicKeys,
+      }));
+    }
+    const { votePackage } = VoteCore.packageVoteContent(vote.votes, processKeys);
+
     let censusProof: CspCensusProof | CensusProof | ZkProof;
     if (election.census.type == CensusType.WEIGHTED) {
       censusProof = await this.fetchProofForWallet(election.census.censusId, this.wallet);
@@ -853,9 +864,9 @@ export class VocdoniSDKClient {
         signature,
       };
       if (vote instanceof AnonymousVote) {
-        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature, vote.password);
+        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature, votePackage, vote.password);
       } else {
-        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature);
+        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature, votePackage);
       }
       yield {
         key: VoteSteps.CALC_ZK_PROOF,
@@ -874,15 +885,8 @@ export class VocdoniSDKClient {
     }
 
     let voteTx: { tx: Uint8Array; message: string };
-    if (election?.electionType.secretUntilTheEnd) {
-      voteTx = await this.electionService.keys(election.id).then((encryptionKeys) =>
-        VoteCore.generateVoteTransaction(election, censusProof, vote, {
-          encryptionPubKeys: encryptionKeys.publicKeys,
-        })
-      );
-    } else {
-      voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote);
-    }
+
+    voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote, processKeys, votePackage);
     yield {
       key: VoteSteps.GENERATE_TX,
     };

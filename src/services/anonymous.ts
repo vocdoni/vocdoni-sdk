@@ -207,11 +207,14 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     sikRoot: string,
     sikSiblings: string[],
     censusRoot: string,
-    censusSiblings: string[]
+    censusSiblings: string[],
+    votePackage: Buffer
   ): Promise<CircuitInputs> {
     return Promise.all([
       AnonymousService.calcCircuitInputs(signature, password, electionId),
-      AnonymousService.arbo_utils.toHash(AnonymousService.hex_utils.fromBigInt(BigInt(ensure0x(availableWeight)))),
+      AnonymousService.arbo_utils.toHash(
+        AnonymousService.hex_utils.fromBigInt(BigInt(ensure0x(votePackage.toString('hex'))))
+      ),
     ]).then(([circuitInputs, voteHash]) => ({
       electionId: circuitInputs.arboElectionId,
       nullifier: circuitInputs.nullifier.toString(),

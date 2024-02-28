@@ -3,6 +3,7 @@ import {
   ApprovalElection,
   BudgetElection,
   CensusType,
+  delay,
   Election,
   ElectionCreationSteps,
   ElectionResultsTypeNames,
@@ -359,6 +360,7 @@ describe('Election integration tests', () => {
         electionIdentifier = electionId;
         return waitForElectionReady(client, electionId);
       })
+      .then(() => delay(15000))
       .then(() =>
         Promise.all(
           participants
