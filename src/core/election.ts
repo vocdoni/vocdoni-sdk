@@ -95,13 +95,19 @@ export abstract class ElectionCore extends TransactionCore {
     address: string,
     nonce: number
   ): { metadata: string; electionData: object } {
+    let startTime = election.startDate ? Math.floor(election.startDate.getTime() / 1000) : 0;
+    // If the start date is less than the current time plus the block time, set it to begin immediately
+    // This is to prevent the transaction to be rejected by the node
+    if (startTime !== 0 && startTime < Math.floor(Date.now() / 1000) + this.VOCHAIN_BLOCK_TIME_IN_SECONDS) {
+      startTime = 0;
+    }
     return {
       metadata: Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64'),
       electionData: {
         nonce: nonce,
         process: {
           entityId: Uint8Array.from(Buffer.from(address, 'hex')),
-          startTime: election.startDate ? Math.floor(election.startDate.getTime() / 1000) : 0,
+          startTime,
           duration: election.duration,
           censusRoot: Uint8Array.from(Buffer.from(election.census.censusId, 'hex')),
           censusURI: election.census.censusURI,
