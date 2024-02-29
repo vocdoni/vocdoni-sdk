@@ -1,56 +1,55 @@
-// @TODO: Fix this test when timestamps are ready
-// import {
-//   Election,
-//   ElectionStatus,
-//   EnvOptions,
-//   ErrElectionFinished,
-//   ErrElectionNotStarted,
-//   PlainCensus,
-//   VocdoniSDKClient,
-//   Vote,
-// } from '../../src';
-// // @ts-ignore
-// import { URL, setFaucetURL } from './util/client.params';
-// import { Wallet } from '@ethersproject/wallet';
-//
-// let client: VocdoniSDKClient;
-// let wallet: Wallet;
-//
-// beforeEach(async () => {
-//   wallet = Wallet.createRandom();
-//   client = new VocdoniSDKClient({
-//     env: EnvOptions.DEV,
-//     api_url: URL,
-//     wallet,
-//   });
-//   client = setFaucetURL(client);
-// });
-//
-// const createElection = (census, electionType?, voteType?) => {
-//   const election = Election.from({
-//     title: 'SDK Testing - Title',
-//     description: 'SDK Testing - Description',
-//     startDate: new Date().getTime() + 24000,
-//     endDate: new Date().getTime() + 36000,
-//     census,
-//     electionType: electionType ?? null,
-//     voteType: voteType ?? null,
-//   });
-//
-//   election.addQuestion('This is a title', 'This is a description', [
-//     {
-//       title: 'Option 1',
-//       value: 0,
-//     },
-//     {
-//       title: 'Option 2',
-//       value: 1,
-//     },
-//   ]);
-//
-//   return election;
-// };
-//
+import {
+  Election,
+  ElectionStatus,
+  EnvOptions,
+  ErrElectionFinished,
+  ErrElectionNotStarted,
+  PlainCensus,
+  VocdoniSDKClient,
+  Vote,
+} from '../../src';
+// @ts-ignore
+import { URL, setFaucetURL } from './util/client.params';
+import { Wallet } from '@ethersproject/wallet';
+
+let client: VocdoniSDKClient;
+let wallet: Wallet;
+
+beforeEach(async () => {
+  wallet = Wallet.createRandom();
+  client = new VocdoniSDKClient({
+    env: EnvOptions.DEV,
+    api_url: URL,
+    wallet,
+  });
+  client = setFaucetURL(client);
+});
+
+const createElection = (census, electionType?, voteType?) => {
+  const election = Election.from({
+    title: 'SDK Testing - Title',
+    description: 'SDK Testing - Description',
+    startDate: new Date().getTime() + 24000,
+    endDate: new Date().getTime() + 36000,
+    census,
+    electionType: electionType ?? null,
+    voteType: voteType ?? null,
+  });
+
+  election.addQuestion('This is a title', 'This is a description', [
+    {
+      title: 'Option 1',
+      value: 0,
+    },
+    {
+      title: 'Option 2',
+      value: 1,
+    },
+  ]);
+
+  return election;
+};
+
 describe('Vote API tests', () => {
   it('should throw trying to vote when election has not started and when is already finished', async () => {
     const voter = Wallet.createRandom();
