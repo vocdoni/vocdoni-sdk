@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         node: ['18.x']
-        os: [ci1]
+        os: [self-hosted]
 
     env:
       COMPOSE_PROJECT_NAME: ci_${{ github.run_id }}
