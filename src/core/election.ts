@@ -98,7 +98,7 @@ export abstract class ElectionCore extends TransactionCore {
     let startTime = election.startDate ? Math.floor(election.startDate.getTime() / 1000) : 0;
     // If the start date is less than the current time plus the block time, set it to begin immediately
     // This is to prevent the transaction to be rejected by the node
-    if (startTime !== 0 && startTime < Math.floor(Date.now() / 1000) + this.VOCHAIN_BLOCK_TIME_IN_SECONDS) {
+    if (startTime !== 0 && startTime < Math.floor(Date.now() / 1000) + this.VOCHAIN_BLOCK_TIME_IN_SECONDS * 5) {
       startTime = 0;
     }
     return {
