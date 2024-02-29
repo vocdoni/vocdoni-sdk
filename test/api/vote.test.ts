@@ -29,8 +29,8 @@ const createElection = (census, electionType?, voteType?) => {
   const election = Election.from({
     title: 'SDK Testing - Title',
     description: 'SDK Testing - Description',
-    startDate: new Date().getTime() + 24000,
-    endDate: new Date().getTime() + 36000,
+    startDate: new Date().getTime() + 80 * 1000,
+    endDate: new Date().getTime() + 80 * 1000 * 2,
     census,
     electionType: electionType ?? null,
     voteType: voteType ?? null,
@@ -76,5 +76,5 @@ describe('Vote API tests', () => {
     await expect(async () => {
       await client.submitVote(vote);
     }).rejects.toThrow(ErrElectionFinished);
-  }, 120000);
+  }, 280000);
 });
