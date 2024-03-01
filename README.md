@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img src="https://docs.vocdoni.io/Logotype.svg">
+    <img src="https://docs.vocdoni.io/Logotype.svg" />
 </p>
 
 <div align="center">
