@@ -1,20 +1,24 @@
 import { Wallet } from '@ethersproject/wallet';
-import { VocdoniSDKClient, Vote } from '@vocdoni/sdk';
+import { EnvOptions, VocdoniSDKClient, Vote } from '@vocdoni/sdk';
 
-export async function castVotes (voters: Wallet[], client: VocdoniSDKClient) {
-  for await (const voter of voters) {
-    client.wallet = voter;
+export const castVotes = (electionId: string, voters: Wallet[]) => {
+  var votePromises = [];
+  for (const voter of voters) {
+    const client = new VocdoniSDKClient({ env: EnvOptions.STG, wallet: voter, electionId: electionId });
     // Create a vote for option 0 or 1
     const vote = new Vote([Math.round(Math.random())]);
-    await client.submitVote(vote).then(voteId => {
-      console.log('Vote sent! Vote id: ', voteId);
-      console.log('Verify vote at https://stg.explorer.vote/verify/#/' + voteId);
-    });
+    votePromises.push(
+      client.submitVote(vote).then(voteId => {
+        console.log('Vote sent! Vote id: ', voteId);
+        console.log('Verify vote at ' + client.explorerUrl + '/verify/#/' + voteId);
+      })
+    );
   }
-}
+  return Promise.all(votePromises);
+};
 
-export async function countVotes (client: VocdoniSDKClient) {
-  client.fetchElection().then(election => {
+export const countVotes = (client: VocdoniSDKClient) => {
+  return client.fetchElection().then(election => {
     console.log('Election results: ' + election.results);
   });
-}
+};
