@@ -19,6 +19,11 @@ export const castVotes = (electionId: string, voters: Wallet[]) => {
 
 export const countVotes = (client: VocdoniSDKClient) => {
   return client.fetchElection().then(election => {
-    console.log('Election results: ' + election.results);
+    console.log('Election results: ');
+    election.questions.forEach(question => {
+      question.choices.forEach(choice => {
+        console.log(choice.title.default + ': ' + choice.results);
+      });
+    });
   });
 };
