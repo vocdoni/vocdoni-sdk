@@ -1,8 +1,0 @@
-{
-  "locales": [],
-  "outDir": "./temp_docs",
-  "localesDir": "./temp_docs/i18n/{locale}/docusaurus-plugin-content-docs/current/sdk",
-  "sidebar": "./temp_docs",
-  "prefix": "sdk/",
-  "jsdoc": "./jsdoc.json"
-}

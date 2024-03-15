@@ -1,0 +1,6 @@
+{
+    "entryPoints": ["../src"],
+    "out": "doc",
+    "githubPages": false,
+    "exclude": ["**/errors/*.ts"]
+}

@@ -7,7 +7,9 @@ dist
 
 # lockfiles
 /package-lock.json
+/docs/package-lock.json
 /yarn.lock
+/docs/yarn.lock
 
 # ignore mdx temp files
 docs/temp_docs/
