@@ -6,8 +6,9 @@ import { castVotes, countVotes } from './vote';
 
 // This is a hard-coded example of token you might use.
 const myToken = {
+  address: '0x...',
   chainID: 11155111,
-  address: '...',
+  type: 'erc20',
 };
 
 // Hard-coded list of private keys of token holders
@@ -18,15 +19,13 @@ async function main () {
   const census3Client = getDefaultCensus3Client();
 
   console.log('Checking if token is registered to the census3 service...');
-  const tokenIsReady = await checkTokenReady(census3Client, myToken.address, myToken.chainID);
+  const tokenIsReady = await checkTokenReady(census3Client, myToken.address, myToken.type, myToken.chainID);
   if (!tokenIsReady) {
     return;
   }
 
   console.log('Creating token-based census...');
-  // census3Client.validatePredicate()
   const census = await census3Client.createTokenCensus(myToken.address, myToken.chainID);
-  // const census = await census3Client.createTokenCensus(myToken.address, myToken.chainID, true);
 
   console.log('Creating account...');
   await createAccount(client);

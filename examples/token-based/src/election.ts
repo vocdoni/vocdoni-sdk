@@ -7,7 +7,6 @@ export const createElection = (census: TokenCensus): UnpublishedElection => {
     header: 'https://source.unsplash.com/random',
     endDate: new Date().getTime() + 100000,
     census,
-    // electionType: { anonymous: true },
   });
 
   election.addQuestion('This is a title', 'This is a description', [

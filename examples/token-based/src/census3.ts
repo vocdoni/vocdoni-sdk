@@ -25,7 +25,12 @@ export const supportsToken = (census3Client: VocdoniCensus3Client, tokenAddress:
   });
 };
 
-export async function checkTokenReady (census3Client: VocdoniCensus3Client, tokenAddress: string, chainID: number) {
+export async function checkTokenReady (
+  census3Client: VocdoniCensus3Client,
+  tokenAddress,
+  tokenType: string,
+  chainID: number
+) {
   // See if our token's chain is supported
   const supportsMyChain = await supportsChain(census3Client, chainID);
   if (!supportsMyChain) {
@@ -37,7 +42,7 @@ export async function checkTokenReady (census3Client: VocdoniCensus3Client, toke
   const supportsMyToken = await supportsToken(census3Client, tokenAddress);
   if (!supportsMyToken) {
     console.log('Census service does not support token ' + tokenAddress + '. Registering token now.');
-    await census3Client.createToken(tokenAddress, 'erc20', chainID);
+    await census3Client.createToken(tokenAddress, tokenType, chainID);
   }
 
   // Check the token status. If syncing, return and try again later.
