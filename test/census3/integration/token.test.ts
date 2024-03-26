@@ -13,7 +13,7 @@ describe('Census3 token integration tests', () => {
         symbol: expect.any(String),
         chainID: expect.any(Number),
         chainAddress: expect.any(String),
-        status: expect.any(Object),
+        synced: expect.any(Boolean),
       });
     });
   }, 5000);

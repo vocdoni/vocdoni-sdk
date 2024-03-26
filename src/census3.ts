@@ -252,7 +252,7 @@ export class VocdoniCensus3Client {
               case queue.done && queue.error?.code?.toString().length > 0:
                 return Promise.reject(new Error('Could not create the census'));
               case queue.done:
-                return Promise.resolve(queue.estimation);
+                return Promise.resolve(queue.data);
               default:
                 return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
             }
@@ -303,7 +303,7 @@ export class VocdoniCensus3Client {
               case queue.done && queue.error?.code?.toString().length > 0:
                 return Promise.reject(new Error('Could not import the strategy'));
               case queue.done:
-                return Promise.resolve(queue.strategy);
+                return Promise.resolve(queue.data);
               default:
                 return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
             }
@@ -371,7 +371,7 @@ export class VocdoniCensus3Client {
               case queue.done && queue.error?.code?.toString().length > 0:
                 return Promise.reject(new Error('Could not create the census'));
               case queue.done:
-                return Promise.resolve(queue.census);
+                return Promise.resolve(queue.data);
               default:
                 return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
             }

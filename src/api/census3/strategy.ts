@@ -121,9 +121,9 @@ export interface ICensus3StrategyEstimationQueueResponse {
   };
 
   /**
-   * The estimation of the strategy
+   * The estimation data of the strategy
    */
-  estimation: {
+  data: {
     /**
      * The estimation of the size
      */
@@ -139,6 +139,11 @@ export interface ICensus3StrategyEstimationQueueResponse {
      */
     accuracy: number;
   };
+
+  /**
+   * The estimation progress
+   */
+  progress: number;
 }
 
 export interface ICensus3StrategyImportQueueResponse {
@@ -163,9 +168,14 @@ export interface ICensus3StrategyImportQueueResponse {
   };
 
   /**
-   * The imported strategy
+   * The imported data strategy
    */
-  strategy: Census3Strategy;
+  data: Census3Strategy;
+
+  /**
+   * The importing progress
+   */
+  progress: number;
 }
 
 export interface ICensus3StrategyToken {

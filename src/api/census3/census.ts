@@ -79,9 +79,14 @@ export interface ICensus3CensusQueueResponse {
   };
 
   /**
-   * The census
+   * The census data
    */
-  census: ICensus3CensusResponse;
+  data: ICensus3CensusResponse;
+
+  /**
+   * The creation progress
+   */
+  progress: number;
 }
 
 export abstract class Census3CensusAPI extends Census3API {
