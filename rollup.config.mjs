@@ -1,13 +1,13 @@
 import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { default as pkg } from './package.json' assert { type: 'json' };
-import json from '@rollup/plugin-json';
 
-// take name from package "main" defined file
-const name = pkg.main.replace(/\.js$/, '');
+// take name from package "output" defined file
+const name = pkg.output;
 const embeded = [
   'blakejs/blake2b',
   'blindsecp256k1',

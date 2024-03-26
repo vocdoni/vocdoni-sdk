@@ -1,25 +1,12 @@
 {
   "name": "@vocdoni/sdk",
   "author": "Vocdoni",
-  "version": "0.8.3",
+  "version": "0.8.4-beta.0",
   "description": "⚒️An SDK for building applications on top of Vocdoni API",
   "repository": "https://github.com/vocdoni/vocdoni-sdk.git",
   "license": "AGPL-3.0-or-later",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    },
-    "./umd": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.umd.js"
-    },
-    "./package.json": "./package.json"
-  },
+  "main": "src/index.ts",
+  "output": "dist/index",
   "files": [
     "dist",
     "package.json"
@@ -56,6 +43,7 @@
     "lint": "eslint src test --ext .js,.jsx,.ts,.tsx",
     "lintfix": "yarn lint --fix",
     "prepare": "yarn build",
+    "prepack": "clean-package",
     "size": "size-limit",
     "watch": "yarn build --watch"
   },
@@ -99,6 +87,7 @@
     "blindsecp256k1": "^0.0.9",
     "buffer": "^6.0.3",
     "circomlibjs": "^0.1.7",
+    "clean-package": "^2.2.0",
     "esbuild": "^0.17.10",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
@@ -145,5 +134,6 @@
   },
   "resolutions": {
     "ffjavascript": "0.2.59"
-  }
+  },
+  "clean-package": "./clean-package.config.json"
 }
