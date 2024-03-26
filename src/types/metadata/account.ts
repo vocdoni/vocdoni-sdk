@@ -1,16 +1,17 @@
 import { object, array, string } from 'yup';
 import { MultiLanguage, multiLanguageStringKeys } from '../../util/lang';
+import { Metadata } from './metadata';
 
 /**
  * Asserts that the given metadata is valid.
  * Throws an exception if it is not.
  */
-export function checkValidAccountMetadata(accountMetadata: AccountMetadata) {
+export function checkValidAccountMetadata(accountMetadata: IAccountMetadata) {
   if (typeof accountMetadata != 'object') throw new Error('The metadata must be a JSON object');
 
   try {
     accountMetadataSchema.validateSync(accountMetadata);
-    return accountMetadataSchema.cast(accountMetadata) as unknown as AccountMetadata;
+    return accountMetadataSchema.cast(accountMetadata) as unknown as IAccountMetadata;
   } catch (err) {
     if (Array.isArray(err.errors)) throw new Error('ValidationError: ' + err.errors.join(', '));
     throw err;
@@ -45,7 +46,7 @@ type ProtocolVersion = '1.0';
  * JSON metadata. Intended to be stored on IPFS or similar.
  * More info: https://vocdoni.io/docs/#/architecture/components/entity?id=meta
  */
-export interface AccountMetadata {
+export interface IAccountMetadata {
   version: ProtocolVersion; // Protocol version
   languages: string[];
 
@@ -59,12 +60,10 @@ export interface AccountMetadata {
     header: string;
     logo: string;
   };
-  meta?: {
-    [key: string]: any;
-  };
+  meta?: Metadata;
 }
 
-export const AccountMetadataTemplate: AccountMetadata = {
+export const AccountMetadataTemplate: IAccountMetadata = {
   version: '1.0',
   languages: [],
   name: {
