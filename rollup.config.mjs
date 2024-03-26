@@ -6,36 +6,14 @@ import esbuild from 'rollup-plugin-esbuild';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { default as pkg } from './package.json' assert { type: 'json' };
 
-// take name from package "output" defined file
+// take name from package "output" defined field
 const name = pkg.output;
-const embeded = [
-  'blakejs/blake2b',
-  'blindsecp256k1',
-  'circomlibjs',
-  'blake-hash',
-  'ffjavascript',
-  'crypto',
-  'os',
-  'ethers',
-  'assert',
-  'snarkjs',
-  'circom_runtime',
-  '@iden3/binfileutils',
-];
 
 // generics
 const bundle = (config) => ({
   ...config,
-  input: 'src/index.ts',
-  external: (id) => {
-    if (embeded.includes(id)) {
-      return false;
-    }
-    if (process.platform === 'win32') {
-      return !id.includes('src');
-    }
-    return !id.startsWith('src') && !/^[./]/.test(id);
-  },
+  input: pkg.main,
+  external: [...Object.keys(pkg.dependencies), '@vocdoni/proto/vochain'],
 });
 
 export default [
@@ -59,20 +37,20 @@ export default [
       {
         file: `${name}.js`,
         format: 'cjs',
-        sourcemap: true,
+        sourcemap: process.env.NODE_ENV === 'development',
       },
       // es modules
       {
         file: `${name}.mjs`,
         format: 'es',
-        sourcemap: true,
+        sourcemap: process.env.NODE_ENV === 'development',
       },
       // umd
       {
         name: 'VocdoniSDK',
         file: `${name}.umd.js`,
         format: 'umd',
-        sourcemap: true,
+        sourcemap: process.env.NODE_ENV === 'development',
       },
     ],
   }),
