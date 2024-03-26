@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - docs/docs-update
 
 jobs:
   job_docs_update:
