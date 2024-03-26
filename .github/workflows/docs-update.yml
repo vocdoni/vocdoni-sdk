@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - docs/docs-update
 
 jobs:
   job_docs_update:
@@ -30,50 +31,50 @@ jobs:
           cd ./docs
           yarn build
 
-      - name: Get short commit hash
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      # - name: Get short commit hash
+      #   id: vars
+      #   run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Checkout developer-portal repo
-        uses: actions/checkout@v3
-        with:
-          repository: vocdoni/developer-portal
-          ref: main
-          path: developer-portal
+      # - name: Checkout developer-portal repo
+      #   uses: actions/checkout@v3
+      #   with:
+      #     repository: vocdoni/developer-portal
+      #     ref: main
+      #     path: developer-portal
 
-      - name: Copy generated docs
-        run: |
-          rm -rf ./developer-portal/docs/sdk/
-          mkdir -p ./developer-portal/docs/sdk/
-          cp -R ./docs/temp_docs/* ./developer-portal/docs/sdk/
+      # - name: Copy generated docs
+      #   run: |
+      #     rm -rf ./developer-portal/docs/sdk/
+      #     mkdir -p ./developer-portal/docs/sdk/
+      #     cp -R ./docs/temp_docs/* ./developer-portal/docs/sdk/
 
-      - name: Copy SDK Readme.md on Get Started section
-        run: | # It uses the temp_docs/sdk.md because it should have the links fixed (using links to the github project instead relative links)
-          cp ./docs/temp_docs/sdk.md ./developer-portal/docs/get-started/01-intro.md
+      # - name: Copy SDK Readme.md on Get Started section
+      #   run: | # It uses the temp_docs/sdk.md because it should have the links fixed (using links to the github project instead relative links)
+      #     cp ./docs/temp_docs/sdk.md ./developer-portal/docs/get-started/01-intro.md
 
-      - name: Create PR to developer-portal repo
-        id: cpr
-        uses: peter-evans/create-pull-request@v4
-        with:
-          token: ${{ secrets.VOCDONIBOT_PAT }}
-          path: developer-portal
-          commit-message: "Update vocdoni-sdk docs by commit ${{ steps.vars.outputs.sha_short }}"
-          committer: "Arabot-1 <arabot-1@users.noreply.github.com>"
-          base: main
-          branch: update-sdk-docs
-          #branch-suffix: short-commit-hash   ## creates temp update-sdk-docs-xyz branches
-          delete-branch: true                 ## true: delete branch after merging
-          title: Update docs with vocdoni-sdk repo changes
-          body: |
-            * This is an automated pull request to upload the updated vocdoni-sdk documentation.
-            * GitHub Action Run: [${{ github.run_id }}](https://github.com/vocdoni/vocdoni-sdk/actions/runs/${{ github.run_id }})
-          labels: |
-            automated pr
-          reviewers: ${{ github.actor }}
-          team-reviewers: SdkDocsReviewer
+      # - name: Create PR to developer-portal repo
+      #   id: cpr
+      #   uses: peter-evans/create-pull-request@v4
+      #   with:
+      #     token: ${{ secrets.VOCDONIBOT_PAT }}
+      #     path: developer-portal
+      #     commit-message: "Update vocdoni-sdk docs by commit ${{ steps.vars.outputs.sha_short }}"
+      #     committer: "Arabot-1 <arabot-1@users.noreply.github.com>"
+      #     base: main
+      #     branch: update-sdk-docs
+      #     #branch-suffix: short-commit-hash   ## creates temp update-sdk-docs-xyz branches
+      #     delete-branch: true                 ## true: delete branch after merging
+      #     title: Update docs with vocdoni-sdk repo changes
+      #     body: |
+      #       * This is an automated pull request to upload the updated vocdoni-sdk documentation.
+      #       * GitHub Action Run: [${{ github.run_id }}](https://github.com/vocdoni/vocdoni-sdk/actions/runs/${{ github.run_id }})
+      #     labels: |
+      #       automated pr
+      #     reviewers: ${{ github.actor }}
+      #     team-reviewers: SdkDocsReviewer
 
-      - name: Check PR outputs
-        if: ${{ steps.cpr.outputs.pull-request-number }}
-        run: |
-          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+      # - name: Check PR outputs
+      #   if: ${{ steps.cpr.outputs.pull-request-number }}
+      #   run: |
+      #     echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+      #     echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
