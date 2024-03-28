@@ -1,6 +1,15 @@
 {
-    "entryPoints": ["../src"],
+    "entryPoints": [
+        "../src"
+    ],
     "out": "doc",
     "githubPages": false,
-    "exclude": ["**/errors/*.ts"]
+    "exclude": [
+        "**/errors/*.ts"
+    ],
+    "categoryOrder": [
+        "*",
+        "Other",
+    ],
+    "categorizeByGroup": true
 }
