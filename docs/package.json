@@ -7,10 +7,9 @@
     "node": ">=14"
   },
   "scripts": {
-    "gen-docs": "npx typedoc --plugin typedoc-plugin-markdown  --out temp_docs",
+    "gen-docs": "npx typedoc --plugin typedoc-plugin-markdown --out temp_docs",
     "copy-changelog": "cp ../CHANGELOG.md temp_docs/changelog.md",
-    "remove-readme": "rm temp_docs/README.md",
-    "build": "yarn gen-docs && yarn copy-changelog && yarn remove-readme"
+    "build": "yarn gen-docs && yarn copy-changelog"
   },
   "devDependencies": {
     "typedoc": "^0.25.12",

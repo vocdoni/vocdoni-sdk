@@ -268,9 +268,8 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Fetches list of strategies
    *
-   * @param {string} url API endpoint URL
-   * @param {Census3Pagination} pagination Pagination options
-   * @returns {Promise<ICensus3StrategiesListResponsePaginated>}
+   * @param url - API endpoint URL
+   * @param pagination - Pagination options
    */
   public static list(url: string, pagination?: Census3Pagination): Promise<ICensus3StrategiesListResponsePaginated> {
     return axios
@@ -284,10 +283,9 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Fetches list of holders by strategy
    *
-   * @param {string} url API endpoint URL
-   * @param {number} id The identifier of the strategy
-   * @param {Census3Pagination} pagination Pagination options
-   * @returns {Promise<ICensus3StrategyHoldersResponsePaginated>}
+   * @param url - API endpoint URL
+   * @param id - The identifier of the strategy
+   * @param pagination - Pagination options
    */
   public static holders(
     url: string,
@@ -305,11 +303,10 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Fetches list of strategies based on given token
    *
-   * @param {string} url API endpoint URL
-   * @param {string} tokenId The identifier of the token
-   * @param {number} chainId The chain identifier of the token
-   * @param {string} externalId The identifier used by external provider
-   * @returns {Promise<ICensus3StrategiesListResponse>}
+   * @param url - API endpoint URL
+   * @param tokenId - The identifier of the token
+   * @param chainId - The chain identifier of the token
+   * @param externalId - The identifier used by external provider
    */
   public static listByToken(
     url: string,
@@ -330,9 +327,8 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Returns the information of the strategy
    *
-   * @param {string} url API endpoint URL
-   * @param {number} id The identifier of the strategy
-   * @returns {Promise<Census3Strategy>}
+   * @param url - API endpoint URL
+   * @param id - The identifier of the strategy
    */
   public static strategy(url: string, id: number): Promise<Census3Strategy> {
     return axios
@@ -344,10 +340,10 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Returns the estimation of size and time (in milliseconds) to create the census generated for the provided strategy
    *
-   * @param {string} url API endpoint URL
-   * @param {number} id The identifier of the strategy
-   * @param {boolean} anonymous If the estimation should be done for anonymous census
-   * @returns {Promise<ICensus3QueueResponse>} The queue identifier
+   * @param url - API endpoint URL
+   * @param id - The identifier of the strategy
+   * @param anonymous - If the estimation should be done for anonymous census
+   * @returns The queue identifier
    */
   public static estimation(url: string, id: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
     return axios
@@ -361,10 +357,9 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Returns the information of the strategy estimation queue
    *
-   * @param {string} url API endpoint URL
-   * @param {number} strategyId The identifier of the strategy
-   * @param {string} queueId The identifier of the strategy estimation queue
-   * @returns {Promise<ICensus3StrategyEstimationQueueResponse>}
+   * @param url - API endpoint URL
+   * @param strategyId - The identifier of the strategy
+   * @param queueId - The identifier of the strategy estimation queue
    */
   public static estimationQueue(
     url: string,
@@ -383,9 +378,8 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Returns the information of the strategy import queue
    *
-   * @param {string} url API endpoint URL
-   * @param {string} queueId The identifier of the strategy import queue
-   * @returns {Promise<ICensus3StrategyImportQueueResponse>}
+   * @param url - API endpoint URL
+   * @param queueId - The identifier of the strategy import queue
    */
   public static importQueue(url: string, queueId: string): Promise<ICensus3StrategyImportQueueResponse> {
     return axios
@@ -399,9 +393,9 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Imports a strategy from IPFS from the given cid.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} cid The cid of the IPFS where the strategy is stored
-   * @returns {Promise<ICensus3QueueResponse>} The queue identifier
+   * @param url - API endpoint URL
+   * @param cid - The cid of the IPFS where the strategy is stored
+   * @returns The queue identifier
    */
   public static import(url: string, cid: string): Promise<ICensus3QueueResponse> {
     return axios
@@ -413,11 +407,11 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Creates a new strategy based on the given token strategies and predicate.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} alias The alias of the strategy
-   * @param {string} predicate The predicate of the strategy
-   * @param tokens The token list for the strategy
-   * @returns {Promise<ICensus3StrategyCreateResponse>} The identifier of the created strategy
+   * @param url - API endpoint URL
+   * @param alias - The alias of the strategy
+   * @param predicate - The predicate of the strategy
+   * @param tokens - The token list for the strategy
+   * @returns The identifier of the created strategy
    */
   public static create(
     url: string,
@@ -434,9 +428,9 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Validates a predicate.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} predicate The predicate of the strategy
-   * @returns {Promise<ICensus3ValidatePredicateResponse>} Parsed version of the predicate
+   * @param url - API endpoint URL
+   * @param predicate - The predicate of the strategy
+   * @returns Parsed version of the predicate
    */
   public static validatePredicate(url: string, predicate: string): Promise<ICensus3ValidatePredicateResponse> {
     return axios
@@ -448,8 +442,7 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Returns the list of supported operators to build strategy predicates.
    *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<ICensus3StrategiesOperatorsResponse>}
+   * @param url - API endpoint URL
    */
   public static operators(url: string): Promise<ICensus3StrategiesOperatorsResponse> {
     return axios

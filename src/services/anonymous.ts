@@ -66,7 +66,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
   /**
    * Instantiate the anonymous service.
    *
-   * @param {Partial<AnonymousServiceParameters>} params The service parameters
+   * @param params - The service parameters
    */
   constructor(params: Partial<AnonymousServiceParameters>) {
     super();
@@ -102,7 +102,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
   /**
    * Checks circuit hashes
    *
-   * @returns {ChainCircuits} The checked circuit parameters
+   * @returns The checked circuit parameters
    */
   checkCircuitsHashes(): ChainCircuits {
     invariant(this.chainCircuits, 'Circuits not set');
@@ -125,8 +125,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
   /**
    * Fetches circuits for anonymous voting
    *
-   * @param {Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>} circuits Additional options for custom circuits
-   * @returns {Promise<ChainCircuits>}
+   * @param circuits - Additional options for custom circuits
    */
   fetchCircuits(circuits?: Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>): Promise<ChainCircuits> {
     const empty = {
@@ -181,8 +180,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
   /**
    * Sets circuits for anonymous voting
    *
-   * @param {ChainCircuits} circuits Custom circuits
-   * @returns {Promise<ChainCircuits>}
+   * @param circuits - Custom circuits
    */
   setCircuits(circuits: ChainCircuits): ChainCircuits {
     this.chainCircuits = circuits;

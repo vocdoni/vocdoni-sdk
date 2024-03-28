@@ -100,9 +100,8 @@ export abstract class Census3CensusAPI extends Census3API {
   /**
    * Fetches list of census based on given strategy
    *
-   * @param {string} url API endpoint URL
-   * @param {number} strategy The identifier of the strategy
-   * @returns {Promise<ICensus3CensusListResponse>}
+   * @param url - API endpoint URL
+   * @param strategy - The identifier of the strategy
    */
   public static list(url: string, strategy: number): Promise<ICensus3CensusListResponse> {
     return axios
@@ -114,9 +113,8 @@ export abstract class Census3CensusAPI extends Census3API {
   /**
    * Returns the information of the census
    *
-   * @param {string} url API endpoint URL
-   * @param {number} id The identifier of the census
-   * @returns {Promise<ICensus3CensusResponse>}
+   * @param url - API endpoint URL
+   * @param id - The identifier of the census
    */
   public static census(url: string, id: number): Promise<ICensus3CensusResponse> {
     return axios
@@ -128,9 +126,8 @@ export abstract class Census3CensusAPI extends Census3API {
   /**
    * Returns the information of the census queue
    *
-   * @param {string} url API endpoint URL
-   * @param {string} id The identifier of the census queue
-   * @returns {Promise<ICensus3CensusQueueResponse>}
+   * @param url - API endpoint URL
+   * @param id - The identifier of the census queue
    */
   public static queue(url: string, id: string): Promise<ICensus3CensusQueueResponse> {
     return axios
@@ -142,10 +139,10 @@ export abstract class Census3CensusAPI extends Census3API {
   /**
    * Requests the creation of a new census with the strategy provided.
    *
-   * @param {string} url API endpoint URL
-   * @param {number} strategyId The strategy identifier
-   * @param {boolean} anonymous If the census has to be anonymous
-   * @returns {Promise<ICensus3QueueResponse>} The queue identifier
+   * @param url - API endpoint URL
+   * @param strategyId - The strategy identifier
+   * @param anonymous - If the census has to be anonymous
+   * @returns The queue identifier
    */
   public static create(url: string, strategyId: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
     return axios

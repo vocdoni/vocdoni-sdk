@@ -8,9 +8,9 @@ export class CspVote extends Vote {
   /**
    * Constructs a csp vote
    *
-   * @param votes The list of votes values
-   * @param signature The CSP signature
-   * @param proof_type The CSP proof type
+   * @param votes - The list of votes values
+   * @param signature - The CSP signature
+   * @param proof -_type The CSP proof type
    */
   public constructor(votes: Array<number | bigint>, signature: string, proof_type?: CspProofType) {
     super(votes);

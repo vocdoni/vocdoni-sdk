@@ -13,7 +13,7 @@ export class ApprovalElection extends UnpublishedElection {
   /**
    * Constructs an approval election
    *
-   * @param params Approval election parameters
+   * @param params - Approval election parameters
    */
   public constructor(params: IApprovalElectionParameters) {
     super(params);

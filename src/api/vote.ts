@@ -82,10 +82,9 @@ export abstract class VoteAPI extends API {
   /**
    * Voting
    *
-   * @param {string} url API endpoint URL
-   * @param {string} payload The base64 encoded vote transaction
+   * @param url - API endpoint URL
+   * @param payload - The base64 encoded vote transaction
    *
-   * @returns {Promise<IVoteSubmitResponse>}
    */
   public static submit(url: string, payload: string): Promise<IVoteSubmitResponse> {
     return axios
@@ -97,10 +96,9 @@ export abstract class VoteAPI extends API {
   /**
    * Vote info
    *
-   * @param {string} url API endpoint URL
-   * @param {string} voteId The identifier of the vote
+   * @param url - API endpoint URL
+   * @param voteId - The identifier of the vote
    *
-   * @returns {Promise<IVoteInfoResponse>}
    */
   public static info(url: string, voteId: string): Promise<IVoteInfoResponse> {
     return axios
@@ -112,11 +110,11 @@ export abstract class VoteAPI extends API {
   /**
    * Verify vote. A vote exists in a process.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} processId The process identifier
-   * @param {string} voteId The identifier of the vote
+   * @param url - API endpoint URL
+   * @param processId - The process identifier
+   * @param voteId - The identifier of the vote
    *
-   * @returns {Promise<boolean>} Return true if response has status 200
+   * @returns Return true if response has status 200
    */
   public static verify(url: string, processId: string, voteId: string): Promise<boolean> {
     return axios

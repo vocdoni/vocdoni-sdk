@@ -11,7 +11,7 @@ export class InvalidElection {
   /**
    * Constructs an invalid election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
   public constructor(params: IInvalidElectionParameters) {
     this._id = params.id;

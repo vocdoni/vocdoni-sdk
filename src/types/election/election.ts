@@ -177,7 +177,7 @@ export abstract class Election {
   /**
    * Constructs an election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
   protected constructor(params?: IElectionParameters) {
     if (params) {
@@ -201,7 +201,7 @@ export abstract class Election {
   /**
    * Returns an unpublished election object
    *
-   * @param params Unpublished Election parameters
+   * @param params - Unpublished Election parameters
    */
   public static from(params: IElectionParameters) {
     return new UnpublishedElection(params);

@@ -10,8 +10,8 @@ export class Signing {
 
   /**
    * Prefix and Sign a binary payload using the given Ethers wallet or signer.
-   * @param message
-   * @param walletOrSigner
+   * @param message -
+   * @param walletOrSigner -
    */
   static signTransaction(message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     if (!walletOrSigner) throw new Error('Invalid wallet/signer');
@@ -23,8 +23,8 @@ export class Signing {
 
   /**
    * Sign a binary payload using the given Ethers wallet or signer.
-   * @param request
-   * @param walletOrSigner
+   * @param request -
+   * @param walletOrSigner -
    */
   static signRaw(request: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
     if (!walletOrSigner) throw new Error('Invalid wallet/signer');

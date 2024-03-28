@@ -18,11 +18,11 @@ export abstract class Census {
   /**
    * Constructs a generic census
    *
-   * @param censusId The id of the census
-   * @param censusURI The URI of the census
-   * @param type The type of the census
-   * @param size The size of the census
-   * @param weight The weight of the census
+   * @param censusId - The id of the census
+   * @param censusURI - The URI of the census
+   * @param type - The type of the census
+   * @param size - The size of the census
+   * @param weight - The weight of the census
    */
   protected constructor(censusId?: string, censusURI?: string, type?: CensusType, size?: number, weight?: bigint) {
     this.censusId = censusId;

@@ -362,8 +362,7 @@ export abstract class ChainAPI extends API {
   /**
    * Fetches info about the blockchain status.
    *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<IChainGetInfoResponse>}
+   * @param url - API endpoint URL
    */
   public static info(url: string): Promise<IChainGetInfoResponse> {
     return axios
@@ -375,8 +374,7 @@ export abstract class ChainAPI extends API {
   /**
    * Fetches info about the blockchain costs.
    *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<IChainGetCostsResponse>}
+   * @param url - API endpoint URL
    */
   public static costs(url: string): Promise<IChainGetCostsResponse> {
     return axios
@@ -388,8 +386,7 @@ export abstract class ChainAPI extends API {
   /**
    * Fetches info about the blockchain anonymous circuits.
    *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<IChainGetCircuitResponse>}
+   * @param url - API endpoint URL
    */
   public static circuits(url: string): Promise<IChainGetCircuitResponse> {
     return axios
@@ -401,8 +398,7 @@ export abstract class ChainAPI extends API {
   /**
    * Fetches a circuit.
    *
-   * @param {string} url Circuit URL
-   * @returns {Promise<Uint8Array>}
+   * @param url - Circuit URL
    */
   public static circuit(url: string): Promise<Uint8Array> {
     return axios
@@ -414,9 +410,8 @@ export abstract class ChainAPI extends API {
   /**
    * Fetches information about a transaction from the blockchain.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} txHash The transaction hash which we want to retrieve the info from
-   * @returns {Promise<IChainTxReference>}
+   * @param url - API endpoint URL
+   * @param txHash - The transaction hash which we want to retrieve the info from
    */
   public static txInfo(url: string, txHash: string): Promise<IChainTxReference> {
     return axios
@@ -433,10 +428,9 @@ export abstract class ChainAPI extends API {
   /**
    * Fetches information about a transaction by its containing block an index on the block.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} blockHeight Block with the containing transaction
-   * @param {string} txIndex Index on the block
-   * @returns {Promise<Tx>}
+   * @param url - API endpoint URL
+   * @param blockHeight - Block with the containing transaction
+   * @param txIndex - Index on the block
    */
   public static txInfoByBlock(url: string, blockHeight: number, txIndex: number): Promise<Tx> {
     return axios
@@ -454,9 +448,8 @@ export abstract class ChainAPI extends API {
   /**
    * Submits a transaction to the blockchain
    *
-   * @param {string} url API endpoint URL
-   * @param {string} payload The transaction data payload
-   * @returns {Promise<IChainSubmitTxResponse>}
+   * @param url - API endpoint URL
+   * @param payload - The transaction data payload
    */
   public static submitTx(url: string, payload: string): Promise<IChainSubmitTxResponse> {
     return axios
@@ -468,9 +461,8 @@ export abstract class ChainAPI extends API {
   /**
    * Returns the list of transactions by page
    *
-   * @param url {string} url API endpoint URL
-   * @param page {number} page The page number
-   * @returns {Promise<IChainTxListResponse>}
+   * @param url - {string} url API endpoint URL
+   * @param page - {number} page The page number
    */
   public static txList(url: string, page: number = 0): Promise<IChainTxListResponse> {
     return axios
@@ -482,8 +474,7 @@ export abstract class ChainAPI extends API {
   /**
    * Returns the number of organizations
    *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<IChainOrganizationCountResponse>}
+   * @param url - API endpoint URL
    */
   public static organizationCount(url: string): Promise<IChainOrganizationCountResponse> {
     return axios
@@ -495,10 +486,9 @@ export abstract class ChainAPI extends API {
   /**
    * Returns the list of organizations by page
    *
-   * @param {string} url API endpoint URL
-   * @param {number} page The page number
-   * @param {string} organizationId Organization id or partial id to search. It has to be a valid hex string.
-   * @returns {Promise<IChainOrganizationListResponse>}
+   * @param url - API endpoint URL
+   * @param page - The page number
+   * @param organizationId - Organization id or partial id to search. It has to be a valid hex string.
    */
   public static organizationList(
     url: string,
@@ -522,9 +512,8 @@ export abstract class ChainAPI extends API {
   /**
    * Get block information by height
    *
-   * @param {string} url API endpoint URL
-   * @param {number} height block height
-   * @returns {Promise<IChainBlockInfoResponse>}
+   * @param url - API endpoint URL
+   * @param height - block height
    */
   public static blockByHeight(url: string, height: number): Promise<IChainBlockInfoResponse> {
     return axios
@@ -536,8 +525,7 @@ export abstract class ChainAPI extends API {
   /**
    * Returns the list of validators
    *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<IChainOrganizationListResponse>}
+   * @param url - API endpoint URL
    */
   public static validatorsList(url: string): Promise<IChainValidatorsListResponse> {
     return axios
@@ -549,9 +537,8 @@ export abstract class ChainAPI extends API {
   /**
    * Get block information by hash
    *
-   * @param {string} url API endpoint URL
-   * @param {string} hash block hash
-   * @returns {Promise<IChainBlockInfoResponse>}
+   * @param url - API endpoint URL
+   * @param hash - block hash
    */
   public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
     return axios
@@ -563,10 +550,9 @@ export abstract class ChainAPI extends API {
   /**
    * Get paginated list of transactions registered on specific block
    *
-   * @param {string} url API endpoint URL
-   * @param {number} height block height
-   * @param {number} page the page number
-   * @returns {Promise<IBlockTransactionsResponse>}
+   * @param url - API endpoint URL
+   * @param height - block height
+   * @param page - the page number
    */
   public static blockTransactions(url: string, height: number, page: number = 0): Promise<IBlockTransactionsResponse> {
     return axios
@@ -579,9 +565,8 @@ export abstract class ChainAPI extends API {
 
   /**
    * By a given date give the estimate block for the current Vochain.
-   * @param url API URL
-   * @param timeStamp unix format timestamp
-   * @returns {Promise<IDateToBlockResponse>}
+   * @param url - API URL
+   * @param timeStamp - unix format timestamp
    */
   public static dateToBlock(url: string, timeStamp: number): Promise<IDateToBlockResponse> {
     return axios
@@ -593,8 +578,8 @@ export abstract class ChainAPI extends API {
   /**
    * Return approximate date by a given block height.
    *
-   * @param url API URL
-   * @param height block height to calculate approximate timestamp
+   * @param url - API URL
+   * @param height - block height to calculate approximate timestamp
    * @return {Promise<IBlockToDateResponse>}
    */
   public static blockToDate(url: string, height: number): Promise<IBlockToDateResponse> {

@@ -1,6 +1,24 @@
 {
-    "entryPoints": ["../src"],
+    "entryPoints": [
+        "../src"
+    ],
     "out": "doc",
     "githubPages": false,
-    "exclude": ["**/errors/*.ts"]
+    "exclude": [
+        "**/errors/*.ts"
+    ],
+    "categoryOrder": [
+        "*",
+        "Other",
+    ],
+    "readme": "none",
+    "categorizeByGroup": true,
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "groupOrder": [
+        "Classes",
+        "Interfaces",
+        "*"
+    ]
 }

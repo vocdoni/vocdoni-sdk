@@ -11,7 +11,7 @@ export class FileService extends Service implements FileServiceProperties {
   /**
    * Instantiate the election service.
    *
-   * @param {Partial<FileServiceParameters>} params The service parameters
+   * @param params - The service parameters
    */
   constructor(params: Partial<FileServiceParameters>) {
     super();
@@ -21,8 +21,8 @@ export class FileService extends Service implements FileServiceProperties {
   /**
    * Fetches the CID expected for the specified data content.
    *
-   * @param {string} data The data of which we want the CID of
-   * @returns {Promise<string>} Resulting CID
+   * @param data - The data of which we want the CID of
+   * @returns Resulting CID
    */
   calculateCID(data: string): Promise<string> {
     invariant(this.url, 'No URL set');

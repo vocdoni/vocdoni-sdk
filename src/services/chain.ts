@@ -42,7 +42,7 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Instantiate the chain service.
    *
-   * @param {Partial<ChainServiceParameters>} params The service parameters
+   * @param params - The service parameters
    */
   constructor(params: Partial<ChainServiceParameters>) {
     super();
@@ -52,7 +52,6 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Fetches blockchain information if needed.
    *
-   * @returns {Promise<ChainData>}
    */
   fetchChainData(): Promise<ChainData> {
     if (this.chainData) {
@@ -69,7 +68,6 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Fetches blockchain costs information if needed.
    *
-   * @returns {Promise<ChainCosts>}
    */
   fetchChainCosts(): Promise<ChainCosts> {
     if (this.chainCosts) {
@@ -86,8 +84,8 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Submits a transaction to the blockchain
    *
-   * @param {string} payload The transaction data payload
-   * @returns {Promise<string>} The transaction hash
+   * @param payload - The transaction data payload
+   * @returns The transaction hash
    */
   submitTx(payload: string): Promise<string> {
     invariant(this.url, 'No URL set');
@@ -97,8 +95,8 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Fetches information about a transaction from the blockchain.
    *
-   * @param {string} txHash The transaction hash which we want to retrieve the info from
-   * @returns {Promise<ChainTx>} The chain transaction
+   * @param txHash - The transaction hash which we want to retrieve the info from
+   * @returns The chain transaction
    */
   txInfo(txHash: string): Promise<ChainTx> {
     invariant(this.url, 'No URL set');
@@ -108,8 +106,8 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Returns the block number for a given date.
    *
-   * @param {Date} date The date which we want to retrieve the block number from
-   * @returns {Promise<number>} The block number
+   * @param date - The date which we want to retrieve the block number from
+   * @returns The block number
    */
   dateToBlock(date: Date): Promise<number> {
     invariant(this.url, 'No URL set');
@@ -121,10 +119,9 @@ export class ChainService extends Service implements ChainServiceProperties {
    * loop trying to get the transaction information, and will retry every time
    * it fails.
    *
-   * @param {string} tx Transaction to wait for
-   * @param {number} wait The delay in milliseconds between tries
-   * @param {attempts} attempts The attempts to try before failing
-   * @returns {Promise<void>}
+   * @param tx - Transaction to wait for
+   * @param wait - The delay in milliseconds between tries
+   * @param attempts - The attempts to try before failing
    */
   waitForTransaction(tx: string, wait?: number, attempts?: number): Promise<void> {
     const waitTime = wait ?? this.txWait?.retryTime;

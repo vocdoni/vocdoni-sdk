@@ -113,9 +113,8 @@ export abstract class AccountAPI extends API {
   /**
    * Returns paginated list of accounts
    *
-   * @param {string} url API endpoint URL
-   * @param {number} page The page number
-   * @returns {Promise<IAccountsListResponse>}
+   * @param url - API endpoint URL
+   * @param page - The page number
    */
   public static list(url: string, page: number = 0): Promise<IAccountsListResponse> {
     return axios
@@ -127,8 +126,7 @@ export abstract class AccountAPI extends API {
   /**
    * Returns the number of accounts
    *
-   * @param {string} url API endpoint URL
-   * @returns {Promise<IAccountsCountResponse>}
+   * @param url - API endpoint URL
    */
   public static count(url: string): Promise<IAccountsCountResponse> {
     return axios
@@ -140,9 +138,8 @@ export abstract class AccountAPI extends API {
   /**
    * Fetches an Account information
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId The account we want the info from
-   * @returns {Promise<IAccountInfoResponse>}
+   * @param url - API endpoint URL
+   * @param accountId - The account we want the info from
    */
   public static info(url: string, accountId: string): Promise<IAccountInfoResponse> {
     return axios
@@ -154,9 +151,8 @@ export abstract class AccountAPI extends API {
   /**
    * Fetches the account metadata
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId The account we want the info from
-   * @returns {Promise<AccountMetadata>}
+   * @param url - API endpoint URL
+   * @param accountId - The account we want the info from
    */
   public static metadata(url: string, accountId: string): Promise<AccountMetadata> {
     return axios
@@ -168,10 +164,9 @@ export abstract class AccountAPI extends API {
   /**
    * Sets Account information
    *
-   * @param {string} url API endpoint URL
-   * @param {string} payload The set information info raw payload to be submitted to the chain
-   * @param {string} metadata The base64 encoded metadata JSON object
-   * @returns {Promise<IAccountSetInfoResponse>}
+   * @param url - API endpoint URL
+   * @param payload - The set information info raw payload to be submitted to the chain
+   * @param metadata - The base64 encoded metadata JSON object
    */
   public static setInfo(url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
@@ -183,10 +178,9 @@ export abstract class AccountAPI extends API {
   /**
    * Returns paginated list of transfers for a specific account
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId accountId to get transfers
-   * @param {number} page The page number
-   * @returns {Promise<IAccountTransfersResponse>}
+   * @param url - API endpoint URL
+   * @param accountId - accountId to get transfers
+   * @param page - The page number
    */
   public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
     return axios
@@ -198,9 +192,8 @@ export abstract class AccountAPI extends API {
   /**
    * Returns the account's transfers count
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId accountId to get the transfers count
-   * @returns {Promise<IAccountTransfersCountResponse>}
+   * @param url - API endpoint URL
+   * @param accountId - accountId to get the transfers count
    */
   public static transfersCount(url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
     return axios
@@ -212,10 +205,9 @@ export abstract class AccountAPI extends API {
   /**
    * Returns paginated list of elections for a specific account
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId accountId to get elections
-   * @param {number} page The page number
-   * @returns {Promise<IElectionListResponse>}
+   * @param url - API endpoint URL
+   * @param accountId - accountId to get elections
+   * @param page - The page number
    */
   public static electionsList(url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
     return axios

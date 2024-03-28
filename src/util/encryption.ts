@@ -13,8 +13,8 @@ export class Asymmetric {
    * Encrypts the given buffer with NaCl SealedBox using the given hex public key.
    * Returns a buffer with the encrypted payload.
    *
-   * @param messageBytes The payload to encrypt
-   * @param hexPublicKey 32 byte public key in hex format
+   * @param messageBytes - The payload to encrypt
+   * @param hexPublicKey - 32 byte public key in hex format
    */
   static encryptRaw(messageBytes: Uint8Array, hexPublicKey: string): Buffer {
     const pubKeyBytes = Buffer.from(strip0x(hexPublicKey), 'hex');

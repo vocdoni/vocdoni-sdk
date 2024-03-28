@@ -28,7 +28,7 @@ export class Account {
   /**
    * Constructs an account
    *
-   * @param params Account parameters
+   * @param params - Account parameters
    */
   public constructor(params?: IAccount) {
     this.languages = params?.languages ?? [];
@@ -56,7 +56,7 @@ export class Account {
   /**
    * Returns an account object
    *
-   * @param params Account parameters
+   * @param params - Account parameters
    */
   public static build(params: IAccount) {
     return new Account(params);

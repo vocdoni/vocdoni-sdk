@@ -40,7 +40,7 @@ export class AccountService extends Service implements AccountServiceProperties 
   /**
    * Instantiate the election service.
    *
-   * @param {Partial<AccountServiceParameters>} params The service parameters
+   * @param params - The service parameters
    */
   constructor(params: Partial<AccountServiceParameters>) {
     super();
@@ -50,8 +50,7 @@ export class AccountService extends Service implements AccountServiceProperties 
   /**
    * Fetches account information.
    *
-   * @param {string} address The account address to fetch the information
-   * @returns {Promise<AccountData>}
+   * @param address - The account address to fetch the information
    */
   async fetchAccountInfo(address: string): Promise<AccountData | ArchivedAccountData> {
     invariant(this.url, 'No URL set');
@@ -89,9 +88,9 @@ export class AccountService extends Service implements AccountServiceProperties 
   /**
    * Updates an account with information
    *
-   * @param {string} tx The transaction for setting the account
-   * @param {string} metadata The account metadata
-   * @returns {Promise<string>} The transaction hash
+   * @param tx - The transaction for setting the account
+   * @param metadata - The account metadata
+   * @returns The transaction hash
    */
   setInfo(tx: string, metadata: string): Promise<string> {
     invariant(this.url, 'No URL set');

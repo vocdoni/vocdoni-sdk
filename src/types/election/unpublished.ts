@@ -18,7 +18,7 @@ export class UnpublishedElection extends Election {
   /**
    * Constructs an unpublished election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
   public constructor(params: IElectionParameters) {
     super();

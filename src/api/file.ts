@@ -23,9 +23,9 @@ export abstract class FileAPI extends API {
   /**
    * CID generator method via API.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} payload Full payload string of which we want the CID of
-   * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
+   * @param url - API endpoint URL
+   * @param payload - Full payload string of which we want the CID of
+   * @returns promised IFileCIDResponse
    */
   public static cid(url: string, payload: string): Promise<IFileCIDResponse> {
     return axios

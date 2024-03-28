@@ -68,7 +68,7 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Instantiate the census service.
    *
-   * @param {Partial<CensusServiceParameters>} params The service parameters
+   * @param params - The service parameters
    */
   constructor(params: Partial<CensusServiceParameters>) {
     super();
@@ -78,8 +78,7 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Fetches the information of a given census.
    *
-   * @param censusId
-   * @returns {Promise<{size: number, weight: bigint, type: CensusType}>}
+   * @param censusId -
    */
   get(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
     invariant(this.url, 'No URL set');
@@ -104,8 +103,7 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Deletes the given census.
    *
-   * @param censusId
-   * @returns {Promise<void>}
+   * @param censusId -
    */
   delete(censusId: string): Promise<void> {
     invariant(this.url, 'No URL set');
@@ -117,9 +115,8 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Fetches proof that an address is part of the specified census.
    *
-   * @param {string} censusId Census we want to check the address against
-   * @param {string} key The address to be found
-   * @returns {Promise<CensusProof>}
+   * @param censusId - Census we want to check the address against
+   * @param key - The address to be found
    */
   async fetchProof(censusId: string, key: string): Promise<CensusProof> {
     invariant(this.url, 'No URL set');
@@ -189,7 +186,7 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Publishes the given census identifier.
    *
-   * @param {string} censusId The census identifier
+   * @param censusId - The census identifier
    */
   publish(censusId: string): Promise<ICensusPublishResponse> {
     invariant(this.url, 'No URL set');
@@ -201,7 +198,7 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Exports the given census identifier.
    *
-   * @param {string} censusId The census identifier
+   * @param censusId - The census identifier
    */
   export(censusId: string): Promise<CensusImportExport> {
     invariant(this.url, 'No URL set');
@@ -213,8 +210,8 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Imports data into the given census identifier.
    *
-   * @param {string} censusId The census identifier
-   * @param {CensusImportExport} data The census data
+   * @param censusId - The census identifier
+   * @param data - The census data
    */
   import(censusId: string, data: CensusImportExport): Promise<ICensusImportResponse> {
     invariant(this.url, 'No URL set');
@@ -226,8 +223,7 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Publishes the given census.
    *
-   * @param {PlainCensus | WeightedCensus} census The census to be published.
-   * @returns {Promise<void>}
+   * @param census - The census to be published.
    */
   createCensus(census: PlainCensus | WeightedCensus): Promise<void> {
     return this.create(census.type)
@@ -247,8 +243,7 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Publishes the given census.
    *
-   * @param {PlainCensus | WeightedCensus} census The census to be published.
-   * @returns {Promise<void>}
+   * @param census - The census to be published.
    */
   // @ts-ignore
   private createCensusParallel(census: PlainCensus | WeightedCensus): Promise<void> {
@@ -270,7 +265,6 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Fetches the specific account token auth and sets it to the current instance.
    *
-   * @returns {Promise<void>}
    */
   fetchAccountToken(): Promise<void> {
     if (this.auth) {

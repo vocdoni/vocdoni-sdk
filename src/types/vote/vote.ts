@@ -7,7 +7,7 @@ export class Vote {
   /**
    * Constructs a vote
    *
-   * @param votes The list of votes values
+   * @param votes - The list of votes values
    */
   public constructor(votes: Array<number | bigint>) {
     this.votes = votes;

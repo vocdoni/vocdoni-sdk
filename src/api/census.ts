@@ -125,10 +125,9 @@ export abstract class CensusAPI extends API {
   /**
    * Create's a new census in the API.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {CensusType} type Type of census to be created
-   * @returns {Promise<ICensusCreateResponse>}
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param type - Type of census to be created
    */
   public static create(url: string, authToken: string, type: CensusType): Promise<ICensusCreateResponse> {
     return axios
@@ -144,11 +143,10 @@ export abstract class CensusAPI extends API {
   /**
    * Adds participants to a census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The id of the census to which participants are being added
-   * @param {Array.<{key: string, weight: BigInt | null}>} participants An array of participants
-   * @returns {Promise<ICensusAddResponse>}
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The id of the census to which participants are being added
+   * @param participants - An array of participants
    */
   public static add(
     url: string,
@@ -181,10 +179,10 @@ export abstract class CensusAPI extends API {
   /**
    * Publishes the census, so it can be used in processes
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we're publishing
-   * @returns {Promise<ICensusPublishResponse>} on success
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we're publishing
+   * @returns on success
    */
   public static publish(url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
     return axios
@@ -200,10 +198,10 @@ export abstract class CensusAPI extends API {
   /**
    * Checks if the specified address is in the specified census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID of which we want the proof from
-   * @param {string} key The address to be checked
-   * @returns {Promise<ICensusProofResponse>} on success
+   * @param url - API endpoint URL
+   * @param censusId - The census ID of which we want the proof from
+   * @param key - The address to be checked
+   * @returns on success
    */
   public static proof(url: string, censusId: string, key: string): Promise<ICensusProofResponse> {
     return axios
@@ -215,10 +213,10 @@ export abstract class CensusAPI extends API {
   /**
    * Exports the given census identifier
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we want to export
-   * @returns {Promise<ICensusExportResponse>} on success
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we want to export
+   * @returns on success
    */
   public static export(url: string, authToken: string, censusId: string): Promise<ICensusExportResponse> {
     return axios
@@ -234,13 +232,13 @@ export abstract class CensusAPI extends API {
   /**
    * Imports data into the given census identifier
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we want to export
-   * @param {number} type The type of the census
-   * @param {string} rootHash The root hash of the census
-   * @param {string} data The census data to be imported
-   * @returns {Promise<void>} on success
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we want to export
+   * @param type - The type of the census
+   * @param rootHash - The root hash of the census
+   * @param data - The census data to be imported
+   * @returns on success
    */
   public static import(
     url: string,
@@ -267,10 +265,10 @@ export abstract class CensusAPI extends API {
   /**
    * Deletes the given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we want to export
-   * @returns {Promise<void>} on success
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we want to export
+   * @returns on success
    */
   public static delete(url: string, authToken: string, censusId: string): Promise<void> {
     return axios
@@ -286,9 +284,8 @@ export abstract class CensusAPI extends API {
   /**
    * Returns the size of a given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID
-   * @returns {Promise<ICensusSizeResponse>}
+   * @param url - API endpoint URL
+   * @param censusId - The census ID
    */
   public static size(url: string, censusId: string): Promise<ICensusSizeResponse> {
     return axios
@@ -300,9 +297,8 @@ export abstract class CensusAPI extends API {
   /**
    * Returns the weight of a given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID
-   * @returns {Promise<ICensusWeightResponse>}
+   * @param url - API endpoint URL
+   * @param censusId - The census ID
    */
   public static weight(url: string, censusId: string): Promise<ICensusWeightResponse> {
     return axios
@@ -314,9 +310,8 @@ export abstract class CensusAPI extends API {
   /**
    * Returns the type of given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID
-   * @returns {Promise<ICensusTypeResponse>}
+   * @param url - API endpoint URL
+   * @param censusId - The census ID
    */
   public static type(url: string, censusId: string): Promise<ICensusTypeResponse> {
     return axios

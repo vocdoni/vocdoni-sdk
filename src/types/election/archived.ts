@@ -8,7 +8,7 @@ export class ArchivedElection extends PublishedElection {
   /**
    * Constructs an archived election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
   public constructor(params: IPublishedElectionParameters) {
     super(params);

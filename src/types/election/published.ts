@@ -60,7 +60,7 @@ export class PublishedElection extends Election {
   /**
    * Constructs a published election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
   public constructor(params: IPublishedElectionParameters) {
     super({
@@ -95,7 +95,7 @@ export class PublishedElection extends Election {
   /**
    * Returns a published election object
    *
-   * @param params Published election parameters
+   * @param params - Published election parameters
    */
   public static build(params: IPublishedElectionParameters) {
     return new PublishedElection(params);

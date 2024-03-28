@@ -29,9 +29,8 @@ export function getHex(): string {
  * Compares two hex strings checking if they're the same. It ensures both
  * have hex prefix and are lowercase.
  *
- * @param {string} hex1
- * @param {string} hex2
- * @returns {boolean}
+ * @param hex -1
+ * @param hex -2
  */
 export function areEqualHexStrings(hex1?: string, hex2?: string) {
   if (!hex1 || !hex2) return false;
@@ -42,9 +41,9 @@ export function areEqualHexStrings(hex1?: string, hex2?: string) {
 /**
  * Returns a string representation of value formatted with decimals digits
  *
- * @param {BigNumberish} value The value in native BigInt
- * @param {number} decimals The number of decimals
- * @returns {string} The formatted string
+ * @param value - The value in native BigInt
+ * @param decimals - The number of decimals
+ * @returns The formatted string
  */
 export function formatUnits(value: BigNumberish, decimals: number = 18): string {
   return ethersFormatUnits(value, decimals);
@@ -54,9 +53,9 @@ export function formatUnits(value: BigNumberish, decimals: number = 18): string 
  * Dot notation to object conversion. Takes any object as first argument and uses the string dot notation from the
  * second argument (i.e. 'a.child.node') to access that given object value.
  *
- * @param {any} obj Object to be accessed by dot notation
- * @param {string} dot Dot notation string to extract object data
- * @returns {any} Return the object data
+ * @param obj - Object to be accessed by dot notation
+ * @param dot - Dot notation string to extract object data
+ * @returns Return the object data
  */
 export const dotobject = (obj: any, dot: string) => {
   const rec = (obj: any, dot: string[]): any => {

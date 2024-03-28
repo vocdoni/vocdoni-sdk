@@ -11,12 +11,12 @@ export class TokenCensus extends PublishedCensus {
   /**
    * Constructs a census3 census
    *
-   * @param censusId The id of the census
-   * @param censusURI The URI of the census
-   * @param anonymous If the census is anonymous
-   * @param token The token of the census
-   * @param size The size of the census
-   * @param weight The weight of the census
+   * @param censusId - The id of the census
+   * @param censusURI - The URI of the census
+   * @param anonymous - If the census is anonymous
+   * @param token - The token of the census
+   * @param size - The size of the census
+   * @param weight - The weight of the census
    */
   public constructor(
     censusId: string,

@@ -1,7 +1,7 @@
 /**
  * This function emulates the Promise.allSettled()
  *
- * @param proms
+ * @param proms -
  */
 export function allSettled(
   proms: Promise<any>[]
@@ -18,7 +18,7 @@ export function reflect<T>(prom: Promise<T>) {
 /**
  * This function emulates the Promise.any()
  *
- * @param values
+ * @param values -
  */
 export function promiseAny<T>(values: Iterable<T | PromiseLike<T>>): Promise<T> {
   return new Promise<T>((resolve: (value: T) => void, reject: (reason?: any) => void): void => {

@@ -30,7 +30,7 @@ export class BudgetElection extends UnpublishedElection {
   /**
    * Constructs a budget election
    *
-   * @param params Budget election parameters
+   * @param params - Budget election parameters
    */
   public constructor(params: IBudgetElectionParameters) {
     super(params);

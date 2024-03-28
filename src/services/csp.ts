@@ -24,7 +24,7 @@ export class CspService extends Service implements CspServiceProperties {
   /**
    * Instantiate the CSP service.
    *
-   * @param {Partial<CspServiceParameters>} params The service parameters
+   * @param params - The service parameters
    */
   constructor(params: Partial<CspServiceParameters>) {
     super();

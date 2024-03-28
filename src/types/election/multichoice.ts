@@ -19,7 +19,7 @@ export class MultiChoiceElection extends UnpublishedElection {
   /**
    * Constructs a multi choice election
    *
-   * @param params Multi choice election parameters
+   * @param params - Multi choice election parameters
    */
   public constructor(params: IMultiChoiceElectionParameters) {
     super(params);
