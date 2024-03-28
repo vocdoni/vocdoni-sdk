@@ -12,25 +12,25 @@ export class CspVote extends Vote {
    * @param signature - The CSP signature
    * @param proof -_type The CSP proof type
    */
-  public constructor (votes: Array<number | bigint>, signature: string, proof_type?: CspProofType) {
+  public constructor(votes: Array<number | bigint>, signature: string, proof_type?: CspProofType) {
     super(votes);
     this.signature = signature;
     this.proof_type = proof_type;
   }
 
-  get signature (): string {
+  get signature(): string {
     return this._signature;
   }
 
-  set signature (value: string) {
+  set signature(value: string) {
     this._signature = value;
   }
 
-  get proof_type (): CspProofType {
+  get proof_type(): CspProofType {
     return this._proof_type;
   }
 
-  set proof_type (value: CspProofType) {
+  set proof_type(value: CspProofType) {
     this._proof_type = value;
   }
 }

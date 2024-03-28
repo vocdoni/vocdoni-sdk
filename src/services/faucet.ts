@@ -35,7 +35,7 @@ export class FaucetService extends Service implements FaucetServiceProperties {
    *
    * @param params - The service parameters
    */
-  constructor (params: Partial<FaucetServiceParameters>) {
+  constructor(params: Partial<FaucetServiceParameters>) {
     super();
     Object.assign(this, params);
   }
@@ -46,16 +46,16 @@ export class FaucetService extends Service implements FaucetServiceProperties {
    * @param address - The address where to send the tokens
    * @returns The encoded faucet package
    */
-  fetchPayload (address: string): Promise<string> {
+  fetchPayload(address: string): Promise<string> {
     invariant(this.url, 'No faucet URL');
-    return FaucetAPI.collect(this.url, address).then(data => data.faucetPackage);
+    return FaucetAPI.collect(this.url, address).then((data) => data.faucetPackage);
   }
 
   /**
    * Parses a faucet package.
    *
    */
-  parseFaucetPackage (faucetPackage: string): FaucetPackage {
+  parseFaucetPackage(faucetPackage: string): FaucetPackage {
     try {
       const jsonFaucetPackage = JSON.parse(Buffer.from(faucetPackage, 'base64').toString());
       return { payload: jsonFaucetPackage.faucetPayload, signature: jsonFaucetPackage.signature };

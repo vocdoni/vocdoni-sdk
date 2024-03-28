@@ -40,7 +40,7 @@ export abstract class ZkAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -51,10 +51,10 @@ export abstract class ZkAPI extends API {
    * @param key - The address to be checked
    * @returns The ZK proof
    */
-  public static proof (url: string, key: string): Promise<IZkProofResponse> {
+  public static proof(url: string, key: string): Promise<IZkProofResponse> {
     return axios
       .get<IZkProofResponse>(url + ZkAPIMethods.PROOF + '/' + strip0x(key))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -65,10 +65,10 @@ export abstract class ZkAPI extends API {
    * @param key - The address to be checked
    * @returns The ZK proof
    */
-  public static sik (url: string, key: string): Promise<IZkSIKResponse> {
+  public static sik(url: string, key: string): Promise<IZkSIKResponse> {
     return axios
       .get<IZkSIKResponse>(url + ZkAPIMethods.SIK + '/' + strip0x(key))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

@@ -15,15 +15,15 @@ export class ApprovalElection extends UnpublishedElection {
    *
    * @param params - Approval election parameters
    */
-  public constructor (params: IApprovalElectionParameters) {
+  public constructor(params: IApprovalElectionParameters) {
     super(params);
   }
 
-  public static from (params: IApprovalElectionParameters) {
+  public static from(params: IApprovalElectionParameters) {
     return new ApprovalElection(params);
   }
 
-  public addQuestion (
+  public addQuestion(
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
     choices: Array<{ title: string } | { title: MultiLanguage<string> }>
@@ -42,7 +42,7 @@ export class ApprovalElection extends UnpublishedElection {
     );
   }
 
-  public generateVoteOptions (): object {
+  public generateVoteOptions(): object {
     const maxCount = this.questions[0].choices.length;
     const maxValue = 1;
     const maxVoteOverwrites = this.voteType.maxVoteOverwrites;
@@ -52,7 +52,7 @@ export class ApprovalElection extends UnpublishedElection {
     return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
-  public generateEnvelopeType (): object {
+  public generateEnvelopeType(): object {
     const serial = false; // TODO
     const anonymous = this.electionType.anonymous;
     const encryptedVotes = this.electionType.secretUntilTheEnd;
@@ -62,7 +62,7 @@ export class ApprovalElection extends UnpublishedElection {
     return { serial, anonymous, encryptedVotes, uniqueValues, costFromWeight };
   }
 
-  public generateMetadata (): ElectionMetadata {
+  public generateMetadata(): ElectionMetadata {
     const metadata = ElectionMetadataTemplate;
 
     metadata.type = {
@@ -76,12 +76,12 @@ export class ApprovalElection extends UnpublishedElection {
     return super.generateMetadata(metadata);
   }
 
-  public static checkVote (vote: Vote, voteType: IVoteType): void {
+  public static checkVote(vote: Vote, voteType: IVoteType): void {
     if (voteType.maxCount != vote.votes.length) {
       throw new Error('Invalid number of choices');
     }
 
-    vote.votes.forEach(vote => {
+    vote.votes.forEach((vote) => {
       if (vote > voteType.maxValue) {
         throw new Error('Invalid choice value');
       }

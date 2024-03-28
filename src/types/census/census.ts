@@ -24,7 +24,7 @@ export abstract class Census {
    * @param size - The size of the census
    * @param weight - The weight of the census
    */
-  protected constructor (censusId?: string, censusURI?: string, type?: CensusType, size?: number, weight?: bigint) {
+  protected constructor(censusId?: string, censusURI?: string, type?: CensusType, size?: number, weight?: bigint) {
     this.censusId = censusId;
     this.censusURI = censusURI;
     this.type = type;
@@ -32,53 +32,53 @@ export abstract class Census {
     this.weight = weight;
   }
 
-  get censusId (): string | null {
+  get censusId(): string | null {
     return this._censusId;
   }
 
-  set censusId (value: string | null) {
+  set censusId(value: string | null) {
     this._censusId = value;
   }
 
-  get censusURI (): string | null {
+  get censusURI(): string | null {
     return this._censusURI;
   }
 
-  set censusURI (value: string | null) {
+  set censusURI(value: string | null) {
     this._censusURI = value;
   }
 
-  get type (): CensusType {
+  get type(): CensusType {
     return this._type;
   }
 
-  set type (value: CensusType) {
+  set type(value: CensusType) {
     this._type = value;
   }
 
-  get size (): number | null {
+  get size(): number | null {
     return this._size;
   }
 
-  set size (value: number | null) {
+  set size(value: number | null) {
     this._size = value;
   }
 
-  get weight (): bigint | null {
+  get weight(): bigint | null {
     return this._weight;
   }
 
-  set weight (value: bigint | null) {
+  set weight(value: bigint | null) {
     this._weight = value;
   }
 
-  get isPublished (): boolean {
+  get isPublished(): boolean {
     return (
       typeof this.censusId !== 'undefined' && typeof this.censusURI !== 'undefined' && typeof this.type !== 'undefined'
     );
   }
 
-  static censusTypeFromCensusOrigin (censusOrigin: string, anonymous: boolean = false): CensusType {
+  static censusTypeFromCensusOrigin(censusOrigin: string, anonymous: boolean = false): CensusType {
     switch (censusOrigin) {
       case 'OFF_CHAIN_TREE_WEIGHTED':
         return anonymous ? CensusType.ANONYMOUS : CensusType.WEIGHTED;

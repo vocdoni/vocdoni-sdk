@@ -93,7 +93,7 @@ export abstract class Census3CensusAPI extends Census3API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -103,10 +103,10 @@ export abstract class Census3CensusAPI extends Census3API {
    * @param url - API endpoint URL
    * @param strategy - The identifier of the strategy
    */
-  public static list (url: string, strategy: number): Promise<ICensus3CensusListResponse> {
+  public static list(url: string, strategy: number): Promise<ICensus3CensusListResponse> {
     return axios
       .get<ICensus3CensusListResponse>(url + Census3CensusAPIMethods.LIST_BY_STRATEGY.replace('{id}', String(strategy)))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -116,10 +116,10 @@ export abstract class Census3CensusAPI extends Census3API {
    * @param url - API endpoint URL
    * @param id - The identifier of the census
    */
-  public static census (url: string, id: number): Promise<ICensus3CensusResponse> {
+  public static census(url: string, id: number): Promise<ICensus3CensusResponse> {
     return axios
       .get<ICensus3CensusResponse>(url + Census3CensusAPIMethods.CENSUS.replace('{id}', String(id)))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -129,10 +129,10 @@ export abstract class Census3CensusAPI extends Census3API {
    * @param url - API endpoint URL
    * @param id - The identifier of the census queue
    */
-  public static queue (url: string, id: string): Promise<ICensus3CensusQueueResponse> {
+  public static queue(url: string, id: string): Promise<ICensus3CensusQueueResponse> {
     return axios
       .get<ICensus3CensusQueueResponse>(url + Census3CensusAPIMethods.QUEUE.replace('{id}', id))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -144,13 +144,13 @@ export abstract class Census3CensusAPI extends Census3API {
    * @param anonymous - If the census has to be anonymous
    * @returns The queue identifier
    */
-  public static create (url: string, strategyId: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
+  public static create(url: string, strategyId: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
     return axios
       .post<ICensus3QueueResponse>(url + Census3CensusAPIMethods.CREATE, {
         strategyID: strategyId,
         anonymous,
       })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

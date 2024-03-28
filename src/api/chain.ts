@@ -355,7 +355,7 @@ export abstract class ChainAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -364,10 +364,10 @@ export abstract class ChainAPI extends API {
    *
    * @param url - API endpoint URL
    */
-  public static info (url: string): Promise<IChainGetInfoResponse> {
+  public static info(url: string): Promise<IChainGetInfoResponse> {
     return axios
       .get<IChainGetInfoResponse>(url + ChainAPIMethods.INFO)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -376,10 +376,10 @@ export abstract class ChainAPI extends API {
    *
    * @param url - API endpoint URL
    */
-  public static costs (url: string): Promise<IChainGetCostsResponse> {
+  public static costs(url: string): Promise<IChainGetCostsResponse> {
     return axios
       .get<IChainGetCostsResponse>(url + ChainAPIMethods.COSTS)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -388,10 +388,10 @@ export abstract class ChainAPI extends API {
    *
    * @param url - API endpoint URL
    */
-  public static circuits (url: string): Promise<IChainGetCircuitResponse> {
+  public static circuits(url: string): Promise<IChainGetCircuitResponse> {
     return axios
       .get<IChainGetCircuitResponse>(url + ChainAPIMethods.CIRCUITS)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -400,10 +400,10 @@ export abstract class ChainAPI extends API {
    *
    * @param url - Circuit URL
    */
-  public static circuit (url: string): Promise<Uint8Array> {
+  public static circuit(url: string): Promise<Uint8Array> {
     return axios
       .get<Uint8Array>(url, { responseType: 'arraybuffer' })
-      .then(response => new Uint8Array(response.data))
+      .then((response) => new Uint8Array(response.data))
       .catch(this.isApiError);
   }
 
@@ -413,10 +413,10 @@ export abstract class ChainAPI extends API {
    * @param url - API endpoint URL
    * @param txHash - The transaction hash which we want to retrieve the info from
    */
-  public static txInfo (url: string, txHash: string): Promise<IChainTxReference> {
+  public static txInfo(url: string, txHash: string): Promise<IChainTxReference> {
     return axios
       .get<IChainTxReference>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
-      .then(response => {
+      .then((response) => {
         if (response.status === 204) {
           throw new ErrTransactionNotFound();
         }
@@ -432,7 +432,7 @@ export abstract class ChainAPI extends API {
    * @param blockHeight - Block with the containing transaction
    * @param txIndex - Index on the block
    */
-  public static txInfoByBlock (url: string, blockHeight: number, txIndex: number): Promise<Tx> {
+  public static txInfoByBlock(url: string, blockHeight: number, txIndex: number): Promise<Tx> {
     return axios
       .get<Tx>(
         url +
@@ -441,7 +441,7 @@ export abstract class ChainAPI extends API {
             String(txIndex)
           )
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -451,10 +451,10 @@ export abstract class ChainAPI extends API {
    * @param url - API endpoint URL
    * @param payload - The transaction data payload
    */
-  public static submitTx (url: string, payload: string): Promise<IChainSubmitTxResponse> {
+  public static submitTx(url: string, payload: string): Promise<IChainSubmitTxResponse> {
     return axios
       .post<IChainSubmitTxResponse>(url + ChainAPIMethods.SUBMIT_TX, { payload })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -464,10 +464,10 @@ export abstract class ChainAPI extends API {
    * @param url - {string} url API endpoint URL
    * @param page - {number} page The page number
    */
-  public static txList (url: string, page: number = 0): Promise<IChainTxListResponse> {
+  public static txList(url: string, page: number = 0): Promise<IChainTxListResponse> {
     return axios
       .get<IChainTxListResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -476,10 +476,10 @@ export abstract class ChainAPI extends API {
    *
    * @param url - API endpoint URL
    */
-  public static organizationCount (url: string): Promise<IChainOrganizationCountResponse> {
+  public static organizationCount(url: string): Promise<IChainOrganizationCountResponse> {
     return axios
       .get<IChainOrganizationCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -490,7 +490,7 @@ export abstract class ChainAPI extends API {
    * @param page - The page number
    * @param organizationId - Organization id or partial id to search. It has to be a valid hex string.
    */
-  public static organizationList (
+  public static organizationList(
     url: string,
     page: number = 0,
     organizationId?: string
@@ -500,12 +500,12 @@ export abstract class ChainAPI extends API {
         .post<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST_FILTERED + '/' + page, {
           organizationId: organizationId,
         })
-        .then(response => response.data)
+        .then((response) => response.data)
         .catch(this.isApiError);
     }
     return axios
       .get<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST + '/' + page)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -515,10 +515,10 @@ export abstract class ChainAPI extends API {
    * @param url - API endpoint URL
    * @param height - block height
    */
-  public static blockByHeight (url: string, height: number): Promise<IChainBlockInfoResponse> {
+  public static blockByHeight(url: string, height: number): Promise<IChainBlockInfoResponse> {
     return axios
       .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO + '/' + height)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -527,10 +527,10 @@ export abstract class ChainAPI extends API {
    *
    * @param url - API endpoint URL
    */
-  public static validatorsList (url: string): Promise<IChainValidatorsListResponse> {
+  public static validatorsList(url: string): Promise<IChainValidatorsListResponse> {
     return axios
       .get<IChainValidatorsListResponse>(url + ChainAPIMethods.VALIDATORS_LIST)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -540,10 +540,10 @@ export abstract class ChainAPI extends API {
    * @param url - API endpoint URL
    * @param hash - block hash
    */
-  public static blockByHash (url: string, hash: string): Promise<IChainBlockInfoResponse> {
+  public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
     return axios
       .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_BY_HASH + '/' + hash)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -554,12 +554,12 @@ export abstract class ChainAPI extends API {
    * @param height - block height
    * @param page - the page number
    */
-  public static blockTransactions (url: string, height: number, page: number = 0): Promise<IBlockTransactionsResponse> {
+  public static blockTransactions(url: string, height: number, page: number = 0): Promise<IBlockTransactionsResponse> {
     return axios
       .get<IBlockTransactionsResponse>(
         url + ChainAPIMethods.BLOCK_TRANSACTIONS.replace('{height}', String(height)).replace('{page}', String(page))
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -568,10 +568,10 @@ export abstract class ChainAPI extends API {
    * @param url - API URL
    * @param timeStamp - unix format timestamp
    */
-  public static dateToBlock (url: string, timeStamp: number): Promise<IDateToBlockResponse> {
+  public static dateToBlock(url: string, timeStamp: number): Promise<IDateToBlockResponse> {
     return axios
       .get<IDateToBlockResponse>(url + ChainAPIMethods.DATE_TO_BLOCK.replace('{timestamp}', String(timeStamp)))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -582,10 +582,10 @@ export abstract class ChainAPI extends API {
    * @param height - block height to calculate approximate timestamp
    * @return {Promise<IBlockToDateResponse>}
    */
-  public static blockToDate (url: string, height: number): Promise<IBlockToDateResponse> {
+  public static blockToDate(url: string, height: number): Promise<IBlockToDateResponse> {
     return axios
       .get<IBlockToDateResponse>(url + ChainAPIMethods.BLOCK_TO_DATE.replace('{height}', String(height)))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

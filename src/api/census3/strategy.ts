@@ -261,7 +261,7 @@ export abstract class Census3StrategyAPI extends Census3API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -271,12 +271,12 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param url - API endpoint URL
    * @param pagination - Pagination options
    */
-  public static list (url: string, pagination?: Census3Pagination): Promise<ICensus3StrategiesListResponsePaginated> {
+  public static list(url: string, pagination?: Census3Pagination): Promise<ICensus3StrategiesListResponsePaginated> {
     return axios
       .get<ICensus3StrategiesListResponsePaginated>(
         url + Census3StrategyAPIMethods.LIST + this.serializePagination(pagination)
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -287,7 +287,7 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param id - The identifier of the strategy
    * @param pagination - Pagination options
    */
-  public static holders (
+  public static holders(
     url: string,
     id: number,
     pagination?: Census3Pagination
@@ -296,7 +296,7 @@ export abstract class Census3StrategyAPI extends Census3API {
       .get<ICensus3StrategyHoldersResponsePaginated>(
         url + Census3StrategyAPIMethods.HOLDERS.replace('{id}', String(id)) + this.serializePagination(pagination)
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -308,7 +308,7 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param chainId - The chain identifier of the token
    * @param externalId - The identifier used by external provider
    */
-  public static listByToken (
+  public static listByToken(
     url: string,
     tokenId: string,
     chainId: number,
@@ -320,7 +320,7 @@ export abstract class Census3StrategyAPI extends Census3API {
           Census3StrategyAPIMethods.LIST_BY_TOKEN.replace('{tokenID}', tokenId).replace('{chainID}', String(chainId)) +
           (externalId ? '&externalID=' + externalId : '')
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -330,10 +330,10 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param url - API endpoint URL
    * @param id - The identifier of the strategy
    */
-  public static strategy (url: string, id: number): Promise<Census3Strategy> {
+  public static strategy(url: string, id: number): Promise<Census3Strategy> {
     return axios
       .get<Census3Strategy>(url + Census3StrategyAPIMethods.STRATEGY.replace('{id}', String(id)))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -345,12 +345,12 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param anonymous - If the estimation should be done for anonymous census
    * @returns The queue identifier
    */
-  public static estimation (url: string, id: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
+  public static estimation(url: string, id: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
     return axios
       .get<ICensus3QueueResponse>(
         url + Census3StrategyAPIMethods.ESTIMATION.replace('{id}', String(id)) + '?anonymous=' + String(anonymous)
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -361,7 +361,7 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param strategyId - The identifier of the strategy
    * @param queueId - The identifier of the strategy estimation queue
    */
-  public static estimationQueue (
+  public static estimationQueue(
     url: string,
     strategyId: number,
     queueId: string
@@ -371,7 +371,7 @@ export abstract class Census3StrategyAPI extends Census3API {
         url +
           Census3StrategyAPIMethods.ESTIMATION_QUEUE.replace('{id}', String(strategyId)).replace('{queueId}', queueId)
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -381,12 +381,12 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param url - API endpoint URL
    * @param queueId - The identifier of the strategy import queue
    */
-  public static importQueue (url: string, queueId: string): Promise<ICensus3StrategyImportQueueResponse> {
+  public static importQueue(url: string, queueId: string): Promise<ICensus3StrategyImportQueueResponse> {
     return axios
       .get<ICensus3StrategyImportQueueResponse>(
         url + Census3StrategyAPIMethods.IMPORT_QUEUE.replace('{queueId}', queueId)
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -397,10 +397,10 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param cid - The cid of the IPFS where the strategy is stored
    * @returns The queue identifier
    */
-  public static import (url: string, cid: string): Promise<ICensus3QueueResponse> {
+  public static import(url: string, cid: string): Promise<ICensus3QueueResponse> {
     return axios
       .post<ICensus3QueueResponse>(url + Census3StrategyAPIMethods.IMPORT.replace('{cid}', cid))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -413,7 +413,7 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param tokens - The token list for the strategy
    * @returns The identifier of the created strategy
    */
-  public static create (
+  public static create(
     url: string,
     alias: string,
     predicate: string,
@@ -421,7 +421,7 @@ export abstract class Census3StrategyAPI extends Census3API {
   ): Promise<ICensus3StrategyCreateResponse> {
     return axios
       .post<ICensus3StrategyCreateResponse>(url + Census3StrategyAPIMethods.CREATE, { alias, predicate, tokens })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -432,10 +432,10 @@ export abstract class Census3StrategyAPI extends Census3API {
    * @param predicate - The predicate of the strategy
    * @returns Parsed version of the predicate
    */
-  public static validatePredicate (url: string, predicate: string): Promise<ICensus3ValidatePredicateResponse> {
+  public static validatePredicate(url: string, predicate: string): Promise<ICensus3ValidatePredicateResponse> {
     return axios
       .post<ICensus3ValidatePredicateResponse>(url + Census3StrategyAPIMethods.VALIDATE_PREDICATE, { predicate })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -444,10 +444,10 @@ export abstract class Census3StrategyAPI extends Census3API {
    *
    * @param url - API endpoint URL
    */
-  public static operators (url: string): Promise<ICensus3StrategiesOperatorsResponse> {
+  public static operators(url: string): Promise<ICensus3StrategiesOperatorsResponse> {
     return axios
       .get<ICensus3StrategiesOperatorsResponse>(url + Census3StrategyAPIMethods.OPERATORS)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

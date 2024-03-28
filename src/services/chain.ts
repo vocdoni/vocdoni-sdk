@@ -44,7 +44,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    *
    * @param params - The service parameters
    */
-  constructor (params: Partial<ChainServiceParameters>) {
+  constructor(params: Partial<ChainServiceParameters>) {
     super();
     Object.assign(this, params);
   }
@@ -53,13 +53,13 @@ export class ChainService extends Service implements ChainServiceProperties {
    * Fetches blockchain information if needed.
    *
    */
-  fetchChainData (): Promise<ChainData> {
+  fetchChainData(): Promise<ChainData> {
     if (this.chainData) {
       return Promise.resolve(this.chainData);
     }
     invariant(this.url, 'No URL set');
 
-    return ChainAPI.info(this.url).then(chainData => {
+    return ChainAPI.info(this.url).then((chainData) => {
       this.chainData = chainData;
       return chainData;
     });
@@ -69,13 +69,13 @@ export class ChainService extends Service implements ChainServiceProperties {
    * Fetches blockchain costs information if needed.
    *
    */
-  fetchChainCosts (): Promise<ChainCosts> {
+  fetchChainCosts(): Promise<ChainCosts> {
     if (this.chainCosts) {
       return Promise.resolve(this.chainCosts);
     }
     invariant(this.url, 'No URL set');
 
-    return ChainAPI.costs(this.url).then(chainCosts => {
+    return ChainAPI.costs(this.url).then((chainCosts) => {
       this.chainCosts = chainCosts;
       return chainCosts;
     });
@@ -87,9 +87,9 @@ export class ChainService extends Service implements ChainServiceProperties {
    * @param payload - The transaction data payload
    * @returns The transaction hash
    */
-  submitTx (payload: string): Promise<string> {
+  submitTx(payload: string): Promise<string> {
     invariant(this.url, 'No URL set');
-    return ChainAPI.submitTx(this.url, payload).then(txData => txData.hash);
+    return ChainAPI.submitTx(this.url, payload).then((txData) => txData.hash);
   }
 
   /**
@@ -98,7 +98,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    * @param txHash - The transaction hash which we want to retrieve the info from
    * @returns The chain transaction
    */
-  txInfo (txHash: string): Promise<ChainTx> {
+  txInfo(txHash: string): Promise<ChainTx> {
     invariant(this.url, 'No URL set');
     return ChainAPI.txInfo(this.url, txHash);
   }
@@ -109,9 +109,9 @@ export class ChainService extends Service implements ChainServiceProperties {
    * @param date - The date which we want to retrieve the block number from
    * @returns The block number
    */
-  dateToBlock (date: Date): Promise<number> {
+  dateToBlock(date: Date): Promise<number> {
     invariant(this.url, 'No URL set');
-    return ChainAPI.dateToBlock(this.url, Math.floor(date.getTime() / 1000)).then(response => response.height);
+    return ChainAPI.dateToBlock(this.url, Math.floor(date.getTime() / 1000)).then((response) => response.height);
   }
 
   /**
@@ -123,7 +123,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    * @param wait - The delay in milliseconds between tries
    * @param attempts - The attempts to try before failing
    */
-  waitForTransaction (tx: string, wait?: number, attempts?: number): Promise<void> {
+  waitForTransaction(tx: string, wait?: number, attempts?: number): Promise<void> {
     const waitTime = wait ?? this.txWait?.retryTime;
     const attemptsNum = attempts ?? this.txWait?.attempts;
     invariant(waitTime, 'No transaction wait time set');

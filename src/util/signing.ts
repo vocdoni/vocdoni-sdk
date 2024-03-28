@@ -6,14 +6,14 @@ export class Signing {
   /**
    * Cannot be constructed.
    */
-  private constructor () {}
+  private constructor() {}
 
   /**
    * Prefix and Sign a binary payload using the given Ethers wallet or signer.
    * @param message -
    * @param walletOrSigner -
    */
-  static signTransaction (message: string, walletOrSigner: Wallet | Signer): Promise<string> {
+  static signTransaction(message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     if (!walletOrSigner) throw new Error('Invalid wallet/signer');
 
     const digestedMessage = new TextEncoder().encode(message);
@@ -26,7 +26,7 @@ export class Signing {
    * @param request -
    * @param walletOrSigner -
    */
-  static signRaw (request: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
+  static signRaw(request: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
     if (!walletOrSigner) throw new Error('Invalid wallet/signer');
 
     if (walletOrSigner instanceof Wallet) {
@@ -41,7 +41,7 @@ export class Signing {
     // Using personal_sign instead
     return walletOrSigner
       .getAddress()
-      .then(address =>
+      .then((address) =>
         walletOrSigner.provider.send('personal_sign', [new TextDecoder('utf-8').decode(request), address.toLowerCase()])
       );
   }

@@ -370,7 +370,7 @@ export abstract class ElectionAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -380,10 +380,10 @@ export abstract class ElectionAPI extends API {
    * @param url - API endpoint URL
    * @param electionId - The identifier of the election
    */
-  public static info (url: string, electionId: string): Promise<IElectionInfoResponse> {
+  public static info(url: string, electionId: string): Promise<IElectionInfoResponse> {
     return axios
       .get<IElectionInfoResponse>(url + ElectionAPIMethods.INFO + '/' + electionId)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -393,10 +393,10 @@ export abstract class ElectionAPI extends API {
    * @param url - API endpoint URL
    * @param electionId - The identifier of the election
    */
-  public static keys (url: string, electionId: string): Promise<IElectionKeysResponse> {
+  public static keys(url: string, electionId: string): Promise<IElectionKeysResponse> {
     return axios
       .get<IElectionKeysResponse>(url + ElectionAPIMethods.KEYS.replace('{id}', electionId))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -407,10 +407,10 @@ export abstract class ElectionAPI extends API {
    * @param payload - The set information info raw payload to be submitted to the chain
    * @param metadata - The base64 encoded metadata JSON object
    */
-  public static create (url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
+  public static create(url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
     return axios
       .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, { txPayload: payload, metadata })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -422,7 +422,7 @@ export abstract class ElectionAPI extends API {
    * @param censusOrigin - The census origin
    * @param envelopeType - The envelope type
    */
-  public static nextElectionId (
+  public static nextElectionId(
     url: string,
     organizationId: string,
     censusOrigin: number,
@@ -434,7 +434,7 @@ export abstract class ElectionAPI extends API {
         censusOrigin,
         envelopeType,
       })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -444,10 +444,10 @@ export abstract class ElectionAPI extends API {
    * @param url - API endpoint URL
    * @param electionId - The identifier of the election
    */
-  public static votesCount (url: string, electionId: string): Promise<IElectionVotesCountResponse> {
+  public static votesCount(url: string, electionId: string): Promise<IElectionVotesCountResponse> {
     return axios
       .get<IElectionVotesCountResponse>(url + ElectionAPIMethods.VOTES_COUNT.replace('{id}', electionId))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -458,12 +458,12 @@ export abstract class ElectionAPI extends API {
    * @param electionId - The identifier of the election
    * @param page - The page number
    */
-  public static votesList (url: string, electionId: string, page: number = 0): Promise<IElectionVoteListResponse> {
+  public static votesList(url: string, electionId: string, page: number = 0): Promise<IElectionVoteListResponse> {
     return axios
       .get<IElectionVoteListResponse>(
         url + ElectionAPIMethods.VOTES.replace('{id}', electionId).replace('{page}', String(page))
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -474,7 +474,7 @@ export abstract class ElectionAPI extends API {
    * @param page - The page number
    * @param filter - - Search by organizationId, electionId, withResults, and status
    */
-  public static electionsList (
+  public static electionsList(
     url: string,
     page: number = 0,
     { organizationId, electionId, withResults, status }: IElectionListFilter = {}
@@ -487,12 +487,12 @@ export abstract class ElectionAPI extends API {
           withResults,
           status,
         })
-        .then(response => response.data)
+        .then((response) => response.data)
         .catch(this.isApiError);
     }
     return axios
       .get<IElectionListResponse>(url + ElectionAPIMethods.LIST.replace('{page}', String(page)))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -506,7 +506,7 @@ export abstract class ElectionAPI extends API {
    * @param anonymousVotes -
    * @param maxVoteOverwrite -
    */
-  public static price (
+  public static price(
     url: string,
     maxCensusSize: number,
     electionDuration: number,
@@ -522,7 +522,7 @@ export abstract class ElectionAPI extends API {
         anonymousVotes,
         maxVoteOverwrite,
       })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

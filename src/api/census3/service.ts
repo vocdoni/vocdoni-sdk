@@ -33,7 +33,7 @@ export abstract class Census3ServiceAPI extends Census3API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -42,10 +42,10 @@ export abstract class Census3ServiceAPI extends Census3API {
    *
    * @param url - API endpoint URL
    */
-  public static info (url: string): Promise<ICensus3ServiceInfoResponse> {
+  public static info(url: string): Promise<ICensus3ServiceInfoResponse> {
     return axios
       .get<ICensus3ServiceInfoResponse>(url + Census3ServiceAPIMethods.INFO)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

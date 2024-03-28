@@ -72,7 +72,7 @@ export abstract class CspAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -82,10 +82,10 @@ export abstract class CspAPI extends API {
    * @param url - CSP endpoint URL
    *
    */
-  public static info (url: string): Promise<ICspInfoResponse> {
+  public static info(url: string): Promise<ICspInfoResponse> {
     return axios
       .get<ICspInfoResponse>(url + CspAPIMethods.INFO)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -101,7 +101,7 @@ export abstract class CspAPI extends API {
    * @param authToken - The auth token from the previous step
    *
    */
-  public static step (
+  public static step(
     url: string,
     electionId: string,
     signatureType: string,
@@ -115,7 +115,7 @@ export abstract class CspAPI extends API {
         url + CspAPIMethods.STEP + '/' + strip0x(electionId) + '/' + signatureType + '/' + authType + '/' + stepNr,
         authToken ? { authToken, authData: data } : { authData: data }
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -129,7 +129,7 @@ export abstract class CspAPI extends API {
    * @param token - The token from the last step
    *
    */
-  public static sign (
+  public static sign(
     url: string,
     electionId: string,
     signatureType: string,
@@ -141,7 +141,7 @@ export abstract class CspAPI extends API {
         url + CspAPIMethods.SIGN.replace('{id}', electionId).replace('{signatureType}', signatureType),
         { payload, token }
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

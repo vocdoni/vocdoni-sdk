@@ -135,7 +135,7 @@ export abstract class Census3TokenAPI extends Census3API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -145,10 +145,10 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param url - API endpoint URL
    * @param pagination - Pagination options
    */
-  public static list (url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponsePaginated> {
+  public static list(url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponsePaginated> {
     return axios
       .get<ICensus3TokenListResponsePaginated>(url + Census3TokenAPIMethods.LIST + this.serializePagination(pagination))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -157,10 +157,10 @@ export abstract class Census3TokenAPI extends Census3API {
    *
    * @param url - API endpoint URL
    */
-  public static types (url: string): Promise<ICensus3TokenTypesResponse> {
+  public static types(url: string): Promise<ICensus3TokenTypesResponse> {
     return axios
       .get<ICensus3TokenTypesResponse>(url + Census3TokenAPIMethods.TYPES)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -172,14 +172,14 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param chainId - The chain identifier of the token
    * @param externalId - The identifier used by external provider
    */
-  public static token (url: string, tokenId: string, chainId: number, externalId?: string): Promise<Census3Token> {
+  public static token(url: string, tokenId: string, chainId: number, externalId?: string): Promise<Census3Token> {
     return axios
       .get<Census3Token>(
         url +
           Census3TokenAPIMethods.TOKEN.replace('{tokenID}', tokenId).replace('{chainID}', String(chainId)) +
           (externalId ? '&externalID=' + externalId : '')
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -193,7 +193,7 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param externalId - The identifier used by external provider
    * @returns The balance of holder
    */
-  public static holder (
+  public static holder(
     url: string,
     tokenId: string,
     chainId: number,
@@ -208,7 +208,7 @@ export abstract class Census3TokenAPI extends Census3API {
             .replace('{chainID}', String(chainId)) +
           (externalId ? '&externalID=' + externalId : '')
       )
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -223,7 +223,7 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param externalId - The identifier used by external provider
    * @returns promised IFileCIDResponse
    */
-  public static create (
+  public static create(
     url: string,
     id: string,
     type: string,
@@ -239,7 +239,7 @@ export abstract class Census3TokenAPI extends Census3API {
         tags,
         externalID: externalId,
       })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

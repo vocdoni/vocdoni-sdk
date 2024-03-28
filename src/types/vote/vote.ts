@@ -9,15 +9,15 @@ export class Vote {
    *
    * @param votes - The list of votes values
    */
-  public constructor (votes: Array<number | bigint>) {
+  public constructor(votes: Array<number | bigint>) {
     this.votes = votes;
   }
 
-  get votes (): Array<number | bigint> {
+  get votes(): Array<number | bigint> {
     return this._votes;
   }
 
-  set votes (value: Array<number | bigint>) {
+  set votes(value: Array<number | bigint>) {
     this._votes = value;
   }
 }
