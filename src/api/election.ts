@@ -370,63 +370,63 @@ export abstract class ElectionAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {
+  private constructor () {
     super();
   }
 
   /**
    * Fetches info about the specified process.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} electionId The identifier of the election
+   * @param url - API endpoint URL
+   * @param electionId - The identifier of the election
    * @returns {Promise<IElectionInfoResponse>}
    */
-  public static info(url: string, electionId: string): Promise<IElectionInfoResponse> {
+  public static info (url: string, electionId: string): Promise<IElectionInfoResponse> {
     return axios
       .get<IElectionInfoResponse>(url + ElectionAPIMethods.INFO + '/' + electionId)
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Fetches the encryption keys from the specified process.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} electionId The identifier of the election
+   * @param url - API endpoint URL
+   * @param electionId - The identifier of the election
    * @returns {Promise<IElectionKeysResponse>}
    */
-  public static keys(url: string, electionId: string): Promise<IElectionKeysResponse> {
+  public static keys (url: string, electionId: string): Promise<IElectionKeysResponse> {
     return axios
       .get<IElectionKeysResponse>(url + ElectionAPIMethods.KEYS.replace('{id}', electionId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Creates a new election.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} payload The set information info raw payload to be submitted to the chain
-   * @param {string} metadata The base64 encoded metadata JSON object
+   * @param url - API endpoint URL
+   * @param payload - The set information info raw payload to be submitted to the chain
+   * @param metadata - The base64 encoded metadata JSON object
    * @returns {Promise<IElectionCreateResponse>}
    */
-  public static create(url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
+  public static create (url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
     return axios
       .post<IElectionCreateResponse>(url + ElectionAPIMethods.CREATE, { txPayload: payload, metadata })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the next election id.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} organizationId The identifier of the organization
-   * @param {number} censusOrigin The census origin
-   * @param {IVoteMode} envelopeType The envelope type
+   * @param url - API endpoint URL
+   * @param organizationId - The identifier of the organization
+   * @param censusOrigin - The census origin
+   * @param envelopeType - The envelope type
    * @returns {Promise<IElectionNextIdResponse>}
    */
-  public static nextElectionId(
+  public static nextElectionId (
     url: string,
     organizationId: string,
     censusOrigin: number,
@@ -438,53 +438,50 @@ export abstract class ElectionAPI extends API {
         censusOrigin,
         envelopeType,
       })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the number of votes of a given election
    *
-   * @param {string} url API endpoint URL
-   * @param {string} electionId The identifier of the election
+   * @param url - API endpoint URL
+   * @param electionId - The identifier of the election
    * @returns {Promise<IElectionVotesCountResponse>}
    */
-  public static votesCount(url: string, electionId: string): Promise<IElectionVotesCountResponse> {
+  public static votesCount (url: string, electionId: string): Promise<IElectionVotesCountResponse> {
     return axios
       .get<IElectionVotesCountResponse>(url + ElectionAPIMethods.VOTES_COUNT.replace('{id}', electionId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the list of votes for a given election
    *
-   * @param {string} url API endpoint URL
-   * @param {string} electionId The identifier of the election
-   * @param {number} page The page number
+   * @param url - API endpoint URL
+   * @param electionId - The identifier of the election
+   * @param page - The page number
    * @returns {Promise<IElectionVoteListResponse>}
    */
-  public static votesList(url: string, electionId: string, page: number = 0): Promise<IElectionVoteListResponse> {
+  public static votesList (url: string, electionId: string, page: number = 0): Promise<IElectionVoteListResponse> {
     return axios
       .get<IElectionVoteListResponse>(
         url + ElectionAPIMethods.VOTES.replace('{id}', electionId).replace('{page}', String(page))
       )
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Return list of all elections in the chain
    *
-   * @param {string} url API endpoint URL
-   * @param {number} page The page number
-   * @param {string} organizationId Search by partial organizationId
-   * @param {string} electionId Search by partial electionId
-   * @param {boolean} withResults Return elections with results or live results
-   * @param {Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>} status Search by election status
+   * @param url - API endpoint URL
+   * @param page - The page number
+   * @param filter - - Search by organizationId, electionId, withResults, and status
    * @returns {Promise<IElectionListResponse>}
    */
-  public static electionsList(
+  public static electionsList (
     url: string,
     page: number = 0,
     { organizationId, electionId, withResults, status }: IElectionListFilter = {}
@@ -497,27 +494,27 @@ export abstract class ElectionAPI extends API {
           withResults,
           status,
         })
-        .then((response) => response.data)
+        .then(response => response.data)
         .catch(this.isApiError);
     }
     return axios
       .get<IElectionListResponse>(url + ElectionAPIMethods.LIST.replace('{page}', String(page)))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Calculates the election price.
    *
-   * @param {string} url API endpoint URL
-   * @param {number} maxCensusSize
-   * @param {number} electionDuration
-   * @param {boolean} encryptedVotes
-   * @param {boolean} anonymousVotes
-   * @param {number} maxVoteOverwrite
+   * @param url - API endpoint URL
+   * @param maxCensusSize -
+   * @param electionDuration -
+   * @param encryptedVotes -
+   * @param anonymousVotes -
+   * @param maxVoteOverwrite -
    * @returns {Promise<IElectionCalculatePriceResponse>}
    */
-  public static price(
+  public static price (
     url: string,
     maxCensusSize: number,
     electionDuration: number,
@@ -533,7 +530,7 @@ export abstract class ElectionAPI extends API {
         anonymousVotes,
         maxVoteOverwrite,
       })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 }

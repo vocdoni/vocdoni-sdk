@@ -72,38 +72,38 @@ export abstract class CspAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {
+  private constructor () {
     super();
   }
 
   /**
    * CSP info
    *
-   * @param {string} url CSP endpoint URL
+   * @param url - CSP endpoint URL
    *
    * @returns {Promise<ICspInfoResponse>}
    */
-  public static info(url: string): Promise<ICspInfoResponse> {
+  public static info (url: string): Promise<ICspInfoResponse> {
     return axios
       .get<ICspInfoResponse>(url + CspAPIMethods.INFO)
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * CSP step
    *
-   * @param {string} url CSP endpoint URL
-   * @param {string} electionId The election identifier
-   * @param {string} signatureType The type of the signature
-   * @param {string} authType The type of the auth method
-   * @param {number} stepNr The step number
-   * @param {Array<any>} data The auth data
-   * @param {string} authToken The auth token from the previous step
+   * @param url - CSP endpoint URL
+   * @param electionId - The election identifier
+   * @param signatureType - The type of the signature
+   * @param authType - The type of the auth method
+   * @param stepNr - The step number
+   * @param data - The auth data
+   * @param authToken - The auth token from the previous step
    *
    * @returns {Promise<ICspIntermediateStepResponse | ICspFinalStepResponse>}
    */
-  public static step(
+  public static step (
     url: string,
     electionId: string,
     signatureType: string,
@@ -117,22 +117,22 @@ export abstract class CspAPI extends API {
         url + CspAPIMethods.STEP + '/' + strip0x(electionId) + '/' + signatureType + '/' + authType + '/' + stepNr,
         authToken ? { authToken, authData: data } : { authData: data }
       )
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * CSP sign
    *
-   * @param {string} url CSP endpoint URL
-   * @param {string} electionId The election identifier
-   * @param {string} signatureType The type of the signature
-   * @param {string} payload The payload from the user
-   * @param {string} token The token from the last step
+   * @param url - CSP endpoint URL
+   * @param electionId - The election identifier
+   * @param signatureType - The type of the signature
+   * @param payload - The payload from the user
+   * @param token - The token from the last step
    *
    * @returns {Promise<ICspSignResponse>}
    */
-  public static sign(
+  public static sign (
     url: string,
     electionId: string,
     signatureType: string,
@@ -144,7 +144,7 @@ export abstract class CspAPI extends API {
         url + CspAPIMethods.SIGN.replace('{id}', electionId).replace('{signatureType}', signatureType),
         { payload, token }
       )
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 }

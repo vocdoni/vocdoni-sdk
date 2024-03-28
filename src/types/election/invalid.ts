@@ -11,17 +11,17 @@ export class InvalidElection {
   /**
    * Constructs an invalid election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
-  public constructor(params: IInvalidElectionParameters) {
+  public constructor (params: IInvalidElectionParameters) {
     this._id = params.id;
   }
 
-  get id(): string {
+  get id (): string {
     return this._id;
   }
 
-  get isValid(): boolean {
+  get isValid (): boolean {
     return false;
   }
 }

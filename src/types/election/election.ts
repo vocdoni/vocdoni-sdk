@@ -177,9 +177,9 @@ export abstract class Election {
   /**
    * Constructs an election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
-  protected constructor(params?: IElectionParameters) {
+  protected constructor (params?: IElectionParameters) {
     if (params) {
       this._title = typeof params.title === 'string' ? { default: params.title } : params.title;
       this._description = typeof params.description === 'string' ? { default: params.description } : params.description;
@@ -201,69 +201,69 @@ export abstract class Election {
   /**
    * Returns an unpublished election object
    *
-   * @param params Unpublished Election parameters
+   * @param params - Unpublished Election parameters
    */
-  public static from(params: IElectionParameters) {
+  public static from (params: IElectionParameters) {
     return new UnpublishedElection(params);
   }
 
-  get title(): MultiLanguage<string> {
+  get title (): MultiLanguage<string> {
     return this._title;
   }
 
-  get description(): MultiLanguage<string> {
+  get description (): MultiLanguage<string> {
     return this._description;
   }
 
-  get header(): string {
+  get header (): string {
     return this._header;
   }
 
-  get streamUri(): string {
+  get streamUri (): string {
     return this._streamUri;
   }
 
-  get meta(): ElectionMeta {
+  get meta (): ElectionMeta {
     return this._meta;
   }
 
-  get startDate(): Date {
+  get startDate (): Date {
     return this._startDate;
   }
 
-  get endDate(): Date {
+  get endDate (): Date {
     return this._endDate;
   }
 
-  get electionType(): IElectionType {
+  get electionType (): IElectionType {
     return this._electionType;
   }
 
-  get voteType(): IVoteType {
+  get voteType (): IVoteType {
     return this._voteType;
   }
 
-  get questions(): IQuestion[] {
+  get questions (): IQuestion[] {
     return this._questions;
   }
 
-  get census(): Census {
+  get census (): Census {
     return this._census;
   }
 
-  get maxCensusSize(): number {
+  get maxCensusSize (): number {
     return this._maxCensusSize;
   }
 
-  get temporarySecretIdentity(): boolean {
+  get temporarySecretIdentity (): boolean {
     return this._temporarySecretIdentity;
   }
 
-  get addSDKVersion(): boolean {
+  get addSDKVersion (): boolean {
     return this._addSDKVersion;
   }
 
-  get(dot: string) {
+  get (dot: string) {
     return this.meta ? dotobject(this.meta, dot) : null;
   }
 }

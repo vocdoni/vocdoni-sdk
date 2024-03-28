@@ -11,14 +11,14 @@ export class TokenCensus extends PublishedCensus {
   /**
    * Constructs a census3 census
    *
-   * @param censusId The id of the census
-   * @param censusURI The URI of the census
-   * @param anonymous If the census is anonymous
-   * @param token The token of the census
-   * @param size The size of the census
-   * @param weight The weight of the census
+   * @param censusId - The id of the census
+   * @param censusURI - The URI of the census
+   * @param anonymous - If the census is anonymous
+   * @param token - The token of the census
+   * @param size - The size of the census
+   * @param weight - The weight of the census
    */
-  public constructor(
+  public constructor (
     censusId: string,
     censusURI: string,
     anonymous: boolean,
@@ -30,11 +30,11 @@ export class TokenCensus extends PublishedCensus {
     this.token = token;
   }
 
-  get token(): Token {
+  get token (): Token {
     return this._token;
   }
 
-  set token(value: Token) {
+  set token (value: Token) {
     this._token = value;
   }
 }

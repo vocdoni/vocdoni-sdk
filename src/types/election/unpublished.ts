@@ -18,9 +18,9 @@ export class UnpublishedElection extends Election {
   /**
    * Constructs an unpublished election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
-  public constructor(params: IElectionParameters) {
+  public constructor (params: IElectionParameters) {
     super();
     this.title = typeof params.title === 'string' ? { default: params.title } : params.title;
     this.description = typeof params.description === 'string' ? { default: params.description } : params.description;
@@ -38,7 +38,7 @@ export class UnpublishedElection extends Election {
     this.addSDKVersion = params.addSDKVersion ?? true;
   }
 
-  public addQuestion(
+  public addQuestion (
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
     choices: Array<{ title: string; value: number } | { title: MultiLanguage<string>; value: number }>
@@ -46,7 +46,7 @@ export class UnpublishedElection extends Election {
     this._questions.push({
       title: typeof title === 'string' ? { default: title } : title,
       description: typeof description === 'string' ? { default: description } : description,
-      choices: choices.map((choice) => {
+      choices: choices.map(choice => {
         return {
           title: typeof choice.title === 'string' ? { default: choice.title } : choice.title,
           value: choice.value,
@@ -57,13 +57,13 @@ export class UnpublishedElection extends Election {
     return this;
   }
 
-  public removeQuestion(questionNumber: number): UnpublishedElection {
+  public removeQuestion (questionNumber: number): UnpublishedElection {
     invariant(this._questions[questionNumber - 1], 'Question cannot be removed');
     this._questions.splice(questionNumber - 1, 1);
     return this;
   }
 
-  private static fullElectionType(value: IElectionType): IElectionType {
+  private static fullElectionType (value: IElectionType): IElectionType {
     return {
       autoStart: typeof value?.autoStart === 'boolean' ? value.autoStart === true : true,
       interruptible: typeof value?.interruptible === 'boolean' ? value.interruptible === true : true,
@@ -73,7 +73,7 @@ export class UnpublishedElection extends Election {
     };
   }
 
-  private static fullVoteType(value: IVoteType): IVoteType {
+  private static fullVoteType (value: IVoteType): IVoteType {
     return {
       uniqueChoices: typeof value?.uniqueChoices === 'boolean' ? value.uniqueChoices === true : false,
       maxVoteOverwrites: typeof value?.maxVoteOverwrites === 'number' ? value.maxVoteOverwrites : 0,
@@ -85,7 +85,7 @@ export class UnpublishedElection extends Election {
     };
   }
 
-  public generateMetadata(metadata?: ElectionMetadata): ElectionMetadata {
+  public generateMetadata (metadata?: ElectionMetadata): ElectionMetadata {
     if (!metadata) {
       metadata = ElectionMetadataTemplate;
     }
@@ -102,11 +102,11 @@ export class UnpublishedElection extends Election {
         version: SDK_VERSION,
       };
     }
-    metadata.questions = this.questions.map((question) => {
+    metadata.questions = this.questions.map(question => {
       return {
         title: question.title,
         description: question.description,
-        choices: question.choices.map((choice) => {
+        choices: question.choices.map(choice => {
           return {
             title: choice.title,
             value: choice.value,
@@ -120,7 +120,7 @@ export class UnpublishedElection extends Election {
     return metadata;
   }
 
-  public generateVoteOptions(): object {
+  public generateVoteOptions (): object {
     const maxCount = this.voteType.maxCount ?? this.questions.length;
     const maxValue =
       this.voteType.maxValue ??
@@ -135,13 +135,13 @@ export class UnpublishedElection extends Election {
     return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
-  get duration(): number {
+  get duration (): number {
     return this.startDate
       ? Math.floor((this.endDate.getTime() - this.startDate.getTime()) / 1000)
       : Math.floor((this.endDate.getTime() - Date.now()) / 1000);
   }
 
-  public generateEnvelopeType(): object {
+  public generateEnvelopeType (): object {
     const serial = false; // TODO
     const anonymous = this.electionType.anonymous;
     const encryptedVotes = this.electionType.secretUntilTheEnd;
@@ -151,7 +151,7 @@ export class UnpublishedElection extends Election {
     return { serial, anonymous, encryptedVotes, uniqueValues, costFromWeight };
   }
 
-  public generateMode(): object {
+  public generateMode (): object {
     const autoStart = this.electionType.autoStart;
     const interruptible = this.electionType.interruptible;
     const dynamicCensus = this.electionType.dynamicCensus;
@@ -161,122 +161,122 @@ export class UnpublishedElection extends Election {
     return { autoStart, interruptible, dynamicCensus, encryptedMetaData, preRegister };
   }
 
-  get title(): MultiLanguage<string> {
+  get title (): MultiLanguage<string> {
     return super.title;
   }
 
-  set title(value: MultiLanguage<string>) {
+  set title (value: MultiLanguage<string>) {
     invariant(value?.default.length > 0, 'Title is not set');
     this._title = value;
   }
 
-  get description(): MultiLanguage<string> {
+  get description (): MultiLanguage<string> {
     return super.description;
   }
 
-  set description(value: MultiLanguage<string>) {
+  set description (value: MultiLanguage<string>) {
     this._description = value;
   }
 
-  get header(): string {
+  get header (): string {
     return super.header;
   }
 
-  set header(value: string) {
+  set header (value: string) {
     this._header = value;
   }
 
-  get streamUri(): string {
+  get streamUri (): string {
     return super.streamUri;
   }
 
-  set streamUri(value: string) {
+  set streamUri (value: string) {
     this._streamUri = value;
   }
 
-  get meta(): ElectionMeta {
+  get meta (): ElectionMeta {
     return super.meta;
   }
 
-  set meta(value: ElectionMeta) {
+  set meta (value: ElectionMeta) {
     invariant(!value || value['sdk'] === undefined, 'Field `sdk` is restricted in metadata');
     this._meta = value;
   }
 
-  get startDate(): Date {
+  get startDate (): Date {
     return super.startDate;
   }
 
-  set startDate(value: Date) {
+  set startDate (value: Date) {
     invariant(!value || !isNaN(value.getTime()), 'Invalid start date');
     this._startDate = value;
   }
 
-  get endDate(): Date {
+  get endDate (): Date {
     return super.endDate;
   }
 
-  set endDate(value: Date) {
+  set endDate (value: Date) {
     invariant(!isNaN(value.getTime()), 'Invalid end date');
     invariant(value.getTime() > (this._startDate?.getTime() ?? 0), 'The end date cannot be prior to the start date');
     this._endDate = value;
   }
 
-  get electionType(): IElectionType {
+  get electionType (): IElectionType {
     return super.electionType;
   }
 
-  set electionType(value: IElectionType) {
+  set electionType (value: IElectionType) {
     this._electionType = UnpublishedElection.fullElectionType(value);
   }
 
-  get voteType(): IVoteType {
+  get voteType (): IVoteType {
     return super.voteType;
   }
 
-  set voteType(value: IVoteType) {
+  set voteType (value: IVoteType) {
     this._voteType = UnpublishedElection.fullVoteType(value);
   }
 
-  get questions(): IQuestion[] {
+  get questions (): IQuestion[] {
     return super.questions;
   }
 
-  set questions(value: IQuestion[]) {
+  set questions (value: IQuestion[]) {
     this._questions = value;
   }
 
-  get census(): Census {
+  get census (): Census {
     return super.census;
   }
 
-  set census(value: Census) {
+  set census (value: Census) {
     invariant(value instanceof Census, 'Invalid census');
     this._census = value;
   }
 
-  get maxCensusSize(): number {
+  get maxCensusSize (): number {
     return super.maxCensusSize;
   }
 
-  set maxCensusSize(value: number) {
+  set maxCensusSize (value: number) {
     invariant(value == null || value > 0, 'Maximum census size cannot be zero or negative');
     this._maxCensusSize = value;
   }
 
-  get temporarySecretIdentity(): boolean {
+  get temporarySecretIdentity (): boolean {
     return super.temporarySecretIdentity;
   }
 
-  set temporarySecretIdentity(value: boolean) {
+  set temporarySecretIdentity (value: boolean) {
     this._temporarySecretIdentity = value;
   }
 
-  get addSDKVersion(): boolean {
+  get addSDKVersion (): boolean {
     return super.addSDKVersion;
   }
 
-  set addSDKVersion(value: boolean) {
+  set addSDKVersion (value: boolean) {
     this._addSDKVersion = value;
   }
 }
