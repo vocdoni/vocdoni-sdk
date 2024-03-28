@@ -79,7 +79,6 @@ export class CensusService extends Service implements CensusServiceProperties {
    * Fetches the information of a given census.
    *
    * @param censusId -
-   * @returns {Promise<{size: number, weight: bigint, type: CensusType}>}
    */
   get (censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
     invariant(this.url, 'No URL set');
@@ -105,7 +104,6 @@ export class CensusService extends Service implements CensusServiceProperties {
    * Deletes the given census.
    *
    * @param censusId -
-   * @returns {Promise<void>}
    */
   delete (censusId: string): Promise<void> {
     invariant(this.url, 'No URL set');
@@ -119,7 +117,6 @@ export class CensusService extends Service implements CensusServiceProperties {
    *
    * @param censusId - Census we want to check the address against
    * @param key - The address to be found
-   * @returns {Promise<CensusProof>}
    */
   async fetchProof (censusId: string, key: string): Promise<CensusProof> {
     invariant(this.url, 'No URL set');
@@ -227,7 +224,6 @@ export class CensusService extends Service implements CensusServiceProperties {
    * Publishes the given census.
    *
    * @param census - The census to be published.
-   * @returns {Promise<void>}
    */
   createCensus (census: PlainCensus | WeightedCensus): Promise<void> {
     return this.create(census.type)
@@ -248,7 +244,6 @@ export class CensusService extends Service implements CensusServiceProperties {
    * Publishes the given census.
    *
    * @param census - The census to be published.
-   * @returns {Promise<void>}
    */
   // @ts-ignore
   private createCensusParallel (census: PlainCensus | WeightedCensus): Promise<void> {
@@ -270,7 +265,6 @@ export class CensusService extends Service implements CensusServiceProperties {
   /**
    * Fetches the specific account token auth and sets it to the current instance.
    *
-   * @returns {Promise<void>}
    */
   fetchAccountToken (): Promise<void> {
     if (this.auth) {

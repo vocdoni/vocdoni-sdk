@@ -22,7 +22,7 @@ export class FileService extends Service implements FileServiceProperties {
    * Fetches the CID expected for the specified data content.
    *
    * @param data - The data of which we want the CID of
-   * @returns {Promise<string>} Resulting CID
+   * @returns Resulting CID
    */
   calculateCID (data: string): Promise<string> {
     invariant(this.url, 'No URL set');

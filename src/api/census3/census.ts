@@ -102,7 +102,6 @@ export abstract class Census3CensusAPI extends Census3API {
    *
    * @param url - API endpoint URL
    * @param strategy - The identifier of the strategy
-   * @returns {Promise<ICensus3CensusListResponse>}
    */
   public static list (url: string, strategy: number): Promise<ICensus3CensusListResponse> {
     return axios
@@ -116,7 +115,6 @@ export abstract class Census3CensusAPI extends Census3API {
    *
    * @param url - API endpoint URL
    * @param id - The identifier of the census
-   * @returns {Promise<ICensus3CensusResponse>}
    */
   public static census (url: string, id: number): Promise<ICensus3CensusResponse> {
     return axios
@@ -130,7 +128,6 @@ export abstract class Census3CensusAPI extends Census3API {
    *
    * @param url - API endpoint URL
    * @param id - The identifier of the census queue
-   * @returns {Promise<ICensus3CensusQueueResponse>}
    */
   public static queue (url: string, id: string): Promise<ICensus3CensusQueueResponse> {
     return axios
@@ -145,7 +142,7 @@ export abstract class Census3CensusAPI extends Census3API {
    * @param url - API endpoint URL
    * @param strategyId - The strategy identifier
    * @param anonymous - If the census has to be anonymous
-   * @returns {Promise<ICensus3QueueResponse>} The queue identifier
+   * @returns The queue identifier
    */
   public static create (url: string, strategyId: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
     return axios

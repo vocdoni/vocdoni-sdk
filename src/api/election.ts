@@ -379,7 +379,6 @@ export abstract class ElectionAPI extends API {
    *
    * @param url - API endpoint URL
    * @param electionId - The identifier of the election
-   * @returns {Promise<IElectionInfoResponse>}
    */
   public static info (url: string, electionId: string): Promise<IElectionInfoResponse> {
     return axios
@@ -393,7 +392,6 @@ export abstract class ElectionAPI extends API {
    *
    * @param url - API endpoint URL
    * @param electionId - The identifier of the election
-   * @returns {Promise<IElectionKeysResponse>}
    */
   public static keys (url: string, electionId: string): Promise<IElectionKeysResponse> {
     return axios
@@ -408,7 +406,6 @@ export abstract class ElectionAPI extends API {
    * @param url - API endpoint URL
    * @param payload - The set information info raw payload to be submitted to the chain
    * @param metadata - The base64 encoded metadata JSON object
-   * @returns {Promise<IElectionCreateResponse>}
    */
   public static create (url: string, payload: string, metadata: string): Promise<IElectionCreateResponse> {
     return axios
@@ -424,7 +421,6 @@ export abstract class ElectionAPI extends API {
    * @param organizationId - The identifier of the organization
    * @param censusOrigin - The census origin
    * @param envelopeType - The envelope type
-   * @returns {Promise<IElectionNextIdResponse>}
    */
   public static nextElectionId (
     url: string,
@@ -447,7 +443,6 @@ export abstract class ElectionAPI extends API {
    *
    * @param url - API endpoint URL
    * @param electionId - The identifier of the election
-   * @returns {Promise<IElectionVotesCountResponse>}
    */
   public static votesCount (url: string, electionId: string): Promise<IElectionVotesCountResponse> {
     return axios
@@ -462,7 +457,6 @@ export abstract class ElectionAPI extends API {
    * @param url - API endpoint URL
    * @param electionId - The identifier of the election
    * @param page - The page number
-   * @returns {Promise<IElectionVoteListResponse>}
    */
   public static votesList (url: string, electionId: string, page: number = 0): Promise<IElectionVoteListResponse> {
     return axios
@@ -479,7 +473,6 @@ export abstract class ElectionAPI extends API {
    * @param url - API endpoint URL
    * @param page - The page number
    * @param filter - - Search by organizationId, electionId, withResults, and status
-   * @returns {Promise<IElectionListResponse>}
    */
   public static electionsList (
     url: string,
@@ -512,7 +505,6 @@ export abstract class ElectionAPI extends API {
    * @param encryptedVotes -
    * @param anonymousVotes -
    * @param maxVoteOverwrite -
-   * @returns {Promise<IElectionCalculatePriceResponse>}
    */
   public static price (
     url: string,

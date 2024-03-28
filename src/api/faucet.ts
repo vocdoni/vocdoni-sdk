@@ -30,7 +30,6 @@ export abstract class FaucetAPI extends API {
    *
    * @param url - API endpoint URL
    * @param address - Address to send the tokens to
-   * @returns {Promise<IFaucetCollectResponse>}
    */
   public static collect (url: string, address: string): Promise<IFaucetCollectResponse> {
     return axios

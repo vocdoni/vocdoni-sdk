@@ -144,7 +144,6 @@ export abstract class Census3TokenAPI extends Census3API {
    *
    * @param url - API endpoint URL
    * @param pagination - Pagination options
-   * @returns {Promise<ICensus3TokenListResponsePaginated>}
    */
   public static list (url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponsePaginated> {
     return axios
@@ -157,7 +156,6 @@ export abstract class Census3TokenAPI extends Census3API {
    * Fetches list of tokens types
    *
    * @param url - API endpoint URL
-   * @returns {Promise<ICensus3TokenTypesResponse>}
    */
   public static types (url: string): Promise<ICensus3TokenTypesResponse> {
     return axios
@@ -173,7 +171,6 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param tokenId - The identifier of the token
    * @param chainId - The chain identifier of the token
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<Census3Token>}
    */
   public static token (url: string, tokenId: string, chainId: number, externalId?: string): Promise<Census3Token> {
     return axios
@@ -194,7 +191,7 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param chainId - The chain identifier of the token
    * @param holderId - The identifier of the holder
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<ICensus3TokenHolderResponse>} The balance of holder
+   * @returns The balance of holder
    */
   public static holder (
     url: string,
@@ -224,7 +221,7 @@ export abstract class Census3TokenAPI extends Census3API {
    * @param chainId - The chain id of the token
    * @param tags - The tags assigned for the token
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
+   * @returns promised IFileCIDResponse
    */
   public static create (
     url: string,

@@ -44,7 +44,7 @@ export class FaucetService extends Service implements FaucetServiceProperties {
    * Fetches a faucet payload. Only for development.
    *
    * @param address - The address where to send the tokens
-   * @returns {Promise<{string}>} The encoded faucet package
+   * @returns The encoded faucet package
    */
   fetchPayload (address: string): Promise<string> {
     invariant(this.url, 'No faucet URL');
@@ -54,7 +54,6 @@ export class FaucetService extends Service implements FaucetServiceProperties {
   /**
    * Parses a faucet package.
    *
-   * @returns {FaucetPackage}
    */
   parseFaucetPackage (faucetPackage: string): FaucetPackage {
     try {

@@ -41,7 +41,6 @@ export abstract class Census3ServiceAPI extends Census3API {
    * Fetches supported chains from the service
    *
    * @param url - API endpoint URL
-   * @returns {Promise<ICensus3ServiceInfoResponse>}
    */
   public static info (url: string): Promise<ICensus3ServiceInfoResponse> {
     return axios

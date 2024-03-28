@@ -31,7 +31,6 @@ export function getHex (): string {
  *
  * @param hex -1
  * @param hex -2
- * @returns {boolean}
  */
 export function areEqualHexStrings (hex1?: string, hex2?: string) {
   if (!hex1 || !hex2) return false;
@@ -44,7 +43,7 @@ export function areEqualHexStrings (hex1?: string, hex2?: string) {
  *
  * @param value - The value in native BigInt
  * @param decimals - The number of decimals
- * @returns {string} The formatted string
+ * @returns The formatted string
  */
 export function formatUnits (value: BigNumberish, decimals: number = 18): string {
   return ethersFormatUnits(value, decimals);
@@ -56,7 +55,7 @@ export function formatUnits (value: BigNumberish, decimals: number = 18): string
  *
  * @param obj - Object to be accessed by dot notation
  * @param dot - Dot notation string to extract object data
- * @returns {any} Return the object data
+ * @returns Return the object data
  */
 export const dotobject = (obj: any, dot: string) => {
   const rec = (obj: any, dot: string[]): any => {
