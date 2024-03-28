@@ -30,9 +30,9 @@ export class BudgetElection extends UnpublishedElection {
   /**
    * Constructs a budget election
    *
-   * @param params Budget election parameters
+   * @param params - Budget election parameters
    */
-  public constructor(params: IBudgetElectionParameters) {
+  public constructor (params: IBudgetElectionParameters) {
     super(params);
     this.minStep = params.minStep ?? 1;
     this.forceFullBudget = params.forceFullBudget ?? false;
@@ -42,11 +42,11 @@ export class BudgetElection extends UnpublishedElection {
     }
   }
 
-  public static from(params: IBudgetElectionParameters) {
+  public static from (params: IBudgetElectionParameters) {
     return new BudgetElection(params);
   }
 
-  public addQuestion(
+  public addQuestion (
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
     choices: Array<{ title: string } | { title: MultiLanguage<string> }>
@@ -65,7 +65,7 @@ export class BudgetElection extends UnpublishedElection {
     );
   }
 
-  public generateVoteOptions(): object {
+  public generateVoteOptions (): object {
     const maxCount = this.questions[0].choices.length;
     const maxValue = 0;
     const maxVoteOverwrites = this.voteType.maxVoteOverwrites;
@@ -75,7 +75,7 @@ export class BudgetElection extends UnpublishedElection {
     return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
 
-  public generateEnvelopeType(): object {
+  public generateEnvelopeType (): object {
     const serial = false; // TODO
     const anonymous = this.electionType.anonymous;
     const encryptedVotes = this.electionType.secretUntilTheEnd;
@@ -85,7 +85,7 @@ export class BudgetElection extends UnpublishedElection {
     return { serial, anonymous, encryptedVotes, uniqueValues, costFromWeight };
   }
 
-  public generateMetadata(): ElectionMetadata {
+  public generateMetadata (): ElectionMetadata {
     const metadata = ElectionMetadataTemplate;
 
     metadata.type = {
@@ -101,7 +101,7 @@ export class BudgetElection extends UnpublishedElection {
     return super.generateMetadata(metadata);
   }
 
-  public static checkVote(vote: Vote, resultsType: ElectionResultsType, voteType: IVoteType): void {
+  public static checkVote (vote: Vote, resultsType: ElectionResultsType, voteType: IVoteType): void {
     if (resultsType.name != ElectionResultsTypeNames.BUDGET) {
       throw new Error('Invalid results type');
     }
@@ -121,35 +121,35 @@ export class BudgetElection extends UnpublishedElection {
     }
   }
 
-  get minStep(): number {
+  get minStep (): number {
     return this._minStep;
   }
 
-  set minStep(value: number) {
+  set minStep (value: number) {
     this._minStep = value;
   }
 
-  get forceFullBudget(): boolean {
+  get forceFullBudget (): boolean {
     return this._forceFullBudget;
   }
 
-  set forceFullBudget(value: boolean) {
+  set forceFullBudget (value: boolean) {
     this._forceFullBudget = value;
   }
 
-  get useCensusWeightAsBudget(): boolean {
+  get useCensusWeightAsBudget (): boolean {
     return this.voteType.costFromWeight;
   }
 
-  set useCensusWeightAsBudget(value: boolean) {
+  set useCensusWeightAsBudget (value: boolean) {
     this.voteType.costFromWeight = value;
   }
 
-  get maxBudget(): number {
+  get maxBudget (): number {
     return this.voteType.maxTotalCost;
   }
 
-  set maxBudget(value: number) {
+  set maxBudget (value: number) {
     this.voteType.maxTotalCost = value;
   }
 }

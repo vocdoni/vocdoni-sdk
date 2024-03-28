@@ -106,121 +106,121 @@ export abstract class AccountAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {
+  private constructor () {
     super();
   }
 
   /**
    * Returns paginated list of accounts
    *
-   * @param {string} url API endpoint URL
-   * @param {number} page The page number
+   * @param url - API endpoint URL
+   * @param page - The page number
    * @returns {Promise<IAccountsListResponse>}
    */
-  public static list(url: string, page: number = 0): Promise<IAccountsListResponse> {
+  public static list (url: string, page: number = 0): Promise<IAccountsListResponse> {
     return axios
       .get<IAccountsListResponse>(url + AccountAPIMethods.LIST + '/' + page)
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the number of accounts
    *
-   * @param {string} url API endpoint URL
+   * @param url - API endpoint URL
    * @returns {Promise<IAccountsCountResponse>}
    */
-  public static count(url: string): Promise<IAccountsCountResponse> {
+  public static count (url: string): Promise<IAccountsCountResponse> {
     return axios
       .get<IAccountsCountResponse>(url + AccountAPIMethods.NUM_ACCOUNTS)
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Fetches an Account information
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId The account we want the info from
+   * @param url - API endpoint URL
+   * @param accountId - The account we want the info from
    * @returns {Promise<IAccountInfoResponse>}
    */
-  public static info(url: string, accountId: string): Promise<IAccountInfoResponse> {
+  public static info (url: string, accountId: string): Promise<IAccountInfoResponse> {
     return axios
       .get<IAccountInfoResponse>(url + AccountAPIMethods.INFO.replace('{accountId}', accountId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Fetches the account metadata
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId The account we want the info from
+   * @param url - API endpoint URL
+   * @param accountId - The account we want the info from
    * @returns {Promise<AccountMetadata>}
    */
-  public static metadata(url: string, accountId: string): Promise<AccountMetadata> {
+  public static metadata (url: string, accountId: string): Promise<AccountMetadata> {
     return axios
       .get<AccountMetadata>(url + AccountAPIMethods.METADATA.replace('{accountId}', accountId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Sets Account information
    *
-   * @param {string} url API endpoint URL
-   * @param {string} payload The set information info raw payload to be submitted to the chain
-   * @param {string} metadata The base64 encoded metadata JSON object
+   * @param url - API endpoint URL
+   * @param payload - The set information info raw payload to be submitted to the chain
+   * @param metadata - The base64 encoded metadata JSON object
    * @returns {Promise<IAccountSetInfoResponse>}
    */
-  public static setInfo(url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
+  public static setInfo (url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
       .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, { txPayload: payload, metadata })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns paginated list of transfers for a specific account
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId accountId to get transfers
-   * @param {number} page The page number
+   * @param url - API endpoint URL
+   * @param accountId - accountId to get transfers
+   * @param page - The page number
    * @returns {Promise<IAccountTransfersResponse>}
    */
-  public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
+  public static transfersList (url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
     return axios
       .get<IAccountTransfersResponse>(url + AccountAPIMethods.TRANSFERS.replace('{accountId}', accountId) + '/' + page)
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the account's transfers count
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId accountId to get the transfers count
+   * @param url - API endpoint URL
+   * @param accountId - accountId to get the transfers count
    * @returns {Promise<IAccountTransfersCountResponse>}
    */
-  public static transfersCount(url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
+  public static transfersCount (url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
     return axios
       .get<IAccountTransfersCountResponse>(url + AccountAPIMethods.NUM_TRANSFERS.replace('{accountId}', accountId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns paginated list of elections for a specific account
    *
-   * @param {string} url API endpoint URL
-   * @param {string} accountId accountId to get elections
-   * @param {number} page The page number
+   * @param url - API endpoint URL
+   * @param accountId - accountId to get elections
+   * @param page - The page number
    * @returns {Promise<IElectionListResponse>}
    */
-  public static electionsList(url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
+  public static electionsList (url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
     return axios
       .get<IElectionListResponse>(url + AccountAPIMethods.ELECTIONS.replace('{accountId}', accountId) + '/' + page)
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 }

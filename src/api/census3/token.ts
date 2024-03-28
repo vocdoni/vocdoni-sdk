@@ -135,68 +135,68 @@ export abstract class Census3TokenAPI extends Census3API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {
+  private constructor () {
     super();
   }
 
   /**
    * Fetches list of already added tokens
    *
-   * @param {string} url API endpoint URL
-   * @param {Census3Pagination} pagination Pagination options
+   * @param url - API endpoint URL
+   * @param pagination - Pagination options
    * @returns {Promise<ICensus3TokenListResponsePaginated>}
    */
-  public static list(url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponsePaginated> {
+  public static list (url: string, pagination?: Census3Pagination): Promise<ICensus3TokenListResponsePaginated> {
     return axios
       .get<ICensus3TokenListResponsePaginated>(url + Census3TokenAPIMethods.LIST + this.serializePagination(pagination))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Fetches list of tokens types
    *
-   * @param {string} url API endpoint URL
+   * @param url - API endpoint URL
    * @returns {Promise<ICensus3TokenTypesResponse>}
    */
-  public static types(url: string): Promise<ICensus3TokenTypesResponse> {
+  public static types (url: string): Promise<ICensus3TokenTypesResponse> {
     return axios
       .get<ICensus3TokenTypesResponse>(url + Census3TokenAPIMethods.TYPES)
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Fetch the full token information
    *
-   * @param {string} url API endpoint URL
-   * @param {string} tokenId The identifier of the token
-   * @param {number} chainId The chain identifier of the token
-   * @param {string} externalId The identifier used by external provider
+   * @param url - API endpoint URL
+   * @param tokenId - The identifier of the token
+   * @param chainId - The chain identifier of the token
+   * @param externalId - The identifier used by external provider
    * @returns {Promise<Census3Token>}
    */
-  public static token(url: string, tokenId: string, chainId: number, externalId?: string): Promise<Census3Token> {
+  public static token (url: string, tokenId: string, chainId: number, externalId?: string): Promise<Census3Token> {
     return axios
       .get<Census3Token>(
         url +
           Census3TokenAPIMethods.TOKEN.replace('{tokenID}', tokenId).replace('{chainID}', String(chainId)) +
           (externalId ? '&externalID=' + externalId : '')
       )
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns if the holder ID is already registered in the database as a holder of the token ID and chain ID provided.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} tokenId The identifier of the token
-   * @param {number} chainId The chain identifier of the token
-   * @param {string} holderId The identifier of the holder
-   * @param {string} externalId The identifier used by external provider
+   * @param url - API endpoint URL
+   * @param tokenId - The identifier of the token
+   * @param chainId - The chain identifier of the token
+   * @param holderId - The identifier of the holder
+   * @param externalId - The identifier used by external provider
    * @returns {Promise<ICensus3TokenHolderResponse>} The balance of holder
    */
-  public static holder(
+  public static holder (
     url: string,
     tokenId: string,
     chainId: number,
@@ -211,22 +211,22 @@ export abstract class Census3TokenAPI extends Census3API {
             .replace('{chainID}', String(chainId)) +
           (externalId ? '&externalID=' + externalId : '')
       )
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Triggers a new scan for the provided token.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} id The token address
-   * @param {string} type The type of the token
-   * @param {number} chainId The chain id of the token
-   * @param {string[]} tags The tags assigned for the token
-   * @param {string} externalId The identifier used by external provider
+   * @param url - API endpoint URL
+   * @param id - The token address
+   * @param type - The type of the token
+   * @param chainId - The chain id of the token
+   * @param tags - The tags assigned for the token
+   * @param externalId - The identifier used by external provider
    * @returns {Promise<IFileCIDResponse>} promised IFileCIDResponse
    */
-  public static create(
+  public static create (
     url: string,
     id: string,
     type: string,
@@ -242,7 +242,7 @@ export abstract class Census3TokenAPI extends Census3API {
         tags,
         externalID: externalId,
       })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 }

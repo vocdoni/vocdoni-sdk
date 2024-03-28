@@ -23,10 +23,10 @@ export const submitVote = (participant: Wallet, electionId: string, voteArray: (
 
 /**
  * Await to specific election to be ready
- * @param client the specific client
- * @param electionId election identifier to check
- * @param delayTimeout delay until next check
- * @param abortController mechanism used to abort de function execution. To use it:
+ * @param client - the specific client
+ * @param electionId - election identifier to check
+ * @param delayTimeout - delay until next check
+ * @param abortController - mechanism used to abort de function execution. To use it:
  *
  * ```ts
  *       let controller = new AbortController();
@@ -61,7 +61,7 @@ export const waitForElectionReady = (
       }
       return client.fetchElection(electionId);
     })
-    .then((election) => {
+    .then(election => {
       if (signal.aborted) {
         throw new Error('Aborted');
       }

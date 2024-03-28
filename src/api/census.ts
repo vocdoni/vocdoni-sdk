@@ -118,39 +118,39 @@ export abstract class CensusAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor() {
+  private constructor () {
     super();
   }
 
   /**
    * Create's a new census in the API.
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {CensusType} type Type of census to be created
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param type - Type of census to be created
    * @returns {Promise<ICensusCreateResponse>}
    */
-  public static create(url: string, authToken: string, type: CensusType): Promise<ICensusCreateResponse> {
+  public static create (url: string, authToken: string, type: CensusType): Promise<ICensusCreateResponse> {
     return axios
       .post<ICensusCreateResponse>(url + CensusAPIMethods.CREATE + '/' + type, null, {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Adds participants to a census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The id of the census to which participants are being added
-   * @param {Array.<{key: string, weight: BigInt | null}>} participants An array of participants
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The id of the census to which participants are being added
+   * @param participants - An array of participants
    * @returns {Promise<ICensusAddResponse>}
    */
-  public static add(
+  public static add (
     url: string,
     authToken: string,
     censusId: string,
@@ -163,7 +163,7 @@ export abstract class CensusAPI extends API {
       .post<ICensusAddResponse>(
         url + CensusAPIMethods.ADD.replace('{id}', censusId),
         {
-          participants: participants.map((participant) => ({
+          participants: participants.map(participant => ({
             key: participant.key,
             weight: typeof participant.weight == 'bigint' ? participant.weight.toString() : '1',
           })),
@@ -174,75 +174,75 @@ export abstract class CensusAPI extends API {
           },
         }
       )
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Publishes the census, so it can be used in processes
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we're publishing
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we're publishing
    * @returns {Promise<ICensusPublishResponse>} on success
    */
-  public static publish(url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
+  public static publish (url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
     return axios
       .post<ICensusPublishResponse>(url + CensusAPIMethods.PUBLISH.replace('{id}', censusId), null, {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Checks if the specified address is in the specified census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID of which we want the proof from
-   * @param {string} key The address to be checked
+   * @param url - API endpoint URL
+   * @param censusId - The census ID of which we want the proof from
+   * @param key - The address to be checked
    * @returns {Promise<ICensusProofResponse>} on success
    */
-  public static proof(url: string, censusId: string, key: string): Promise<ICensusProofResponse> {
+  public static proof (url: string, censusId: string, key: string): Promise<ICensusProofResponse> {
     return axios
       .get<ICensusProofResponse>(url + CensusAPIMethods.PROOF.replace('{id}', censusId) + '/' + strip0x(key))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Exports the given census identifier
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we want to export
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we want to export
    * @returns {Promise<ICensusExportResponse>} on success
    */
-  public static export(url: string, authToken: string, censusId: string): Promise<ICensusExportResponse> {
+  public static export (url: string, authToken: string, censusId: string): Promise<ICensusExportResponse> {
     return axios
       .get<ICensusExportResponse>(url + CensusAPIMethods.EXPORT.replace('{id}', censusId), {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Imports data into the given census identifier
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we want to export
-   * @param {number} type The type of the census
-   * @param {string} rootHash The root hash of the census
-   * @param {string} data The census data to be imported
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we want to export
+   * @param type - The type of the census
+   * @param rootHash - The root hash of the census
+   * @param data - The census data to be imported
    * @returns {Promise<void>} on success
    */
-  public static import(
+  public static import (
     url: string,
     authToken: string,
     censusId: string,
@@ -260,68 +260,68 @@ export abstract class CensusAPI extends API {
           },
         }
       )
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Deletes the given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} authToken Authentication token
-   * @param {string} censusId The census ID we want to export
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we want to export
    * @returns {Promise<void>} on success
    */
-  public static delete(url: string, authToken: string, censusId: string): Promise<void> {
+  public static delete (url: string, authToken: string, censusId: string): Promise<void> {
     return axios
       .delete<void>(url + CensusAPIMethods.DELETE.replace('{id}', censusId), {
         headers: {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the size of a given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID
+   * @param url - API endpoint URL
+   * @param censusId - The census ID
    * @returns {Promise<ICensusSizeResponse>}
    */
-  public static size(url: string, censusId: string): Promise<ICensusSizeResponse> {
+  public static size (url: string, censusId: string): Promise<ICensusSizeResponse> {
     return axios
       .get<ICensusSizeResponse>(url + CensusAPIMethods.SIZE.replace('{id}', censusId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the weight of a given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID
+   * @param url - API endpoint URL
+   * @param censusId - The census ID
    * @returns {Promise<ICensusWeightResponse>}
    */
-  public static weight(url: string, censusId: string): Promise<ICensusWeightResponse> {
+  public static weight (url: string, censusId: string): Promise<ICensusWeightResponse> {
     return axios
       .get<ICensusWeightResponse>(url + CensusAPIMethods.WEIGHT.replace('{id}', censusId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 
   /**
    * Returns the type of given census
    *
-   * @param {string} url API endpoint URL
-   * @param {string} censusId The census ID
+   * @param url - API endpoint URL
+   * @param censusId - The census ID
    * @returns {Promise<ICensusTypeResponse>}
    */
-  public static type(url: string, censusId: string): Promise<ICensusTypeResponse> {
+  public static type (url: string, censusId: string): Promise<ICensusTypeResponse> {
     return axios
       .get<ICensusTypeResponse>(url + CensusAPIMethods.TYPE.replace('{id}', censusId))
-      .then((response) => response.data)
+      .then(response => response.data)
       .catch(this.isApiError);
   }
 }

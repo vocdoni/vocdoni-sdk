@@ -60,9 +60,9 @@ export class PublishedElection extends Election {
   /**
    * Constructs a published election
    *
-   * @param params Election parameters
+   * @param params - Election parameters
    */
-  public constructor(params: IPublishedElectionParameters) {
+  public constructor (params: IPublishedElectionParameters) {
     super({
       title: params.title,
       description: params.description,
@@ -95,13 +95,13 @@ export class PublishedElection extends Election {
   /**
    * Returns a published election object
    *
-   * @param params Published election parameters
+   * @param params - Published election parameters
    */
-  public static build(params: IPublishedElectionParameters) {
+  public static build (params: IPublishedElectionParameters) {
     return new PublishedElection(params);
   }
 
-  public static getStatus(status: AllElectionStatus, startDate: Date): ElectionStatus {
+  public static getStatus (status: AllElectionStatus, startDate: Date): ElectionStatus {
     switch (status) {
       case ElectionStatusReady.READY:
         return startDate <= new Date() ? ElectionStatus.ONGOING : ElectionStatus.UPCOMING;
@@ -110,7 +110,7 @@ export class PublishedElection extends Election {
     }
   }
 
-  public checkVote(vote: Vote): void {
+  public checkVote (vote: Vote): void {
     switch (this.resultsType?.name) {
       case ElectionResultsTypeNames.MULTIPLE_CHOICE:
         return MultiChoiceElection.checkVote(vote, this.voteType);
@@ -124,7 +124,7 @@ export class PublishedElection extends Election {
     }
   }
 
-  public static checkVote(vote: Vote, voteType: IVoteType): void {
+  public static checkVote (vote: Vote, voteType: IVoteType): void {
     if (voteType.uniqueChoices && new Set(vote.votes).size !== vote.votes.length) {
       throw new Error('Choices are not unique');
     }
@@ -133,110 +133,110 @@ export class PublishedElection extends Election {
       throw new Error('Invalid number of choices');
     }
 
-    vote.votes.forEach((vote) => {
+    vote.votes.forEach(vote => {
       if (vote > voteType.maxValue) {
         throw new Error('Invalid choice value');
       }
     });
   }
 
-  get title(): MultiLanguage<string> {
+  get title (): MultiLanguage<string> {
     return super.title;
   }
 
-  get description(): MultiLanguage<string> {
+  get description (): MultiLanguage<string> {
     return super.description;
   }
 
-  get header(): string {
+  get header (): string {
     return super.header;
   }
 
-  get streamUri(): string {
+  get streamUri (): string {
     return super.streamUri;
   }
 
-  get startDate(): Date {
+  get startDate (): Date {
     return super.startDate;
   }
 
-  get endDate(): Date {
+  get endDate (): Date {
     return super.endDate;
   }
 
-  get electionType(): IElectionType {
+  get electionType (): IElectionType {
     return super.electionType;
   }
 
-  get voteType(): IVoteType {
+  get voteType (): IVoteType {
     return super.voteType;
   }
 
-  get questions(): IQuestion[] {
+  get questions (): IQuestion[] {
     return super.questions;
   }
 
-  get census(): PublishedCensus {
+  get census (): PublishedCensus {
     return super.census;
   }
 
-  get maxCensusSize(): number {
+  get maxCensusSize (): number {
     return super.maxCensusSize;
   }
 
-  get id(): string {
+  get id (): string {
     return this._id;
   }
 
-  get organizationId(): string {
+  get organizationId (): string {
     return this._organizationId;
   }
 
-  get status(): ElectionStatus {
+  get status (): ElectionStatus {
     return this._status;
   }
 
-  get voteCount(): number {
+  get voteCount (): number {
     return this._voteCount;
   }
 
-  get finalResults(): boolean {
+  get finalResults (): boolean {
     return this._finalResults;
   }
 
-  get results(): Array<Array<string>> {
+  get results (): Array<Array<string>> {
     return this._results;
   }
 
-  get manuallyEnded(): boolean {
+  get manuallyEnded (): boolean {
     return this._manuallyEnded;
   }
 
-  get fromArchive(): boolean {
+  get fromArchive (): boolean {
     return this._fromArchive;
   }
 
-  get chainId(): string {
+  get chainId (): string {
     return this._chainId;
   }
 
-  get creationTime(): Date {
+  get creationTime (): Date {
     return this._creationTime;
   }
 
-  get metadataURL(): string {
+  get metadataURL (): string {
     return this._metadataURL;
   }
 
-  get resultsType(): ElectionResultsType {
+  get resultsType (): ElectionResultsType {
     return this._resultsType;
   }
 
-  get raw(): object {
+  get raw (): object {
     return this._raw;
   }
 
-  get isValid(): boolean {
+  get isValid (): boolean {
     return true;
   }
 }

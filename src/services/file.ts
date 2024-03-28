@@ -11,9 +11,9 @@ export class FileService extends Service implements FileServiceProperties {
   /**
    * Instantiate the election service.
    *
-   * @param {Partial<FileServiceParameters>} params The service parameters
+   * @param params - The service parameters
    */
-  constructor(params: Partial<FileServiceParameters>) {
+  constructor (params: Partial<FileServiceParameters>) {
     super();
     Object.assign(this, params);
   }
@@ -21,12 +21,12 @@ export class FileService extends Service implements FileServiceProperties {
   /**
    * Fetches the CID expected for the specified data content.
    *
-   * @param {string} data The data of which we want the CID of
+   * @param data - The data of which we want the CID of
    * @returns {Promise<string>} Resulting CID
    */
-  calculateCID(data: string): Promise<string> {
+  calculateCID (data: string): Promise<string> {
     invariant(this.url, 'No URL set');
     const b64Data = Buffer.from(data, 'utf8').toString('base64');
-    return FileAPI.cid(this.url, b64Data).then((response) => response.cid);
+    return FileAPI.cid(this.url, b64Data).then(response => response.cid);
   }
 }
