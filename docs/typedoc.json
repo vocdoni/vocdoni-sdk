@@ -11,5 +11,14 @@
         "*",
         "Other",
     ],
-    "categorizeByGroup": true
+    "readme": "none",
+    "categorizeByGroup": true,
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "groupOrder": [
+        "Classes",
+        "Interfaces",
+        "*"
+    ]
 }
