@@ -68,34 +68,34 @@ export class AnonymousService extends Service implements AnonymousServicePropert
    *
    * @param params - The service parameters
    */
-  constructor (params: Partial<AnonymousServiceParameters>) {
+  constructor(params: Partial<AnonymousServiceParameters>) {
     super();
     Object.assign(this, params);
   }
 
-  async generateZkProof (inputs: CircuitInputs): Promise<ZkProof> {
-    return this.fetchCircuits().then(circuits =>
+  async generateZkProof(inputs: CircuitInputs): Promise<ZkProof> {
+    return this.fetchCircuits().then((circuits) =>
       AnonymousService.generateGroth16Proof(inputs, circuits.wasmData, circuits.zKeyData)
     );
   }
 
-  async fetchAccountSIK (address: string): Promise<string> {
+  async fetchAccountSIK(address: string): Promise<string> {
     invariant(this.url, 'No URL set');
-    return ZkAPI.sik(this.url, address).then(response => response.sik);
+    return ZkAPI.sik(this.url, address).then((response) => response.sik);
   }
 
-  async hasRegisteredSIK (address: string, signature: string, password?: string): Promise<boolean> {
+  async hasRegisteredSIK(address: string, signature: string, password?: string): Promise<boolean> {
     return Promise.all([AnonymousService.calcSik(address, signature, password), this.fetchAccountSIK(address)])
       .then(([calcSik, fetchSik]) => calcSik === fetchSik)
       .catch(() => false);
   }
 
-  async fetchZKProof (address: string) {
+  async fetchZKProof(address: string) {
     invariant(this.url, 'No URL set');
     return ZkAPI.proof(this.url, address);
   }
 
-  async signSIKPayload (wallet: Wallet | Signer): Promise<string> {
+  async signSIKPayload(wallet: Wallet | Signer): Promise<string> {
     return Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet);
   }
 
@@ -104,7 +104,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
    *
    * @returns The checked circuit parameters
    */
-  checkCircuitsHashes (): ChainCircuits {
+  checkCircuitsHashes(): ChainCircuits {
     invariant(this.chainCircuits, 'Circuits not set');
     invariant(
       strip0x(sha256(this.chainCircuits.zKeyData)) === strip0x(this.chainCircuits.zKeyHash),
@@ -127,7 +127,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
    *
    * @param circuits - Additional options for custom circuits
    */
-  fetchCircuits (circuits?: Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>): Promise<ChainCircuits> {
+  fetchCircuits(circuits?: Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>): Promise<ChainCircuits> {
     const empty = {
       zKeyData: new Uint8Array(),
       vKeyData: new Uint8Array(),
@@ -148,7 +148,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
 
     const setCircuitInfo = this.chainCircuits
       ? Promise.resolve(this.chainCircuits)
-      : ChainAPI.circuits(this.url).then(chainCircuits => {
+      : ChainAPI.circuits(this.url).then((chainCircuits) => {
           this.chainCircuits = {
             zKeyHash: chainCircuits.zKeyHash,
             zKeyURI: chainCircuits.uri + '/' + chainCircuits.circuitPath + '/' + chainCircuits.zKeyFilename,
@@ -182,12 +182,12 @@ export class AnonymousService extends Service implements AnonymousServicePropert
    *
    * @param circuits - Custom circuits
    */
-  setCircuits (circuits: ChainCircuits): ChainCircuits {
+  setCircuits(circuits: ChainCircuits): ChainCircuits {
     this.chainCircuits = circuits;
     return this.checkCircuitsHashes();
   }
 
-  static async generateGroth16Proof (
+  static async generateGroth16Proof(
     inputs: CircuitInputs,
     circuitPath: Uint8Array,
     provingKey: Uint8Array
@@ -195,7 +195,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     return await groth16.fullProve(inputs, circuitPath, provingKey);
   }
 
-  static async prepareCircuitInputs (
+  static async prepareCircuitInputs(
     electionId: string,
     address: string,
     password: string,
@@ -229,7 +229,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     }));
   }
 
-  static async calcCircuitInputs (signature: string, password: string, electionId: string) {
+  static async calcCircuitInputs(signature: string, password: string, electionId: string) {
     signature = AnonymousService.signatureToVocdoniSikSignature(strip0x(signature));
     const arboElectionId = await AnonymousService.arbo_utils.toHash(electionId);
     const ffsignature = AnonymousService.ff_utils.hexToFFBigInt(strip0x(signature)).toString();
@@ -242,30 +242,30 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     return { nullifier, arboElectionId, ffsignature, ffpassword };
   }
 
-  static async calcNullifier (signature: string, password: string, electionId: string): Promise<bigint> {
-    return this.calcCircuitInputs(signature, password, electionId).then(circuitInputs => circuitInputs.nullifier);
+  static async calcNullifier(signature: string, password: string, electionId: string): Promise<bigint> {
+    return this.calcCircuitInputs(signature, password, electionId).then((circuitInputs) => circuitInputs.nullifier);
   }
 
-  static async calcVoteId (signature: string, password: string, electionId: string): Promise<string> {
-    return this.calcNullifier(signature, password ?? '0', electionId).then(nullifier =>
+  static async calcVoteId(signature: string, password: string, electionId: string): Promise<string> {
+    return this.calcNullifier(signature, password ?? '0', electionId).then((nullifier) =>
       this.hex_utils.fromBigInt(nullifier)
     );
   }
 
-  static async calcSik (address: string, personal_sign: string, password: string = '0'): Promise<string> {
+  static async calcSik(address: string, personal_sign: string, password: string = '0'): Promise<string> {
     const arboAddress = AnonymousService.arbo_utils.toBigInt(strip0x(address)).toString();
     const safeSignature = AnonymousService.signatureToVocdoniSikSignature(strip0x(personal_sign));
 
     const ffsignature = AnonymousService.ff_utils.hexToFFBigInt(safeSignature).toString();
     const ffpassword = AnonymousService.ff_utils.hexToFFBigInt(hexlify(toUtf8Bytes(password))).toString();
 
-    return buildPoseidon().then(poseidon => {
+    return buildPoseidon().then((poseidon) => {
       const hash = poseidon([arboAddress, ffpassword, ffsignature]);
       return AnonymousService.arbo_utils.toString(poseidon.F.toObject(hash));
     });
   }
 
-  static signatureToVocdoniSikSignature (personal_sign: string): string {
+  static signatureToVocdoniSikSignature(personal_sign: string): string {
     // Discard the last byte of the personal_sign (used for recovery), different
     // that the same byte of a signature generated with go
     const buffSign = AnonymousService.hex_utils.toArrayBuffer(personal_sign);
@@ -307,7 +307,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
 
     fromArrayBuffer: (input: Uint8Array): string => {
       const res: string[] = [];
-      input.forEach(i => res.push(('0' + i.toString(16)).slice(-2)));
+      input.forEach((i) => res.push(('0' + i.toString(16)).slice(-2)));
       return res.join('');
     },
 

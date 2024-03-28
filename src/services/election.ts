@@ -66,14 +66,14 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @param params - The service parameters
    */
-  constructor (params: Partial<ElectionServiceParameters>) {
+  constructor(params: Partial<ElectionServiceParameters>) {
     super();
     Object.assign(this, params);
   }
 
-  public async signTransaction (tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
+  public async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     invariant(this.chainService, 'No chain service set');
-    return this.chainService.fetchChainData().then(chainData => {
+    return this.chainService.fetchChainData().then((chainData) => {
       const payload = message
         .replace('{hash}', ElectionCore.hashTransaction(tx))
         .replace('{chainId}', chainData.chainId);
@@ -81,11 +81,11 @@ export class ElectionService extends Service implements ElectionServicePropertie
     });
   }
 
-  private buildPublishedCensus (electionInfo): Promise<PublishedCensus> {
+  private buildPublishedCensus(electionInfo): Promise<PublishedCensus> {
     return this.censusService
       .get(electionInfo.census.censusRoot)
       .then(
-        censusInfo =>
+        (censusInfo) =>
           new PublishedCensus(
             electionInfo.census.censusRoot,
             electionInfo.census.censusURL,
@@ -97,7 +97,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       );
   }
 
-  private buildCensus (electionInfo): Promise<PublishedCensus | ArchivedCensus> {
+  private buildCensus(electionInfo): Promise<PublishedCensus | ArchivedCensus> {
     if (electionInfo.census.censusOrigin === CensusTypeEnum.OFF_CHAIN_CA) {
       return Promise.resolve(new CspCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL));
     }
@@ -111,11 +111,11 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @param electionId - The id of the election
    */
-  async fetchElection (electionId: string): Promise<PublishedElection | ArchivedElection> {
+  async fetchElection(electionId: string): Promise<PublishedElection | ArchivedElection> {
     invariant(this.url, 'No URL set');
     invariant(this.censusService, 'No census service set');
 
-    const electionInfo = await ElectionAPI.info(this.url, electionId).catch(err => {
+    const electionInfo = await ElectionAPI.info(this.url, electionId).catch((err) => {
       err.electionId = electionId;
       throw err;
     });
@@ -176,7 +176,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       : new PublishedElection(electionParameters);
   }
 
-  private calculateChoiceResults (electionType, result, qIndex, cIndex) {
+  private calculateChoiceResults(electionType, result, qIndex, cIndex) {
     try {
       switch (electionType) {
         case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
@@ -199,7 +199,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
     }
   }
 
-  private calculateMultichoiceAbstains (electionType, result) {
+  private calculateMultichoiceAbstains(electionType, result) {
     try {
       switch (electionType.name) {
         case ElectionResultsTypeNames.MULTIPLE_CHOICE:
@@ -218,7 +218,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
     }
   }
 
-  async fetchElections (
+  async fetchElections(
     params: Partial<FetchElectionsParameters>
   ): Promise<Array<PublishedElection | ArchivedElection | InvalidElection>> {
     invariant(this.url, 'No URL set');
@@ -236,11 +236,11 @@ export class ElectionService extends Service implements ElectionServicePropertie
     }
 
     return electionList
-      .then(elections =>
-        allSettled(elections?.elections?.map(election => this.fetchElection(election.electionId)) ?? [])
+      .then((elections) =>
+        allSettled(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
       )
-      .then(elections =>
-        elections.map(election =>
+      .then((elections) =>
+        elections.map((election) =>
           election.status === 'fulfilled' ? election.value : new InvalidElection({ id: election?.reason?.electionId })
         )
       );
@@ -253,7 +253,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @param metadata - The base64 encoded metadata JSON object
    * @returns The created election information
    */
-  create (payload: string, metadata: string): Promise<ElectionCreatedInformation> {
+  create(payload: string, metadata: string): Promise<ElectionCreatedInformation> {
     invariant(this.url, 'No URL set');
     return ElectionAPI.create(this.url, payload, metadata);
   }
@@ -265,7 +265,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @param election - The unpublished election
    * @returns The next election identifier
    */
-  nextElectionId (address: string, election: UnpublishedElection): Promise<string> {
+  nextElectionId(address: string, election: UnpublishedElection): Promise<string> {
     invariant(this.url, 'No URL set');
     const censusOrigin = ElectionCore.censusOriginFromCensusType(election.census.type);
     return ElectionAPI.nextElectionId(this.url, address, censusOrigin, {
@@ -274,7 +274,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       encryptedVotes: election.electionType.secretUntilTheEnd,
       uniqueValues: election.voteType.uniqueChoices,
       costFromWeight: election.voteType.costFromWeight,
-    }).then(response => response.electionID);
+    }).then((response) => response.electionID);
   }
 
   /**
@@ -284,10 +284,10 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @param electionCount - The election count
    * @returns The election salt
    */
-  getElectionSalt (address: string, electionCount: number): Promise<string> {
+  getElectionSalt(address: string, electionCount: number): Promise<string> {
     invariant(this.url, 'No URL set');
     invariant(this.chainService, 'No chain service set');
-    return this.chainService.fetchChainData().then(chainData => {
+    return this.chainService.fetchChainData().then((chainData) => {
       return keccak256(Buffer.from(address + chainData.chainId + electionCount.toString()));
     });
   }
@@ -298,9 +298,9 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @param electionId - The identifier of the election
    * @returns The numeric identifier
    */
-  getNumericElectionId (electionId: string): number {
+  getNumericElectionId(electionId: string): number {
     const arr = electionId.substring(electionId.length - 8, electionId.length).match(/.{1,2}/g);
-    const uint32Array = new Uint8Array(arr.map(byte => parseInt(byte, 16)));
+    const uint32Array = new Uint8Array(arr.map((byte) => parseInt(byte, 16)));
     const dataView = new DataView(uint32Array.buffer);
     return dataView.getUint32(0);
   }
@@ -310,7 +310,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @param electionId - The identifier of the election
    */
-  keys (electionId: string): Promise<ElectionKeys> {
+  keys(electionId: string): Promise<ElectionKeys> {
     invariant(this.url, 'No URL set');
     return ElectionAPI.keys(this.url, electionId);
   }
@@ -320,12 +320,12 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @returns The cost in tokens.
    */
-  estimateElectionCost (election: UnpublishedElection): Promise<number> {
+  estimateElectionCost(election: UnpublishedElection): Promise<number> {
     invariant(this.chainService, 'No chain service set');
     return this.chainService
       .fetchChainCosts()
-      .then(chainCosts => ElectionCore.estimateElectionCost(election, chainCosts))
-      .then(cost => Math.trunc(cost));
+      .then((chainCosts) => ElectionCore.estimateElectionCost(election, chainCosts))
+      .then((cost) => Math.trunc(cost));
   }
 
   /**
@@ -333,7 +333,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @returns The cost in tokens.
    */
-  calculateElectionCost (election: UnpublishedElection): Promise<number> {
+  calculateElectionCost(election: UnpublishedElection): Promise<number> {
     invariant(this.url, 'No URL set');
     return ElectionAPI.price(
       this.url,
@@ -342,6 +342,6 @@ export class ElectionService extends Service implements ElectionServicePropertie
       election.electionType.secretUntilTheEnd,
       election.electionType.anonymous,
       election.voteType.maxVoteOverwrites
-    ).then(cost => cost.price);
+    ).then((cost) => cost.price);
   }
 }

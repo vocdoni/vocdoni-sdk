@@ -7,7 +7,7 @@ export class Asymmetric {
   /**
    * Cannot be constructed.
    */
-  private constructor () {}
+  private constructor() {}
 
   /**
    * Encrypts the given buffer with NaCl SealedBox using the given hex public key.
@@ -16,14 +16,14 @@ export class Asymmetric {
    * @param messageBytes - The payload to encrypt
    * @param hexPublicKey - 32 byte public key in hex format
    */
-  static encryptRaw (messageBytes: Uint8Array, hexPublicKey: string): Buffer {
+  static encryptRaw(messageBytes: Uint8Array, hexPublicKey: string): Buffer {
     const pubKeyBytes = Buffer.from(strip0x(hexPublicKey), 'hex');
 
     const sealed = Asymmetric.seal(messageBytes, pubKeyBytes);
     return Buffer.from(sealed);
   }
 
-  private static seal (m: Uint8Array, pk: Uint8Array): Uint8Array {
+  private static seal(m: Uint8Array, pk: Uint8Array): Uint8Array {
     const c = new Uint8Array(nacl.box.publicKeyLength + nacl.box.overheadLength + m.length);
 
     const ek = nacl.box.keyPair();
@@ -40,7 +40,7 @@ export class Asymmetric {
     return c;
   }
 
-  private static nonceGenerator (pk1: Uint8Array, pk2: Uint8Array) {
+  private static nonceGenerator(pk1: Uint8Array, pk2: Uint8Array) {
     const state = blake.blake2bInit(nacl.box.nonceLength, null);
     blake.blake2bUpdate(state, pk1);
     blake.blake2bUpdate(state, pk2);

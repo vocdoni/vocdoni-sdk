@@ -42,20 +42,20 @@ export class VoteService extends Service implements VoteServiceProperties {
    *
    * @param params - The service parameters
    */
-  constructor (params: Partial<VoteServiceParameters>) {
+  constructor(params: Partial<VoteServiceParameters>) {
     super();
     Object.assign(this, params);
   }
 
-  public async signTransaction (tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
+  public async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     invariant(this.chainService, 'No chain service set');
-    return this.chainService.fetchChainData().then(chainData => {
+    return this.chainService.fetchChainData().then((chainData) => {
       const payload = message.replace('{hash}', VoteCore.hashTransaction(tx)).replace('{chainId}', chainData.chainId);
       return VoteCore.signTransaction(tx, payload, walletOrSigner);
     });
   }
 
-  public encodeTransaction (tx: Uint8Array): string {
+  public encodeTransaction(tx: Uint8Array): string {
     return VoteCore.encodeTransaction(tx);
   }
 
@@ -65,7 +65,7 @@ export class VoteService extends Service implements VoteServiceProperties {
    * @param voteId - The identifier of the vote
    *
    */
-  info (voteId: string): Promise<VoteInfo> {
+  info(voteId: string): Promise<VoteInfo> {
     invariant(this.url, 'No URL set');
     return VoteAPI.info(this.url, voteId);
   }
@@ -76,7 +76,7 @@ export class VoteService extends Service implements VoteServiceProperties {
    * @param payload - The base64 encoded vote transaction
    *
    */
-  vote (payload: string): Promise<VoteSubmit> {
+  vote(payload: string): Promise<VoteSubmit> {
     invariant(this.url, 'No URL set');
     return VoteAPI.submit(this.url, payload);
   }

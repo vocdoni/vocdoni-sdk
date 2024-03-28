@@ -75,7 +75,7 @@ export abstract class VoteAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -86,10 +86,10 @@ export abstract class VoteAPI extends API {
    * @param payload - The base64 encoded vote transaction
    *
    */
-  public static submit (url: string, payload: string): Promise<IVoteSubmitResponse> {
+  public static submit(url: string, payload: string): Promise<IVoteSubmitResponse> {
     return axios
       .post<IVoteSubmitResponse>(url + VoteAPIMethods.VOTE, { txPayload: payload })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -100,10 +100,10 @@ export abstract class VoteAPI extends API {
    * @param voteId - The identifier of the vote
    *
    */
-  public static info (url: string, voteId: string): Promise<IVoteInfoResponse> {
+  public static info(url: string, voteId: string): Promise<IVoteInfoResponse> {
     return axios
       .get<IVoteInfoResponse>(url + VoteAPIMethods.INFO + '/' + voteId)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -116,10 +116,10 @@ export abstract class VoteAPI extends API {
    *
    * @returns Return true if response has status 200
    */
-  public static verify (url: string, processId: string, voteId: string): Promise<boolean> {
+  public static verify(url: string, processId: string, voteId: string): Promise<boolean> {
     return axios
       .get(url + VoteAPIMethods.VERIFY + '/' + processId + '/' + voteId)
-      .then(response => response.status === 200)
+      .then((response) => response.status === 200)
       .catch(this.isApiError);
   }
 }

@@ -10,11 +10,11 @@ export class ArchivedElection extends PublishedElection {
    *
    * @param params - Election parameters
    */
-  public constructor (params: IPublishedElectionParameters) {
+  public constructor(params: IPublishedElectionParameters) {
     super(params);
   }
 
-  get census (): ArchivedCensus {
+  get census(): ArchivedCensus {
     return super.census;
   }
 }

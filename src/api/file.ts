@@ -16,7 +16,7 @@ export abstract class FileAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -27,10 +27,10 @@ export abstract class FileAPI extends API {
    * @param payload - Full payload string of which we want the CID of
    * @returns promised IFileCIDResponse
    */
-  public static cid (url: string, payload: string): Promise<IFileCIDResponse> {
+  public static cid(url: string, payload: string): Promise<IFileCIDResponse> {
     return axios
       .post<IFileCIDResponse>(url + FileAPIMethods.CID, { payload })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

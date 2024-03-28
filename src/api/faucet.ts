@@ -21,7 +21,7 @@ export abstract class FaucetAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -31,10 +31,10 @@ export abstract class FaucetAPI extends API {
    * @param url - API endpoint URL
    * @param address - Address to send the tokens to
    */
-  public static collect (url: string, address: string): Promise<IFaucetCollectResponse> {
+  public static collect(url: string, address: string): Promise<IFaucetCollectResponse> {
     return axios
       .get<IFaucetCollectResponse>(url + FaucetAPIMethods.CLAIM + '/' + address)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

@@ -3,13 +3,13 @@
  *
  * @param proms -
  */
-export function allSettled (
+export function allSettled(
   proms: Promise<any>[]
 ): Promise<({ value: any; status: string } | { reason: Error; status: string })[]> {
   return Promise.all(proms.map(reflect));
 }
 
-export function reflect<T> (prom: Promise<T>) {
+export function reflect<T>(prom: Promise<T>) {
   return prom
     .then((value: T) => ({ value, status: 'fulfilled' }))
     .catch((reason: T) => ({ reason, status: 'rejected' }));
@@ -20,21 +20,21 @@ export function reflect<T> (prom: Promise<T>) {
  *
  * @param values -
  */
-export function promiseAny<T> (values: Iterable<T | PromiseLike<T>>): Promise<T> {
+export function promiseAny<T>(values: Iterable<T | PromiseLike<T>>): Promise<T> {
   return new Promise<T>((resolve: (value: T) => void, reject: (reason?: any) => void): void => {
     let hasResolved: boolean = false;
     const promiseLikes: (T | PromiseLike<T>)[] = [];
     let iterableCount: number = 0;
     const rejectionReasons: any[] = [];
 
-    function resolveOnce (value: T): void {
+    function resolveOnce(value: T): void {
       if (!hasResolved) {
         hasResolved = true;
         resolve(value);
       }
     }
 
-    function rejectionCheck (reason?: any): void {
+    function rejectionCheck(reason?: any): void {
       rejectionReasons.push(reason);
       if (rejectionReasons.length >= iterableCount) reject(rejectionReasons);
     }

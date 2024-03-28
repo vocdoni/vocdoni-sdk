@@ -106,7 +106,7 @@ export abstract class AccountAPI extends API {
   /**
    * Cannot be constructed.
    */
-  private constructor () {
+  private constructor() {
     super();
   }
 
@@ -116,10 +116,10 @@ export abstract class AccountAPI extends API {
    * @param url - API endpoint URL
    * @param page - The page number
    */
-  public static list (url: string, page: number = 0): Promise<IAccountsListResponse> {
+  public static list(url: string, page: number = 0): Promise<IAccountsListResponse> {
     return axios
       .get<IAccountsListResponse>(url + AccountAPIMethods.LIST + '/' + page)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -128,10 +128,10 @@ export abstract class AccountAPI extends API {
    *
    * @param url - API endpoint URL
    */
-  public static count (url: string): Promise<IAccountsCountResponse> {
+  public static count(url: string): Promise<IAccountsCountResponse> {
     return axios
       .get<IAccountsCountResponse>(url + AccountAPIMethods.NUM_ACCOUNTS)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -141,10 +141,10 @@ export abstract class AccountAPI extends API {
    * @param url - API endpoint URL
    * @param accountId - The account we want the info from
    */
-  public static info (url: string, accountId: string): Promise<IAccountInfoResponse> {
+  public static info(url: string, accountId: string): Promise<IAccountInfoResponse> {
     return axios
       .get<IAccountInfoResponse>(url + AccountAPIMethods.INFO.replace('{accountId}', accountId))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -154,10 +154,10 @@ export abstract class AccountAPI extends API {
    * @param url - API endpoint URL
    * @param accountId - The account we want the info from
    */
-  public static metadata (url: string, accountId: string): Promise<AccountMetadata> {
+  public static metadata(url: string, accountId: string): Promise<AccountMetadata> {
     return axios
       .get<AccountMetadata>(url + AccountAPIMethods.METADATA.replace('{accountId}', accountId))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -168,10 +168,10 @@ export abstract class AccountAPI extends API {
    * @param payload - The set information info raw payload to be submitted to the chain
    * @param metadata - The base64 encoded metadata JSON object
    */
-  public static setInfo (url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
+  public static setInfo(url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
       .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, { txPayload: payload, metadata })
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -182,10 +182,10 @@ export abstract class AccountAPI extends API {
    * @param accountId - accountId to get transfers
    * @param page - The page number
    */
-  public static transfersList (url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
+  public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
     return axios
       .get<IAccountTransfersResponse>(url + AccountAPIMethods.TRANSFERS.replace('{accountId}', accountId) + '/' + page)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -195,10 +195,10 @@ export abstract class AccountAPI extends API {
    * @param url - API endpoint URL
    * @param accountId - accountId to get the transfers count
    */
-  public static transfersCount (url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
+  public static transfersCount(url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
     return axios
       .get<IAccountTransfersCountResponse>(url + AccountAPIMethods.NUM_TRANSFERS.replace('{accountId}', accountId))
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -209,10 +209,10 @@ export abstract class AccountAPI extends API {
    * @param accountId - accountId to get elections
    * @param page - The page number
    */
-  public static electionsList (url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
+  public static electionsList(url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
     return axios
       .get<IElectionListResponse>(url + AccountAPIMethods.ELECTIONS.replace('{accountId}', accountId) + '/' + page)
-      .then(response => response.data)
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 }

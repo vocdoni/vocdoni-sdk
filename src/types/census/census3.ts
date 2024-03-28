@@ -18,7 +18,7 @@ export class TokenCensus extends PublishedCensus {
    * @param size - The size of the census
    * @param weight - The weight of the census
    */
-  public constructor (
+  public constructor(
     censusId: string,
     censusURI: string,
     anonymous: boolean,
@@ -30,11 +30,11 @@ export class TokenCensus extends PublishedCensus {
     this.token = token;
   }
 
-  get token (): Token {
+  get token(): Token {
     return this._token;
   }
 
-  set token (value: Token) {
+  set token(value: Token) {
     this._token = value;
   }
 }

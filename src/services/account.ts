@@ -42,7 +42,7 @@ export class AccountService extends Service implements AccountServiceProperties 
    *
    * @param params - The service parameters
    */
-  constructor (params: Partial<AccountServiceParameters>) {
+  constructor(params: Partial<AccountServiceParameters>) {
     super();
     Object.assign(this, params);
   }
@@ -52,10 +52,10 @@ export class AccountService extends Service implements AccountServiceProperties 
    *
    * @param address - The account address to fetch the information
    */
-  async fetchAccountInfo (address: string): Promise<AccountData | ArchivedAccountData> {
+  async fetchAccountInfo(address: string): Promise<AccountData | ArchivedAccountData> {
     invariant(this.url, 'No URL set');
     return AccountAPI.info(this.url, address)
-      .then(accountInfo => ({
+      .then((accountInfo) => ({
         account: Account.build({
           languages: accountInfo.metadata?.languages,
           name: accountInfo.metadata?.name,
@@ -69,7 +69,7 @@ export class AccountService extends Service implements AccountServiceProperties 
         ...accountInfo,
       }))
       .catch(() =>
-        AccountAPI.metadata(this.url, address).then(metadata => ({
+        AccountAPI.metadata(this.url, address).then((metadata) => ({
           address,
           account: Account.build({
             languages: metadata?.languages,
@@ -92,14 +92,14 @@ export class AccountService extends Service implements AccountServiceProperties 
    * @param metadata - The account metadata
    * @returns The transaction hash
    */
-  setInfo (tx: string, metadata: string): Promise<string> {
+  setInfo(tx: string, metadata: string): Promise<string> {
     invariant(this.url, 'No URL set');
-    return AccountAPI.setInfo(this.url, tx, metadata).then(response => response.txHash);
+    return AccountAPI.setInfo(this.url, tx, metadata).then((response) => response.txHash);
   }
 
-  async signTransaction (tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
+  async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
     invariant(this.chainService, 'No chain service set');
-    return this.chainService.fetchChainData().then(chainData => {
+    return this.chainService.fetchChainData().then((chainData) => {
       const payload = message
         .replace('{hash}', AccountCore.hashTransaction(tx))
         .replace('{chainId}', chainData.chainId);
