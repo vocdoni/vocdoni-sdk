@@ -51,7 +51,6 @@ export class AccountService extends Service implements AccountServiceProperties 
    * Fetches account information.
    *
    * @param address - The account address to fetch the information
-   * @returns {Promise<AccountData>}
    */
   async fetchAccountInfo (address: string): Promise<AccountData | ArchivedAccountData> {
     invariant(this.url, 'No URL set');
@@ -91,7 +90,7 @@ export class AccountService extends Service implements AccountServiceProperties 
    *
    * @param tx - The transaction for setting the account
    * @param metadata - The account metadata
-   * @returns {Promise<string>} The transaction hash
+   * @returns The transaction hash
    */
   setInfo (tx: string, metadata: string): Promise<string> {
     invariant(this.url, 'No URL set');

@@ -64,7 +64,6 @@ export class VoteService extends Service implements VoteServiceProperties {
    *
    * @param voteId - The identifier of the vote
    *
-   * @returns {Promise<VoteInfo>}
    */
   info (voteId: string): Promise<VoteInfo> {
     invariant(this.url, 'No URL set');
@@ -76,7 +75,6 @@ export class VoteService extends Service implements VoteServiceProperties {
    *
    * @param payload - The base64 encoded vote transaction
    *
-   * @returns {Promise<VoteSubmit>}
    */
   vote (payload: string): Promise<VoteSubmit> {
     invariant(this.url, 'No URL set');

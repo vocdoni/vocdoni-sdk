@@ -115,7 +115,6 @@ export abstract class AccountAPI extends API {
    *
    * @param url - API endpoint URL
    * @param page - The page number
-   * @returns {Promise<IAccountsListResponse>}
    */
   public static list (url: string, page: number = 0): Promise<IAccountsListResponse> {
     return axios
@@ -128,7 +127,6 @@ export abstract class AccountAPI extends API {
    * Returns the number of accounts
    *
    * @param url - API endpoint URL
-   * @returns {Promise<IAccountsCountResponse>}
    */
   public static count (url: string): Promise<IAccountsCountResponse> {
     return axios
@@ -142,7 +140,6 @@ export abstract class AccountAPI extends API {
    *
    * @param url - API endpoint URL
    * @param accountId - The account we want the info from
-   * @returns {Promise<IAccountInfoResponse>}
    */
   public static info (url: string, accountId: string): Promise<IAccountInfoResponse> {
     return axios
@@ -156,7 +153,6 @@ export abstract class AccountAPI extends API {
    *
    * @param url - API endpoint URL
    * @param accountId - The account we want the info from
-   * @returns {Promise<AccountMetadata>}
    */
   public static metadata (url: string, accountId: string): Promise<AccountMetadata> {
     return axios
@@ -171,7 +167,6 @@ export abstract class AccountAPI extends API {
    * @param url - API endpoint URL
    * @param payload - The set information info raw payload to be submitted to the chain
    * @param metadata - The base64 encoded metadata JSON object
-   * @returns {Promise<IAccountSetInfoResponse>}
    */
   public static setInfo (url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
@@ -186,7 +181,6 @@ export abstract class AccountAPI extends API {
    * @param url - API endpoint URL
    * @param accountId - accountId to get transfers
    * @param page - The page number
-   * @returns {Promise<IAccountTransfersResponse>}
    */
   public static transfersList (url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
     return axios
@@ -200,7 +194,6 @@ export abstract class AccountAPI extends API {
    *
    * @param url - API endpoint URL
    * @param accountId - accountId to get the transfers count
-   * @returns {Promise<IAccountTransfersCountResponse>}
    */
   public static transfersCount (url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
     return axios
@@ -215,7 +208,6 @@ export abstract class AccountAPI extends API {
    * @param url - API endpoint URL
    * @param accountId - accountId to get elections
    * @param page - The page number
-   * @returns {Promise<IElectionListResponse>}
    */
   public static electionsList (url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
     return axios

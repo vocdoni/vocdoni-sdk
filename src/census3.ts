@@ -56,7 +56,7 @@ export class VocdoniCensus3Client {
   /**
    * Returns a list of summary tokens supported by the service
    *
-   * @returns {Promise<TokenSummary[]>} Token summary list
+   * @returns Token summary list
    */
   getSupportedTokens (): Promise<TokenSummary[]> {
     return Census3TokenAPI.list(this.url, { pageSize: -1 }).then(
@@ -71,7 +71,7 @@ export class VocdoniCensus3Client {
   /**
    * Returns a list of supported chain identifiers
    *
-   * @returns {Promise<SupportedChain[]>} Supported chain list
+   * @returns Supported chain list
    */
   getSupportedChains (): Promise<SupportedChain[]> {
     return Census3ServiceAPI.info(this.url).then(info => info.supportedChains ?? []);
@@ -80,7 +80,7 @@ export class VocdoniCensus3Client {
   /**
    * Returns a list of supported tokens type
    *
-   * @returns {Promise<string[]>} Supported tokens type list
+   * @returns Supported tokens type list
    */
   getSupportedTypes (): Promise<string[]> {
     return Census3TokenAPI.types(this.url).then(types => types.supportedTypes ?? []);
@@ -89,7 +89,7 @@ export class VocdoniCensus3Client {
   /**
    * Returns a list of supported strategies operators
    *
-   * @returns {Promise<SupportedOperator[]>} Supported strategies operators list
+   * @returns Supported strategies operators list
    */
   getSupportedOperators (): Promise<SupportedOperator[]> {
     return Census3StrategyAPI.operators(this.url).then(operators => operators.operators ?? []);
@@ -101,7 +101,7 @@ export class VocdoniCensus3Client {
    * @param id - The id (address) of the token
    * @param chainId - The id of the chain
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<Token>} The token information
+   * @returns The token information
    */
   getToken (id: string, chainId: number, externalId?: string): Promise<Token> {
     invariant(id, 'No token id');
@@ -119,7 +119,7 @@ export class VocdoniCensus3Client {
    * @param chainId - The id of the chain
    * @param holderId - The identifier of the holder
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<boolean>} If the holder is in the token
+   * @returns If the holder is in the token
    */
   isHolderInToken (tokenId: string, chainId: number, holderId: string, externalId?: string): Promise<boolean> {
     invariant(tokenId, 'No token id');
@@ -140,7 +140,7 @@ export class VocdoniCensus3Client {
    * @param chainId - The id of the chain
    * @param holderId - The identifier of the holder
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<bigint>} The balance of the holder
+   * @returns The balance of the holder
    */
   tokenHolderBalance (tokenId: string, chainId: number, holderId: string, externalId?: string): Promise<bigint> {
     invariant(tokenId, 'No token id');
@@ -176,7 +176,7 @@ export class VocdoniCensus3Client {
   /**
    * Returns the strategies
    *
-   * @returns {Promise<Census3Strategy[]>} The list of strategies
+   * @returns The list of strategies
    */
   getStrategies (): Promise<Census3Strategy[]> {
     return Census3StrategyAPI.list(this.url, { pageSize: -1 }).then(strategies => strategies.strategies ?? []);
@@ -187,7 +187,7 @@ export class VocdoniCensus3Client {
    *
    * @param id - The id of the strategy
    * @param pagination - Pagination options
-   * @returns {Promise<StrategyHolders>} The list strategy holders
+   * @returns The list strategy holders
    */
   getStrategyHolders (id: number, pagination: Census3Pagination = { pageSize: -1 }): Promise<StrategyHolders> {
     return Census3StrategyAPI.holders(this.url, id, pagination).then(response => ({
@@ -202,7 +202,7 @@ export class VocdoniCensus3Client {
    * @param id - The id (address) of the token
    * @param chainId - The id of the chain
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<Census3Strategy[]>} The list of strategies
+   * @returns The list of strategies
    */
   getStrategiesByToken (id: string, chainId: number, externalId?: string): Promise<Census3Strategy[]> {
     invariant(id, 'No token id');
@@ -214,7 +214,7 @@ export class VocdoniCensus3Client {
    * Returns the information of the strategy based on the id
    *
    * @param id - The id of the strategy
-   * @returns {Promise<Strategy>} The strategy information
+   * @returns The strategy information
    */
   getStrategy (id: number): Promise<Strategy> {
     invariant(id || id >= 0, 'No strategy id');
@@ -226,7 +226,7 @@ export class VocdoniCensus3Client {
    *
    * @param id - The id of the strategy
    * @param anonymous - If the estimation should be done for anonymous census
-   * @returns {Promise<Strategy>} The strategy estimation
+   * @returns The strategy estimation
    */
   getStrategyEstimation (
     id: number,
@@ -268,7 +268,7 @@ export class VocdoniCensus3Client {
    * @param alias - The alias of the strategy
    * @param predicate - The predicate of the strategy
    * @param tokens - The token list for the strategy
-   * @returns {Promise<number>} The strategy id
+   * @returns The strategy id
    */
   createStrategy (alias: string, predicate: string, tokens: { [key: string]: StrategyToken }): Promise<number> {
     invariant(alias, 'No alias set');
@@ -283,7 +283,7 @@ export class VocdoniCensus3Client {
    * Imports a strategy from IPFS from the given cid.
    *
    * @param cid - The IPFS cid of the strategy to import
-   * @returns {Promise<Strategy>} The strategy information
+   * @returns The strategy information
    */
   importStrategy (cid: string): Promise<Strategy> {
     invariant(cid, 'No CID set');
@@ -317,7 +317,7 @@ export class VocdoniCensus3Client {
    * Validates a predicate
    *
    * @param predicate - The predicate of the strategy
-   * @returns {Promise<ParsedPredicate>} The parsed predicate
+   * @returns The parsed predicate
    */
   validatePredicate (predicate: string): Promise<ParsedPredicate> {
     invariant(predicate, 'No predicate set');
@@ -328,7 +328,7 @@ export class VocdoniCensus3Client {
    * Returns the census3 censuses
    *
    * @param strategyId - The strategy identifier
-   * @returns {Promise<number[]>} The list of census3 censuses
+   * @returns The list of census3 censuses
    */
   getCensuses (strategyId: number): Promise<Census3Census[]> {
     invariant(strategyId, 'No strategy set');
@@ -339,7 +339,7 @@ export class VocdoniCensus3Client {
    * Returns the census3 census based on the given identifier
    *
    * @param id - The id of the census
-   * @returns {Promise<Census3Census>} The census3 census
+   * @returns The census3 census
    */
   getCensus (id: number): Promise<Census3Census> {
     invariant(id || id >= 0, 'No census id');
@@ -351,7 +351,7 @@ export class VocdoniCensus3Client {
    *
    * @param strategyId - The id of the strategy
    * @param anonymous - If the census has to be anonymous
-   * @returns {Promise<Census3Census>} The census information
+   * @returns The census information
    */
   createCensus (strategyId: number, anonymous: boolean = false): Promise<Census3Census> {
     invariant(strategyId || strategyId >= 0, 'No strategy id');
@@ -388,7 +388,7 @@ export class VocdoniCensus3Client {
    * @param chainId - The id of the chain
    * @param anonymous - If the census has to be anonymous
    * @param externalId - The identifier used by external provider
-   * @returns {Promise<TokenCensus>} The token census
+   * @returns The token census
    */
   async createTokenCensus (
     address: string,

@@ -52,7 +52,6 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Fetches blockchain information if needed.
    *
-   * @returns {Promise<ChainData>}
    */
   fetchChainData (): Promise<ChainData> {
     if (this.chainData) {
@@ -69,7 +68,6 @@ export class ChainService extends Service implements ChainServiceProperties {
   /**
    * Fetches blockchain costs information if needed.
    *
-   * @returns {Promise<ChainCosts>}
    */
   fetchChainCosts (): Promise<ChainCosts> {
     if (this.chainCosts) {
@@ -87,7 +85,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    * Submits a transaction to the blockchain
    *
    * @param payload - The transaction data payload
-   * @returns {Promise<string>} The transaction hash
+   * @returns The transaction hash
    */
   submitTx (payload: string): Promise<string> {
     invariant(this.url, 'No URL set');
@@ -98,7 +96,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    * Fetches information about a transaction from the blockchain.
    *
    * @param txHash - The transaction hash which we want to retrieve the info from
-   * @returns {Promise<ChainTx>} The chain transaction
+   * @returns The chain transaction
    */
   txInfo (txHash: string): Promise<ChainTx> {
     invariant(this.url, 'No URL set');
@@ -109,7 +107,7 @@ export class ChainService extends Service implements ChainServiceProperties {
    * Returns the block number for a given date.
    *
    * @param date - The date which we want to retrieve the block number from
-   * @returns {Promise<number>} The block number
+   * @returns The block number
    */
   dateToBlock (date: Date): Promise<number> {
     invariant(this.url, 'No URL set');
@@ -124,7 +122,6 @@ export class ChainService extends Service implements ChainServiceProperties {
    * @param tx - Transaction to wait for
    * @param wait - The delay in milliseconds between tries
    * @param attempts - The attempts to try before failing
-   * @returns {Promise<void>}
    */
   waitForTransaction (tx: string, wait?: number, attempts?: number): Promise<void> {
     const waitTime = wait ?? this.txWait?.retryTime;

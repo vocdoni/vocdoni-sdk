@@ -49,7 +49,7 @@ export abstract class ZkAPI extends API {
    *
    * @param url - API endpoint URL
    * @param key - The address to be checked
-   * @returns {Promise<IZkProofResponse>} The ZK proof
+   * @returns The ZK proof
    */
   public static proof (url: string, key: string): Promise<IZkProofResponse> {
     return axios
@@ -63,7 +63,7 @@ export abstract class ZkAPI extends API {
    *
    * @param url - API endpoint URL
    * @param key - The address to be checked
-   * @returns {Promise<IZkSIKResponse>} The ZK proof
+   * @returns The ZK proof
    */
   public static sik (url: string, key: string): Promise<IZkSIKResponse> {
     return axios

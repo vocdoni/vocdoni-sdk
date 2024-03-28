@@ -110,7 +110,6 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * Fetches info about an election.
    *
    * @param electionId - The id of the election
-   * @returns {Promise<UnpublishedElection>}
    */
   async fetchElection (electionId: string): Promise<PublishedElection | ArchivedElection> {
     invariant(this.url, 'No URL set');
@@ -252,7 +251,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @param payload - The set information info raw payload to be submitted to the chain
    * @param metadata - The base64 encoded metadata JSON object
-   * @returns {Promise<ElectionCreatedInformation>} The created election information
+   * @returns The created election information
    */
   create (payload: string, metadata: string): Promise<ElectionCreatedInformation> {
     invariant(this.url, 'No URL set');
@@ -264,7 +263,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @param address - The address of the account
    * @param election - The unpublished election
-   * @returns {Promise<string>} The next election identifier
+   * @returns The next election identifier
    */
   nextElectionId (address: string, election: UnpublishedElection): Promise<string> {
     invariant(this.url, 'No URL set');
@@ -283,7 +282,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @param address - The address of the account
    * @param electionCount - The election count
-   * @returns {Promise<string>} The election salt
+   * @returns The election salt
    */
   getElectionSalt (address: string, electionCount: number): Promise<string> {
     invariant(this.url, 'No URL set');
@@ -297,7 +296,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * Returns a numeric election identifier
    *
    * @param electionId - The identifier of the election
-   * @returns {number} The numeric identifier
+   * @returns The numeric identifier
    */
   getNumericElectionId (electionId: string): number {
     const arr = electionId.substring(electionId.length - 8, electionId.length).match(/.{1,2}/g);
@@ -310,7 +309,6 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * Fetches the encryption keys from the specified process.
    *
    * @param electionId - The identifier of the election
-   * @returns {Promise<ElectionKeys>}
    */
   keys (electionId: string): Promise<ElectionKeys> {
     invariant(this.url, 'No URL set');
@@ -320,7 +318,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
   /**
    * Estimates the election cost
    *
-   * @returns {Promise<number>} The cost in tokens.
+   * @returns The cost in tokens.
    */
   estimateElectionCost (election: UnpublishedElection): Promise<number> {
     invariant(this.chainService, 'No chain service set');
@@ -333,7 +331,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
   /**
    * Calculate the election cost
    *
-   * @returns {Promise<number>} The cost in tokens.
+   * @returns The cost in tokens.
    */
   calculateElectionCost (election: UnpublishedElection): Promise<number> {
     invariant(this.url, 'No URL set');

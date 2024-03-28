@@ -5,7 +5,7 @@ export class AnonymousVote extends Vote {
   private _signature: string;
 
   /**
-   * Constructs a csp vote
+   * Constructs an anonymous vote
    *
    * @param votes - The list of votes values
    * @param signature - The signature of the payload

@@ -81,7 +81,6 @@ export abstract class CspAPI extends API {
    *
    * @param url - CSP endpoint URL
    *
-   * @returns {Promise<ICspInfoResponse>}
    */
   public static info (url: string): Promise<ICspInfoResponse> {
     return axios
@@ -101,7 +100,6 @@ export abstract class CspAPI extends API {
    * @param data - The auth data
    * @param authToken - The auth token from the previous step
    *
-   * @returns {Promise<ICspIntermediateStepResponse | ICspFinalStepResponse>}
    */
   public static step (
     url: string,
@@ -130,7 +128,6 @@ export abstract class CspAPI extends API {
    * @param payload - The payload from the user
    * @param token - The token from the last step
    *
-   * @returns {Promise<ICspSignResponse>}
    */
   public static sign (
     url: string,
