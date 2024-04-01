@@ -1,5 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
-import { Account, FaucetAPI, strip0x, VocdoniSDKClient } from '../../src';
+import { AccountData, FaucetAPI, strip0x, VocdoniSDKClient } from '../../src';
 // @ts-ignore
 import { clientParams, setFaucetURL } from './util/client.params';
 
@@ -43,7 +43,7 @@ describe('Account integration tests', () => {
   }, 75000);
   it('should set information for an account', async () => {
     const account = await client.createAccount({
-      account: new Account({
+      data: AccountData.build({
         languages: ['es'],
         name: {
           es: 'test',
@@ -55,31 +55,31 @@ describe('Account integration tests', () => {
         avatar: 'avatar',
         header: 'header',
         logo: 'logo',
-        meta: [
-          { key: 'test', value: 'test' },
-          { key: 'test2', value: 123 },
-          { key: 'test3', value: [123, 456] },
-          { key: 'test4', value: {} },
-        ],
+        meta: {
+          key1: { key: 'test', value: 'test' },
+          key2: { key: 'test2', value: 123 },
+          key3: { key: 'test3', value: [123, 456] },
+          key4: { key: 'test4', value: {} },
+        },
       }),
     });
-    expect(account.infoURL).toEqual('ipfs://bafybeigut3hara5spqfqgxrzlwjj7cp4avvdmcir4jdxaoyg3zlyfjdmfi');
-    expect(account.account.languages).toStrictEqual(['es']);
-    expect(account.account.name).toStrictEqual({
+    expect(account.infoURL).toEqual('ipfs://bafybeiay4ktvjfl6esemx5rstdpyjvd7ah46e4i2c6nad2vc3ol5qy7ely');
+    expect(account.data.languages).toStrictEqual(['es']);
+    expect(account.data.name).toStrictEqual({
       es: 'test',
       asdasdsad: 'test',
       default: 'test',
     });
-    expect(account.account.meta).toStrictEqual([
-      { key: 'test', value: 'test' },
-      { key: 'test2', value: 123 },
-      { key: 'test3', value: [123, 456] },
-      { key: 'test4', value: {} },
-    ]);
+    expect(account.data.meta).toStrictEqual({
+      key1: { key: 'test', value: 'test' },
+      key2: { key: 'test2', value: 123 },
+      key3: { key: 'test3', value: [123, 456] },
+      key4: { key: 'test4', value: {} },
+    });
   }, 75000);
   it('should set information for an account and then update it', async () => {
     await client.createAccount({
-      account: new Account({
+      data: AccountData.build({
         languages: ['es'],
         name: {
           es: 'test',
@@ -91,16 +91,16 @@ describe('Account integration tests', () => {
         avatar: 'avatar',
         header: 'header',
         logo: 'logo',
-        meta: [
-          { key: 'test', value: 'test' },
-          { key: 'test2', value: 123 },
-          { key: 'test3', value: [123, 456] },
-          { key: 'test4', value: {} },
-        ],
+        meta: {
+          key1: { key: 'test', value: 'test' },
+          key2: { key: 'test2', value: 123 },
+          key3: { key: 'test3', value: [123, 456] },
+          key4: { key: 'test4', value: {} },
+        },
       }),
     });
     const account = await client.updateAccountInfo(
-      new Account({
+      AccountData.build({
         languages: ['es'],
         name: {
           es: 'test2',
@@ -112,16 +112,16 @@ describe('Account integration tests', () => {
         avatar: 'avatar',
         header: 'header',
         logo: 'logo',
-        meta: [
-          { key: 'test', value: 'test' },
-          { key: 'test2', value: 123 },
-          { key: 'test3', value: [123, 456] },
-          { key: 'test4', value: {} },
-        ],
+        meta: {
+          key1: { key: 'test', value: 'test' },
+          key2: { key: 'test2', value: 123 },
+          key3: { key: 'test3', value: [123, 456] },
+          key4: { key: 'test4', value: {} },
+        },
       })
     );
-    expect(account.infoURL).toEqual('ipfs://bafybeig3a7hb2nmjrppwk2ywcalbiliakvkuckerr57aoicez5nwk6vsh4');
-    expect(account.account.name).toStrictEqual({
+    expect(account.infoURL).toEqual('ipfs://bafybeigyeqf6qefecyn7ypcoakep67272cq7kym6vuh6qitu3hxdalgyua');
+    expect(account.data.name).toStrictEqual({
       es: 'test2',
       asdasdsad: 'test2',
       default: 'test2',

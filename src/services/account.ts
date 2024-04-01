@@ -1,6 +1,6 @@
 import { Service, ServiceProperties } from './service';
 import { ChainService } from './chain';
-import { Account } from '../types';
+import { Account, AccountData, ArchivedAccount } from '../types';
 import { AccountAPI } from '../api';
 import invariant from 'tiny-invariant';
 import { Wallet } from '@ethersproject/wallet';
@@ -12,27 +12,6 @@ interface AccountServiceProperties {
 }
 
 type AccountServiceParameters = ServiceProperties & AccountServiceProperties;
-
-/**
- * @typedef AccountData
- * @property {string} address
- * @property {number} balance
- * @property {number} nonce
- * @property {number} electionIndex
- * @property {string | null} infoURL
- * @property {Account} account
- */
-export type AccountData = {
-  address: string;
-  balance: number;
-  nonce: number;
-  electionIndex: number;
-  infoURL?: string;
-  sik?: string;
-  account: Account;
-};
-
-export type ArchivedAccountData = Pick<AccountData, 'address' | 'account'>;
 
 export class AccountService extends Service implements AccountServiceProperties {
   public chainService: ChainService;
@@ -53,36 +32,39 @@ export class AccountService extends Service implements AccountServiceProperties 
    * @param {string} address The account address to fetch the information
    * @returns {Promise<AccountData>}
    */
-  async fetchAccountInfo(address: string): Promise<AccountData | ArchivedAccountData> {
+  async fetchAccount(address: string): Promise<Account | ArchivedAccount> {
     invariant(this.url, 'No URL set');
     return AccountAPI.info(this.url, address)
-      .then((accountInfo) => ({
-        account: Account.build({
-          languages: accountInfo.metadata?.languages,
-          name: accountInfo.metadata?.name,
-          description: accountInfo.metadata?.description,
-          feed: accountInfo.metadata?.newsFeed,
-          header: accountInfo.metadata?.media?.header,
-          avatar: accountInfo.metadata?.media?.avatar,
-          logo: accountInfo.metadata?.media?.logo,
-          meta: Object.entries(accountInfo.metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
-        }),
-        ...accountInfo,
-      }))
-      .catch(() =>
-        AccountAPI.metadata(this.url, address).then((metadata) => ({
-          address,
-          account: Account.build({
-            languages: metadata?.languages,
-            name: metadata?.name,
-            description: metadata?.description,
-            feed: metadata?.newsFeed,
-            header: metadata?.media?.header,
-            avatar: metadata?.media?.avatar,
-            logo: metadata?.media?.logo,
-            meta: Object.entries(metadata?.meta ?? []).map(([key, value]) => ({ key, value })),
+      .then((accountInfo) =>
+        Account.build({
+          data: AccountData.build({
+            languages: accountInfo.metadata?.languages,
+            name: accountInfo.metadata?.name,
+            description: accountInfo.metadata?.description,
+            feed: accountInfo.metadata?.newsFeed,
+            header: accountInfo.metadata?.media?.header,
+            avatar: accountInfo.metadata?.media?.avatar,
+            logo: accountInfo.metadata?.media?.logo,
+            meta: accountInfo.metadata?.meta ?? {},
           }),
-        }))
+          ...accountInfo,
+        })
+      )
+      .catch(() =>
+        AccountAPI.metadata(this.url, address).then((metadata) =>
+          ArchivedAccount.build({
+            data: AccountData.build({
+              languages: metadata?.languages,
+              name: metadata?.name,
+              description: metadata?.description,
+              feed: metadata?.newsFeed,
+              header: metadata?.media?.header,
+              avatar: metadata?.media?.avatar,
+              logo: metadata?.media?.logo,
+              meta: metadata?.meta ?? {},
+            }),
+          })
+        )
       );
   }
 
