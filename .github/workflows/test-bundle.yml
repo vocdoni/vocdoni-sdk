@@ -31,8 +31,11 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Install deps & build
+      - name: Install deps
         run: yarn
+
+      - name: Build
+        run: yarn build
 
       - name: Create tarball for importing in bundle checks
         run: yarn pack --filename sdk-bundle-tests.tgz
