@@ -10,3 +10,4 @@ export * from './vote';
 export * from './wallet';
 export * from './errors';
 export * from './csp';
+export * from './zk';
