@@ -20,6 +20,7 @@ import { isAddress } from '@ethersproject/address';
 import { TokenCensus } from './types';
 import { delay } from './util/common';
 import { Census3Pagination } from './api/census3/api';
+import { StrategyCensus } from './types/census/census3/strategy';
 
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
 export type TokenSummary = Omit<Census3SummaryToken, 'tags'> & { tags: string[] };
@@ -405,6 +406,22 @@ export class VocdoniCensus3Client {
 
     return this.createCensus(token.defaultStrategy, anonymous).then(
       (census) => new TokenCensus(census.merkleRoot, census.uri, anonymous, token, census.size, BigInt(census.weight))
+    );
+  }
+
+  /**
+   * Returns the actual census based on the given strategy id
+   *
+   * @param strategyId - The strategy id
+   * @param anonymous - If the census has to be anonymous
+   * @returns The strategy census
+   */
+  async createStrategyCensus(strategyId: number, anonymous: boolean = false): Promise<StrategyCensus> {
+    const strategy = await this.getStrategy(strategyId);
+
+    return this.createCensus(strategyId, anonymous).then(
+      (census) =>
+        new StrategyCensus(census.merkleRoot, census.uri, anonymous, strategy, census.size, BigInt(census.weight))
     );
   }
 }

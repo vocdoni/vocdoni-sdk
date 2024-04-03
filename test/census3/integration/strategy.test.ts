@@ -1,5 +1,6 @@
 import { EnvOptions, VocdoniCensus3Client } from '../../../src';
 import { isAddress } from '@ethersproject/address';
+import { StrategyCensus } from '../../../src/types/census/census3/strategy';
 
 describe('Census3 strategies integration tests', () => {
   it('should return the supported strategies', async () => {
@@ -133,4 +134,21 @@ describe('Census3 strategies integration tests', () => {
       });
     }
   }, 25000);
+  it('should create the census from the given strategy', async () => {
+    const client = new VocdoniCensus3Client({
+      env: EnvOptions.DEV,
+      tx_wait: {
+        retry_time: 10000,
+        attempts: 20,
+      },
+    });
+    const strategies = await client.getStrategies();
+    if (strategies.length > 0) {
+      let strategyCensus = null;
+      try {
+        strategyCensus = await client.createStrategyCensus(strategies[0].ID);
+      } catch (e) {}
+      expect(strategyCensus).toBeInstanceOf(StrategyCensus);
+    }
+  }, 435000);
 });

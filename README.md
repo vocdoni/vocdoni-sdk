@@ -974,6 +974,13 @@ const census = await client.createTokenCensus('0x0AaCfbeC6a24756c20D41914F2caba8
 console.log(typeof census); // TokenCensus
 ~~~
 
+~~~ts
+// Creates a new census by passing a strategy and returns
+// an instance of `StrategyCensus` which can be directly used as a census in the Vocdoni chain
+const census = await client.createStrategyCensus(12);
+console.log(typeof census); // StrategyCensus
+~~~
+
 ## Examples
 
 You can find a [full featured vite][example-vite] application with all the previous
