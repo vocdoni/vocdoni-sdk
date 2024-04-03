@@ -43,6 +43,7 @@
     "lint": "eslint src test --ext .js,.jsx,.ts,.tsx",
     "lintfix": "yarn lint --fix",
     "prepack": "clean-package",
+    "postpack": "mv -fv package.json.backup package.json",
     "size": "size-limit",
     "watch": "yarn build --watch"
   },
