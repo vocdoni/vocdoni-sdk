@@ -1,6 +1,6 @@
-import { CensusType } from './census';
-import { PublishedCensus } from './published';
-import { Token } from '../../census3';
+import { CensusType } from '../census';
+import { PublishedCensus } from '../published';
+import { Token } from '../../../census3';
 
 /**
  * Represents a census3 census

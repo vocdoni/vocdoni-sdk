@@ -53,6 +53,7 @@ import {
   ZkProof,
 } from './services';
 import { isAddress } from '@ethersproject/address';
+import { StrategyCensus } from './types/census/census3/strategy';
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -556,6 +557,10 @@ export class VocdoniSDKClient {
 
     if (election.census instanceof TokenCensus) {
       election.meta = { ...election.meta, ...{ token: election.census.token } };
+    }
+
+    if (election.census instanceof StrategyCensus) {
+      election.meta = { ...election.meta, ...{ strategy: election.census.strategy } };
     }
 
     yield {
