@@ -95,6 +95,11 @@ export type Census3StrategyToken = {
    * The minimum balance for the strategy.
    */
   minBalance?: string;
+
+  /**
+   * The token icon URI.
+   */
+  iconURI?: string;
 };
 
 export type Census3CreateStrategyToken = Omit<Census3StrategyToken, 'chainAddress'>;
