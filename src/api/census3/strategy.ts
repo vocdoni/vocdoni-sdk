@@ -8,8 +8,8 @@ enum Census3StrategyAPIMethods {
   IMPORT = '/strategies/import/{cid}',
   IMPORT_QUEUE = '/strategies/import/queue/{queueId}',
   STRATEGY = '/strategies/{id}',
-  ESTIMATION = '/strategies/{id}/estimation',
-  ESTIMATION_QUEUE = '/strategies/{id}/estimation/queue/{queueId}',
+  ESTIMATION = '/strategies/estimation',
+  ESTIMATION_QUEUE = '/strategies/estimation/queue/{queueId}',
   VALIDATE_PREDICATE = '/strategies/predicate/validate',
   OPERATORS = '/strategies/predicate/operators',
   HOLDERS = '/strategies/{id}/holders',
@@ -346,15 +346,22 @@ export abstract class Census3StrategyAPI extends Census3API {
    * Returns the estimation of size and time (in milliseconds) to create the census generated for the provided strategy
    *
    * @param url - API endpoint URL
-   * @param id - The identifier of the strategy
+   * @param predicate - The predicate of the strategy
+   * @param tokens - The token list for the strategy
    * @param anonymous - If the estimation should be done for anonymous census
    * @returns The queue identifier
    */
-  public static estimation(url: string, id: number, anonymous: boolean = false): Promise<ICensus3QueueResponse> {
+  public static estimation(
+    url: string,
+    predicate: string,
+    tokens: { [key: string]: Census3CreateStrategyToken },
+    anonymous: boolean = false
+  ): Promise<ICensus3QueueResponse> {
     return axios
-      .get<ICensus3QueueResponse>(
-        url + Census3StrategyAPIMethods.ESTIMATION.replace('{id}', String(id)) + '?anonymous=' + String(anonymous)
-      )
+      .post<ICensus3QueueResponse>(url + Census3StrategyAPIMethods.ESTIMATION + '?anonymous=' + String(anonymous), {
+        predicate,
+        tokens,
+      })
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -363,18 +370,12 @@ export abstract class Census3StrategyAPI extends Census3API {
    * Returns the information of the strategy estimation queue
    *
    * @param url - API endpoint URL
-   * @param strategyId - The identifier of the strategy
    * @param queueId - The identifier of the strategy estimation queue
    */
-  public static estimationQueue(
-    url: string,
-    strategyId: number,
-    queueId: string
-  ): Promise<ICensus3StrategyEstimationQueueResponse> {
+  public static estimationQueue(url: string, queueId: string): Promise<ICensus3StrategyEstimationQueueResponse> {
     return axios
       .get<ICensus3StrategyEstimationQueueResponse>(
-        url +
-          Census3StrategyAPIMethods.ESTIMATION_QUEUE.replace('{id}', String(strategyId)).replace('{queueId}', queueId)
+        url + Census3StrategyAPIMethods.ESTIMATION_QUEUE.replace('{queueId}', queueId)
       )
       .then((response) => response.data)
       .catch(this.isApiError);

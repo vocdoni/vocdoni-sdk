@@ -70,8 +70,12 @@ describe('Census3 strategies integration tests', () => {
       expect(typeof estimation.size).toBe('number');
       expect(typeof estimation.timeToCreateCensus).toBe('number');
       expect(typeof estimation.accuracy).toBe('number');
+
+      const strategy = await client.getStrategy(strategies[0].ID);
+      const predicateEstimation = await client.getPredicateEstimation(strategy.predicate, strategy.tokens);
+      expect(predicateEstimation).toStrictEqual(estimation);
     }
-  }, 25000);
+  }, 65000);
   it('should create a new strategy', async () => {
     const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
     const supportedTokens = await client.getSupportedTokens();

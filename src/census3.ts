@@ -236,6 +236,26 @@ export class VocdoniCensus3Client {
     anonymous: boolean = false
   ): Promise<{ size: number; timeToCreateCensus: number; accuracy: number }> {
     invariant(id || id >= 0, 'No strategy id');
+    return this.getStrategy(id).then((strategy) =>
+      this.getPredicateEstimation(strategy.predicate, strategy.tokens, anonymous)
+    );
+  }
+
+  /**
+   * Returns the estimation of size and time (in milliseconds) to create the census generated for the provided predicate and tokens
+   *
+   * @param predicate - The predicate of the strategy
+   * @param tokens - The token list for the strategy
+   * @param anonymous - If the estimation should be done for anonymous census
+   * @returns The predicate estimation
+   */
+  getPredicateEstimation(
+    predicate: string,
+    tokens: { [key: string]: StrategyToken },
+    anonymous: boolean = false
+  ): Promise<{ size: number; timeToCreateCensus: number; accuracy: number }> {
+    invariant(predicate, 'No predicate set');
+    invariant(tokens, 'No tokens set');
     const waitForQueue = (
       queueId: string,
       wait?: number,
@@ -248,7 +268,7 @@ export class VocdoniCensus3Client {
 
       return attemptsNum === 0
         ? Promise.reject('Time out waiting for queue with id: ' + queueId)
-        : Census3StrategyAPI.estimationQueue(this.url, id, queueId).then((queue) => {
+        : Census3StrategyAPI.estimationQueue(this.url, queueId).then((queue) => {
             switch (true) {
               case queue.done && queue.error?.code?.toString().length > 0:
                 return Promise.reject(new Error('Could not create the census'));
@@ -260,7 +280,7 @@ export class VocdoniCensus3Client {
           });
     };
 
-    return Census3StrategyAPI.estimation(this.url, id, anonymous)
+    return Census3StrategyAPI.estimation(this.url, predicate, tokens, anonymous)
       .then((queueResponse) => queueResponse.queueID)
       .then((queueId) => waitForQueue(queueId));
   }
