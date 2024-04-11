@@ -988,7 +988,12 @@ export class VocdoniSDKClient {
   }
 
   async cspInfo() {
-    return this.cspService.setInfo();
+    if (this.cspService.url) {
+      return this.cspService.setInfo();
+    }
+    // If the CSP url is not set, attempt to set it from the election ID
+    invariant(this.electionId, 'No election id or CSP URL set');
+    return this.cspUrl().then(() => this.cspService.setInfo());
   }
 
   async cspStep(stepNumber: number, data: any[], authToken?: string) {
