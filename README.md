@@ -30,6 +30,15 @@ The best place to learn about using the SDK is the [developer portal](https://de
 
 The SDK can also be used via the [UI Components](https://github.com/vocdoni/ui-components) library which extracts away the functionality with a set of react components built with Chakra UI.
 
+### Table of Contents
+- [Tutorial](#tutorial)
+- [Reference](#reference)
+- [Examples](#examples)
+- [Preview](#preview)
+- [Docs](#docs)
+- [Disclaimer](#disclaimer)
+- [License](#license)
+
 
 ## Tutorial
 
@@ -47,7 +56,7 @@ The SDK reference is available on the developer portal. It includes a [tutorial]
 We provide several examples, each of which highlights a different element of the Vocdoni SDK.
 
 - [Tutorial](https://github.com/vocdoni/vocdoni-sdk/tree/main/examples/tutorial) is the most basic possible usage with typescript node
-- [Typescript](https://github.com/vocdoni/vocdoni-sdk/tree/main/examples/typescript) is another typescript node example that enables you to try creating elections with several different [voting types]: multiple-choice, approval, quadratic, and ranked voting. 
+- [Typescript](https://github.com/vocdoni/vocdoni-sdk/tree/main/examples/typescript) is another typescript node example that enables you to try creating elections with several different [voting types](https://developer.vocdoni.io/sdk/integration-details/voting-types): multiple-choice, approval, quadratic, and ranked voting. 
 - [CSP](https://github.com/vocdoni/vocdoni-sdk/tree/main/examples/csp) implements a voting process using a [Credential Service Provider](https://developer.vocdoni.io/sdk/integration-details/census-types/off-chain-csp) based census. 
 - [Token-Based](https://github.com/vocdoni/vocdoni-sdk/tree/main/examples/token-based) implements a voting process using an Ethereum [token-based](https://developer.vocdoni.io/sdk/integration-details/census-types/on-chain) census. 
 - [ESM](https://github.com/vocdoni/vocdoni-sdk/tree/main/examples/esm) shows how to use the es modules version of the SDK in a NodeJS project.
