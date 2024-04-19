@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2024-04-19
+
+### Added
+
+- Several new examples in `examples` folder for beginners.
+- New Census3 function to estimate the time of creating a census based on a predicate.
+- Added `StrategyCensus` type for representing census created in Census3 based on a complex strategy.
+
+### Changed
+
+- Internal usage of dates instead of blocks when creating an election.
+
+### Fixed
+
+- Fixed anonymous `voteHash` by using the `votePackage` to generate zk-inputs.
+
 ## [0.7.5] - 2024-02-15
 
 ### Added
@@ -450,6 +466,8 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.8.0]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.8.0
+[0.7.5]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.5
 [0.7.4]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.4
 [0.7.3]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.3
 [0.7.2]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.2
