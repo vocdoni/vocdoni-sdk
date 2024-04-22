@@ -1,26 +1,45 @@
+
 <p align="center" width="100%">
-    <img src="https://docs.vocdoni.io/Logotype.svg" />
+    <img src="https://developer.vocdoni.io/img/vocdoni_logotype_full_white.svg" />
 </p>
 
-<div align="center">
+<p align="center" width="100%">
+    <a href="https://github.com/vocdoni/vocdoni-sdk/actions/workflows/main.yml/"><img src="https://github.com/vocdoni/vocdoni-sdk/actions/workflows/main.yml/badge.svg" /></a>
+    <a href="https://github.com/vocdoni/vocdoni-sdk/commits/main/"><img src="https://img.shields.io/github/commit-activity/m/vocdoni/vocdoni-sdk" /></a>
+    <a href="https://github.com/vocdoni/vocdoni-sdk/issues"><img src="https://img.shields.io/github/issues/vocdoni/vocdoni-sdk" /></a>
+    <a href="https://discord.gg/xFTh8Np2ga"><img src="https://img.shields.io/badge/discord-join%20chat-blue.svg" /></a>
+    <a href="https://twitter.com/vocdoni"><img src="https://img.shields.io/twitter/follow/vocdoni.svg?style=social&label=Follow" /></a>
+</p>
 
-![npm](https://img.shields.io/npm/v/%40vocdoni%2Fsdk)
-![GitHub commit activity (main)](https://img.shields.io/github/commit-activity/m/vocdoni/vocdoni-sdk)
-[![Example workflow](https://github.com/vocdoni/vocdoni-sdk/actions/workflows/examples.yml/badge.svg)](https://vocdoni.github.io/vocdoni-sdk/)
-![Main workflow](https://github.com/vocdoni/vocdoni-sdk/actions/workflows/main.yml/badge.svg)
-[![Join Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://discord.gg/xFTh8Np2ga)
-[![Twitter Follow](https://img.shields.io/twitter/follow/vocdoni.svg?style=social&label=Follow)](https://twitter.com/vocdoni)
-
-</div>
-
-Vocdoni is a universally verifiable, censorship-resistant, anonymous, and self-sovereign governance protocol. Our main aim is a trustless voting system where anyone can speak their voice and where everything is auditable. We are engineering building blocks for a permissionless, private and censorship resistant democracy.
-
-#### More about us
-[Vocdoni Website](https://vocdoni.io) | [Developer Portal](https://developer.vocdoni.io/) | [Web Application](https://vocdoni.app) | [Blockchain Explorer](https://explorer.vote/) | [MIT Law Publication](https://law.mit.edu/pub/remotevotingintheageofcryptography/release/1) | [Discord Server](https://chat.vocdoni.io)
-
-#### Key Repositories
-[Vocdoni Node](https://github.com/vocdoni/vocdoni-node) | [Vocdoni SDK](https://github.com/vocdoni/vocdoni-sdk/) | [UI Components](https://github.com/vocdoni/ui-components) | [Application UI](https://github.com/vocdoni/ui-scaffold/tree/develop) | [Census3](https://github.com/vocdoni/census3)
-
+  <div align="center">
+    Vocdoni is the first universally verifiable, censorship-resistant, anonymous, and self-sovereign governance protocol. <br />
+    Our main aim is a trustless voting system where anyone can speak their voice and where everything is auditable. <br />
+    We are engineering building blocks for a permissionless, private and censorship resistant democracy.
+    <br />
+    <a href="https://developer.vocdoni.io/"><strong>Explore the developer portal »</strong></a>
+    <br />
+    <h3>More About Us</h3>
+    <a href="https://vocdoni.io">Vocdoni Website</a>
+    |
+    <a href="https://vocdoni.app">Web Application</a>
+    |
+    <a href="https://explorer.vote/">Blockchain Explorer</a>
+    |
+    <a href="https://law.mit.edu/pub/remotevotingintheageofcryptography/release/1">MIT Law Publication</a>
+    |
+    <a href="https://chat.vocdoni.io">Contact Us</a>
+    <br />
+    <h3>Key Repositories</h3>
+    <a href="https://github.com/vocdoni/vocdoni-node">Vocdoni Node</a>
+    |
+    <a href="https://github.com/vocdoni/vocdoni-sdk/">Vocdoni SDK</a>
+    |
+    <a href="https://github.com/vocdoni/ui-components">UI Components</a>
+    |
+    <a href="https://github.com/vocdoni/ui-scaffold">Application UI</a>
+    |
+    <a href="https://github.com/vocdoni/census3">Census3</a>
+  </div>
 
 # Vocdoni SDK 
 
@@ -31,16 +50,16 @@ The best place to learn about using the SDK is the [developer portal](https://de
 The SDK can also be used via the [UI Components](https://github.com/vocdoni/ui-components) library which extracts away the functionality with a set of react components built with Chakra UI.
 
 ### Table of Contents
-- [Tutorial](#tutorial)
+- [Getting Started](#getting-started)
 - [Reference](#reference)
 - [Examples](#examples)
 - [Preview](#preview)
-- [Docs](#docs)
 - [Disclaimer](#disclaimer)
+- [Contributing](#contributing)
 - [License](#license)
 
 
-## Tutorial
+## Getting Started
 
 We provide a full working [tutorial](https://developer.vocdoni.io/sdk/tutorial) for getting set-up and using the Vocdoni SDK and integrating it into your project.
 
@@ -49,7 +68,7 @@ This tutorial shows you how to build a simple server-side [example](https://gith
 ## Reference
 
 The SDK reference is available on the developer portal. It includes a [tutorial](https://developer.vocdoni.io/sdk/tutorial), an [integration guide](https://developer.vocdoni.io/sdk/integration-details), and an auto-generated [reference documentation](https://developer.vocdoni.io/sdk/reference/sdk-reference).
-
+You can also build the auto-generated docs following [this guide](./docs/README.md).
 
 ## Examples
 
@@ -63,8 +82,8 @@ We provide several examples, each of which highlights a different element of the
 - [Vite-React-App](https://github.com/vocdoni/vocdoni-sdk/tree/main/examples/vite-react-app) is the only full-featured react application example.
 
 You can also check out the code for our own [react application](https://github.com/vocdoni/ui-scaffold) built using the SDK and UI Components libraries. It is publicly available at https://app.vocdoni.io/
-
 ## Preview
+
 Check out our [Live Preview](https://vocdoni.github.io/vocdoni-sdk/) of the SDK.
 
 ![Live preview](https://developer.vocdoni.io/assets/images/cra-0c8f163b4ca678d7ead4eeb51ff4b209.png)
@@ -74,9 +93,6 @@ This demo requires [Metamask](https://metamask.io/) (or Walletconnect) to sign t
 
 > Metamask is used to sign the transactions that create elections and cast votes. Testing tokens are automatically sent once the account is created. No value is used or exchanged.
 
-## Docs
-
-You can find the autogenerated docs in our [Developer Portal](https://developer.vocdoni.io/sdk/reference/sdk-reference) or you can build them following [this guide](./docs/README.md).
 
 ## Disclaimer
 
@@ -84,9 +100,16 @@ The Vocdoni SDK and the underlying API is WIP. Please beware that it can be brok
 at any time if the release is `alpha` or `beta`. We encourage you to review this
 repository and the developer portal for any changes.
 
+## Contributing 
+
+While we welcome contributions from the community, we do not track all of our issues on Github and we may not have the resources to onboard developers and review complex pull requests. That being said, there are multiple ways you can get involved with the project. 
+
+Please review our [development guidelines](https://developer.vocdoni.io/development-guidelines).
+
 ## License
 
 This repository is licensed under the [GNU Affero General Public License v3.0](./LICENSE).
+
 
     Vocdoni API Typescript SDK
     Copyright (C) 2022 Vocdoni Roots MCU
@@ -104,3 +127,4 @@ This repository is licensed under the [GNU Affero General Public License v3.0](.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](code-of-conduct.md) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
