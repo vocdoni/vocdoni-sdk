@@ -131,7 +131,7 @@
     "@ethersproject/wallet": "^5.7.0",
     "@size-limit/file": "^8.2.4",
     "@vocdoni/proto": "1.15.5",
-    "axios": "0.27.2",
+    "axios": "0.28.1",
     "blake2b": "^2.1.4",
     "iso-language-codes": "^1.1.0",
     "js-sha256": "^0.10.1",
