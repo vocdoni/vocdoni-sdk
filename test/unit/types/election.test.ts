@@ -72,6 +72,10 @@ describe('Election tests', () => {
       dynamicCensus: false,
       secretUntilTheEnd: false,
       anonymous: false,
+      metadata: {
+        encrypted: false,
+        password: null,
+      },
     });
     expect(election.voteType).toEqual({
       uniqueChoices: false,
