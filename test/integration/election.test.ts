@@ -110,6 +110,10 @@ describe('Election integration tests', () => {
           dynamicCensus: false,
           secretUntilTheEnd: false,
           anonymous: false,
+          metadata: {
+            encrypted: false,
+            password: null,
+          },
         });
         expect(publishedElection.voteType).toStrictEqual({
           uniqueChoices: false,
