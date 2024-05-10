@@ -2,12 +2,42 @@ import { Buffer } from 'buffer';
 import { strip0x } from './common';
 import nacl from 'tweetnacl';
 import blake from 'blakejs/blake2b';
+import { sha256 } from 'js-sha256';
 
 export class Asymmetric {
   /**
    * Cannot be constructed.
    */
   private constructor() {}
+
+  /**
+   * Encrypts the given message using a secret key and returns it in base64 format.
+   *
+   * @param messageBytes - The payload to encrypt
+   * @param secretKey - The secret key to use
+   */
+  static encryptBox(messageBytes: string, secretKey: string): string {
+    const msg = Uint8Array.from(Buffer.from(messageBytes));
+    const secretKeyHash = Uint8Array.from(Buffer.from(sha256(secretKey))).slice(0, 32);
+    const keyPair = nacl.box.keyPair.fromSecretKey(secretKeyHash);
+    const nonce = Uint8Array.from(Buffer.from(sha256(secretKey))).slice(0, 24);
+    const encrypted = nacl.box(msg, nonce, keyPair.publicKey, keyPair.secretKey);
+    return Buffer.from(encrypted).toString('base64');
+  }
+
+  /**
+   * Decrypts the given encrypted base64 message using a secret key.
+   *
+   * @param messageBytes - The payload to decrypt
+   * @param secretKey - The secret key to use
+   */
+  static decryptBox(messageBytes: string, secretKey: string): string {
+    const msg = Buffer.from(messageBytes, 'base64');
+    const secretKeyHash = Uint8Array.from(Buffer.from(sha256(secretKey))).slice(0, 32);
+    const keyPair = nacl.box.keyPair.fromSecretKey(secretKeyHash);
+    const nonce = Uint8Array.from(Buffer.from(sha256(secretKey))).slice(0, 24);
+    return Buffer.from(nacl.box.open(msg, nonce, keyPair.publicKey, keyPair.secretKey)).toString();
+  }
 
   /**
    * Encrypts the given buffer with NaCl SealedBox using the given hex public key.

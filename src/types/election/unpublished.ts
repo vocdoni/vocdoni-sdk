@@ -10,6 +10,7 @@ import invariant from 'tiny-invariant';
 import { Census } from '../census';
 import { Election, ElectionMeta, IElectionParameters, IElectionType, IVoteType } from './election';
 import { SDK_VERSION } from '../../version';
+import { Asymmetric } from '../../util/encryption';
 
 /**
  * Represents an unpublished election
@@ -70,6 +71,10 @@ export class UnpublishedElection extends Election {
       dynamicCensus: typeof value?.dynamicCensus === 'boolean' ? value.dynamicCensus === true : false,
       secretUntilTheEnd: typeof value?.secretUntilTheEnd === 'boolean' ? value.secretUntilTheEnd === true : false,
       anonymous: typeof value?.anonymous === 'boolean' ? value.anonymous === true : false,
+      metadata: {
+        encrypted: typeof value?.metadata?.encrypted === 'boolean' ? value.metadata.encrypted === true : false,
+        password: typeof value?.metadata?.password === 'string' ? value.metadata.password : null,
+      },
     };
   }
 
@@ -120,6 +125,13 @@ export class UnpublishedElection extends Election {
     return metadata;
   }
 
+  public summarizeMetadata(): string {
+    const metadata = JSON.stringify(this.generateMetadata());
+    return this.electionType.metadata?.encrypted
+      ? Asymmetric.encryptBox(metadata, this.electionType.metadata?.password)
+      : metadata;
+  }
+
   public generateVoteOptions(): object {
     const maxCount = this.voteType.maxCount ?? this.questions.length;
     const maxValue =
@@ -155,7 +167,7 @@ export class UnpublishedElection extends Election {
     const autoStart = this.electionType.autoStart;
     const interruptible = this.electionType.interruptible;
     const dynamicCensus = this.electionType.dynamicCensus;
-    const encryptedMetaData = false; // TODO
+    const encryptedMetaData = this.electionType.metadata?.encrypted ?? false;
     const preRegister = false; // TODO
 
     return { autoStart, interruptible, dynamicCensus, encryptedMetaData, preRegister };
