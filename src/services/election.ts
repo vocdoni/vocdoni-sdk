@@ -20,6 +20,7 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { ArchivedCensus } from '../types/census/archived';
 import { keccak256 } from '@ethersproject/keccak256';
 import { Buffer } from 'buffer';
+import { Asymmetric } from '../util/encryption';
 
 interface ElectionServiceProperties {
   censusService: CensusService;
@@ -106,19 +107,54 @@ export class ElectionService extends Service implements ElectionServicePropertie
       : this.buildPublishedCensus(electionInfo);
   }
 
+  decryptMetadata(electionInfo, password) {
+    if (!electionInfo.electionMode.encryptedMetaData) {
+      return electionInfo;
+    }
+
+    if (!password) {
+      electionInfo.metadata = {
+        title: '<redacted>',
+        description: '<redacted>',
+        media: {
+          header: '<redacted>',
+          streamUri: '<redacted>',
+        },
+        meta: {},
+        questions: [],
+        type: {
+          name: null,
+          properties: {},
+        },
+      };
+      return electionInfo;
+    }
+
+    try {
+      const encrypted = Buffer.from(electionInfo.metadata as string, 'base64');
+      electionInfo.metadata = JSON.parse(Asymmetric.decryptBox(encrypted.toString(), password));
+      return electionInfo;
+    } catch (e) {
+      throw new Error('Encrypted metadata could not be decrypted');
+    }
+  }
+
   /**
    * Fetches info about an election.
    *
    * @param electionId - The id of the election
+   * @param password - The password to decrypt the metadata
    */
-  async fetchElection(electionId: string): Promise<PublishedElection | ArchivedElection> {
+  async fetchElection(electionId: string, password?: string): Promise<PublishedElection | ArchivedElection> {
     invariant(this.url, 'No URL set');
     invariant(this.censusService, 'No census service set');
 
-    const electionInfo = await ElectionAPI.info(this.url, electionId).catch((err) => {
+    const electionInformation = await ElectionAPI.info(this.url, electionId).catch((err) => {
       err.electionId = electionId;
       throw err;
     });
+
+    const electionInfo = this.decryptMetadata(electionInformation, password);
 
     const electionParameters = {
       id: electionInfo.electionId,
@@ -146,6 +182,10 @@ export class ElectionService extends Service implements ElectionServicePropertie
         interruptible: electionInfo.electionMode.interruptible,
         dynamicCensus: electionInfo.electionMode.dynamicCensus,
         secretUntilTheEnd: electionInfo.voteMode.encryptedVotes,
+        metadata: {
+          encrypted: electionInfo.electionMode.encryptedMetaData,
+          password: password ?? null,
+        },
         anonymous: electionInfo.voteMode.anonymous,
       },
       voteType: {

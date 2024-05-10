@@ -90,6 +90,19 @@ export interface IElectionType {
    * Enable anonymous voting.
    */
   anonymous?: boolean;
+  /**
+   * If the metadata has to be encrypted or not.
+   */
+  metadata?: {
+    /**
+     * If the metadata has to be encrypted or not.
+     */
+    encrypted?: boolean;
+    /**
+     * Password to encrypt the metadata.
+     */
+    password?: string;
+  };
 }
 
 type AnyJson = boolean | number | string | null | JsonArray | JsonMap | any;

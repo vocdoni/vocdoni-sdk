@@ -102,7 +102,7 @@ export abstract class ElectionCore extends TransactionCore {
       startTime = 0;
     }
     return {
-      metadata: Buffer.from(JSON.stringify(election.generateMetadata()), 'utf8').toString('base64'),
+      metadata: Buffer.from(election.summarizeMetadata(), 'utf8').toString('base64'),
       electionData: {
         nonce: nonce,
         process: {

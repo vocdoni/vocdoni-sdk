@@ -245,9 +245,9 @@ export interface IElectionInfoResponse {
   tallyMode: ITallyMode;
 
   /**
-   * The metadata of the election
+   * The metadata of the election (can be encrypted)
    */
-  metadata: ElectionMetadata;
+  metadata: ElectionMetadata | string;
 }
 
 export interface IEncryptionKey {

@@ -1275,4 +1275,60 @@ describe('Election integration tests', () => {
         }
       });
   }, 85000);
+  it('should create an election with encrypted metadata', async () => {
+    const password = 'password';
+    const census = new PlainCensus();
+    census.add(await Wallet.createRandom().getAddress());
+
+    const election = createElection(census, {
+      metadata: {
+        encrypted: true,
+        password,
+      },
+    });
+
+    await client.createAccount();
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        expect(electionId).toMatch(/^[0-9a-fA-F]{64}$/);
+        return client.fetchElection(electionId, password);
+      })
+      .then((publishedElection) => {
+        expect(publishedElection.title).toEqual(election.title);
+        expect(publishedElection.description).toEqual(election.description);
+        expect(publishedElection.electionType).toStrictEqual({
+          autoStart: true,
+          interruptible: true,
+          dynamicCensus: false,
+          secretUntilTheEnd: false,
+          metadata: {
+            encrypted: true,
+            password: password,
+          },
+          anonymous: false,
+        });
+        return client.fetchElection(publishedElection.id);
+      })
+      .then(async (publishedElection) => {
+        expect(publishedElection.title).toEqual({ default: '<redacted>' });
+        expect(publishedElection.description).toEqual({ default: '<redacted>' });
+        expect(publishedElection.electionType).toStrictEqual({
+          autoStart: true,
+          interruptible: true,
+          dynamicCensus: false,
+          secretUntilTheEnd: false,
+          metadata: {
+            encrypted: true,
+            password: null,
+          },
+          anonymous: false,
+        });
+        return client.fetchElection(publishedElection.id, 'wrongpassword');
+      })
+      .catch((error) => {
+        expect(error.message).toEqual('Encrypted metadata could not be decrypted');
+      });
+  }, 85000);
 });

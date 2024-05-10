@@ -222,11 +222,12 @@ export class VocdoniSDKClient {
    * @category Election
    *
    * @param electionId - The id of the election
+   * @param password - The password to decrypt the metadata
    */
-  async fetchElection(electionId?: string): Promise<PublishedElection | ArchivedElection> {
+  async fetchElection(electionId?: string, password?: string): Promise<PublishedElection | ArchivedElection> {
     invariant(this.electionId || electionId, 'No election set');
 
-    this.election = await this.electionService.fetchElection(electionId ?? this.electionId);
+    this.election = await this.electionService.fetchElection(electionId ?? this.electionId, password);
     return this.election;
   }
 
@@ -572,7 +573,7 @@ export class VocdoniSDKClient {
       key: ElectionCreationSteps.GET_ACCOUNT_DATA,
     };
 
-    const cid = await this.fileService.calculateCID(JSON.stringify(election.generateMetadata()));
+    const cid = await this.fileService.calculateCID(election.summarizeMetadata());
     yield {
       key: ElectionCreationSteps.GET_DATA_PIN,
     };
