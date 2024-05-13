@@ -19,6 +19,25 @@ export interface IVoteSubmitResponse {
   voteID: string;
 }
 
+export interface IVotePackage {
+  /**
+   * The nonce of the vote package
+   */
+  nonce: string;
+
+  /**
+   * The raw vote package
+   */
+  votes: number[];
+}
+
+export interface IVoteEncryptedPackage {
+  /**
+   * The base64 encrypted vote package
+   */
+  encrypted: string;
+}
+
 export interface IVoteInfoResponse {
   /**
    * The hash of the transaction
@@ -36,9 +55,9 @@ export interface IVoteInfoResponse {
   encryptionKeys?: number[];
 
   /**
-   * The stringified vote package JSON.
+   * The vote package.
    */
-  package: string;
+  package: IVotePackage | IVoteEncryptedPackage;
 
   /**
    * The weight of the vote.
@@ -49,6 +68,11 @@ export interface IVoteInfoResponse {
    * The identifier of the election.
    */
   electionID: string;
+
+  /**
+   * The identifier of the voter.
+   */
+  voterID: string;
 
   /**
    * The block number where the transaction is mined.
