@@ -21,6 +21,9 @@ enum ChainAPIMethods {
   BLOCK_TRANSACTIONS = '/chain/blocks/{height}/transactions/page/{page}',
   DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
   BLOCK_TO_DATE = '/chain/blockToDate/{height}',
+  FEES_LIST = '/chain/fees/page/{page}',
+  FEES_LIST_REFERENCE = '/chain/fees/reference/{reference}/page/{page}',
+  FEES_LIST_TYPE = '/chain/fees/type/{type}/page/{page}',
 }
 
 export interface IChainGetInfoResponse {
@@ -351,6 +354,45 @@ export interface IChainValidatorsListResponse {
   validators: Array<IChainValidator>;
 }
 
+export type Fee = {
+  /**
+   * The cost of the transaction
+   */
+  cost: number;
+
+  /**
+   * The account generating the transaction
+   */
+  from: string;
+
+  /**
+   * The block number
+   */
+  height: number;
+
+  /**
+   * The transaction hash
+   */
+  reference: string;
+
+  /**
+   * The timestamp of the transaction
+   */
+  timestamp: string;
+
+  /**
+   * The type of the transaction
+   */
+  txType: string;
+};
+
+export interface IChainFeesListResponse {
+  /**
+   * The list of fees
+   */
+  fees: Array<Fee>;
+}
+
 export abstract class ChainAPI extends API {
   /**
    * Cannot be constructed.
@@ -467,6 +509,51 @@ export abstract class ChainAPI extends API {
   public static txList(url: string, page: number = 0): Promise<IChainTxListResponse> {
     return axios
       .get<IChainTxListResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of fees by page
+   *
+   * @param url - {string} url API endpoint URL
+   * @param page - {number} page The page number
+   */
+  public static feesList(url: string, page: number = 0): Promise<IChainFeesListResponse> {
+    return axios
+      .get<IChainFeesListResponse>(url + ChainAPIMethods.FEES_LIST.replace('{page}', String(page)))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of fees by reference
+   *
+   * @param url - {string} url API endpoint URL
+   * @param reference - {string} reference The reference
+   * @param page - {number} page The page number
+   */
+  public static feesListByReference(url: string, reference: string, page: number = 0): Promise<IChainFeesListResponse> {
+    return axios
+      .get<IChainFeesListResponse>(
+        url + ChainAPIMethods.FEES_LIST_REFERENCE.replace('{reference}', reference).replace('{page}', String(page))
+      )
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of fees by type
+   *
+   * @param url - {string} url API endpoint URL
+   * @param type - {string} type The type of the fee
+   * @param page - {number} page The page number
+   */
+  public static feesListByType(url: string, type: string, page: number = 0): Promise<IChainFeesListResponse> {
+    return axios
+      .get<IChainFeesListResponse>(
+        url + ChainAPIMethods.FEES_LIST_TYPE.replace('{type}', type).replace('{page}', String(page))
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }
