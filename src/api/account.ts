@@ -2,6 +2,7 @@ import axios from 'axios';
 import { IElectionListResponse } from './election';
 import { API } from './api';
 import { AccountMetadata } from '../types';
+import { IChainFeesListResponse } from './chain';
 
 enum AccountAPIMethods {
   LIST = '/accounts/page',
@@ -12,6 +13,7 @@ enum AccountAPIMethods {
   ELECTIONS = '/accounts/{accountId}/elections/page',
   TRANSFERS = '/accounts/{accountId}/transfers/page',
   NUM_TRANSFERS = '/accounts/{accountId}/transfers/count',
+  ACCOUNT_FEES = '/accounts/{accountId}/fees/page/{page}',
 }
 
 export type IAccountSummary = Pick<IAccountInfoResponse, 'address' | 'balance' | 'nonce'>;
@@ -212,6 +214,22 @@ export abstract class AccountAPI extends API {
   public static electionsList(url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
     return axios
       .get<IElectionListResponse>(url + AccountAPIMethods.ELECTIONS.replace('{accountId}', accountId) + '/' + page)
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of fees by account
+   *
+   * @param url - {string} url API endpoint URL
+   * @param account - {string} account The account
+   * @param page - {number} page The page number
+   */
+  public static fees(url: string, account: string, page: number = 0): Promise<IChainFeesListResponse> {
+    return axios
+      .get<IChainFeesListResponse>(
+        url + AccountAPIMethods.ACCOUNT_FEES.replace('{accountId}', account).replace('{page}', String(page))
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }
