@@ -1,13 +1,15 @@
 import { Service, ServiceProperties } from './service';
 import { CensusType, ICensusParticipant, PlainCensus, WeightedCensus } from '../types';
-import { CensusAPI, ICensusImportResponse, ICensusPublishResponse, WalletAPI } from '../api';
+import { CensusAPI, CensusStillNotPublished, ICensusImportResponse, ICensusPublishResponse, WalletAPI } from '../api';
 import { Wallet } from '@ethersproject/wallet';
 import invariant from 'tiny-invariant';
 import { CspProofType } from './csp';
+import { delay } from '../util/common';
 
 interface CensusServiceProperties {
   auth: CensusAuth;
   chunk_size: number;
+  async: CensusAsync;
 }
 
 type CensusServiceParameters = ServiceProperties & CensusServiceProperties;
@@ -15,6 +17,11 @@ type CensusServiceParameters = ServiceProperties & CensusServiceProperties;
 type CensusAuth = {
   identifier: string;
   wallet?: Wallet;
+};
+
+type CensusAsync = {
+  async: boolean;
+  wait: number;
 };
 
 /**
@@ -64,6 +71,7 @@ export type CspCensusProof = {
 export class CensusService extends Service implements CensusServiceProperties {
   public auth: CensusAuth;
   public chunk_size: number;
+  public async: CensusAsync;
 
   /**
    * Instantiate the census service.
@@ -187,12 +195,29 @@ export class CensusService extends Service implements CensusServiceProperties {
    * Publishes the given census identifier.
    *
    * @param censusId - The census identifier
+   * @param async - If the publication has to be done asynchronously
    */
-  publish(censusId: string): Promise<ICensusPublishResponse> {
+  publish(censusId: string, async?: boolean): Promise<ICensusPublishResponse> {
     invariant(this.url, 'No URL set');
     invariant(this.auth, 'No census auth set');
+    invariant(this.async, 'No census async information set');
 
-    return CensusAPI.publish(this.url, this.auth.identifier, censusId);
+    const censusAsync = async ?? this.async.async;
+
+    const checkAsync = (url: string, authToken: string, censusId: string) => {
+      return CensusAPI.check(this.url, this.auth.identifier, censusId).catch((error) => {
+        if (error instanceof CensusStillNotPublished) {
+          return delay(this.async.wait).then(() => checkAsync(url, authToken, censusId));
+        }
+        throw error;
+      });
+    };
+
+    return censusAsync
+      ? CensusAPI.publishAsync(this.url, this.auth.identifier, censusId).then((response) =>
+          checkAsync(this.url, this.auth.identifier, response.censusID)
+        )
+      : CensusAPI.publishSync(this.url, this.auth.identifier, censusId);
   }
 
   /**

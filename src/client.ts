@@ -22,13 +22,22 @@ import {
   PlainCensus,
   PublishedElection,
   SendTokensOptions,
+  StrategyCensus,
   TokenCensus,
   UnpublishedElection,
   Vote,
   VotesLeftCountOptions,
   WeightedCensus,
 } from './types';
-import { API_URL, CENSUS_CHUNK_SIZE, EXPLORER_URL, FAUCET_URL, TX_WAIT_OPTIONS } from './util/constants';
+import {
+  API_URL,
+  CENSUS_ASYNC,
+  CENSUS_ASYNC_WAIT_TIME,
+  CENSUS_CHUNK_SIZE,
+  EXPLORER_URL,
+  FAUCET_URL,
+  TX_WAIT_OPTIONS,
+} from './util/constants';
 import {
   AccountData,
   AccountService,
@@ -53,7 +62,6 @@ import {
   ZkProof,
 } from './services';
 import { isAddress } from '@ethersproject/address';
-import { StrategyCensus } from './types/census/census3/strategy';
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -74,6 +82,20 @@ type TxWaitOptions = {
 };
 
 /**
+ * Specify custom census service options.
+ *
+ * @typedef CensusOptions
+ * @property {boolean} async If the census upload has to be done asynchronously
+ * @property {number | null} wait_time The waiting time between each check
+ * @property {number | null} chunk The size of the chunks to be uploaded each request
+ */
+type CensusOptions = {
+  async: boolean;
+  wait_time?: number;
+  chunk?: number;
+};
+
+/**
  * Optional VocdoniSDKClient arguments
  *
  * @typedef ClientOptions
@@ -90,6 +112,7 @@ export type ClientOptions = {
   electionId?: string;
   faucet?: Partial<FaucetOptions>;
   tx_wait?: TxWaitOptions;
+  census?: CensusOptions;
 };
 
 /**
@@ -130,7 +153,11 @@ export class VocdoniSDKClient {
     this.wallet = opts.wallet;
     this.electionId = opts.electionId;
     this.explorerUrl = EXPLORER_URL[opts.env];
-    this.censusService = new CensusService({ url: this.url, chunk_size: CENSUS_CHUNK_SIZE });
+    this.censusService = new CensusService({
+      url: this.url,
+      chunk_size: opts.census?.chunk ?? CENSUS_CHUNK_SIZE,
+      async: { async: opts.census?.async ?? CENSUS_ASYNC, wait: opts.census?.wait_time ?? CENSUS_ASYNC_WAIT_TIME },
+    });
     this.fileService = new FileService({ url: this.url });
     this.chainService = new ChainService({
       url: this.url,
