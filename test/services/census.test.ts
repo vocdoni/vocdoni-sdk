@@ -38,7 +38,7 @@ describe('Census Service tests', () => {
   });
   it('should create a census and return the correct information', async () => {
     const numVotes = 10;
-    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE });
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE, async: { async: true, wait: 3000 } });
     const census = new WeightedCensus();
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
     census.add(
@@ -63,7 +63,7 @@ describe('Census Service tests', () => {
   }, 30000);
   it('should create a census by batches and return the correct information', async () => {
     const numVotes = 63;
-    const service = new CensusService({ url: URL, chunk_size: 9 });
+    const service = new CensusService({ url: URL, chunk_size: 9, async: { async: true, wait: 3000 } });
     const census = new PlainCensus();
 
     // Adding not random addresses for testing purposes
@@ -87,7 +87,7 @@ describe('Census Service tests', () => {
   }, 40000);
   it('should create a big census by batches and return the correct information', async () => {
     const numVotes = 10000;
-    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE });
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE, async: { async: true, wait: 3000 } });
     const census = new PlainCensus();
 
     // Adding not random addresses for testing purposes
@@ -111,7 +111,7 @@ describe('Census Service tests', () => {
   }, 40000);
   it('should create a census and export/import it correctly', async () => {
     const numVotes = 10;
-    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE });
+    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE, async: { async: true, wait: 3000 } });
     const participants: Wallet[] = [...new Array(numVotes)].map(() => Wallet.createRandom());
 
     census = await service.create(CensusType.WEIGHTED);
@@ -137,7 +137,12 @@ describe('Census Service tests', () => {
     if (!census) {
       return;
     }
-    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE, auth: { identifier: census.auth } });
+    const service = new CensusService({
+      url: URL,
+      chunk_size: CENSUS_CHUNK_SIZE,
+      auth: { identifier: census.auth },
+      async: { async: true, wait: 3000 },
+    });
     const oldCensusInfo = await service.get(census.id);
 
     await service.add(census.id, [{ key: Wallet.createRandom().address, weight: BigInt(1) }]);
@@ -154,7 +159,12 @@ describe('Census Service tests', () => {
     if (!census) {
       return;
     }
-    const service = new CensusService({ url: URL, chunk_size: CENSUS_CHUNK_SIZE, auth: { identifier: census.auth } });
+    const service = new CensusService({
+      url: URL,
+      chunk_size: CENSUS_CHUNK_SIZE,
+      auth: { identifier: census.auth },
+      async: { async: true, wait: 3000 },
+    });
     const oldCensusInfo = await service.get(census.id);
     await service.delete(census.id);
     const newCensusInfo = await service.get(census.id);
