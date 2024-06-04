@@ -44,6 +44,8 @@ export const VOCDONI_SIK_PAYLOAD =
   'Only accept this signature request if you fully trust the application. This request will not trigger a blockchain transaction or cost any gas fees.';
 
 export const CENSUS_CHUNK_SIZE = 8192;
+export const CENSUS_ASYNC = true;
+export const CENSUS_ASYNC_WAIT_TIME = 5000;
 
 export enum TxMessage {
   REGISTER_SIK = 'You are signing a Vocdoni transaction of type REGISTER_SIK for secret identity key {sik}.\n\nThe hash of this transaction is {hash} and the destination chain is {chainId}.',

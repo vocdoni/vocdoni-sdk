@@ -2,12 +2,15 @@ import axios from 'axios';
 import { CensusType } from '../types';
 import { strip0x } from '../util/common';
 import { API } from './api';
+import { CensusStillNotPublished } from './errors';
 
 enum CensusAPIMethods {
   CREATE = '/censuses',
   ADD = '/censuses/{id}/participants',
   DELETE = '/censuses/{id}',
   PUBLISH = '/censuses/{id}/publish',
+  PUBLISH_ASYNC = '/censuses/{id}/publish/async',
+  CHECK = '/censuses/{id}/check',
   PROOF = '/censuses/{id}/proof',
   SIZE = '/censuses/{id}/size',
   WEIGHT = '/censuses/{id}/weight',
@@ -35,6 +38,13 @@ export interface ICensusPublishResponse {
    * The URI of the published census
    */
   uri: string;
+}
+
+export interface ICensusPublishAsyncResponse {
+  /**
+   * The identifier of the published census
+   */
+  censusID: string;
 }
 
 export interface ICensusExportResponse {
@@ -184,7 +194,7 @@ export abstract class CensusAPI extends API {
    * @param censusId - The census ID we're publishing
    * @returns on success
    */
-  public static publish(url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
+  public static publishSync(url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
     return axios
       .post<ICensusPublishResponse>(url + CensusAPIMethods.PUBLISH.replace('{id}', censusId), null, {
         headers: {
@@ -192,6 +202,49 @@ export abstract class CensusAPI extends API {
         },
       })
       .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Publishes the census using an async call
+   *
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we're publishing
+   * @returns on success
+   */
+  public static publishAsync(url: string, authToken: string, censusId: string): Promise<ICensusPublishAsyncResponse> {
+    return axios
+      .post<ICensusPublishAsyncResponse>(url + CensusAPIMethods.PUBLISH_ASYNC.replace('{id}', censusId), null, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Checks that the census is published
+   *
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param censusId - The census ID we're checking
+   * @returns on success
+   */
+  public static check(url: string, authToken: string, censusId: string): Promise<ICensusPublishResponse> {
+    return axios
+      .get<ICensusPublishResponse>(url + CensusAPIMethods.CHECK.replace('{id}', censusId), {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+        },
+      })
+      .then((response) => {
+        if (response.status === 204) {
+          throw new CensusStillNotPublished();
+        }
+        return response.data;
+      })
       .catch(this.isApiError);
   }
 
