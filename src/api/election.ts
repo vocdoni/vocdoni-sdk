@@ -267,7 +267,7 @@ export interface IElectionKeysResponse {
   privateKeys: IEncryptionKey[];
 }
 
-interface IElectionVotesCountResponse {
+export interface IElectionVotesCountResponse {
   /**
    * The number of votes
    */
