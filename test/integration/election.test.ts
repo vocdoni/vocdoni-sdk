@@ -1153,7 +1153,7 @@ describe('Election integration tests', () => {
         dynamicCensus: true,
       },
       null,
-      census2.participants.length
+      census1.participants.length
     );
 
     await client.createAccount();
@@ -1168,6 +1168,9 @@ describe('Election integration tests', () => {
         return waitForElectionReady(client, electionId);
       })
       .then(async () => {
+        // Check correct max census size
+        const election = await client.fetchElection();
+        expect(election.maxCensusSize).toEqual(census1.participants.length);
         // Check voter2 is not in the census
         const isInCensus2 = await clientVoter2.isInCensus();
         expect(isInCensus2).toBeFalsy();
@@ -1187,8 +1190,13 @@ describe('Election integration tests', () => {
         return clientVoter1.submitVote(vote);
       })
       .then(() => client.createCensus(census2))
-      .then(() => client.changeElectionCensus(client.electionId, census2.censusId, census2.censusURI))
+      .then(() =>
+        client.changeElectionCensus(client.electionId, census2.censusId, census2.censusURI, census2.participants.length)
+      )
       .then(async () => {
+        // Check correct max census size
+        const election = await client.fetchElection();
+        expect(election.maxCensusSize).toEqual(census2.participants.length);
         // Check voter2 is in the census
         const isInCensus2 = await clientVoter2.isInCensus();
         expect(isInCensus2).toBeTruthy();

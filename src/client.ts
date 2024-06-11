@@ -703,8 +703,14 @@ export class VocdoniSDKClient {
    * @param electionId - The id of the election
    * @param censusId - The new census id (root)
    * @param censusURI - The new census URI
+   * @param maxCensusSize - The new max census size
    */
-  public changeElectionCensus(electionId: string, censusId: string, censusURI: string): Promise<void> {
+  public changeElectionCensus(
+    electionId: string,
+    censusId: string,
+    censusURI: string,
+    maxCensusSize?: number
+  ): Promise<void> {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
@@ -714,7 +720,8 @@ export class VocdoniSDKClient {
           electionId ?? this.electionId,
           accountData.nonce,
           censusId,
-          censusURI
+          censusURI,
+          maxCensusSize
         );
         return this.electionService.signTransaction(setElectionCensusTx.tx, setElectionCensusTx.message, this.wallet);
       })

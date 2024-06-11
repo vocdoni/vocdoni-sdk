@@ -51,7 +51,8 @@ export abstract class ElectionCore extends TransactionCore {
     electionId: string,
     accountNonce: number,
     censusId: string,
-    censusURI: string
+    censusURI: string,
+    maxCensusSize?: number
   ): { tx: Uint8Array; message: string } {
     const message = TxMessage.SET_PROCESS_CENSUS.replace('{censusId}', censusId).replace('{processId}', electionId);
     const setProcess = SetProcessTx.fromPartial({
@@ -60,6 +61,7 @@ export abstract class ElectionCore extends TransactionCore {
       processId: Uint8Array.from(Buffer.from(strip0x(electionId), 'hex')),
       censusRoot: Uint8Array.from(Buffer.from(strip0x(censusId), 'hex')),
       censusURI: censusURI,
+      censusSize: maxCensusSize,
     });
     const tx = Tx.encode({
       payload: { $case: 'setProcess', setProcess },
