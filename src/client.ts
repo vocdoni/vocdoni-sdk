@@ -730,6 +730,28 @@ export class VocdoniSDKClient {
   }
 
   /**
+   * Changes the max census size of an election.
+   * @category Election
+   *
+   * @param electionId - The id of the election
+   * @param maxCensusSize - The new max census size
+   */
+  public changeElectionMaxCensusSize(electionId: string, maxCensusSize: number): Promise<void> {
+    if (!this.electionId && !electionId) {
+      throw Error('No election set');
+    }
+
+    return this.fetchElection(electionId ?? this.electionId).then((election) =>
+      this.changeElectionCensus(
+        electionId ?? this.electionId,
+        election.census.censusId,
+        election.census.censusURI,
+        maxCensusSize
+      )
+    );
+  }
+
+  /**
    * Checks if the user is in census.
    * @category Voting
    *

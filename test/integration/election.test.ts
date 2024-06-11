@@ -1343,4 +1343,41 @@ describe('Election integration tests', () => {
         expect(error.message).toEqual('Encrypted metadata could not be decrypted');
       });
   }, 85000);
+  it('should change the max census size correctly', async () => {
+    const census = new PlainCensus();
+
+    census.add(await Wallet.createRandom().getAddress());
+
+    const election = createElection(census, {
+      dynamicCensus: true,
+    });
+
+    await client.createAccount();
+
+    let account, publishedElection;
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return waitForElectionReady(client, electionId);
+      })
+      .then(() => client.fetchElection())
+      .then(async (election) => {
+        publishedElection = election;
+        account = await client.fetchAccount();
+        expect(election.maxCensusSize).toEqual(census.participants.length);
+        return client.changeElectionMaxCensusSize(election.id, 1000);
+      })
+      .then(() => client.fetchElection())
+      .then(async (election) => {
+        expect(election.maxCensusSize).toEqual(1000);
+        expect(account.balance).toBeGreaterThan((await client.fetchAccount()).balance);
+        expect(publishedElection.census.censusId).toEqual(election.census.censusId);
+        expect(publishedElection.census.censusURI).toEqual(election.census.censusURI);
+        await expect(async () => {
+          await client.changeElectionMaxCensusSize(election.id, 1);
+        }).rejects.toThrow();
+      });
+  }, 185000);
 });
