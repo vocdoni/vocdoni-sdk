@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2024-06-12
+
+### Added
+
+- Added API fees calls functions for checking all fees and account fees.
+- Added new function to modify an election maximum census size.
+- Added new `delta` parameter when checking for next election identifiers.
+
+### Changed
+
+- Census publishing is done async to avoid 502 errors when uploading large censuses.
+- Modified change census function to accept a new maximum census size.
+
 ## [0.8.1] - 2024-05-21
 
 ### Added
@@ -473,6 +486,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.8.2]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.8.2
 [0.8.1]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.8.1
 [0.8.0]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.8.0
 [0.7.5]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.7.5
