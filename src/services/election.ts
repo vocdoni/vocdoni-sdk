@@ -303,12 +303,13 @@ export class ElectionService extends Service implements ElectionServicePropertie
    *
    * @param address - The address of the account
    * @param election - The unpublished election
+   * @param delta - The stride to next election id, being 0 the next one
    * @returns The next election identifier
    */
-  nextElectionId(address: string, election: UnpublishedElection): Promise<string> {
+  nextElectionId(address: string, election: UnpublishedElection, delta: number = 0): Promise<string> {
     invariant(this.url, 'No URL set');
     const censusOrigin = ElectionCore.censusOriginFromCensusType(election.census.type);
-    return ElectionAPI.nextElectionId(this.url, address, censusOrigin, {
+    return ElectionAPI.nextElectionId(this.url, address, censusOrigin, delta, {
       serial: false, // TODO
       anonymous: election.electionType.anonymous,
       encryptedVotes: election.electionType.secretUntilTheEnd,
