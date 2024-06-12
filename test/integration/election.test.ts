@@ -1256,8 +1256,12 @@ describe('Election integration tests', () => {
         return waitForElectionReady(client, electionId);
       })
       .then(async () => {
-        const nextElectionId = await client.electionService.nextElectionId(await client.wallet.getAddress(), election);
-        expect(nextElectionId).toEqual(client.electionId.slice(0, -1) + '1');
+        expect(await client.electionService.nextElectionId(await client.wallet.getAddress(), election)).toEqual(
+          client.electionId.slice(0, -1) + '1'
+        );
+        expect(await client.electionService.nextElectionId(await client.wallet.getAddress(), election, 1)).toEqual(
+          client.electionId.slice(0, -1) + '2'
+        );
       });
   }, 85000);
   it('should vote with steps', async () => {

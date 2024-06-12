@@ -420,12 +420,14 @@ export abstract class ElectionAPI extends API {
    * @param url - API endpoint URL
    * @param organizationId - The identifier of the organization
    * @param censusOrigin - The census origin
+   * @param delta - The stride to next election id, being 0 the next one
    * @param envelopeType - The envelope type
    */
   public static nextElectionId(
     url: string,
     organizationId: string,
     censusOrigin: number,
+    delta: number = 0,
     envelopeType?: Partial<IVoteMode>
   ): Promise<IElectionNextIdResponse> {
     return axios
@@ -433,6 +435,7 @@ export abstract class ElectionAPI extends API {
         organizationId,
         censusOrigin,
         envelopeType,
+        delta,
       })
       .then((response) => response.data)
       .catch(this.isApiError);
