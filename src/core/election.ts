@@ -59,9 +59,28 @@ export abstract class ElectionCore extends TransactionCore {
       txtype: TxType.SET_PROCESS_CENSUS,
       nonce: accountNonce,
       processId: Uint8Array.from(Buffer.from(strip0x(electionId), 'hex')),
-      censusRoot: Uint8Array.from(Buffer.from(strip0x(censusId), 'hex')),
+      censusRoot: censusId ? Uint8Array.from(Buffer.from(strip0x(censusId), 'hex')) : null,
       censusURI: censusURI,
       censusSize: maxCensusSize,
+    });
+    const tx = Tx.encode({
+      payload: { $case: 'setProcess', setProcess },
+    }).finish();
+
+    return { tx, message };
+  }
+
+  public static generateSetElectionDurationTransaction(
+    electionId: string,
+    accountNonce: number,
+    duration: number
+  ): { tx: Uint8Array; message: string } {
+    const message = TxMessage.SET_PROCESS.replace('{type}', 'SET_PROCESS_DURATION').replace('{processId}', electionId);
+    const setProcess = SetProcessTx.fromPartial({
+      txtype: TxType.SET_PROCESS_DURATION,
+      nonce: accountNonce,
+      processId: Uint8Array.from(Buffer.from(strip0x(electionId), 'hex')),
+      duration: duration,
     });
     const tx = Tx.encode({
       payload: { $case: 'setProcess', setProcess },
