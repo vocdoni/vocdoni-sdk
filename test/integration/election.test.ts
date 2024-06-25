@@ -1352,9 +1352,7 @@ describe('Election integration tests', () => {
 
     census.add(await Wallet.createRandom().getAddress());
 
-    const election = createElection(census, {
-      dynamicCensus: true,
-    });
+    const election = createElection(census);
 
     await client.createAccount();
 
@@ -1381,6 +1379,47 @@ describe('Election integration tests', () => {
         expect(publishedElection.census.censusURI).toEqual(election.census.censusURI);
         await expect(async () => {
           await client.changeElectionMaxCensusSize(election.id, 1);
+        }).rejects.toThrow();
+      });
+  }, 185000);
+  it('should change the duration of an election correctly', async () => {
+    const census = new PlainCensus();
+
+    census.add(await Wallet.createRandom().getAddress());
+
+    const startDateStride = 100000;
+    const election = createElection(census);
+    const startDate = new Date().getTime() + startDateStride;
+    const endDate = new Date().getTime() + 100000000;
+    election.startDate = new Date(startDate);
+    election.endDate = new Date(endDate);
+
+    await client.createAccount();
+
+    let account, publishedElection;
+
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return waitForElectionReady(client, electionId);
+      })
+      .then(() => client.fetchElection())
+      .then(async (election) => {
+        publishedElection = election;
+        account = await client.fetchAccount();
+        expect(election.startDate.toISOString()).toEqual(new Date(startDate).toISOString().split('.')[0] + '.000Z');
+        return client.changeElectionDuration(election.id, startDateStride + 60 * 60);
+      })
+      .then(() => client.fetchElection())
+      .then(async (election) => {
+        expect(new Date(publishedElection.endDate).getTime()).toBeLessThan(new Date(election.endDate).getTime());
+        expect(new Date(election.endDate).getTime()).toBeGreaterThan(
+          new Date(publishedElection.endDate).getTime() + startDateStride + 60 * 60
+        );
+        expect(account.balance).toBeGreaterThan((await client.fetchAccount()).balance);
+        await expect(async () => {
+          await client.changeElectionDuration(election.id, -(startDateStride + 60 * 60));
         }).rejects.toThrow();
       });
   }, 185000);
