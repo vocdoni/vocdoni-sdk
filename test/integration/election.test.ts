@@ -1396,7 +1396,7 @@ describe('Election integration tests', () => {
 
     await client.createAccount();
 
-    let account, publishedElection;
+    let account, publishedElection, changedDate;
 
     await client
       .createElection(election)
@@ -1413,6 +1413,7 @@ describe('Election integration tests', () => {
       })
       .then(() => client.fetchElection())
       .then(async (election) => {
+        changedDate = election.endDate;
         expect(new Date(publishedElection.endDate).getTime()).toBeLessThan(new Date(election.endDate).getTime());
         expect(new Date(election.endDate).getTime()).toBeGreaterThan(
           new Date(publishedElection.endDate).getTime() + startDateStride + 60 * 60
@@ -1421,6 +1422,14 @@ describe('Election integration tests', () => {
         await expect(async () => {
           await client.changeElectionDuration(election.id, -(startDateStride + 60 * 60));
         }).rejects.toThrow();
+        return client.changeElectionEndDate(
+          election.id,
+          new Date(election.startDate.getTime() + startDateStride + 60 * 60 + 1)
+        );
+      })
+      .then(() => client.fetchElection())
+      .then(async (election) => {
+        expect(new Date(changedDate).getTime()).toBe(new Date(election.endDate).getTime() - 1000);
       });
   }, 185000);
 });

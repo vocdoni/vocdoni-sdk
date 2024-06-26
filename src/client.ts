@@ -773,6 +773,25 @@ export class VocdoniSDKClient {
   }
 
   /**
+   * Changes the end date of an election.
+   * @category Election
+   *
+   * @param electionId - The id of the election
+   * @param endDate - The new end date
+   */
+  public changeElectionEndDate(electionId: string, endDate: string | number | Date): Promise<void> {
+    const date = new Date(endDate);
+    invariant(date instanceof Date, 'Date not valid');
+    if (!this.electionId && !electionId) {
+      throw Error('No election set');
+    }
+
+    return this.fetchElection(electionId ?? this.electionId).then((election) =>
+      this.changeElectionDuration(electionId ?? this.electionId, date.getTime() - election.startDate.getTime())
+    );
+  }
+
+  /**
    * Checks if the user is in census.
    * @category Voting
    *
