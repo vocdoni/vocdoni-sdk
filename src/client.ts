@@ -714,31 +714,10 @@ export class VocdoniSDKClient {
     if (!this.electionId && !electionId) {
       throw Error('No election set');
     }
-    if (!censusId || !censusURI) {
-      throw Error('No census information set');
-    }
-    return this.modifyElectionCensus(electionId ?? this.electionId, censusId, censusURI, maxCensusSize);
-  }
-
-  /**
-   * Changes the census of an election.
-   * @category Election
-   *
-   * @param electionId - The id of the election
-   * @param censusId - The new census id (root)
-   * @param censusURI - The new census URI
-   * @param maxCensusSize - The new max census size
-   */
-  private modifyElectionCensus(
-    electionId: string,
-    censusId?: string,
-    censusURI?: string,
-    maxCensusSize?: number
-  ): Promise<void> {
     return this.fetchAccount()
       .then((accountData) => {
         const setElectionCensusTx = ElectionCore.generateSetElectionCensusTransaction(
-          electionId,
+          electionId ?? this.electionId,
           accountData.nonce,
           censusId,
           censusURI,
@@ -762,7 +741,14 @@ export class VocdoniSDKClient {
       throw Error('No election set');
     }
 
-    return this.modifyElectionCensus(electionId ?? this.electionId, null, null, maxCensusSize);
+    return this.fetchElection(electionId ?? this.electionId).then((election) =>
+      this.changeElectionCensus(
+        electionId ?? this.electionId,
+        election.census.censusId,
+        election.census.censusURI,
+        maxCensusSize
+      )
+    );
   }
 
   /**

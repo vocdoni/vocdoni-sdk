@@ -59,7 +59,7 @@ export abstract class ElectionCore extends TransactionCore {
       txtype: TxType.SET_PROCESS_CENSUS,
       nonce: accountNonce,
       processId: Uint8Array.from(Buffer.from(strip0x(electionId), 'hex')),
-      censusRoot: censusId ? Uint8Array.from(Buffer.from(strip0x(censusId), 'hex')) : null,
+      censusRoot: Uint8Array.from(Buffer.from(strip0x(censusId), 'hex')),
       censusURI: censusURI,
       censusSize: maxCensusSize,
     });
