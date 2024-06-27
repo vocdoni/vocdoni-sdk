@@ -1422,14 +1422,11 @@ describe('Election integration tests', () => {
         await expect(async () => {
           await client.changeElectionDuration(election.id, -(startDateStride + 60 * 60));
         }).rejects.toThrow();
-        return client.changeElectionEndDate(
-          election.id,
-          new Date(election.startDate.getTime() + startDateStride + 60 * 60 + 1)
-        );
+        return client.changeElectionEndDate(election.id, changedDate.setDate(changedDate.getDate() + 1));
       })
       .then(() => client.fetchElection())
       .then(async (election) => {
-        expect(new Date(changedDate).getTime()).toBe(new Date(election.endDate).getTime() - 1000);
+        expect(new Date(changedDate).getTime()).toBe(new Date(election.endDate).getTime());
       });
   }, 185000);
 });

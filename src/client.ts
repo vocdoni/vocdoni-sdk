@@ -787,7 +787,7 @@ export class VocdoniSDKClient {
     }
 
     return this.fetchElection(electionId ?? this.electionId).then((election) =>
-      this.changeElectionDuration(electionId ?? this.electionId, date.getTime() - election.startDate.getTime())
+      this.changeElectionDuration(electionId ?? this.electionId, (date.getTime() - election.startDate.getTime()) / 1000)
     );
   }
 
