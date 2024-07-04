@@ -161,7 +161,6 @@ export class ElectionService extends Service implements ElectionServicePropertie
     } catch (e) {
       e.electionId = electionId;
       e.raw = electionInformation;
-      console.log(e);
       throw e;
     }
 
