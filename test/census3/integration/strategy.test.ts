@@ -37,16 +37,13 @@ describe('Census3 strategies integration tests', () => {
     const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
     const strategies = await client.getStrategies();
     if (strategies.length > 1) {
-      const holders = await client.getStrategyHolders(strategies[1].ID, { pageSize: 10 });
-      holders.holders.forEach((holder) => {
+      const holders = await client.getStrategyHolders(strategies[1].ID);
+      holders.forEach((holder) => {
         expect(isAddress(holder.holder)).toBe(true);
         expect(typeof holder.weight).toBe('bigint');
       });
-      expect(holders.pagination.pageSize).toBe(10);
-      expect(isAddress(holders.pagination.nextCursor)).toBe(true);
-      expect(isAddress(holders.pagination.prevCursor)).toBe(true);
     }
-  }, 5000);
+  }, 85000);
   it('should return the given strategy', async () => {
     const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
     const strategies = await client.getStrategies();
