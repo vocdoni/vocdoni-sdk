@@ -17,16 +17,14 @@ import {
 } from './api';
 import invariant from 'tiny-invariant';
 import { isAddress } from '@ethersproject/address';
-import { TokenCensus } from './types';
+import { TokenCensus, StrategyCensus } from './types';
 import { delay } from './util/common';
-import { Census3Pagination } from './api/census3/api';
-import { StrategyCensus } from './types/census/census3/strategy';
 
 export type Token = Omit<Census3Token, 'tags'> & { tags: string[] };
 export type TokenSummary = Omit<Census3SummaryToken, 'tags'> & { tags: string[] };
 export type Strategy = Census3Strategy;
 export type StrategyHolder = { holder: string; weight: bigint };
-export type StrategyHolders = { holders: StrategyHolder[]; pagination: Census3Pagination };
+export type StrategyHolders = StrategyHolder[];
 export type StrategyToken = Census3CreateStrategyToken;
 export type Census3Census = ICensus3CensusResponse;
 export type SupportedChain = ICensus3SupportedChain;
@@ -187,14 +185,35 @@ export class VocdoniCensus3Client {
    * Returns the strategy holders
    *
    * @param id - The id of the strategy
-   * @param pagination - Pagination options
    * @returns The list strategy holders
    */
-  getStrategyHolders(id: number, pagination: Census3Pagination = { pageSize: -1 }): Promise<StrategyHolders> {
-    return Census3StrategyAPI.holders(this.url, id, pagination).then((response) => ({
-      holders: Object.entries(response.holders).map(([key, value]) => ({ holder: key, weight: BigInt(value) })) ?? [],
-      pagination: response.pagination,
-    }));
+  getStrategyHolders(id: number): Promise<StrategyHolders> {
+    invariant(id, 'No id set');
+    const waitForQueue = (queueId: string, wait?: number, attempts?: number): Promise<StrategyHolders> => {
+      const waitTime = wait ?? this.queueWait?.retryTime;
+      const attemptsNum = attempts ?? this.queueWait?.attempts;
+      invariant(waitTime, 'No queue wait time set');
+      invariant(attemptsNum >= 0, 'No queue attempts set');
+
+      return attemptsNum === 0
+        ? Promise.reject('Time out waiting for queue with id: ' + queueId)
+        : Census3StrategyAPI.holdersQueue(this.url, id, queueId).then((queue) => {
+            switch (true) {
+              case queue.done && queue.error?.code?.toString().length > 0:
+                return Promise.reject(new Error('Could not get the strategy holders'));
+              case queue.done:
+                return Promise.resolve(
+                  Object.entries(queue.data).map(([key, value]) => ({ holder: key, weight: BigInt(value) })) ?? []
+                );
+              default:
+                return delay(waitTime).then(() => waitForQueue(queueId, waitTime, attemptsNum - 1));
+            }
+          });
+    };
+
+    return Census3StrategyAPI.holders(this.url, id)
+      .then((queueResponse) => queueResponse.queueID)
+      .then((queueId) => waitForQueue(queueId));
   }
 
   /**
