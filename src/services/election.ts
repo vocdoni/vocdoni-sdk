@@ -154,7 +154,16 @@ export class ElectionService extends Service implements ElectionServicePropertie
       throw err;
     });
 
-    const electionInfo = this.decryptMetadata(electionInformation, password);
+    let electionInfo, censusInfo;
+    try {
+      electionInfo = this.decryptMetadata(electionInformation, password);
+      censusInfo = await this.buildCensus(electionInfo);
+    } catch (e) {
+      e.electionId = electionId;
+      e.raw = electionInformation;
+      console.log(e);
+      throw e;
+    }
 
     const electionParameters = {
       id: electionInfo.electionId,
@@ -166,7 +175,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       meta: electionInfo.metadata?.meta,
       startDate: electionInfo.startDate,
       endDate: electionInfo.endDate,
-      census: await this.buildCensus(electionInfo),
+      census: censusInfo,
       maxCensusSize: electionInfo.census.maxCensusSize,
       manuallyEnded: electionInfo.manuallyEnded,
       fromArchive: electionInfo.fromArchive,
