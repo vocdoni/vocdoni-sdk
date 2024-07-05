@@ -10,6 +10,7 @@ import {
   ErrElectionNotStarted,
   ErrFaucetAlreadyFunded,
   ErrNoElectionKeys,
+  ErrOrganizationNotFound,
 } from './errors';
 
 export abstract class API {
@@ -27,6 +28,8 @@ export abstract class API {
           throw new ErrAddressMalformed(err['error']);
         case 4003:
           throw new ErrAccountNotFound(err['error']);
+        case 4006:
+          throw new ErrOrganizationNotFound(err['error']);
         case 4017:
           throw new ErrCantParseElectionID(err['error']);
         case 4020:
