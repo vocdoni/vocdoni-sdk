@@ -3,6 +3,7 @@ import {
   ErrAccountNotFound,
   ErrAddressMalformed,
   ErrAPI,
+  ErrBlockNotFound,
   ErrCantParseElectionID,
   ErrCantParsePayloadAsJSON,
   ErrElectionFinished,
@@ -30,6 +31,8 @@ export abstract class API {
           throw new ErrAccountNotFound(err['error']);
         case 4006:
           throw new ErrOrganizationNotFound(err['error']);
+        case 4008:
+          throw new ErrBlockNotFound(err['error']);
         case 4017:
           throw new ErrCantParseElectionID(err['error']);
         case 4020:
