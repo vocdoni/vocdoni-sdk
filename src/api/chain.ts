@@ -9,6 +9,7 @@ enum ChainAPIMethods {
   COSTS = '/chain/info/electionPriceFactors',
   CIRCUITS = '/chain/info/circuit',
   TX_INFO = '/chain/transactions/reference',
+  TX_INFO_BY_INDEX = '/chain/transactions/reference/index/{index}',
   TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
   SUBMIT_TX = '/chain/transactions',
   TX_LIST = '/chain/transactions/page',
@@ -458,6 +459,18 @@ export abstract class ChainAPI extends API {
   public static txInfo(url: string, txHash: string): Promise<IChainTxReference> {
     return axios
       .get<IChainTxReference>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
+      .then((response) => {
+        if (response.status === 204) {
+          throw new ErrTransactionNotFound();
+        }
+        return response.data;
+      })
+      .catch(this.isApiError);
+  }
+
+  public static txByIndex(url: string, index: number): Promise<IChainTxReference> {
+    return axios
+      .get<IChainTxReference>(url + ChainAPIMethods.TX_INFO_BY_INDEX.replace('{index}', String(index)))
       .then((response) => {
         if (response.status === 204) {
           throw new ErrTransactionNotFound();
