@@ -468,6 +468,13 @@ export abstract class ChainAPI extends API {
       .catch(this.isApiError);
   }
 
+  /**
+   * Fetches information about a transaction from the blockchain by its index. The transaction index is an incremental
+   * counter for each transaction
+   *
+   * @param url - API endpoint URL
+   * @param index - The transaction index
+   */
   public static txByIndex(url: string, index: number): Promise<IChainTxReference> {
     return axios
       .get<IChainTxReference>(url + ChainAPIMethods.TX_INFO_BY_INDEX.replace('{index}', String(index)))
