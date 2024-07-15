@@ -13,4 +13,9 @@ describe('Chain API tests', () => {
       await ChainAPI.txInfo(URL, '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
     }).rejects.toThrow(ErrTransactionNotFound);
   }, 5000);
+  it('should throw when asking for a non existent transaction by index', async () => {
+    await expect(async () => {
+      await ChainAPI.txByIndex(URL, 0);
+    }).rejects.toThrow(ErrTransactionNotFound);
+  }, 5000);
 });
