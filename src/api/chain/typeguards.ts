@@ -1,8 +1,16 @@
 import {
   AdminTxType,
+  ArboType,
+  CAType,
   CollectFaucetTxType,
+  EthereumAccountType,
+  EthereumStorageType,
+  GravitonType,
+  Id3Type,
+  MinimeStorageType,
   MintTokensTxType,
   NewProcessTxType,
+  Proof,
   RegisterKeyTxType,
   SendTokensTxType,
   SetAccountTxType,
@@ -10,6 +18,7 @@ import {
   SetTransactionCostsTxType,
   TxTypes,
   VoteEnvelopeType,
+  ZkSnarkType,
 } from './transactions';
 import { TransactionType } from '../chain';
 
@@ -51,4 +60,29 @@ export const isSetAccountTx = (tx: TxTypes): tx is SetAccountTxType => {
 
 export const isCollectFaucetTx = (tx: TxTypes): tx is CollectFaucetTxType => {
   return TransactionType.COLLECT_FAUCET_TX in tx;
+};
+
+export const isGravitonType = (proof: Proof): proof is GravitonType => {
+  return 'graviton' in proof;
+};
+export const isId3Type = (proof: Proof): proof is Id3Type => {
+  return 'iden3' in proof;
+};
+export const isEthereumStorageType = (proof: Proof): proof is EthereumStorageType => {
+  return 'ethereumStorage' in proof;
+};
+export const isEthereumAccountType = (proof: Proof): proof is EthereumAccountType => {
+  return 'ethereumAccount' in proof;
+};
+export const isCAType = (proof: Proof): proof is CAType => {
+  return 'ca' in proof;
+};
+export const isArboType = (proof: Proof): proof is ArboType => {
+  return 'arbo' in proof;
+};
+export const isZkSnarkType = (proof: Proof): proof is ZkSnarkType => {
+  return 'zkSnark' in proof;
+};
+export const isMinimeStorageType = (proof: Proof): proof is MinimeStorageType => {
+  return 'minimeStorage' in proof;
 };

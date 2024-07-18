@@ -341,91 +341,97 @@ export declare enum TxType {
   UNRECOGNIZED = -1,
 }
 
-export interface Proof {
-  payload?:
-    | {
-        $case: 'graviton';
-        graviton: {
-          siblings: Uint8Array;
-        };
-      }
-    | {
-        $case: 'iden3';
-        iden3: {
-          siblings: Uint8Array;
-        };
-      }
-    | {
-        $case: 'ethereumStorage';
-        ethereumStorage: {
+export type GravitonType = {
+  graviton: {
+    siblings: Uint8Array;
+  };
+};
+
+export type Id3Type = {
+  iden3: {
+    siblings: Uint8Array;
+  };
+};
+
+export type EthereumStorageType = {
+  ethereumStorage: {
+    key: Uint8Array;
+    value: Uint8Array;
+    siblings: Uint8Array[];
+  };
+};
+
+export type EthereumAccountType = {
+  ethereumAccount: {
+    nonce: Uint8Array;
+    /** Big Int encoded as bytes */
+    balance: Uint8Array;
+    storageHash: Uint8Array;
+    codeHash: Uint8Array;
+    siblings: Uint8Array[];
+  };
+};
+
+export type CAType = {
+  ca: {
+    type: ProofCA_Type;
+    bundle:
+      | {
+          processId: Uint8Array;
+          address: Uint8Array;
+        }
+      | undefined;
+    signature: Uint8Array;
+  };
+};
+
+export type ArboType = {
+  arbo: {
+    type: ProofArbo_Type;
+    siblings: Uint8Array;
+    value: Uint8Array;
+    keyType: ProofArbo_KeyType;
+  };
+};
+
+export type ZkSnarkType = {
+  zkSnark: {
+    circuitParametersIndex: number;
+    a: string[];
+    b: string[];
+    c: string[];
+    publicInputs: string[];
+  };
+};
+
+export type MinimeStorageType = {
+  minimeStorage: {
+    proofPrevBlock:
+      | {
           key: Uint8Array;
           value: Uint8Array;
           siblings: Uint8Array[];
-        };
-      }
-    | {
-        $case: 'ethereumAccount';
-        ethereumAccount: {
-          nonce: Uint8Array;
-          /** Big Int encoded as bytes */
-          balance: Uint8Array;
-          storageHash: Uint8Array;
-          codeHash: Uint8Array;
-          siblings: Uint8Array[];
-        };
-      }
-    | {
-        $case: 'ca';
-        ca: {
-          type: ProofCA_Type;
-          bundle:
-            | {
-                processId: Uint8Array;
-                address: Uint8Array;
-              }
-            | undefined;
-          signature: Uint8Array;
-        };
-      }
-    | {
-        $case: 'arbo';
-        arbo: {
-          type: ProofArbo_Type;
-          siblings: Uint8Array;
+        }
+      | undefined;
+    proofNextBlock?:
+      | {
+          key: Uint8Array;
           value: Uint8Array;
-          keyType: ProofArbo_KeyType;
-        };
-      }
-    | {
-        $case: 'zkSnark';
-        zkSnark: {
-          circuitParametersIndex: number;
-          a: string[];
-          b: string[];
-          c: string[];
-          publicInputs: string[];
-        };
-      }
-    | {
-        $case: 'minimeStorage';
-        minimeStorage: {
-          proofPrevBlock:
-            | {
-                key: Uint8Array;
-                value: Uint8Array;
-                siblings: Uint8Array[];
-              }
-            | undefined;
-          proofNextBlock?:
-            | {
-                key: Uint8Array;
-                value: Uint8Array;
-                siblings: Uint8Array[];
-              }
-            | undefined;
-        };
-      };
-}
+          siblings: Uint8Array[];
+        }
+      | undefined;
+  };
+};
+
+export type Proof =
+  | GravitonType
+  | Id3Type
+  | EthereumStorageType
+  | EthereumAccountType
+  | CAType
+  | ArboType
+  | ZkSnarkType
+  | MinimeStorageType;
 
 declare enum ProofCA_Type {
   UNKNOWN = 0,
