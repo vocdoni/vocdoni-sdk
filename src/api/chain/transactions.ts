@@ -1,55 +1,59 @@
 import { IChainTxReference } from '../chain';
 
+export type VoteEnvelopeType = {
+  vote: VoteEnvelope;
+};
+
+export type NewProcessTxType = {
+  newProcess: NewProcessTx;
+};
+
+export type AdminTxType = {
+  admin: AdminTx;
+};
+
+export type SetProcessTxType = {
+  setProcess: SetProcessTx;
+};
+
+export type RegisterKeyTxType = {
+  registerKey: RegisterKeyTx;
+};
+
+export type MintTokensTxType = {
+  mintTokens: MintTokensTx;
+};
+
+export type SendTokensTxType = {
+  sendTokens: SendTokensTx;
+};
+
+export type SetTransactionCostsTxType = {
+  setTransactionCosts: SetTransactionCostsTx;
+};
+
+export type SetAccountTxType = {
+  setAccount: SetAccountTx;
+};
+
+export type CollectFaucetTxType = {
+  collectFaucet: CollectFaucetTx;
+};
+
+export type TxTypes =
+  | VoteEnvelopeType
+  | NewProcessTxType
+  | AdminTxType
+  | SetProcessTxType
+  | RegisterKeyTxType
+  | MintTokensTxType
+  | SendTokensTxType
+  | SetTransactionCostsTxType
+  | SetAccountTxType
+  | CollectFaucetTxType;
+
 export interface Tx {
-  tx?:
-    | {
-        $case: 'vote';
-        vote: VoteEnvelope;
-      }
-    | {
-        $case: 'newProcess';
-        newProcess: NewProcessTx;
-      }
-    | {
-        $case: 'admin';
-        admin: AdminTx;
-      }
-    | {
-        $case: 'setProcess';
-        setProcess: SetProcessTx;
-      }
-    | {
-        $case: 'registerKey';
-        registerKey: RegisterKeyTx;
-      }
-    | {
-        $case: 'mintTokens';
-        mintTokens: MintTokensTx;
-      }
-    | {
-        $case: 'sendTokens';
-        sendTokens: SendTokensTx;
-      }
-    | {
-        $case: 'setTransactionCosts';
-        setTransactionCosts: SetTransactionCostsTx;
-      }
-    | {
-        $case: 'setAccount';
-        setAccountInfo: SetAccountTx;
-      }
-    // | {
-    //     $case: 'setAccountDelegateTx';
-    //     setAccountDelegateTx: SetAccountDelegateTx;
-    //   }
-    | {
-        $case: 'collectFaucet';
-        collectFaucet: CollectFaucetTx;
-      };
-  // | {
-  //     $case: 'setKeykeeper';
-  //     collectFaucet: SetKeyKeeperTx;
-  //   };
+  tx?: TxTypes;
   txInfo: IChainTxReference;
 }
 
