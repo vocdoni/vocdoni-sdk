@@ -18,7 +18,7 @@ enum AccountAPIMethods {
 
 export type IAccountSummary = Pick<IAccountInfoResponse, 'address' | 'balance' | 'nonce'>;
 
-interface IAccountInfoResponse {
+export interface IAccountInfoResponse {
   /**
    * The address of the account
    */
@@ -67,7 +67,7 @@ interface IAccountSetInfoResponse {
   metadataURL: number;
 }
 
-interface IAccountTransfer {
+export interface IAccountTransfer {
   amount: number;
   from: string;
   height: number;
@@ -76,7 +76,7 @@ interface IAccountTransfer {
   to: string;
 }
 
-interface IAccountTransfersResponse {
+export interface IAccountTransfersResponse {
   transfers: {
     received: Array<IAccountTransfer>;
     sent: Array<IAccountTransfer>;
