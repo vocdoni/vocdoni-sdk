@@ -1,17 +1,17 @@
 import axios from 'axios';
 import { AllElectionStatus, ElectionMetadata, ElectionStatus } from '../types';
 import { API } from './api';
+import { FetchElectionsParametersWithPagination } from '../services';
 
 enum ElectionAPIMethods {
   INFO = '/elections',
+  LIST = '/elections',
   NEXT_ELECTION_ID = '/elections/id',
   PRICE = '/elections/price',
   KEYS = '/elections/{id}/keys',
   CREATE = '/elections',
   VOTES = '/elections/{id}/votes/page/{page}',
   VOTES_COUNT = '/elections/{id}/votes/count',
-  LIST = '/elections/page/{page}',
-  LIST_FILTERED = '/elections/filter/page/{page}',
 }
 
 export interface ICensus {
@@ -359,13 +359,6 @@ export interface IElectionListResponse {
   elections: Array<IElectionSummary>;
 }
 
-export interface IElectionListFilter {
-  organizationId?: string;
-  electionId?: string;
-  withResults?: boolean;
-  status?: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
-}
-
 export abstract class ElectionAPI extends API {
   /**
    * Cannot be constructed.
@@ -474,27 +467,19 @@ export abstract class ElectionAPI extends API {
    * Return list of all elections in the chain
    *
    * @param url - API endpoint URL
-   * @param page - The page number
-   * @param filter - - Search by organizationId, electionId, withResults, and status
+   * @param params - The parameters to filter the elections
    */
   public static electionsList(
     url: string,
-    page: number = 0,
-    { organizationId, electionId, withResults, status }: IElectionListFilter = {}
+    params: Partial<FetchElectionsParametersWithPagination>
   ): Promise<IElectionListResponse> {
-    if (organizationId || electionId || withResults || status) {
-      return axios
-        .post<IElectionListResponse>(url + ElectionAPIMethods.LIST_FILTERED.replace('{page}', String(page)), {
-          organizationId,
-          electionId,
-          withResults,
-          status,
-        })
-        .then((response) => response.data)
-        .catch(this.isApiError);
-    }
+    const queryParams = this.createQueryParams({
+      organizationID: params.organizationId,
+      electionID: params.electionId,
+      ...params,
+    });
     return axios
-      .get<IElectionListResponse>(url + ElectionAPIMethods.LIST.replace('{page}', String(page)))
+      .get<IElectionListResponse>(url + ElectionAPIMethods.LIST + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
       .catch(this.isApiError);
   }

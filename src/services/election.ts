@@ -1,15 +1,17 @@
 import { Service, ServiceProperties } from './service';
 import {
+  AllElectionStatus,
   ArchivedElection,
   Census,
   CspCensus,
   ElectionResultsTypeNames,
+  ElectionStatus,
   InvalidElection,
   PublishedCensus,
   PublishedElection,
   UnpublishedElection,
 } from '../types';
-import { AccountAPI, CensusTypeEnum, ElectionAPI, IElectionCreateResponse, IElectionKeysResponse } from '../api';
+import { CensusTypeEnum, ElectionAPI, IElectionCreateResponse, IElectionKeysResponse, Pagination } from '../api';
 import { CensusService } from './census';
 import { allSettled } from '../util/promise';
 import invariant from 'tiny-invariant';
@@ -29,9 +31,15 @@ interface ElectionServiceProperties {
 
 type ElectionServiceParameters = ServiceProperties & ElectionServiceProperties;
 
+export type FetchElectionsParametersWithPagination = FetchElectionsParameters & Pagination;
+
 export interface FetchElectionsParameters {
-  account: string;
-  page: number;
+  organizationId: string;
+  electionId: string;
+  withResults: boolean;
+  finalResults: boolean;
+  manuallyEnded: boolean;
+  status: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
 }
 
 export type ElectionKeys = IElectionKeysResponse;
@@ -267,29 +275,19 @@ export class ElectionService extends Service implements ElectionServicePropertie
   }
 
   async fetchElections(
-    params: Partial<FetchElectionsParameters>
+    params: Partial<FetchElectionsParametersWithPagination>
   ): Promise<Array<PublishedElection | ArchivedElection | InvalidElection>> {
     invariant(this.url, 'No URL set');
-    const settings = {
-      account: null,
-      page: 0,
-      ...params,
-    };
 
-    let electionList;
-    if (settings.account) {
-      electionList = AccountAPI.electionsList(this.url, settings.account, settings.page);
-    } else {
-      electionList = ElectionAPI.electionsList(this.url, settings.page);
-    }
-
-    return electionList
+    return ElectionAPI.electionsList(this.url, params)
       .then((elections) =>
         allSettled(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
       )
       .then((elections) =>
         elections.map((election) =>
-          election.status === 'fulfilled' ? election.value : new InvalidElection({ id: election?.reason?.electionId })
+          election.status === 'fulfilled'
+            ? election['value']
+            : new InvalidElection({ id: election['reason']?.electionId })
         )
       );
   }
