@@ -262,14 +262,14 @@ export class VocdoniSDKClient {
    * Fetches info about all elections created by the given account
    * @category Election
    *
-   * @param account - specify an account to search for. Otherwise client wallet address is used.
-   *
+   * @param account - specify an account to search for. Otherwise, client wallet address is used.
+   * @param page - specify the page number to fetch
    */
   async fetchElections(
     account?: string,
     page: number = 0
   ): Promise<Array<PublishedElection | InvalidElection | ArchivedElection>> {
-    return this.electionService.fetchElections({ account: account ?? (await this.wallet?.getAddress()), page });
+    return this.electionService.fetchElections({ organizationId: account ?? (await this.wallet?.getAddress()), page });
   }
 
   /**

@@ -14,6 +14,17 @@ import {
   ErrOrganizationNotFound,
 } from './errors';
 
+export class ErrPageNotFound extends Error {
+  constructor(message?: string) {
+    super(message ? message : 'page not found');
+  }
+}
+
+export type Pagination = {
+  page: number;
+  limit: number;
+};
+
 export abstract class API {
   /**
    * Cannot be constructed.
@@ -41,6 +52,8 @@ export abstract class API {
           throw new ErrElectionNotFound(err['error']);
         case 4047:
           throw new ErrNoElectionKeys(err['error']);
+        case 4057:
+          throw new ErrPageNotFound(err['error']);
         case 5001:
         case 5003:
           return API.isVochainError(err['error']);
@@ -86,5 +99,12 @@ export abstract class API {
       case message && message.includes('already funded') && message.includes('wait until'):
         throw new ErrFaucetAlreadyFunded(message);
     }
+  }
+
+  protected static createQueryParams(params: Record<string, any>): string {
+    return Object.entries(params)
+      .filter(([_, val]) => val != null)
+      .map(([key, val]) => `${key}=${val}`)
+      .join('&');
   }
 }

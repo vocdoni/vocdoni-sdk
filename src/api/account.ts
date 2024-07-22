@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { IElectionListResponse } from './election';
 import { API } from './api';
 import { AccountMetadata } from '../types';
 import { IChainFeesListResponse } from './chain';
@@ -10,7 +9,6 @@ enum AccountAPIMethods {
   INFO = '/accounts/{accountId}',
   METADATA = '/accounts/{accountId}/metadata',
   SET_INFO = '/accounts',
-  ELECTIONS = '/accounts/{accountId}/elections/page',
   TRANSFERS = '/accounts/{accountId}/transfers/page',
   NUM_TRANSFERS = '/accounts/{accountId}/transfers/count',
   ACCOUNT_FEES = '/accounts/{accountId}/fees/page/{page}',
@@ -200,20 +198,6 @@ export abstract class AccountAPI extends API {
   public static transfersCount(url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
     return axios
       .get<IAccountTransfersCountResponse>(url + AccountAPIMethods.NUM_TRANSFERS.replace('{accountId}', accountId))
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns paginated list of elections for a specific account
-   *
-   * @param url - API endpoint URL
-   * @param accountId - accountId to get elections
-   * @param page - The page number
-   */
-  public static electionsList(url: string, accountId: string, page: number = 0): Promise<IElectionListResponse> {
-    return axios
-      .get<IElectionListResponse>(url + AccountAPIMethods.ELECTIONS.replace('{accountId}', accountId) + '/' + page)
       .then((response) => response.data)
       .catch(this.isApiError);
   }
