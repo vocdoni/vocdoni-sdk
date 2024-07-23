@@ -16,7 +16,6 @@ import {
   ElectionStatus,
   ElectionStatusReady,
   HasAlreadyVotedOptions,
-  InvalidElection,
   IsAbleToVoteOptions,
   IsInCensusOptions,
   PlainCensus,
@@ -52,9 +51,11 @@ import {
   CspService,
   ElectionCreationSteps,
   ElectionCreationStepValue,
+  ElectionListWithPagination,
   ElectionService,
   FaucetOptions,
   FaucetService,
+  FetchElectionsParametersWithPagination,
   FileService,
   VoteService,
   VoteSteps,
@@ -259,17 +260,13 @@ export class VocdoniSDKClient {
   }
 
   /**
-   * Fetches info about all elections created by the given account
+   * Fetches info about all elections
    * @category Election
    *
-   * @param account - specify an account to search for. Otherwise, client wallet address is used.
-   * @param page - specify the page number to fetch
+   * @param params - The parameters to filter the elections
    */
-  async fetchElections(
-    account?: string,
-    page: number = 0
-  ): Promise<Array<PublishedElection | InvalidElection | ArchivedElection>> {
-    return this.electionService.fetchElections({ organizationId: account ?? (await this.wallet?.getAddress()), page });
+  async fetchElections(params: Partial<FetchElectionsParametersWithPagination>): Promise<ElectionListWithPagination> {
+    return this.electionService.fetchElections(params);
   }
 
   /**

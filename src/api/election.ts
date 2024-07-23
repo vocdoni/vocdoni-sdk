@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { AllElectionStatus, ElectionMetadata, ElectionStatus } from '../types';
-import { API } from './api';
+import { API, PaginationResponse } from './api';
 import { FetchElectionsParametersWithPagination } from '../services';
 
 enum ElectionAPIMethods {
@@ -350,9 +350,21 @@ export interface IElectionSummary {
    * If the election has the final results
    */
   finalResults: boolean;
+
+  /**
+   * If the election has been ended manually
+   */
+  manuallyEnded: boolean;
+
+  /**
+   * The chain identifier
+   */
+  chainId: string;
 }
 
-export interface IElectionListResponse {
+export interface IElectionListResponse extends IElectionList, PaginationResponse {}
+
+export interface IElectionList {
   /**
    * List of election summaries
    */

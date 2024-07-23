@@ -11,7 +11,14 @@ import {
   PublishedElection,
   UnpublishedElection,
 } from '../types';
-import { CensusTypeEnum, ElectionAPI, IElectionCreateResponse, IElectionKeysResponse, Pagination } from '../api';
+import {
+  CensusTypeEnum,
+  ElectionAPI,
+  IElectionCreateResponse,
+  IElectionKeysResponse,
+  PaginationRequest,
+  PaginationResponse,
+} from '../api';
 import { CensusService } from './census';
 import { allSettled } from '../util/promise';
 import invariant from 'tiny-invariant';
@@ -31,7 +38,7 @@ interface ElectionServiceProperties {
 
 type ElectionServiceParameters = ServiceProperties & ElectionServiceProperties;
 
-export type FetchElectionsParametersWithPagination = FetchElectionsParameters & Pagination;
+export type FetchElectionsParametersWithPagination = FetchElectionsParameters & PaginationRequest;
 
 export interface FetchElectionsParameters {
   organizationId: string;
@@ -41,6 +48,9 @@ export interface FetchElectionsParameters {
   manuallyEnded: boolean;
   status: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
 }
+
+export type ElectionList = Array<PublishedElection | ArchivedElection | InvalidElection>;
+export type ElectionListWithPagination = { elections: ElectionList } & PaginationResponse;
 
 export type ElectionKeys = IElectionKeysResponse;
 export type ElectionCreatedInformation = IElectionCreateResponse;
@@ -274,22 +284,24 @@ export class ElectionService extends Service implements ElectionServicePropertie
     }
   }
 
-  async fetchElections(
-    params: Partial<FetchElectionsParametersWithPagination>
-  ): Promise<Array<PublishedElection | ArchivedElection | InvalidElection>> {
+  async fetchElections(params: Partial<FetchElectionsParametersWithPagination>): Promise<ElectionListWithPagination> {
     invariant(this.url, 'No URL set');
 
-    return ElectionAPI.electionsList(this.url, params)
-      .then((elections) =>
-        allSettled(elections?.elections?.map((election) => this.fetchElection(election.electionId)) ?? [])
-      )
-      .then((elections) =>
-        elections.map((election) =>
-          election.status === 'fulfilled'
-            ? election['value']
-            : new InvalidElection({ id: election['reason']?.electionId })
-        )
-      );
+    const list = await ElectionAPI.electionsList(this.url, params);
+
+    const elections =
+      list.elections.length > 0
+        ? await allSettled(list.elections?.map((election) => this.fetchElection(election.electionId)) ?? []).then(
+            (elections) =>
+              elections.map((election) =>
+                election.status === 'fulfilled'
+                  ? election['value']
+                  : new InvalidElection({ id: election['reason']?.electionId })
+              )
+          )
+        : [];
+
+    return { elections, pagination: list.pagination };
   }
 
   /**
