@@ -600,7 +600,7 @@ export abstract class ChainAPI extends API {
    */
   public static organizationList(
     url: string,
-    params: Partial<FetchOrganizationParametersWithPagination>
+    params?: Partial<FetchOrganizationParametersWithPagination>
   ): Promise<IChainOrganizationListResponse> {
     const queryParams = this.createQueryParams(params);
     return axios

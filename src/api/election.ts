@@ -483,7 +483,7 @@ export abstract class ElectionAPI extends API {
    */
   public static electionsList(
     url: string,
-    params: Partial<FetchElectionsParametersWithPagination>
+    params?: Partial<FetchElectionsParametersWithPagination>
   ): Promise<IElectionListResponse> {
     const queryParams = this.createQueryParams(params);
     return axios

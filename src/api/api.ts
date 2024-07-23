@@ -112,9 +112,11 @@ export abstract class API {
   }
 
   protected static createQueryParams(params: Record<string, any>): string {
-    return Object.entries(params)
-      .filter(([_, val]) => val != null)
-      .map(([key, val]) => `${key}=${val}`)
-      .join('&');
+    return params
+      ? Object.entries(params)
+          .filter(([_, val]) => val != null)
+          .map(([key, val]) => `${key}=${val}`)
+          .join('&')
+      : null;
   }
 }
