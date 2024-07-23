@@ -1,5 +1,5 @@
 import { Service, ServiceProperties } from './service';
-import { ChainAPI, IChainGetCostsResponse, IChainTxReference } from '../api';
+import { ChainAPI, IChainGetCostsResponse, IChainTxReference, PaginationRequest } from '../api';
 import invariant from 'tiny-invariant';
 import { delay } from '../util/common';
 
@@ -13,6 +13,12 @@ type ChainServiceParameters = ServiceProperties & ChainServiceProperties;
 
 export type ChainCosts = IChainGetCostsResponse;
 export type ChainTx = IChainTxReference;
+
+export type FetchOrganizationParametersWithPagination = FetchOrganizationParameters & PaginationRequest;
+
+export interface FetchOrganizationParameters {
+  organizationId: string;
+}
 
 /**
  * Specify custom retry times and attempts when waiting for a transaction.
