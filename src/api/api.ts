@@ -20,10 +20,20 @@ export class ErrPageNotFound extends Error {
   }
 }
 
-export type Pagination = {
+export type PaginationRequest = {
   page: number;
   limit: number;
 };
+
+export interface PaginationResponse {
+  pagination: {
+    totalItems: number;
+    previousPage: number | null;
+    currentPage: number;
+    nextPage: number | null;
+    lastPage: number;
+  };
+}
 
 export abstract class API {
   /**
