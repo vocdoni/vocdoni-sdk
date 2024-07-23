@@ -265,7 +265,7 @@ export class VocdoniSDKClient {
    *
    * @param params - The parameters to filter the elections
    */
-  async fetchElections(params: Partial<FetchElectionsParametersWithPagination>): Promise<ElectionListWithPagination> {
+  async fetchElections(params?: Partial<FetchElectionsParametersWithPagination>): Promise<ElectionListWithPagination> {
     return this.electionService.fetchElections(params);
   }
 
