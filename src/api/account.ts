@@ -1,10 +1,11 @@
 import axios from 'axios';
-import { API } from './api';
+import { API, PaginationResponse } from './api';
 import { AccountMetadata } from '../types';
 import { IChainFeesListResponse } from './chain';
+import { FetchAccountsParametersWithPagination } from '../services';
 
 enum AccountAPIMethods {
-  LIST = '/accounts/page',
+  LIST = '/accounts',
   NUM_ACCOUNTS = '/accounts/count',
   INFO = '/accounts/{accountId}',
   METADATA = '/accounts/{accountId}/metadata',
@@ -81,7 +82,9 @@ export interface IAccountTransfersResponse {
   };
 }
 
-export interface IAccountsListResponse {
+export interface IAccountsListResponse extends IAccountsList, PaginationResponse {}
+
+export interface IAccountsList {
   /**
    * List of accounts
    */
@@ -111,14 +114,18 @@ export abstract class AccountAPI extends API {
   }
 
   /**
-   * Returns paginated list of accounts
+   * Returns list of accounts
    *
    * @param url - API endpoint URL
-   * @param page - The page number
+   * @param params - The parameters to filter the accounts
    */
-  public static list(url: string, page: number = 0): Promise<IAccountsListResponse> {
+  public static list(
+    url: string,
+    params?: Partial<FetchAccountsParametersWithPagination>
+  ): Promise<IAccountsListResponse> {
+    const queryParams = this.createQueryParams(params);
     return axios
-      .get<IAccountsListResponse>(url + AccountAPIMethods.LIST + '/' + page)
+      .get<IAccountsListResponse>(url + AccountAPIMethods.LIST + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
