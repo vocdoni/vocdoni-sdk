@@ -1,7 +1,7 @@
 import { Service, ServiceProperties } from './service';
 import { ChainService } from './chain';
 import { Account } from '../types';
-import { AccountAPI } from '../api';
+import { AccountAPI, PaginationRequest } from '../api';
 import invariant from 'tiny-invariant';
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
@@ -10,6 +10,10 @@ import { AccountCore } from '../core/account';
 interface AccountServiceProperties {
   chainService: ChainService;
 }
+
+export type FetchAccountsParametersWithPagination = FetchAccountsParameters & PaginationRequest;
+
+export interface FetchAccountsParameters {}
 
 type AccountServiceParameters = ServiceProperties & AccountServiceProperties;
 
