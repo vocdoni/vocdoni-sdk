@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { API } from './api';
+import { API, PaginationResponse } from './api';
 import { ErrTransactionNotFound } from './errors';
 import { Tx } from './chain/';
+import { FetchOrganizationParametersWithPagination } from '../services';
 export * from './chain/';
 
 enum ChainAPIMethods {
@@ -14,8 +15,7 @@ enum ChainAPIMethods {
   SUBMIT_TX = '/chain/transactions',
   TX_LIST = '/chain/transactions/page',
   ORGANIZATION_COUNT = '/chain/organizations/count',
-  ORGANIZATION_LIST = '/chain/organizations/page',
-  ORGANIZATION_LIST_FILTERED = '/chain/organizations/filter/page',
+  ORGANIZATION_LIST = '/chain/organizations',
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks',
   BLOCK_INFO_BY_HASH = '/chain/blocks/hash',
@@ -257,7 +257,9 @@ export interface IChainOrganizationResponse {
   electionCount: number;
 }
 
-export interface IChainOrganizationListResponse {
+export interface IChainOrganizationListResponse extends OrganizationList, PaginationResponse {}
+
+export interface OrganizationList {
   /**
    * The list of organizations
    */
@@ -616,27 +618,20 @@ export abstract class ChainAPI extends API {
   }
 
   /**
-   * Returns the list of organizations by page
+   * Returns the list of organizations
    *
    * @param url - API endpoint URL
-   * @param page - The page number
-   * @param organizationId - Organization id or partial id to search. It has to be a valid hex string.
+   * @param params - The parameters to filter the organizations
    */
   public static organizationList(
     url: string,
-    page: number = 0,
-    organizationId?: string
+    params: Partial<FetchOrganizationParametersWithPagination>
   ): Promise<IChainOrganizationListResponse> {
-    if (organizationId) {
-      return axios
-        .post<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST_FILTERED + '/' + page, {
-          organizationId: organizationId,
-        })
-        .then((response) => response.data)
-        .catch(this.isApiError);
-    }
+    const queryParams = this.createQueryParams(params);
     return axios
-      .get<IChainOrganizationListResponse>(url + ChainAPIMethods.ORGANIZATION_LIST + '/' + page)
+      .get<IChainOrganizationListResponse>(
+        url + ChainAPIMethods.ORGANIZATION_LIST + (queryParams ? '?' + queryParams : '')
+      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }

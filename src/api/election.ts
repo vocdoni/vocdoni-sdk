@@ -485,11 +485,7 @@ export abstract class ElectionAPI extends API {
     url: string,
     params: Partial<FetchElectionsParametersWithPagination>
   ): Promise<IElectionListResponse> {
-    const queryParams = this.createQueryParams({
-      organizationID: params.organizationId,
-      electionID: params.electionId,
-      ...params,
-    });
+    const queryParams = this.createQueryParams(params);
     return axios
       .get<IElectionListResponse>(url + ElectionAPIMethods.LIST + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
