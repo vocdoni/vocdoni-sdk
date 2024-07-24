@@ -10,7 +10,6 @@ enum ElectionAPIMethods {
   PRICE = '/elections/price',
   KEYS = '/elections/{id}/keys',
   CREATE = '/elections',
-  VOTES = '/elections/{id}/votes/page/{page}',
   VOTES_COUNT = '/elections/{id}/votes/count',
 }
 
@@ -281,40 +280,6 @@ interface IElectionCalculatePriceResponse {
   price: number;
 }
 
-export interface IElectionVote {
-  /**
-   * Containing transaction hash
-   */
-  txHash: string;
-
-  /**
-   * Vote unique identifier also known as vote nullifier
-   */
-  voteID: string;
-
-  /**
-   * Account that emit the vote
-   */
-  voterID: string;
-
-  /**
-   * Block containing the vote transaction
-   */
-  blockHeight: number;
-
-  /**
-   * Transaction number on the block
-   */
-  transactionIndex: number;
-}
-
-export interface IElectionVoteListResponse {
-  /**
-   * List of votes
-   */
-  votes: Array<IElectionVote>;
-}
-
 export interface IElectionSummary {
   /**
    * The id of the election
@@ -447,41 +412,12 @@ export abstract class ElectionAPI extends API {
   }
 
   /**
-   * Returns the number of votes of a given election
-   *
-   * @param url - API endpoint URL
-   * @param electionId - The identifier of the election
-   */
-  public static votesCount(url: string, electionId: string): Promise<IElectionVotesCountResponse> {
-    return axios
-      .get<IElectionVotesCountResponse>(url + ElectionAPIMethods.VOTES_COUNT.replace('{id}', electionId))
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the list of votes for a given election
-   *
-   * @param url - API endpoint URL
-   * @param electionId - The identifier of the election
-   * @param page - The page number
-   */
-  public static votesList(url: string, electionId: string, page: number = 0): Promise<IElectionVoteListResponse> {
-    return axios
-      .get<IElectionVoteListResponse>(
-        url + ElectionAPIMethods.VOTES.replace('{id}', electionId).replace('{page}', String(page))
-      )
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
    * Return list of all elections in the chain
    *
    * @param url - API endpoint URL
    * @param params - The parameters to filter the elections
    */
-  public static electionsList(
+  public static list(
     url: string,
     params?: Partial<FetchElectionsParametersWithPagination>
   ): Promise<IElectionListResponse> {

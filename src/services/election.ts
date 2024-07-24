@@ -287,7 +287,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
   async fetchElections(params?: Partial<FetchElectionsParametersWithPagination>): Promise<ElectionListWithPagination> {
     invariant(this.url, 'No URL set');
 
-    const list = await ElectionAPI.electionsList(this.url, params);
+    const list = await ElectionAPI.list(this.url, params);
 
     const elections =
       list.elections.length > 0
