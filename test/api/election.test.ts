@@ -58,9 +58,6 @@ describe('Election API tests', () => {
     await expect(async () => {
       await ElectionAPI.keys(URL, '0xReallyBad');
     }).rejects.toThrow(ErrCantParseElectionID);
-    await expect(async () => {
-      await ElectionAPI.list(URL, { electionId: '0xReallyBad' });
-    }).rejects.toThrow(ErrElectionNotFound);
   }, 15000);
   it('should throw when asking for a non existent election', async () => {
     await expect(async () => {

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { API, PaginationResponse } from './api';
 import { AccountMetadata } from '../types';
-import { IChainFeesListResponse } from './chain';
 import { FetchAccountsParametersWithPagination } from '../services';
 
 enum AccountAPIMethods {
@@ -10,7 +9,6 @@ enum AccountAPIMethods {
   METADATA = '/accounts/{accountId}/metadata',
   SET_INFO = '/accounts',
   TRANSFERS = '/accounts/{accountId}/transfers/page',
-  ACCOUNT_FEES = '/accounts/{accountId}/fees/page/{page}',
 }
 
 export type IAccountSummary = Pick<IAccountInfoResponse, 'address' | 'balance' | 'nonce'>;
@@ -164,22 +162,6 @@ export abstract class AccountAPI extends API {
   public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
     return axios
       .get<IAccountTransfersResponse>(url + AccountAPIMethods.TRANSFERS.replace('{accountId}', accountId) + '/' + page)
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the list of fees by account
-   *
-   * @param url - {string} url API endpoint URL
-   * @param account - {string} account The account
-   * @param page - {number} page The page number
-   */
-  public static fees(url: string, account: string, page: number = 0): Promise<IChainFeesListResponse> {
-    return axios
-      .get<IChainFeesListResponse>(
-        url + AccountAPIMethods.ACCOUNT_FEES.replace('{accountId}', account).replace('{page}', String(page))
-      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }
