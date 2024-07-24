@@ -10,7 +10,6 @@ enum ElectionAPIMethods {
   PRICE = '/elections/price',
   KEYS = '/elections/{id}/keys',
   CREATE = '/elections',
-  VOTES_COUNT = '/elections/{id}/votes/count',
 }
 
 export interface ICensus {
@@ -264,13 +263,6 @@ export interface IEncryptionKey {
 export interface IElectionKeysResponse {
   publicKeys: IEncryptionKey[];
   privateKeys: IEncryptionKey[];
-}
-
-export interface IElectionVotesCountResponse {
-  /**
-   * The number of votes
-   */
-  count: number;
 }
 
 interface IElectionCalculatePriceResponse {

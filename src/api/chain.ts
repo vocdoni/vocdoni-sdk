@@ -14,7 +14,6 @@ enum ChainAPIMethods {
   TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
   SUBMIT_TX = '/chain/transactions',
   TX_LIST = '/chain/transactions/page',
-  ORGANIZATION_COUNT = '/chain/organizations/count',
   ORGANIZATION_LIST = '/chain/organizations',
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks',
@@ -236,13 +235,6 @@ export interface IChainTxListResponse {
    * List of transactions reference
    */
   transactions: Array<IChainTxReference>;
-}
-
-export interface IChainOrganizationCountResponse {
-  /**
-   * The number of organizations
-   */
-  count: number;
 }
 
 export interface IChainOrganizationResponse {
@@ -601,18 +593,6 @@ export abstract class ChainAPI extends API {
       .get<IChainFeesListResponse>(
         url + ChainAPIMethods.FEES_LIST_TYPE.replace('{type}', type).replace('{page}', String(page))
       )
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the number of organizations
-   *
-   * @param url - API endpoint URL
-   */
-  public static organizationCount(url: string): Promise<IChainOrganizationCountResponse> {
-    return axios
-      .get<IChainOrganizationCountResponse>(url + ChainAPIMethods.ORGANIZATION_COUNT)
       .then((response) => response.data)
       .catch(this.isApiError);
   }
