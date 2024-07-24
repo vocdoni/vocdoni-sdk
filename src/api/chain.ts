@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API, PaginationResponse } from './api';
 import { ErrTransactionNotFound } from './errors';
 import { Tx } from './chain/';
-import { FetchOrganizationParametersWithPagination } from '../services';
+import { FetchFeesParametersWithPagination, FetchOrganizationParametersWithPagination } from '../services';
 export * from './chain/';
 
 enum ChainAPIMethods {
@@ -21,9 +21,7 @@ enum ChainAPIMethods {
   BLOCK_TRANSACTIONS = '/chain/blocks/{height}/transactions/page/{page}',
   DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
   BLOCK_TO_DATE = '/chain/blockToDate/{height}',
-  FEES_LIST = '/chain/fees/page/{page}',
-  FEES_LIST_REFERENCE = '/chain/fees/reference/{reference}/page/{page}',
-  FEES_LIST_TYPE = '/chain/fees/type/{type}/page/{page}',
+  FEES_LIST = '/chain/fees',
 }
 
 export interface IChainGetInfoResponse {
@@ -381,7 +379,9 @@ export type Fee = {
   txType: string;
 };
 
-export interface IChainFeesListResponse {
+export interface IChainFeesListResponse extends IFeesList, PaginationResponse {}
+
+export interface IFeesList {
   /**
    * The list of fees
    */
@@ -528,46 +528,18 @@ export abstract class ChainAPI extends API {
   }
 
   /**
-   * Returns the list of fees by page
+   * Returns the list of fees
    *
    * @param url - {string} url API endpoint URL
-   * @param page - {number} page The page number
+   * @param params - The parameters to filter the fees
    */
-  public static feesList(url: string, page: number = 0): Promise<IChainFeesListResponse> {
+  public static feesList(
+    url: string,
+    params?: Partial<FetchFeesParametersWithPagination>
+  ): Promise<IChainFeesListResponse> {
+    const queryParams = this.createQueryParams(params);
     return axios
-      .get<IChainFeesListResponse>(url + ChainAPIMethods.FEES_LIST.replace('{page}', String(page)))
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the list of fees by reference
-   *
-   * @param url - {string} url API endpoint URL
-   * @param reference - {string} reference The reference
-   * @param page - {number} page The page number
-   */
-  public static feesListByReference(url: string, reference: string, page: number = 0): Promise<IChainFeesListResponse> {
-    return axios
-      .get<IChainFeesListResponse>(
-        url + ChainAPIMethods.FEES_LIST_REFERENCE.replace('{reference}', reference).replace('{page}', String(page))
-      )
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the list of fees by type
-   *
-   * @param url - {string} url API endpoint URL
-   * @param type - {string} type The type of the fee
-   * @param page - {number} page The page number
-   */
-  public static feesListByType(url: string, type: string, page: number = 0): Promise<IChainFeesListResponse> {
-    return axios
-      .get<IChainFeesListResponse>(
-        url + ChainAPIMethods.FEES_LIST_TYPE.replace('{type}', type).replace('{page}', String(page))
-      )
+      .get<IChainFeesListResponse>(url + ChainAPIMethods.FEES_LIST + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
       .catch(this.isApiError);
   }

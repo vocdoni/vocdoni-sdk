@@ -15,9 +15,16 @@ export type ChainCosts = IChainGetCostsResponse;
 export type ChainTx = IChainTxReference;
 
 export type FetchOrganizationParametersWithPagination = FetchOrganizationParameters & PaginationRequest;
+export type FetchFeesParametersWithPagination = FetchFeesParameters & PaginationRequest;
 
 export interface FetchOrganizationParameters {
   organizationId: string;
+}
+
+export interface FetchFeesParameters {
+  reference: string;
+  type: string;
+  accountId: string;
 }
 
 /**
