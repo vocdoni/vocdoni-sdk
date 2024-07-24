@@ -59,11 +59,8 @@ describe('Election API tests', () => {
       await ElectionAPI.keys(URL, '0xReallyBad');
     }).rejects.toThrow(ErrCantParseElectionID);
     await expect(async () => {
-      await ElectionAPI.votesCount(URL, '0xReallyBad');
-    }).rejects.toThrow(ErrCantParseElectionID);
-    await expect(async () => {
-      await ElectionAPI.votesList(URL, '0xReallyBad');
-    }).rejects.toThrow(ErrCantParseElectionID);
+      await ElectionAPI.list(URL, { electionId: '0xReallyBad' });
+    }).rejects.toThrow(ErrElectionNotFound);
   }, 15000);
   it('should throw when asking for a non existent election', async () => {
     await expect(async () => {
@@ -73,10 +70,7 @@ describe('Election API tests', () => {
       await ElectionAPI.keys(URL, '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFdeadbeef');
     }).rejects.toThrow(ErrElectionNotFound);
     await expect(async () => {
-      await ElectionAPI.votesCount(URL, '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFdeadbeef');
-    }).rejects.toThrow(ErrElectionNotFound);
-    await expect(async () => {
-      await ElectionAPI.votesList(URL, '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFdeadbeef');
+      await ElectionAPI.list(URL, { electionId: '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFdeadbeef' });
     }).rejects.toThrow(ErrElectionNotFound);
   }, 15000);
   it('should throw when asking for the keys of an election which is not encrypted', async () => {

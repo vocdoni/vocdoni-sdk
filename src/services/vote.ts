@@ -4,7 +4,7 @@ import { ChainService } from './chain';
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
 import { VoteCore } from '../core/vote';
-import { IVoteInfoResponse, IVoteSubmitResponse, VoteAPI } from '../api';
+import { VoteInfoResponse, IVoteSubmitResponse, PaginationRequest, VoteAPI } from '../api';
 
 interface VoteServiceProperties {
   chainService: ChainService;
@@ -12,7 +12,13 @@ interface VoteServiceProperties {
 
 type VoteServiceParameters = ServiceProperties & VoteServiceProperties;
 
-export type VoteInfo = IVoteInfoResponse;
+export type FetchVotesParametersWithPagination = FetchVotesParameters & PaginationRequest;
+
+export interface FetchVotesParameters {
+  electionId: string;
+}
+
+export type VoteInfo = VoteInfoResponse;
 export type VoteSubmit = IVoteSubmitResponse;
 
 export enum VoteSteps {

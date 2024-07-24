@@ -1,10 +1,12 @@
 import axios from 'axios';
-import { API } from './api';
+import { API, PaginationResponse } from './api';
+import { FetchVotesParametersWithPagination } from '../services';
 
 enum VoteAPIMethods {
   VOTE = '/votes',
-  INFO = '/votes',
-  VERIFY = '/votes/verify',
+  LIST = '/votes',
+  INFO = '/votes/{id}',
+  VERIFY = '/votes/verify/{electionId}/{voteId}',
 }
 
 export interface IVoteSubmitResponse {
@@ -38,7 +40,21 @@ export interface IVoteEncryptedPackage {
   encrypted: string;
 }
 
-export interface IVoteInfoResponse {
+export interface IVoteListResponse extends VotesList, PaginationResponse {}
+
+export interface VotesList {
+  /**
+   * The list of votes
+   */
+  votes: Array<VoteSummary>;
+}
+
+export type VoteSummary = Pick<
+  VoteInfoResponse,
+  'txHash' | 'voteID' | 'voterID' | 'electionID' | 'blockHeight' | 'transactionIndex'
+>;
+
+export type VoteInfoResponse = {
   /**
    * The hash of the transaction
    */
@@ -93,7 +109,7 @@ export interface IVoteInfoResponse {
    * Date when the vote was emitted
    */
   date: string;
-}
+};
 
 export abstract class VoteAPI extends API {
   /**
@@ -104,7 +120,7 @@ export abstract class VoteAPI extends API {
   }
 
   /**
-   * Voting
+   * Submits a payload representing the vote transaction to the chain
    *
    * @param url - API endpoint URL
    * @param payload - The base64 encoded vote transaction
@@ -124,9 +140,23 @@ export abstract class VoteAPI extends API {
    * @param voteId - The identifier of the vote
    *
    */
-  public static info(url: string, voteId: string): Promise<IVoteInfoResponse> {
+  public static info(url: string, voteId: string): Promise<VoteInfoResponse> {
     return axios
-      .get<IVoteInfoResponse>(url + VoteAPIMethods.INFO + '/' + voteId)
+      .get<VoteInfoResponse>(url + VoteAPIMethods.INFO.replace('{id}', voteId))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches the vote list
+   *
+   * @param url - API endpoint URL
+   * @param params - The parameters to filter the votes
+   */
+  public static list(url: string, params?: Partial<FetchVotesParametersWithPagination>): Promise<IVoteListResponse> {
+    const queryParams = this.createQueryParams(params);
+    return axios
+      .get<IVoteListResponse>(url + VoteAPIMethods.LIST + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -135,14 +165,14 @@ export abstract class VoteAPI extends API {
    * Verify vote. A vote exists in a process.
    *
    * @param url - API endpoint URL
-   * @param processId - The process identifier
+   * @param electionId - The process identifier
    * @param voteId - The identifier of the vote
    *
    * @returns Return true if response has status 200
    */
-  public static verify(url: string, processId: string, voteId: string): Promise<boolean> {
+  public static verify(url: string, electionId: string, voteId: string): Promise<boolean> {
     return axios
-      .get(url + VoteAPIMethods.VERIFY + '/' + processId + '/' + voteId)
+      .get(url + VoteAPIMethods.VERIFY.replace('{electionId}', electionId).replace('{voteId}', voteId))
       .then((response) => response.status === 200)
       .catch(this.isApiError);
   }
