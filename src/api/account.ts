@@ -6,12 +6,10 @@ import { FetchAccountsParametersWithPagination } from '../services';
 
 enum AccountAPIMethods {
   LIST = '/accounts',
-  NUM_ACCOUNTS = '/accounts/count',
   INFO = '/accounts/{accountId}',
   METADATA = '/accounts/{accountId}/metadata',
   SET_INFO = '/accounts',
   TRANSFERS = '/accounts/{accountId}/transfers/page',
-  NUM_TRANSFERS = '/accounts/{accountId}/transfers/count',
   ACCOUNT_FEES = '/accounts/{accountId}/fees/page/{page}',
 }
 
@@ -91,20 +89,6 @@ export interface IAccountsList {
   accounts: Array<IAccountSummary>;
 }
 
-export interface IAccountTransfersCountResponse {
-  /**
-   * Number of account's transfers
-   */
-  count: number;
-}
-
-export interface IAccountsCountResponse {
-  /**
-   * Number of accounts
-   */
-  count: number;
-}
-
 export abstract class AccountAPI extends API {
   /**
    * Cannot be constructed.
@@ -126,18 +110,6 @@ export abstract class AccountAPI extends API {
     const queryParams = this.createQueryParams(params);
     return axios
       .get<IAccountsListResponse>(url + AccountAPIMethods.LIST + (queryParams ? '?' + queryParams : ''))
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the number of accounts
-   *
-   * @param url - API endpoint URL
-   */
-  public static count(url: string): Promise<IAccountsCountResponse> {
-    return axios
-      .get<IAccountsCountResponse>(url + AccountAPIMethods.NUM_ACCOUNTS)
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -192,19 +164,6 @@ export abstract class AccountAPI extends API {
   public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
     return axios
       .get<IAccountTransfersResponse>(url + AccountAPIMethods.TRANSFERS.replace('{accountId}', accountId) + '/' + page)
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns the account's transfers count
-   *
-   * @param url - API endpoint URL
-   * @param accountId - accountId to get the transfers count
-   */
-  public static transfersCount(url: string, accountId: string): Promise<IAccountTransfersCountResponse> {
-    return axios
-      .get<IAccountTransfersCountResponse>(url + AccountAPIMethods.NUM_TRANSFERS.replace('{accountId}', accountId))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
