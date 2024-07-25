@@ -2,7 +2,11 @@ import axios from 'axios';
 import { API, PaginationResponse } from './api';
 import { ErrTransactionNotFound } from './errors';
 import { Tx } from './chain/';
-import { FetchFeesParametersWithPagination, FetchOrganizationParametersWithPagination } from '../services';
+import {
+  FetchFeesParametersWithPagination,
+  FetchOrganizationParametersWithPagination,
+  FetchTransactionsParametersWithPagination,
+} from '../services';
 export * from './chain/';
 
 enum ChainAPIMethods {
@@ -13,12 +17,11 @@ enum ChainAPIMethods {
   TX_INFO_BY_INDEX = '/chain/transactions/reference/index/{index}',
   TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
   SUBMIT_TX = '/chain/transactions',
-  TX_LIST = '/chain/transactions/page',
+  TX_LIST = '/chain/transactions',
   ORGANIZATION_LIST = '/chain/organizations',
   VALIDATORS_LIST = '/chain/validators',
   BLOCK_INFO = '/chain/blocks',
   BLOCK_INFO_BY_HASH = '/chain/blocks/hash',
-  BLOCK_TRANSACTIONS = '/chain/blocks/{height}/transactions/page/{page}',
   DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
   BLOCK_TO_DATE = '/chain/blockToDate/{height}',
   FEES_LIST = '/chain/fees',
@@ -204,13 +207,6 @@ export interface IChainTxReference {
   transactionType: TransactionType;
 }
 
-export interface IChainTxCountResponse {
-  /**
-   * The number of transactions
-   */
-  count: number;
-}
-
 export interface IChainSubmitTxResponse {
   /**
    * The hash of the transaction
@@ -228,7 +224,9 @@ export interface IChainSubmitTxResponse {
   code: number;
 }
 
-export interface IChainTxListResponse {
+export interface IChainTxListResponse extends IChainTxList, PaginationResponse {}
+
+export interface IChainTxList {
   /**
    * List of transactions reference
    */
@@ -540,14 +538,18 @@ export abstract class ChainAPI extends API {
   }
 
   /**
-   * Returns the list of transactions by page
+   * Returns the list of transactions
    *
    * @param url - {string} url API endpoint URL
-   * @param page - {number} page The page number
+   * @param params - The parameters to filter the transactions
    */
-  public static txList(url: string, page: number = 0): Promise<IChainTxListResponse> {
+  public static txList(
+    url: string,
+    params?: Partial<FetchTransactionsParametersWithPagination>
+  ): Promise<IChainTxListResponse> {
+    const queryParams = this.createQueryParams(params);
     return axios
-      .get<IChainTxListResponse>(url + ChainAPIMethods.TX_LIST + '/' + page)
+      .get<IChainTxListResponse>(url + ChainAPIMethods.TX_LIST + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
@@ -622,22 +624,6 @@ export abstract class ChainAPI extends API {
   public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
     return axios
       .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_BY_HASH + '/' + hash)
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Get paginated list of transactions registered on specific block
-   *
-   * @param url - API endpoint URL
-   * @param height - block height
-   * @param page - the page number
-   */
-  public static blockTransactions(url: string, height: number, page: number = 0): Promise<IBlockTransactionsResponse> {
-    return axios
-      .get<IBlockTransactionsResponse>(
-        url + ChainAPIMethods.BLOCK_TRANSACTIONS.replace('{height}', String(height)).replace('{page}', String(page))
-      )
       .then((response) => response.data)
       .catch(this.isApiError);
   }
