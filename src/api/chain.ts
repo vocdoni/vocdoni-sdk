@@ -346,6 +346,12 @@ export interface IChainValidator {
    * Validator name reference. Could be empty.
    */
   name: string;
+
+  joinHeight: number;
+  proposals: number;
+  score: number;
+  validatorAddress: string;
+  votes: number;
 }
 
 export interface IChainValidatorsListResponse {
