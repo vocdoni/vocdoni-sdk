@@ -347,10 +347,29 @@ export interface IChainValidator {
    */
   name: string;
 
+  /**
+   * Block height when validator joint
+   */
   joinHeight: number;
+
+  /**
+   * Total block proposals count
+   */
   proposals: number;
+
+  /**
+   * Validatos effectivity. Between 0 and 100
+   */
   score: number;
+
+  /**
+   * Validator address
+   */
   validatorAddress: string;
+
+  /**
+   * Number ob validated blocks (not created)
+   */
   votes: number;
 }
 
