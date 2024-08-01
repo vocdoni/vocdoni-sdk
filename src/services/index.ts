@@ -8,3 +8,4 @@ export * from './file';
 export * from './service';
 export * from './anonymous';
 export * from './vote';
+export * from './remote-signer';

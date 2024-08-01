@@ -5,6 +5,7 @@ import { Buffer } from 'buffer';
 import { strip0x } from '../util/common';
 import { Signing } from '../util/signing';
 import { keccak256 } from '@ethersproject/keccak256';
+import { RemoteSigner } from '../types';
 
 export abstract class TransactionCore {
   /**
@@ -15,8 +16,11 @@ export abstract class TransactionCore {
   public static async signTransaction(
     tx: Uint8Array,
     payload: string,
-    walletOrSigner: Wallet | Signer
+    walletOrSigner: Wallet | Signer | RemoteSigner
   ): Promise<string> {
+    if (walletOrSigner instanceof RemoteSigner) {
+      return walletOrSigner.signTransactionRemotely(tx);
+    }
     return Signing.signTransaction(payload, walletOrSigner).then((hexSignature) =>
       this.encodeTransaction(tx, hexSignature)
     );
