@@ -5,6 +5,7 @@ import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
 import { VoteCore } from '../core/vote';
 import { VoteInfoResponse, IVoteSubmitResponse, PaginationRequest, VoteAPI } from '../api';
+import { RemoteSigner } from '../types';
 
 interface VoteServiceProperties {
   chainService: ChainService;
@@ -53,7 +54,11 @@ export class VoteService extends Service implements VoteServiceProperties {
     Object.assign(this, params);
   }
 
-  public async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
+  public async signTransaction(
+    tx: Uint8Array,
+    message: string,
+    walletOrSigner: Wallet | Signer | RemoteSigner
+  ): Promise<string> {
     invariant(this.chainService, 'No chain service set');
     return this.chainService.fetchChainData().then((chainData) => {
       const payload = message.replace('{hash}', VoteCore.hashTransaction(tx)).replace('{chainId}', chainData.chainId);

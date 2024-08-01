@@ -1,6 +1,7 @@
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { RemoteSigner } from '../types';
 
 export class Signing {
   /**
@@ -13,7 +14,7 @@ export class Signing {
    * @param message -
    * @param walletOrSigner -
    */
-  static signTransaction(message: string, walletOrSigner: Wallet | Signer): Promise<string> {
+  static signTransaction(message: string, walletOrSigner: Wallet | Signer | RemoteSigner): Promise<string> {
     if (!walletOrSigner) throw new Error('Invalid wallet/signer');
 
     const digestedMessage = new TextEncoder().encode(message);
@@ -26,7 +27,7 @@ export class Signing {
    * @param request -
    * @param walletOrSigner -
    */
-  static signRaw(request: Uint8Array, walletOrSigner: Wallet | Signer): Promise<string> {
+  static signRaw(request: Uint8Array, walletOrSigner: Wallet | Signer | RemoteSigner): Promise<string> {
     if (!walletOrSigner) throw new Error('Invalid wallet/signer');
 
     if (walletOrSigner instanceof Wallet) {
