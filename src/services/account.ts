@@ -1,6 +1,6 @@
 import { Service, ServiceProperties } from './service';
 import { ChainService } from './chain';
-import { Account } from '../types';
+import { Account, RemoteSigner } from '../types';
 import { AccountAPI, IAccountInfoResponse, PaginationRequest } from '../api';
 import invariant from 'tiny-invariant';
 import { Wallet } from '@ethersproject/wallet';
@@ -98,7 +98,11 @@ export class AccountService extends Service implements AccountServiceProperties 
     return AccountAPI.setInfo(this.url, tx, metadata).then((response) => response.txHash);
   }
 
-  async signTransaction(tx: Uint8Array, message: string, walletOrSigner: Wallet | Signer): Promise<string> {
+  async signTransaction(
+    tx: Uint8Array,
+    message: string,
+    walletOrSigner: Wallet | Signer | RemoteSigner
+  ): Promise<string> {
     invariant(this.chainService, 'No chain service set');
     return this.chainService.fetchChainData().then((chainData) => {
       const payload = message

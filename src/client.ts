@@ -19,6 +19,7 @@ import {
   IsInCensusOptions,
   PlainCensus,
   PublishedElection,
+  RemoteSigner,
   SendTokensOptions,
   StrategyCensus,
   TokenCensus,
@@ -101,14 +102,14 @@ type CensusOptions = {
  * @typedef ClientOptions
  * @property {EnvOptions} env enum with possible values `DEV`, `STG`, `PROD`
  * @property {string | null } api_url API url location
- * @property {Wallet | Signer | null} wallet `Wallet` or `Signer` object from `ethersproject` library
+ * @property {Wallet | Signer | RemoteSigner | null} wallet `Wallet` or `Signer` object from `ethersproject` library
  * @property {string | null} electionId Required by other methods like `submitVote` or `createElection`.
  * @property {FaucetOptions | null} faucet Specify custom Faucet options
  */
 export type ClientOptions = {
   env: EnvOptions;
   api_url?: string;
-  wallet?: Wallet | Signer;
+  wallet?: Wallet | Signer | RemoteSigner;
   electionId?: string;
   faucet?: Partial<FaucetOptions>;
   tx_wait?: TxWaitOptions;
@@ -135,7 +136,7 @@ export class VocdoniSDKClient {
   public accountService: AccountService;
 
   public url: string;
-  public wallet: Wallet | Signer | null;
+  public wallet: Wallet | Signer | RemoteSigner | null;
   public electionId: string | null;
   public explorerUrl: string;
 
@@ -274,7 +275,7 @@ export class VocdoniSDKClient {
    * @param censusId -
    * @param wallet -
    */
-  private fetchProofForWallet(censusId: string, wallet: Wallet | Signer): Promise<CensusProof> {
+  private fetchProofForWallet(censusId: string, wallet: Wallet | Signer | RemoteSigner): Promise<CensusProof> {
     return wallet.getAddress().then((address) => this.censusService.fetchProof(censusId, address));
   }
 
@@ -283,7 +284,7 @@ export class VocdoniSDKClient {
     signature: string,
     password: string,
     censusProof: CensusProof,
-    wallet: Wallet | Signer
+    wallet: Wallet | Signer | RemoteSigner
   ): Promise<void> {
     return wallet
       .getAddress()
@@ -312,7 +313,7 @@ export class VocdoniSDKClient {
    */
   private async calcZKProofForWallet(
     election: PublishedElection,
-    wallet: Wallet | Signer,
+    wallet: Wallet | Signer | RemoteSigner,
     signature: string,
     votePackage: Buffer,
     password: string = '0'

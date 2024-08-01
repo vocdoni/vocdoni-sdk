@@ -13,6 +13,7 @@ import { ZkAPI } from '../api/zk';
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
 import { Signing } from '../util/signing';
+import { RemoteSigner } from '../types';
 
 interface AnonymousServiceProperties {
   chainCircuits: ChainCircuits;
@@ -95,7 +96,7 @@ export class AnonymousService extends Service implements AnonymousServicePropert
     return ZkAPI.proof(this.url, address);
   }
 
-  async signSIKPayload(wallet: Wallet | Signer): Promise<string> {
+  async signSIKPayload(wallet: Wallet | Signer | RemoteSigner): Promise<string> {
     return Signing.signRaw(new Uint8Array(Buffer.from(VOCDONI_SIK_PAYLOAD)), wallet);
   }
 
