@@ -14,6 +14,7 @@ enum ChainAPIMethods {
   INFO = '/chain/info',
   COSTS = '/chain/info/electionPriceFactors',
   CIRCUITS = '/chain/info/circuit',
+  TX_COSTS = '/chain/transactions/cost',
   TX_INFO = '/chain/transactions/reference',
   TX_INFO_BY_INDEX = '/chain/transactions/reference/index/{index}',
   TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
@@ -180,6 +181,26 @@ export enum TransactionType {
   SET_ACCOUNT_TX = 'setAccount',
   COLLECT_FAUCET_TX = 'collectFaucet',
   SET_KEYKEEPER_TX = 'setKeykeeper',
+}
+
+export interface IChainTxCosts {
+  costs: {
+    AddDelegateForAccount: number;
+    CollectFaucet: number;
+    CreateAccount: number;
+    DelAccountSIK: number;
+    DelDelegateForAccount: number;
+    NewProcess: number;
+    RegisterKey: number;
+    SendTokens: number;
+    SetAccountInfoURI: number;
+    SetAccountSIK: number;
+    SetAccountValidator: number;
+    SetProcessCensus: number;
+    SetProcessDuration: number;
+    SetProcessQuestionIndex: number;
+    SetProcessStatus: number;
+  };
 }
 
 export interface IChainTxReference {
@@ -484,6 +505,19 @@ export abstract class ChainAPI extends API {
     return axios
       .get<Uint8Array>(url, { responseType: 'arraybuffer' })
       .then((response) => new Uint8Array(response.data))
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of transactions and its cost
+   * @param url - API endpoint URL
+   */
+  public static txCosts(url: string): Promise<IChainTxCosts> {
+    return axios
+      .get<IChainTxCosts>(url + ChainAPIMethods.TX_COSTS)
+      .then((response) => {
+        return response.data;
+      })
       .catch(this.isApiError);
   }
 
