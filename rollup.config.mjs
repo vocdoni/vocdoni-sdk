@@ -37,20 +37,20 @@ export default [
       {
         file: `${name}.js`,
         format: 'cjs',
-        sourcemap: process.env.NODE_ENV === 'development',
+        sourcemap: false,
       },
       // es modules
       {
         file: `${name}.mjs`,
         format: 'es',
-        sourcemap: process.env.NODE_ENV === 'development',
+        sourcemap: false,
       },
       // umd
       {
         name: 'VocdoniSDK',
         file: `${name}.umd.js`,
         format: 'umd',
-        sourcemap: process.env.NODE_ENV === 'development',
+        sourcemap: false,
       },
     ],
   }),
