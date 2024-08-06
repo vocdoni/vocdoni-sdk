@@ -6,7 +6,8 @@ enum RemoteSignerAPIMethods {
   LOGIN = '/auth/login',
   REFRESH = '/auth/refresh',
   ADDRESS = '/users/address',
-  SIGN = '/transactions',
+  SIGN_TX = '/transactions',
+  SIGN = '/transactions/message',
 }
 
 export interface IRemoteSignerRegisterResponse {
@@ -37,11 +38,18 @@ export interface IRemoteSignerAddressResponse {
   address: string;
 }
 
+export interface IRemoteSignerSignTxResponse {
+  /**
+   * The signed transaction payload
+   */
+  txPayload: string;
+}
+
 export interface IRemoteSignerSignResponse {
   /**
    * The signed payload
    */
-  txPayload: string;
+  signature: string;
 }
 
 export abstract class RemoteSignerAPI extends API {
@@ -115,17 +123,39 @@ export abstract class RemoteSignerAPI extends API {
   }
 
   /**
-   * Signs the payload using the remote signer.
+   * Signs the transaction using the remote signer.
    *
    * @param url - API endpoint URL
    * @param authToken - Authentication token
    * @param payload - The transaction payload
    */
+  public static signTransaction(url: string, authToken: string, payload: string): Promise<IRemoteSignerSignTxResponse> {
+    return axios
+      .post<IRemoteSignerSignTxResponse>(
+        url + RemoteSignerAPIMethods.SIGN_TX,
+        { txPayload: payload },
+        {
+          headers: {
+            Authorization: 'Bearer ' + authToken,
+          },
+        }
+      )
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Signs the payload using the remote signer.
+   *
+   * @param url - API endpoint URL
+   * @param authToken - Authentication token
+   * @param payload - The payload
+   */
   public static sign(url: string, authToken: string, payload: string): Promise<IRemoteSignerSignResponse> {
     return axios
       .post<IRemoteSignerSignResponse>(
         url + RemoteSignerAPIMethods.SIGN,
-        { txPayload: payload },
+        { payload },
         {
           headers: {
             Authorization: 'Bearer ' + authToken,

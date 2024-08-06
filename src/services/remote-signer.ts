@@ -75,6 +75,18 @@ export class RemoteSignerService extends Service implements RemoteSignerServiceP
     return RemoteSignerAPI.address(this.remoteSigner.url, this.remoteSigner.token).then((response) => response.address);
   }
 
+  signTxPayload(payload: string | Bytes): Promise<string> {
+    invariant(this.remoteSigner.url, 'No URL set');
+    invariant(this.remoteSigner.token, 'No JWT token set');
+
+    const payloadBytes = typeof payload === 'string' ? toUtf8Bytes(payload) : payload;
+    const payloadBase64 = Buffer.from(Uint8Array.from(payloadBytes)).toString('base64');
+
+    return RemoteSignerAPI.signTransaction(this.remoteSigner.url, this.remoteSigner.token, payloadBase64).then(
+      (response) => response.txPayload
+    );
+  }
+
   signPayload(payload: string | Bytes): Promise<string> {
     invariant(this.remoteSigner.url, 'No URL set');
     invariant(this.remoteSigner.token, 'No JWT token set');
@@ -83,7 +95,7 @@ export class RemoteSignerService extends Service implements RemoteSignerServiceP
     const payloadBase64 = Buffer.from(Uint8Array.from(payloadBytes)).toString('base64');
 
     return RemoteSignerAPI.sign(this.remoteSigner.url, this.remoteSigner.token, payloadBase64).then(
-      (response) => response.txPayload
+      (response) => response.signature
     );
   }
 }
