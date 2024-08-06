@@ -47,12 +47,12 @@ export class RemoteSigner extends Signer {
     });
   }
 
-  async signMessage(_message: string | Bytes): Promise<string> {
-    throw new Error('Not implemented');
+  async signMessage(message: string | Bytes): Promise<string> {
+    return this.remoteSignerService.signPayload(message);
   }
 
   async signTransactionRemotely(message: string | Bytes): Promise<string> {
-    return this.remoteSignerService.signPayload(message);
+    return this.remoteSignerService.signTxPayload(message);
   }
 
   async getAddress(): Promise<string> {
