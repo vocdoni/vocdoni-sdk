@@ -11,3 +11,4 @@ export * from './wallet';
 export * from './errors';
 export * from './csp';
 export * from './zk';
+export * from './remote-signer';

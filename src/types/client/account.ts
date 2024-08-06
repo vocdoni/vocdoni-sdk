@@ -1,7 +1,8 @@
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
+import { RemoteSigner } from '../remote-signer';
 
-export type WalletOption = { wallet: Wallet | Signer };
+export type WalletOption = { wallet: Wallet | Signer | RemoteSigner };
 export type ElectionIdOption = { electionId: string };
 export type VoteIdOption = { voteId: string };
 
