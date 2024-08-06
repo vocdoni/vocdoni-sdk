@@ -13,7 +13,7 @@ const name = pkg.output;
 const bundle = (config) => ({
   ...config,
   input: pkg.main,
-  external: [...Object.keys(pkg.dependencies), '@vocdoni/proto/vochain'],
+  external: [...Object.keys(pkg.peerDependencies), '@vocdoni/proto/vochain'],
 });
 
 export default [
