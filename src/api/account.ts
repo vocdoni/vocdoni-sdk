@@ -8,7 +8,6 @@ enum AccountAPIMethods {
   INFO = '/accounts/{accountId}',
   METADATA = '/accounts/{accountId}/metadata',
   SET_INFO = '/accounts',
-  TRANSFERS = '/accounts/{accountId}/transfers/page',
 }
 
 export type IAccountSummary = Pick<IAccountInfoResponse, 'address' | 'balance' | 'nonce'>;
@@ -60,22 +59,6 @@ interface IAccountSetInfoResponse {
    * The metadata URL
    */
   metadataURL: number;
-}
-
-export interface IAccountTransfer {
-  amount: number;
-  from: string;
-  height: number;
-  txHash: string;
-  timestamp: string;
-  to: string;
-}
-
-export interface IAccountTransfersResponse {
-  transfers: {
-    received: Array<IAccountTransfer>;
-    sent: Array<IAccountTransfer>;
-  };
 }
 
 export interface IAccountsListResponse extends IAccountsList, PaginationResponse {}
@@ -148,20 +131,6 @@ export abstract class AccountAPI extends API {
   public static setInfo(url: string, payload: string, metadata: string): Promise<IAccountSetInfoResponse> {
     return axios
       .post<IAccountSetInfoResponse>(url + AccountAPIMethods.SET_INFO, { txPayload: payload, metadata })
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Returns paginated list of transfers for a specific account
-   *
-   * @param url - API endpoint URL
-   * @param accountId - accountId to get transfers
-   * @param page - The page number
-   */
-  public static transfersList(url: string, accountId: string, page: number = 0): Promise<IAccountTransfersResponse> {
-    return axios
-      .get<IAccountTransfersResponse>(url + AccountAPIMethods.TRANSFERS.replace('{accountId}', accountId) + '/' + page)
       .then((response) => response.data)
       .catch(this.isApiError);
   }
