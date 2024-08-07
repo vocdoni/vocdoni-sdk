@@ -9,6 +9,7 @@
   "output": "dist/index",
   "files": [
     "dist",
+    "src",
     "package.json"
   ],
   "engines": {
