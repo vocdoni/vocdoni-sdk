@@ -6,6 +6,7 @@ import {
   FetchFeesParametersWithPagination,
   FetchOrganizationParametersWithPagination,
   FetchTransactionsParametersWithPagination,
+  FetchTransfersParametersWithPagination,
 } from '../services';
 export * from './chain/';
 
@@ -25,6 +26,7 @@ enum ChainAPIMethods {
   DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
   BLOCK_TO_DATE = '/chain/blockToDate/{height}',
   FEES_LIST = '/chain/fees',
+  TRANSFERS = '/chain/transfers',
 }
 
 export interface IChainGetInfoResponse {
@@ -231,6 +233,24 @@ export interface IChainTxList {
    * List of transactions reference
    */
   transactions: Array<IChainTxReference>;
+}
+
+export interface IChainTransfersListResponse extends IChainTransfersList, PaginationResponse {}
+
+export interface IChainTransfersList {
+  /**
+   * List of transfers
+   */
+  transfers: Array<ITransfer>;
+}
+
+export interface ITransfer {
+  amount: number;
+  from: string;
+  height: number;
+  txHash: string;
+  timestamp: string;
+  to: string;
 }
 
 export interface IChainOrganizationResponse {
@@ -525,6 +545,23 @@ export abstract class ChainAPI extends API {
     const queryParams = this.createQueryParams(params);
     return axios
       .get<IChainTxListResponse>(url + ChainAPIMethods.TX_LIST + (queryParams ? '?' + queryParams : ''))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of transfers
+   *
+   * @param url - {string} url API endpoint URL
+   * @param params - The parameters to filter the transfers
+   */
+  public static transfers(
+    url: string,
+    params?: Partial<FetchTransfersParametersWithPagination>
+  ): Promise<IChainTransfersListResponse> {
+    const queryParams = this.createQueryParams(params);
+    return axios
+      .get<IChainTransfersListResponse>(url + ChainAPIMethods.TRANSFERS + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
