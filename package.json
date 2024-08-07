@@ -111,7 +111,7 @@
     "@typescript-eslint/parser": "^5.42.1",
     "blakejs": "^1.2.1",
     "blindsecp256k1": "^0.0.9",
-    "circomlibjs": "^0.1.7",
+    "circomlibjs": "npm:@voctest/circomlibjs@0.2.1",
     "clean-package": "^2.2.0",
     "esbuild": "^0.20.2",
     "eslint": "^8.27.0",
@@ -149,7 +149,7 @@
     "blindsecp256k1": "^0.0.9",
     "blake2b": "^2.1.4",
     "buffer": "^6.0.3",
-    "circomlibjs": "^0.1.7",
+    "circomlibjs": "npm:@voctest/circomlibjs@0.2.1",
     "iso-language-codes": "^1.1.0",
     "js-sha256": "^0.10.1",
     "readable-stream": "^4.4.2",
@@ -160,9 +160,6 @@
     "wasmcurves": "0.2.1",
     "web-worker": "^1.2.0",
     "yup": "^0.32.11"
-  },
-  "resolutions": {
-    "ffjavascript": "0.2.59"
   },
   "clean-package": "./clean-package.config.json"
 }
