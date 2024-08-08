@@ -251,7 +251,7 @@ export abstract class API {
         case 5002:
           throw new ErrVochainGetTxFailed(err['error']);
         case 5003:
-          throw new ErrVochainReturnedErrorCode(err['error']);
+          return API.isVochainError(err['error']);
         case 5004:
           throw new ErrVochainReturnedInvalidElectionID(err['error']);
         case 5005:
@@ -311,7 +311,7 @@ export abstract class API {
         case 5034:
           throw new ErrCantFetchTokenFees(err['error']);
         default:
-          return API.isVochainError(error, err['error']);
+          return API.isUndefinedError(error, err['error']);
       }
     } else if (err) {
       const errorMessage = err['error'] ? (err['error'] as string) : (err as string);
@@ -320,16 +320,16 @@ export abstract class API {
     return API.isUndefinedError(error);
   }
 
-  private static isVochainError(error: AxiosError, message?: string): never {
+  private static isVochainError(error: string): never {
     switch (true) {
-      case message.includes('starts at') && message.includes('current'):
-        throw new ErrElectionNotStarted(message);
-      case message.includes('finished at') && message.includes('current'):
-        throw new ErrElectionFinished(message);
-      case message.includes('current state: ENDED'):
-        throw new ErrElectionFinished(message);
+      case error.includes('starts at') && error.includes('current'):
+        throw new ErrElectionNotStarted(error);
+      case error.includes('finished at') && error.includes('current'):
+        throw new ErrElectionFinished(error);
+      case error.includes('current state: ENDED'):
+        throw new ErrElectionFinished(error);
       default:
-        return API.isUndefinedError(error, message);
+        throw new ErrVochainReturnedErrorCode(error);
     }
   }
 
