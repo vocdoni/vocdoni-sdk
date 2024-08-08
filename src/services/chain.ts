@@ -30,8 +30,9 @@ export interface FetchFeesParameters {
 }
 
 export interface FetchTransfersParameters {
-  fromAccountId: string;
-  toAccountId: string;
+  accountId: string;
+  accountIdFrom: string;
+  accountIdTo: string;
 }
 
 export interface FetchTransactionsParameters {
