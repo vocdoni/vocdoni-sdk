@@ -1,7 +1,7 @@
 import { Service, ServiceProperties } from './service';
 import { ChainService } from './chain';
 import { Account } from '../types';
-import { AccountAPI, PaginationRequest } from '../api';
+import { AccountAPI, IAccountInfoResponse, PaginationRequest } from '../api';
 import invariant from 'tiny-invariant';
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
@@ -27,14 +27,11 @@ type AccountServiceParameters = ServiceProperties & AccountServiceProperties;
  * @property {Account} account
  */
 export type AccountData = {
-  address: string;
-  balance: number;
-  nonce: number;
-  electionIndex: number;
-  infoURL?: string;
-  sik?: string;
   account: Account;
-};
+} & Pick<
+  IAccountInfoResponse,
+  'address' | 'balance' | 'nonce' | 'electionIndex' | 'infoURI' | 'sik' | 'transfersCount' | 'feesCount'
+>;
 
 export type ArchivedAccountData = Pick<AccountData, 'address' | 'account'>;
 
