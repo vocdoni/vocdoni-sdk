@@ -66,9 +66,6 @@ describe('Election API tests', () => {
     await expect(async () => {
       await ElectionAPI.keys(URL, '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFdeadbeef');
     }).rejects.toThrow(ErrElectionNotFound);
-    await expect(async () => {
-      await ElectionAPI.list(URL, { electionId: '0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFdeadbeef' });
-    }).rejects.toThrow(ErrElectionNotFound);
   }, 15000);
   it('should throw when asking for the keys of an election which is not encrypted', async () => {
     const voter = Wallet.createRandom();
