@@ -39,6 +39,16 @@ export interface IAccountInfoResponse {
   electionIndex: number;
 
   /**
+   * The number of transfers of the account.
+   */
+  transfersCount: number;
+
+  /**
+   * The number of fees of the account.
+   */
+  feesCount: number;
+
+  /**
    * The information URI of the account
    */
   infoURI?: string;
