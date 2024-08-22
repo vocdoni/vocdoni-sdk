@@ -51,7 +51,7 @@ export interface IAccountInfoResponse {
   /**
    * The information URI of the account
    */
-  infoURI?: string;
+  infoURL?: string;
 
   /**
    * The metadata of the account
