@@ -23,7 +23,7 @@ type AccountServiceParameters = ServiceProperties & AccountServiceProperties;
  * @property {number} balance
  * @property {number} nonce
  * @property {number} electionIndex
- * @property {string | null} infoURL
+ * @property {string | null} infoURI
  * @property {Account} account
  */
 export type AccountData = {
