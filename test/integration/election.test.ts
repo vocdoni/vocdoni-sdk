@@ -105,7 +105,6 @@ describe('Election integration tests', () => {
         });
         expect(publishedElection.get('census.type')).toEqual('spreadsheet');
         expect(publishedElection.electionType).toStrictEqual({
-          autoStart: true,
           interruptible: true,
           dynamicCensus: false,
           secretUntilTheEnd: false,
@@ -1315,7 +1314,6 @@ describe('Election integration tests', () => {
         expect(publishedElection.title).toEqual(election.title);
         expect(publishedElection.description).toEqual(election.description);
         expect(publishedElection.electionType).toStrictEqual({
-          autoStart: true,
           interruptible: true,
           dynamicCensus: false,
           secretUntilTheEnd: false,
@@ -1331,7 +1329,6 @@ describe('Election integration tests', () => {
         expect(publishedElection.title).toEqual({ default: '<redacted>' });
         expect(publishedElection.description).toEqual({ default: '<redacted>' });
         expect(publishedElection.electionType).toStrictEqual({
-          autoStart: true,
           interruptible: true,
           dynamicCensus: false,
           secretUntilTheEnd: false,

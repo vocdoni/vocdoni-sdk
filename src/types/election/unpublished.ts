@@ -66,7 +66,6 @@ export class UnpublishedElection extends Election {
 
   private static fullElectionType(value: IElectionType): IElectionType {
     return {
-      autoStart: typeof value?.autoStart === 'boolean' ? value.autoStart === true : true,
       interruptible: typeof value?.interruptible === 'boolean' ? value.interruptible === true : true,
       dynamicCensus: typeof value?.dynamicCensus === 'boolean' ? value.dynamicCensus === true : false,
       secretUntilTheEnd: typeof value?.secretUntilTheEnd === 'boolean' ? value.secretUntilTheEnd === true : false,
@@ -164,13 +163,12 @@ export class UnpublishedElection extends Election {
   }
 
   public generateMode(): object {
-    const autoStart = this.electionType.autoStart;
     const interruptible = this.electionType.interruptible;
     const dynamicCensus = this.electionType.dynamicCensus;
     const encryptedMetaData = this.electionType.metadata?.encrypted ?? false;
     const preRegister = false; // TODO
 
-    return { autoStart, interruptible, dynamicCensus, encryptedMetaData, preRegister };
+    return { interruptible, dynamicCensus, encryptedMetaData, preRegister };
   }
 
   get title(): MultiLanguage<string> {

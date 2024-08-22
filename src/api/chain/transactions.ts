@@ -284,7 +284,6 @@ declare enum SourceNetworkId {
 }
 
 interface ProcessMode {
-  autoStart: boolean;
   interruptible: boolean;
   dynamicCensus: boolean;
   encryptedMetaData: boolean;

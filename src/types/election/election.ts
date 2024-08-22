@@ -71,10 +71,6 @@ export interface IVoteType {
 
 export interface IElectionType {
   /**
-   * If false, election will start PAUSED and will have to be resumed manually.
-   */
-  autoStart?: boolean;
-  /**
    * The process can be paused and resumed.
    */
   interruptible?: boolean;

@@ -68,11 +68,6 @@ export interface IVoteMode {
 
 export interface IElectionMode {
   /**
-   * If the election should start automatically
-   */
-  autoStart: boolean;
-
-  /**
    * If the election is interruptible
    */
   interruptible: boolean;
