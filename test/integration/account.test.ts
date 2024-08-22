@@ -20,7 +20,7 @@ describe('Account integration tests', () => {
     expect(accountInfo.address).toEqual(strip0x(walletAddress).toLowerCase());
     expect(accountInfo.balance).toBeGreaterThan(0);
     expect(accountInfo.electionIndex).toEqual(0);
-    expect(accountInfo.infoURI).toEqual('ipfs://bafybeigv4mfmn3tyusbwmskfn6xhoyvv2i2svdq7pns6dphdivefr62k3q');
+    expect(accountInfo.infoURL).toEqual('ipfs://bafybeigv4mfmn3tyusbwmskfn6xhoyvv2i2svdq7pns6dphdivefr62k3q');
     expect(accountInfo.nonce).toEqual(0);
   }, 75000);
   it('should bootstrap a new account using a raw faucet package payload', async () => {
@@ -63,7 +63,7 @@ describe('Account integration tests', () => {
         ],
       }),
     });
-    expect(account.infoURI).toEqual('ipfs://bafybeigut3hara5spqfqgxrzlwjj7cp4avvdmcir4jdxaoyg3zlyfjdmfi');
+    expect(account.infoURL).toEqual('ipfs://bafybeigut3hara5spqfqgxrzlwjj7cp4avvdmcir4jdxaoyg3zlyfjdmfi');
     expect(account.account.languages).toStrictEqual(['es']);
     expect(account.account.name).toStrictEqual({
       es: 'test',
@@ -120,7 +120,7 @@ describe('Account integration tests', () => {
         ],
       })
     );
-    expect(account.infoURI).toEqual('ipfs://bafybeig3a7hb2nmjrppwk2ywcalbiliakvkuckerr57aoicez5nwk6vsh4');
+    expect(account.infoURL).toEqual('ipfs://bafybeig3a7hb2nmjrppwk2ywcalbiliakvkuckerr57aoicez5nwk6vsh4');
     expect(account.account.name).toStrictEqual({
       es: 'test2',
       asdasdsad: 'test2',

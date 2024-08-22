@@ -23,14 +23,14 @@ type AccountServiceParameters = ServiceProperties & AccountServiceProperties;
  * @property {number} balance
  * @property {number} nonce
  * @property {number} electionIndex
- * @property {string | null} infoURI
+ * @property {string | null} infoURL
  * @property {Account} account
  */
 export type AccountData = {
   account: Account;
 } & Pick<
   IAccountInfoResponse,
-  'address' | 'balance' | 'nonce' | 'electionIndex' | 'infoURI' | 'sik' | 'transfersCount' | 'feesCount'
+  'address' | 'balance' | 'nonce' | 'electionIndex' | 'infoURL' | 'sik' | 'transfersCount' | 'feesCount'
 >;
 
 export type ArchivedAccountData = Pick<AccountData, 'address' | 'account'>;
