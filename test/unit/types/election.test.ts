@@ -67,7 +67,6 @@ describe('Election tests', () => {
     expect(election.get('bad.bad')).toBeNull();
     expect(election.get('census.bad')).toBeNull();
     expect(election.electionType).toEqual({
-      autoStart: true,
       interruptible: true,
       dynamicCensus: false,
       secretUntilTheEnd: false,

@@ -204,7 +204,6 @@ export class ElectionService extends Service implements ElectionServicePropertie
       metadataURL: electionInfo.metadataURL,
       creationTime: electionInfo.creationTime,
       electionType: {
-        autoStart: electionInfo.electionMode.autoStart,
         interruptible: electionInfo.electionMode.interruptible,
         dynamicCensus: electionInfo.electionMode.dynamicCensus,
         secretUntilTheEnd: electionInfo.voteMode.encryptedVotes,
