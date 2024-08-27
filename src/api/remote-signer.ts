@@ -131,7 +131,7 @@ export abstract class RemoteSignerAPI extends API {
           Authorization: 'Bearer ' + authToken,
         },
       })
-      .then((response) => JSON.parse(Buffer.from(response.data as any, 'base64').toString()))
+      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
