@@ -2,6 +2,8 @@ import { Provider, TransactionRequest } from '@ethersproject/providers';
 import { Bytes } from '@ethersproject/bytes';
 import { Signer } from '@ethersproject/abstract-signer';
 import { RemoteSignerService } from '../services';
+import invariant from 'tiny-invariant';
+import { isAddress } from '@ethersproject/address';
 
 export type RemoteSignerProperties = {
   url: string;
@@ -18,6 +20,7 @@ export class RemoteSigner extends Signer {
   public url: string;
   public credentials: RemoteSignerCredentials;
   public token: string;
+  private _address: string;
   private _remoteSignerService: RemoteSignerService;
 
   constructor(params: Partial<RemoteSignerProperties>) {
@@ -26,15 +29,19 @@ export class RemoteSigner extends Signer {
     this.remoteSignerService = new RemoteSignerService({ remoteSigner: this });
   }
 
-  async register(): Promise<string> {
-    return this.remoteSignerService.register().then((token) => {
+  async register(email: string, firstName: string, lastName: string, password: string): Promise<string> {
+    return this.remoteSignerService.register(email, firstName, lastName, password).then((token) => {
       this.token = token;
       return token;
     });
   }
 
-  async login(): Promise<string> {
-    return this.remoteSignerService.login().then((token) => {
+  async login(credentials?: RemoteSignerCredentials): Promise<string> {
+    const login = {
+      email: credentials?.email ?? this.credentials.email,
+      password: credentials?.password ?? this.credentials.password,
+    };
+    return this.remoteSignerService.login(login).then((token) => {
       this.token = token;
       return token;
     });
@@ -56,6 +63,9 @@ export class RemoteSigner extends Signer {
   }
 
   async getAddress(): Promise<string> {
+    if (this.address) {
+      return this.address;
+    }
     return this.remoteSignerService.getAddress();
   }
 
@@ -73,5 +83,14 @@ export class RemoteSigner extends Signer {
 
   set remoteSignerService(value: RemoteSignerService) {
     this._remoteSignerService = value;
+  }
+
+  get address(): string {
+    return this._address;
+  }
+
+  set address(value: string) {
+    invariant(isAddress(value), 'Incorrect address');
+    this._address = value;
   }
 }
