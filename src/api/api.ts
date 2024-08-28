@@ -94,6 +94,24 @@ import {
   ErrWalletNotFound,
   ErrWalletPrivKeyAlreadyExists,
 } from './errors';
+import {
+  CouldNotCreateFaucetPackageError,
+  CouldNotSignTransactionError,
+  DuplicateConflictError,
+  EmailMalformedError,
+  GenericInternalServerError,
+  InvalidTxFormatError,
+  InvalidUserDataError,
+  MalformedBodyError,
+  MalformedURLParamError,
+  MarshalingServerJSONFailedError,
+  NoOrganizationProvidedError,
+  NoOrganizationsError,
+  OrganizationNotFoundError,
+  PasswordTooShortError,
+  TxTypeNotAllowedError,
+  UnauthorizedError,
+} from './saas';
 
 export class ErrAPI extends Error {
   public raw: AxiosError;
@@ -310,6 +328,38 @@ export abstract class API {
           throw new ErrIndexerQueryFailed(err['error']);
         case 5034:
           throw new ErrCantFetchTokenFees(err['error']);
+        case 40001:
+          throw new UnauthorizedError(err['error']);
+        case 40002:
+          throw new EmailMalformedError(err['error']);
+        case 40003:
+          throw new PasswordTooShortError(err['error']);
+        case 40004:
+          throw new MalformedBodyError(err['error']);
+        case 40901:
+          throw new DuplicateConflictError(err['error']);
+        case 40005:
+          throw new InvalidUserDataError(err['error']);
+        case 40006:
+          throw new CouldNotSignTransactionError(err['error']);
+        case 40007:
+          throw new InvalidTxFormatError(err['error']);
+        case 40008:
+          throw new TxTypeNotAllowedError(err['error']);
+        case 40009:
+          throw new OrganizationNotFoundError(err['error']);
+        case 40010:
+          throw new MalformedURLParamError(err['error']);
+        case 40011:
+          throw new NoOrganizationProvidedError(err['error']);
+        case 40012:
+          throw new NoOrganizationsError(err['error']);
+        case 50001:
+          throw new MarshalingServerJSONFailedError(err['error']);
+        case 50002:
+          throw new GenericInternalServerError(err['error']);
+        case 50003:
+          throw new CouldNotCreateFaucetPackageError(err['error']);
         default:
           return API.isUndefinedError(error, err['error']);
       }

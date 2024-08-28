@@ -12,4 +12,4 @@ export * from './vote';
 export * from './wallet';
 export * from './csp';
 export * from './zk';
-export * from './remote-signer';
+export * from './saas/index';
