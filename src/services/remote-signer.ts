@@ -67,6 +67,19 @@ export class RemoteSignerService extends Service implements RemoteSignerServiceP
   }
 
   /**
+   * Returns the writable addresses.
+   *
+   * @returns The writable addresses
+   */
+  addresses(): Promise<Array<string>> {
+    invariant(this.remoteSigner.url, 'No URL set');
+    invariant(this.remoteSigner.token, 'No auth token set');
+    return RemoteSignerAPI.addresses(this.remoteSigner.url, this.remoteSigner.token).then(
+      (response) => response.addresses
+    );
+  }
+
+  /**
    * Returns the address of the remote signer.
    *
    * @returns The remote signer address
@@ -74,9 +87,9 @@ export class RemoteSignerService extends Service implements RemoteSignerServiceP
   getAddress(): Promise<string> {
     invariant(this.remoteSigner.url, 'No URL set');
     invariant(this.remoteSigner.token, 'No JWT token set');
-    return RemoteSignerAPI.addresses(this.remoteSigner.url, this.remoteSigner.token).then((response) => {
-      if (response.addresses?.length === 0) throw new Error('No addresses found');
-      this.remoteSigner.address = response.addresses[0];
+    return this.addresses().then((addresses) => {
+      if (addresses?.length === 0) throw new Error('No addresses found');
+      this.remoteSigner.address = addresses[0];
       return this.remoteSigner.address;
     });
   }

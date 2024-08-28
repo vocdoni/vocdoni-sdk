@@ -22,6 +22,11 @@ export interface IRemoteSignerLoginResponse {
    * The JWT token
    */
   token: string;
+
+  /**
+   * The JWT token expiry
+   */
+  expirity: string;
 }
 
 export interface IRemoteSignerRefreshResponse {
@@ -29,6 +34,11 @@ export interface IRemoteSignerRefreshResponse {
    * The JWT token
    */
   token: string;
+
+  /**
+   * The JWT token expiry
+   */
+  expirity: string;
 }
 
 export interface IRemoteSignerAddressesResponse {
