@@ -1,6 +1,4 @@
 import { CensusType, Election, UnpublishedElection, PublishedCensus, InvalidElection } from '../../../src';
-import { ArchivedElection } from '../../../src/types/election/archived';
-import { ArchivedCensus } from '../../../src/types/census/archived';
 
 const validCensusId = '43cbda11b9d1a322c03eac325eb8a7b72779b46a76f8a727cff94b539ed9b903';
 const validCensusURI = 'ipfs://QmeowUvr4Q9SMBSB942QVzFAqQQYukbjLYXxwANH3oTxbf';
@@ -149,11 +147,5 @@ describe('Election tests', () => {
     expect(election).toBeInstanceOf(InvalidElection);
     expect(election.id).toEqual('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF');
     expect(election.isValid).toBeFalsy();
-  });
-  it('should be possible to create an archived election', () => {
-    electionData.census = new ArchivedCensus(validCensusId, validCensusURI);
-    const election = new ArchivedElection(electionData);
-    expect(election).toBeInstanceOf(ArchivedElection);
-    expect(election.census).toBeInstanceOf(ArchivedCensus);
   });
 });

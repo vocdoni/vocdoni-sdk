@@ -124,7 +124,6 @@ describe('Election integration tests', () => {
           maxTotalCost: 0,
         });
         expect(publishedElection.manuallyEnded).toBeFalsy();
-        expect(publishedElection.fromArchive).toBeFalsy();
         expect(publishedElection.chainId).toBeDefined();
         expect(publishedElection.maxCensusSize).toEqual(1);
         expect(publishedElection.resultsType.name).toEqual(ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION);

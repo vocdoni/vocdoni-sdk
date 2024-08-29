@@ -10,7 +10,6 @@ import {
   Account,
   AllElectionStatus,
   AnonymousVote,
-  ArchivedElection,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -252,7 +251,7 @@ export class VocdoniSDKClient {
    * @param electionId - The id of the election
    * @param password - The password to decrypt the metadata
    */
-  async fetchElection(electionId?: string, password?: string): Promise<PublishedElection | ArchivedElection> {
+  async fetchElection(electionId?: string, password?: string): Promise<PublishedElection> {
     invariant(this.electionId || electionId, 'No election set');
 
     this.election = await this.electionService.fetchElection(electionId ?? this.electionId, password);
