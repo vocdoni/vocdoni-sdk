@@ -2,19 +2,11 @@ import axios from 'axios';
 import { API } from './api';
 
 enum RemoteSignerAPIMethods {
-  REGISTER = '/users',
   LOGIN = '/auth/login',
   REFRESH = '/auth/refresh',
   ADDRESSES = '/auth/addresses',
   SIGN_TX = '/transactions',
   SIGN = '/transactions/message',
-}
-
-export interface IRemoteSignerRegisterResponse {
-  /**
-   * The JWT token
-   */
-  token: string;
 }
 
 export interface IRemoteSignerLoginResponse {
@@ -68,33 +60,6 @@ export abstract class RemoteSignerAPI extends API {
    */
   private constructor() {
     super();
-  }
-
-  /**
-   * Registers a new user using email and password.
-   *
-   * @param url - API endpoint URL
-   * @param email - The email address
-   * @param firstName - The first name
-   * @param lastName - The last name
-   * @param password - The password
-   */
-  public static register(
-    url: string,
-    email: string,
-    firstName: string,
-    lastName: string,
-    password: string
-  ): Promise<IRemoteSignerRegisterResponse> {
-    return axios
-      .post<IRemoteSignerRegisterResponse>(url + RemoteSignerAPIMethods.REGISTER, {
-        email,
-        firstName,
-        lastName,
-        password,
-      })
-      .then((response) => response.data)
-      .catch(this.isApiError);
   }
 
   /**

@@ -29,17 +29,10 @@ export class RemoteSigner extends Signer {
     this.remoteSignerService = new RemoteSignerService({ remoteSigner: this });
   }
 
-  async register(email: string, firstName: string, lastName: string, password: string): Promise<string> {
-    return this.remoteSignerService.register(email, firstName, lastName, password).then((token) => {
-      this.token = token;
-      return token;
-    });
-  }
-
   async login(credentials?: RemoteSignerCredentials): Promise<string> {
     const login = {
-      email: credentials?.email ?? this.credentials.email,
-      password: credentials?.password ?? this.credentials.password,
+      email: credentials?.email ?? this.credentials?.email,
+      password: credentials?.password ?? this.credentials?.password,
     };
     return this.remoteSignerService.login(login).then((token) => {
       this.token = token;
