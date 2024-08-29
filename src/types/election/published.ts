@@ -31,7 +31,6 @@ export interface IPublishedElectionParameters extends IElectionParameters {
   finalResults: boolean;
   results: Array<Array<string>>;
   manuallyEnded: boolean;
-  fromArchive: boolean;
   chainId: string;
   creationTime: string;
   metadataURL: string;
@@ -49,7 +48,6 @@ export class PublishedElection extends Election {
   private readonly _voteCount: number;
   private readonly _finalResults: boolean;
   private readonly _manuallyEnded: boolean;
-  private readonly _fromArchive: boolean;
   private readonly _chainId: string;
   private readonly _results: Array<Array<string>>;
   private readonly _creationTime: Date;
@@ -84,7 +82,6 @@ export class PublishedElection extends Election {
     this._finalResults = params.finalResults;
     this._results = params.results;
     this._manuallyEnded = params.manuallyEnded;
-    this._fromArchive = params.fromArchive;
     this._chainId = params.chainId;
     this._creationTime = new Date(params.creationTime);
     this._metadataURL = params.metadataURL;
@@ -210,10 +207,6 @@ export class PublishedElection extends Election {
 
   get manuallyEnded(): boolean {
     return this._manuallyEnded;
-  }
-
-  get fromArchive(): boolean {
-    return this._fromArchive;
   }
 
   get chainId(): string {

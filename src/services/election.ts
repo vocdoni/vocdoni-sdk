@@ -1,7 +1,6 @@
 import { Service, ServiceProperties } from './service';
 import {
   AllElectionStatus,
-  ArchivedElection,
   Census,
   CspCensus,
   ElectionResultsTypeNames,
@@ -26,7 +25,6 @@ import { ElectionCore } from '../core/election';
 import { ChainService } from './chain';
 import { Wallet } from '@ethersproject/wallet';
 import { Signer } from '@ethersproject/abstract-signer';
-import { ArchivedCensus } from '../types/census/archived';
 import { keccak256 } from '@ethersproject/keccak256';
 import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
@@ -49,7 +47,7 @@ export interface FetchElectionsParameters {
   status: Exclude<AllElectionStatus, ElectionStatus.ONGOING | ElectionStatus.UPCOMING>;
 }
 
-export type ElectionList = Array<PublishedElection | ArchivedElection | InvalidElection>;
+export type ElectionList = Array<PublishedElection | InvalidElection>;
 export type ElectionListWithPagination = { elections: ElectionList } & PaginationResponse;
 
 export type ElectionKeys = IElectionKeysResponse;
@@ -116,13 +114,11 @@ export class ElectionService extends Service implements ElectionServicePropertie
       );
   }
 
-  private buildCensus(electionInfo): Promise<PublishedCensus | ArchivedCensus> {
+  private buildCensus(electionInfo): Promise<PublishedCensus> {
     if (electionInfo.census.censusOrigin === CensusTypeEnum.OFF_CHAIN_CA) {
       return Promise.resolve(new CspCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL));
     }
-    return electionInfo.fromArchive
-      ? Promise.resolve(new ArchivedCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL))
-      : this.buildPublishedCensus(electionInfo);
+    return this.buildPublishedCensus(electionInfo);
   }
 
   decryptMetadata(electionInfo, password) {
@@ -163,7 +159,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
    * @param electionId - The id of the election
    * @param password - The password to decrypt the metadata
    */
-  async fetchElection(electionId: string, password?: string): Promise<PublishedElection | ArchivedElection> {
+  async fetchElection(electionId: string, password?: string): Promise<PublishedElection> {
     invariant(this.url, 'No URL set');
     invariant(this.censusService, 'No census service set');
 
@@ -172,15 +168,18 @@ export class ElectionService extends Service implements ElectionServicePropertie
       throw err;
     });
 
-    let electionInfo, censusInfo;
+    let electionInfo, census;
     try {
       electionInfo = this.decryptMetadata(electionInformation, password);
-      censusInfo = await this.buildCensus(electionInfo);
     } catch (e) {
       e.electionId = electionId;
       e.raw = electionInformation;
       throw e;
     }
+
+    try {
+      census = await this.buildCensus(electionInfo);
+    } catch (e) {}
 
     const electionParameters = {
       id: electionInfo.electionId,
@@ -192,10 +191,9 @@ export class ElectionService extends Service implements ElectionServicePropertie
       meta: electionInfo.metadata?.meta,
       startDate: electionInfo.startDate,
       endDate: electionInfo.endDate,
-      census: censusInfo,
+      census,
       maxCensusSize: electionInfo.census.maxCensusSize,
       manuallyEnded: electionInfo.manuallyEnded,
-      fromArchive: electionInfo.fromArchive,
       chainId: electionInfo.chainId,
       status: electionInfo.status,
       voteCount: electionInfo.voteCount,
@@ -236,9 +234,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       raw: electionInfo,
     };
 
-    return electionParameters.fromArchive
-      ? new ArchivedElection(electionParameters)
-      : new PublishedElection(electionParameters);
+    return new PublishedElection(electionParameters);
   }
 
   private calculateChoiceResults(electionType, result, qIndex, cIndex) {

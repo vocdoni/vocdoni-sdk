@@ -198,11 +198,6 @@ export interface IElectionInfoResponse {
   manuallyEnded: boolean;
 
   /**
-   * If the election comes from the archive
-   */
-  fromArchive: boolean;
-
-  /**
    * The chain identifier of the election
    */
   chainId: string;
