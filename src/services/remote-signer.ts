@@ -25,23 +25,6 @@ export class RemoteSignerService extends Service implements RemoteSignerServiceP
   }
 
   /**
-   * Registers a new user using email and password.
-   *
-   * @param email - The email address
-   * @param firstName - The first name
-   * @param lastName - The last name
-   * @param password - The password
-   * @returns The JWT token
-   */
-  register(email: string, firstName: string, lastName: string, password: string): Promise<string> {
-    invariant(this.remoteSigner.url, 'No URL set');
-    invariant(this.remoteSigner.credentials, 'No authentication data set');
-    return RemoteSignerAPI.register(this.remoteSigner.url, email, firstName, lastName, password).then(
-      (response) => response.token
-    );
-  }
-
-  /**
    * Logs in to the remote signer.
    *
    * @returns The JWT token
@@ -49,8 +32,8 @@ export class RemoteSignerService extends Service implements RemoteSignerServiceP
   login(credentials?: RemoteSignerCredentials): Promise<string> {
     invariant(this.remoteSigner.url, 'No URL set');
     const login = {
-      email: credentials.email ?? this.remoteSigner.credentials.email,
-      password: credentials.password ?? this.remoteSigner.credentials.password,
+      email: credentials.email ?? this.remoteSigner.credentials?.email,
+      password: credentials.password ?? this.remoteSigner.credentials?.password,
     };
     return RemoteSignerAPI.login(this.remoteSigner.url, login.email, login.password).then((response) => response.token);
   }
