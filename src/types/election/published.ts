@@ -6,6 +6,7 @@ import { Vote } from '../vote';
 import { MultiChoiceElection } from './multichoice';
 import { BudgetElection } from './budget';
 import { ApprovalElection } from './approval';
+import { QuadraticElection } from './quadratic';
 
 export enum ElectionStatus {
   PROCESS_UNKNOWN = 'PROCESS_UNKNOWN',
@@ -116,6 +117,9 @@ export class PublishedElection extends Election {
       case ElectionResultsTypeNames.BUDGET:
         return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
       case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
+        return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
+      case ElectionResultsTypeNames.QUADRATIC:
+        return QuadraticElection.checkVote(vote, this.resultsType, this.voteType);
       default:
         return PublishedElection.checkVote(vote, this.voteType);
     }
