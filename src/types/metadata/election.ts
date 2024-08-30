@@ -39,6 +39,7 @@ export enum ElectionResultsTypeNames {
   MULTIPLE_CHOICE = 'multiple-choice',
   BUDGET = 'budget-based',
   APPROVAL = 'approval',
+  QUADRATIC = 'quadratic',
 }
 
 export type ElectionResultsType =
@@ -68,6 +69,16 @@ export type ElectionResultsType =
       properties: {
         rejectValue: number;
         acceptValue: number;
+      };
+    }
+  | {
+      name: ElectionResultsTypeNames.QUADRATIC;
+      properties: {
+        useCensusWeightAsBudget: boolean;
+        maxBudget: number;
+        minStep: number;
+        forceFullBudget: boolean;
+        quadraticCost: number;
       };
     };
 
@@ -108,6 +119,7 @@ const electionMetadataSchema = object()
             ElectionResultsTypeNames.MULTIPLE_CHOICE,
             ElectionResultsTypeNames.BUDGET,
             ElectionResultsTypeNames.APPROVAL,
+            ElectionResultsTypeNames.QUADRATIC,
           ]),
         properties: object().optional().nullable(),
       })

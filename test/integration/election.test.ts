@@ -21,6 +21,7 @@ import { clientParams, setFaucetURL } from './util/client.params';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
 import { SDK_VERSION } from '../../src/version';
+import { QuadraticElection } from '../../src/types/election/quadratic';
 
 let client: VocdoniSDKClient;
 let wallet: Wallet;
@@ -748,6 +749,84 @@ describe('Election integration tests', () => {
         }).toThrow('Too much budget spent');
         expect(() => {
           election.checkVote(new Vote([15, 3, 1, 0, 0]));
+        }).toThrow('Not full budget used');
+      });
+  }, 850000);
+  it('should create a quadratic election without weights and have the correct values set', async () => {
+    const census = new PlainCensus();
+    const participants: Wallet[] = [...new Array(5)].map(() => Wallet.createRandom());
+    census.add(participants.map((participant) => participant.address));
+
+    const election = QuadraticElection.from({
+      title: 'SDK Testing - Title',
+      description: 'SDK Testing - Description',
+      endDate: new Date().getTime() + 10000000,
+      census,
+      useCensusWeightAsBudget: false,
+      maxBudget: 18,
+      forceFullBudget: true,
+      quadraticCost: 2,
+    });
+
+    election.addQuestion('This is a title', 'This is a description', [
+      {
+        title: 'Red',
+      },
+      {
+        title: 'Green',
+      },
+      {
+        title: 'Blue',
+      },
+      {
+        title: 'White',
+      },
+      {
+        title: 'Black',
+      },
+    ]);
+
+    await client.createAccount();
+    await client
+      .createElection(election)
+      .then((electionId) => {
+        client.setElectionId(electionId);
+        return electionId;
+      })
+      .then((electionId) =>
+        Promise.all(
+          participants.map(async (participant) => {
+            const pClient = new VocdoniSDKClient(clientParams(participant));
+            pClient.setElectionId(electionId);
+            const vote = new Vote([4, 1, 1, 0, 0]);
+            return pClient.submitVote(vote);
+          })
+        )
+      )
+      .then(() => client.fetchElection())
+      .then((election) => {
+        expect(election.voteType.maxCount).toEqual(5);
+        expect(election.voteType.maxValue).toEqual(0);
+        expect(election.voteType.maxTotalCost).toEqual(18);
+        expect(election.voteType.uniqueChoices).toEqual(false);
+        expect(election.resultsType.name).toEqual(ElectionResultsTypeNames.QUADRATIC);
+        expect(election.resultsType.properties).toStrictEqual({
+          useCensusWeightAsBudget: false,
+          maxBudget: 18,
+          forceFullBudget: true,
+          minStep: 1,
+          quadraticCost: 2,
+        });
+        expect(election.results).toStrictEqual([['20'], ['5'], ['5'], ['0'], ['0']]);
+        expect(election.checkVote(new Vote([4, 1, 1, 0, 0]))).toBeUndefined();
+        expect(() => {
+          election.checkVote(new Vote([15, 3, 1, 0]));
+        }).toThrow('Invalid number of choices');
+        expect(() => {
+          election.checkVote(new Vote([4, 2, 0, 0, 0]));
+        }).toThrow('Too much budget spent');
+        expect(() => {
+          election.checkVote(new Vote([2, 2, 0, 0, 0]));
         }).toThrow('Not full budget used');
       });
   }, 850000);
