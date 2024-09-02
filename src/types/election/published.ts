@@ -116,10 +116,9 @@ export class PublishedElection extends Election {
         return ApprovalElection.checkVote(vote, this.voteType);
       case ElectionResultsTypeNames.BUDGET:
         return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
-      case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
-        return BudgetElection.checkVote(vote, this.resultsType, this.voteType);
       case ElectionResultsTypeNames.QUADRATIC:
         return QuadraticElection.checkVote(vote, this.resultsType, this.voteType);
+      case ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION:
       default:
         return PublishedElection.checkVote(vote, this.voteType);
     }
