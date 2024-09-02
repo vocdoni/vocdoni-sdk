@@ -70,7 +70,7 @@ export class BudgetElection extends UnpublishedElection {
     const maxValue = 0;
     const maxVoteOverwrites = this.voteType.maxVoteOverwrites;
     const maxTotalCost = this.useCensusWeightAsBudget ? 0 : this.maxBudget;
-    const costExponent = 2;
+    const costExponent = 1;
 
     return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
   }
