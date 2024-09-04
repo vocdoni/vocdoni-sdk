@@ -1,5 +1,5 @@
 import { Service, ServiceProperties } from './service';
-import { ChainAPI, IChainGetCostsResponse, IChainTxReference, PaginationRequest } from '../api';
+import { ChainAPI, IChainGetCostsResponse, PaginationRequest, Tx } from '../api';
 import invariant from 'tiny-invariant';
 import { delay } from '../util/common';
 
@@ -12,7 +12,7 @@ interface ChainServiceProperties {
 type ChainServiceParameters = ServiceProperties & ChainServiceProperties;
 
 export type ChainCosts = IChainGetCostsResponse;
-export type ChainTx = IChainTxReference;
+export type ChainTx = Tx;
 
 export type FetchOrganizationParametersWithPagination = FetchOrganizationParameters & PaginationRequest;
 export type FetchFeesParametersWithPagination = FetchFeesParameters & PaginationRequest;
@@ -36,7 +36,12 @@ export interface FetchTransfersParameters {
 }
 
 export interface FetchTransactionsParameters {
+  hash: string;
   height: number;
+  index: number;
+  type: string;
+  subtype: string;
+  signer: string;
 }
 
 /**
