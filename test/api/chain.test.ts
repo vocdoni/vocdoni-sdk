@@ -1,4 +1,4 @@
-import { ChainAPI, ErrAPI, ErrTransactionNotFound } from '../../src';
+import { ChainAPI, ErrCantParseHexString, ErrTransactionNotFound } from '../../src';
 // @ts-ignore
 import { URL } from './util/client.params';
 
@@ -6,7 +6,7 @@ describe('Chain API tests', () => {
   it('should throw when asking for an invalid transaction', async () => {
     await expect(async () => {
       await ChainAPI.txInfo(URL, '0xReallyBad');
-    }).rejects.toThrow(ErrAPI);
+    }).rejects.toThrow(ErrCantParseHexString);
   }, 5000);
   it('should throw when asking for a non existent transaction', async () => {
     await expect(async () => {
