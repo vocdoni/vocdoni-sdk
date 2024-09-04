@@ -51,6 +51,7 @@ export interface Tx {
   //     collectFaucet: SetKeyKeeperTx;
   //   };
   txInfo: IChainTxReference;
+  signature: string;
 }
 
 export interface VoteEnvelope {

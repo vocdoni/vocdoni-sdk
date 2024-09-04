@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { API, PaginationResponse } from './api';
 import { ErrTransactionNotFound } from './errors';
-import { Tx } from './chain/';
 import {
   FetchFeesParametersWithPagination,
   FetchOrganizationParametersWithPagination,
   FetchTransactionsParametersWithPagination,
   FetchTransfersParametersWithPagination,
 } from '../services';
+import { Tx } from './chain';
 export * from './chain/';
 
 enum ChainAPIMethods {
@@ -15,15 +15,14 @@ enum ChainAPIMethods {
   COSTS = '/chain/info/electionPriceFactors',
   CIRCUITS = '/chain/info/circuit',
   TX_COSTS = '/chain/transactions/cost',
-  TX_INFO = '/chain/transactions/reference',
-  TX_INFO_BY_INDEX = '/chain/transactions/reference/index/{index}',
-  TX_INFO_BLOCK = '/chain/transactions/{blockHeight}/{txIndex}',
-  SUBMIT_TX = '/chain/transactions',
+  TX_INFO = '/chain/transactions/{txHash}',
   TX_LIST = '/chain/transactions',
+  SUBMIT_TX = '/chain/transactions',
   ORGANIZATION_LIST = '/chain/organizations',
   VALIDATORS_LIST = '/chain/validators',
-  BLOCK_INFO = '/chain/blocks',
-  BLOCK_INFO_BY_HASH = '/chain/blocks/hash',
+  BLOCK_INFO_HASH = '/chain/blocks/hash/{blockHash}',
+  BLOCK_INFO_HEIGHT = '/chain/blocks/{blockHeight}',
+  BLOCK_LIST = '/chain/blocks',
   DATE_TO_BLOCK = '/chain/dateToBlock/{timestamp}',
   BLOCK_TO_DATE = '/chain/blockToDate/{height}',
   FEES_LIST = '/chain/fees',
@@ -205,29 +204,34 @@ export interface IChainTxCosts {
 
 export interface IChainTxReference {
   /**
-   * The number of the transaction.
-   */
-  transactionNumber: number;
-
-  /**
    * The hash of the transaction.
    */
-  transactionHash: string;
+  hash: string;
 
   /**
    * The number of the block where the transaction is.
    */
-  blockHeight: number;
+  height: number;
 
   /**
    * The index of the transaction inside the block.
    */
-  transactionIndex: number;
+  index: number;
 
   /**
    * The type of the transaction.
    */
-  transactionType: TransactionType;
+  type: TransactionType;
+
+  /**
+   * The subtype of the transaction.
+   */
+  subtype: string;
+
+  /**
+   * The signer of the transaction.
+   */
+  signer: string;
 }
 
 export interface IChainSubmitTxResponse {
@@ -251,9 +255,28 @@ export interface IChainTxListResponse extends IChainTxList, PaginationResponse {
 
 export interface IChainTxList {
   /**
-   * List of transactions reference
+   * List of transactions
    */
   transactions: Array<IChainTxReference>;
+}
+
+export interface IChainBlocksListResponse extends IChainBlocksList, PaginationResponse {}
+
+export interface IChainBlocksList {
+  /**
+   * List of blocks
+   */
+  blocks: Array<IBlock>;
+}
+
+export interface IBlock {
+  chainId: string;
+  height: number;
+  time: string;
+  hash: string;
+  proposer: string;
+  lastBlockHash: string;
+  txCount: number;
 }
 
 export interface IChainTransfersListResponse extends IChainTransfersList, PaginationResponse {}
@@ -304,12 +327,6 @@ interface BlockID {
 }
 
 export interface IChainBlockInfoResponse {
-  data: {
-    txs: Array<string>;
-  };
-  evidence: {
-    evidence: Array<string>;
-  };
   hash: string;
   header: {
     appHash: string;
@@ -330,23 +347,7 @@ export interface IChainBlockInfoResponse {
       app: number;
     };
   };
-  lastCommit: {
-    blockId: BlockID;
-    height: number;
-    round: number;
-    signatures: Array<{
-      blockIdFlag: number;
-      signature: string;
-      timestamp: string;
-      validatorAddress: string;
-    }>;
-  };
-}
-
-export interface IBlockTransactionsResponse {
-  blockNumber: number;
-  transactionCount: number;
-  transactions: Array<IChainTxReference>;
+  txCount: number;
 }
 
 interface IDateToBlockResponse {
@@ -527,54 +528,15 @@ export abstract class ChainAPI extends API {
    * @param url - API endpoint URL
    * @param txHash - The transaction hash which we want to retrieve the info from
    */
-  public static txInfo(url: string, txHash: string): Promise<IChainTxReference> {
+  public static txInfo(url: string, txHash: string): Promise<Tx> {
     return axios
-      .get<IChainTxReference>(url + ChainAPIMethods.TX_INFO + '/' + txHash)
+      .get<Tx>(url + ChainAPIMethods.TX_INFO.replace('{txHash}', txHash))
       .then((response) => {
         if (response.status === 204) {
           throw new ErrTransactionNotFound();
         }
         return response.data;
       })
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Fetches information about a transaction from the blockchain by its index. The transaction index is an incremental
-   * counter for each transaction
-   *
-   * @param url - API endpoint URL
-   * @param index - The transaction index
-   */
-  public static txByIndex(url: string, index: number): Promise<IChainTxReference> {
-    return axios
-      .get<IChainTxReference>(url + ChainAPIMethods.TX_INFO_BY_INDEX.replace('{index}', String(index)))
-      .then((response) => {
-        if (response.status === 204) {
-          throw new ErrTransactionNotFound();
-        }
-        return response.data;
-      })
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Fetches information about a transaction by its containing block an index on the block.
-   *
-   * @param url - API endpoint URL
-   * @param blockHeight - Block with the containing transaction
-   * @param txIndex - Index on the block
-   */
-  public static txInfoByBlock(url: string, blockHeight: number, txIndex: number): Promise<Tx> {
-    return axios
-      .get<Tx>(
-        url +
-          ChainAPIMethods.TX_INFO_BLOCK.replace('{blockHeight}', String(blockHeight)).replace(
-            '{txIndex}',
-            String(txIndex)
-          )
-      )
-      .then((response) => response.data)
       .catch(this.isApiError);
   }
 
@@ -662,19 +624,6 @@ export abstract class ChainAPI extends API {
   }
 
   /**
-   * Get block information by height
-   *
-   * @param url - API endpoint URL
-   * @param height - block height
-   */
-  public static blockByHeight(url: string, height: number): Promise<IChainBlockInfoResponse> {
-    return axios
-      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO + '/' + height)
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
    * Returns the list of validators
    *
    * @param url - API endpoint URL
@@ -692,9 +641,39 @@ export abstract class ChainAPI extends API {
    * @param url - API endpoint URL
    * @param hash - block hash
    */
-  public static blockByHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
+  public static blockInfoHash(url: string, hash: string): Promise<IChainBlockInfoResponse> {
     return axios
-      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_BY_HASH + '/' + hash)
+      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_HASH.replace('{blockHash}', hash))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Get block information by height
+   *
+   * @param url - API endpoint URL
+   * @param height - block height
+   */
+  public static blockInfoHeight(url: string, height: number): Promise<IChainBlockInfoResponse> {
+    return axios
+      .get<IChainBlockInfoResponse>(url + ChainAPIMethods.BLOCK_INFO_HEIGHT.replace('{blockHeight}', height.toString()))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Returns the list of blocks
+   *
+   * @param url - {string} url API endpoint URL
+   * @param params - The parameters to filter the blocks
+   */
+  public static blocksList(
+    url: string,
+    params?: Partial<FetchTransactionsParametersWithPagination>
+  ): Promise<IChainBlocksListResponse> {
+    const queryParams = this.createQueryParams(params);
+    return axios
+      .get<IChainBlocksListResponse>(url + ChainAPIMethods.BLOCK_LIST + (queryParams ? '?' + queryParams : ''))
       .then((response) => response.data)
       .catch(this.isApiError);
   }
