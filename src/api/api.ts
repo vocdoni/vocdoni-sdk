@@ -265,6 +265,13 @@ export abstract class API {
         case 5000:
           throw new ErrVochainEmptyReply(err['error']);
         case 5001:
+          try {
+            return API.isVochainError(err['error']);
+          } catch (e) {
+            if (!(e instanceof ErrVochainReturnedErrorCode)) {
+              throw e;
+            }
+          }
           throw new ErrVochainSendTxFailed(err['error']);
         case 5002:
           throw new ErrVochainGetTxFailed(err['error']);
