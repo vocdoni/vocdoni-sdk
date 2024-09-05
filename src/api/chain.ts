@@ -2,6 +2,7 @@ import axios from 'axios';
 import { API, PaginationResponse } from './api';
 import { ErrTransactionNotFound } from './errors';
 import {
+  FetchBlocksParametersWithPagination,
   FetchFeesParametersWithPagination,
   FetchOrganizationParametersWithPagination,
   FetchTransactionsParametersWithPagination,
@@ -669,7 +670,7 @@ export abstract class ChainAPI extends API {
    */
   public static blocksList(
     url: string,
-    params?: Partial<FetchTransactionsParametersWithPagination>
+    params?: Partial<FetchBlocksParametersWithPagination>
   ): Promise<IChainBlocksListResponse> {
     const queryParams = this.createQueryParams(params);
     return axios
