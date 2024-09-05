@@ -18,6 +18,7 @@ export type FetchOrganizationParametersWithPagination = FetchOrganizationParamet
 export type FetchFeesParametersWithPagination = FetchFeesParameters & PaginationRequest;
 export type FetchTransactionsParametersWithPagination = FetchTransactionsParameters & PaginationRequest;
 export type FetchTransfersParametersWithPagination = FetchTransfersParameters & PaginationRequest;
+export type FetchBlocksParametersWithPagination = FetchBlocksParameters & PaginationRequest;
 
 export interface FetchOrganizationParameters {
   organizationId: string;
@@ -42,6 +43,11 @@ export interface FetchTransactionsParameters {
   type: string;
   subtype: string;
   signer: string;
+}
+
+export interface FetchBlocksParameters {
+  hash: string;
+  chainId: string;
 }
 
 /**
