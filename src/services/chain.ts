@@ -48,6 +48,7 @@ export interface FetchTransactionsParameters {
 export interface FetchBlocksParameters {
   hash: string;
   chainId: string;
+  proposerAddress: string;
 }
 
 /**
