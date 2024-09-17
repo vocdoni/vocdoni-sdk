@@ -4,6 +4,7 @@ import invariant from 'tiny-invariant';
 import { RemoteSigner, RemoteSignerCredentials } from '../types';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { Bytes } from '@ethersproject/bytes';
+import { Buffer } from 'buffer';
 
 interface RemoteSignerServiceProperties {
   remoteSigner: RemoteSigner;
