@@ -1,4 +1,4 @@
-import { ElectionMetadataTemplate, VocdoniSDKClient } from '../../src';
+import { ElectionMetadataTemplate, getElectionMetadataTemplate, VocdoniSDKClient } from '../../src';
 // @ts-ignore
 import { clientParams } from './util/client.params';
 
@@ -11,7 +11,7 @@ describe('Other tests', () => {
   });
   it('should calculate the correct IPFS hash with special characters', async () => {
     const client = new VocdoniSDKClient(clientParams());
-    const election = ElectionMetadataTemplate;
+    const election = getElectionMetadataTemplate();
     election.title = {
       default: 'Això és un títol',
     };

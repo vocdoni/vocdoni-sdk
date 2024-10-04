@@ -191,3 +191,7 @@ export const ElectionMetadataTemplate: ElectionMetadata = {
     properties: {},
   },
 };
+
+export const getElectionMetadataTemplate = () => {
+  return structuredClone(ElectionMetadataTemplate);
+};

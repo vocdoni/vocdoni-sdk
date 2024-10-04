@@ -1,7 +1,12 @@
 import { MultiLanguage } from '../../util/lang';
 import { IElectionParameters, IVoteType } from './election';
 import { UnpublishedElection } from './unpublished';
-import { ElectionMetadata, ElectionMetadataTemplate, ElectionResultsType, ElectionResultsTypeNames } from '../metadata';
+import {
+  ElectionMetadata,
+  ElectionResultsType,
+  ElectionResultsTypeNames,
+  getElectionMetadataTemplate,
+} from '../metadata';
 import { Vote } from '../vote';
 
 export interface IQuadraticElectionParametersInfo extends IElectionParameters {
@@ -91,7 +96,7 @@ export class QuadraticElection extends UnpublishedElection {
   }
 
   public generateMetadata(): ElectionMetadata {
-    const metadata = ElectionMetadataTemplate;
+    const metadata = getElectionMetadataTemplate();
 
     metadata.type = {
       name: ElectionResultsTypeNames.QUADRATIC,
