@@ -1,9 +1,9 @@
-import { ElectionMetadata, checkValidElectionMetadata, ElectionMetadataTemplate } from '../../../../src';
+import { ElectionMetadata, checkValidElectionMetadata, getElectionMetadataTemplate } from '../../../../src';
 
 let electionMetadata: ElectionMetadata;
 
 beforeEach(() => {
-  electionMetadata = ElectionMetadataTemplate;
+  electionMetadata = getElectionMetadataTemplate();
 });
 
 describe('Election metadata', () => {

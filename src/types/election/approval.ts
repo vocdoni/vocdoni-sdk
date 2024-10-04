@@ -1,7 +1,7 @@
 import { MultiLanguage } from '../../util/lang';
 import { IElectionParameters, IVoteType } from './election';
 import { UnpublishedElection } from './unpublished';
-import { ElectionMetadata, ElectionMetadataTemplate, ElectionResultsTypeNames } from '../metadata';
+import { ElectionMetadata, ElectionResultsTypeNames, getElectionMetadataTemplate } from '../metadata';
 import { Vote } from '../vote';
 
 export interface IApprovalElectionParameters extends IElectionParameters {}
@@ -63,7 +63,7 @@ export class ApprovalElection extends UnpublishedElection {
   }
 
   public generateMetadata(): ElectionMetadata {
-    const metadata = ElectionMetadataTemplate;
+    const metadata = getElectionMetadataTemplate();
 
     metadata.type = {
       name: ElectionResultsTypeNames.APPROVAL,

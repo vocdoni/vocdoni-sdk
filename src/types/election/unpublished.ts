@@ -2,7 +2,7 @@ import { MultiLanguage } from '../../util/lang';
 import {
   checkValidElectionMetadata,
   ElectionMetadata,
-  ElectionMetadataTemplate,
+  getElectionMetadataTemplate,
   IChoice,
   IQuestion,
 } from '../metadata';
@@ -91,7 +91,7 @@ export class UnpublishedElection extends Election {
 
   public generateMetadata(metadata?: ElectionMetadata): ElectionMetadata {
     if (!metadata) {
-      metadata = ElectionMetadataTemplate;
+      metadata = getElectionMetadataTemplate();
     }
 
     metadata.title = this.title;
