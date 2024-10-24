@@ -77,6 +77,10 @@ describe('Election integration tests', () => {
       },
     };
 
+    election.questions[0].meta = { image: 'https://img.io/test1.png' };
+    election.questions[0].choices[0].meta = { image: 'https://img.io/test2.png' };
+    election.questions[0].choices[1].meta = { image: 'https://img.io/test3.png' };
+
     await client.createAccount();
 
     await client
@@ -104,6 +108,9 @@ describe('Election integration tests', () => {
             version: SDK_VERSION,
           },
         });
+        expect(publishedElection.questions[0].meta).toStrictEqual({ image: 'https://img.io/test1.png' });
+        expect(publishedElection.questions[0].choices[0].meta).toStrictEqual({ image: 'https://img.io/test2.png' });
+        expect(publishedElection.questions[0].choices[1].meta).toStrictEqual({ image: 'https://img.io/test3.png' });
         expect(publishedElection.get('census.type')).toEqual('spreadsheet');
         expect(publishedElection.electionType).toStrictEqual({
           interruptible: true,

@@ -107,7 +107,7 @@ interface JsonMap {
 }
 interface JsonArray extends Array<AnyJson> {}
 
-export type ElectionMeta = AnyJson | JsonArray | JsonMap;
+export type CustomMeta = AnyJson | JsonArray | JsonMap;
 
 /**
  * Define election parameters.
@@ -132,7 +132,7 @@ export interface IElectionParameters {
   /**
    * Metadata (anything added by the election creator)
    */
-  meta?: ElectionMeta;
+  meta?: CustomMeta;
   startDate?: string | number | Date;
   endDate: string | number | Date;
   census: Census;
@@ -172,7 +172,7 @@ export abstract class Election {
   protected _description: MultiLanguage<string>;
   protected _header: string;
   protected _streamUri: string;
-  protected _meta: ElectionMeta;
+  protected _meta: CustomMeta;
   protected _startDate: Date;
   protected _endDate: Date;
   protected _electionType: IElectionType;
@@ -232,7 +232,7 @@ export abstract class Election {
     return this._streamUri;
   }
 
-  get meta(): ElectionMeta {
+  get meta(): CustomMeta {
     return this._meta;
   }
 
