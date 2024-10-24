@@ -1,5 +1,6 @@
 import { object, array, string, number } from 'yup';
 import { MultiLanguage, multiLanguageStringKeys } from '../../util/lang';
+import { CustomMeta } from '../election';
 
 /**
  * Asserts that the given metadata is valid.
@@ -23,6 +24,7 @@ export function checkValidElectionMetadata(electionMetadata: ElectionMetadata): 
 export interface IChoice {
   title: MultiLanguage<string>;
   value: number;
+  meta?: CustomMeta;
   results?: string;
   answer?: number;
 }
@@ -31,6 +33,7 @@ export interface IQuestion {
   title: MultiLanguage<string>;
   description?: MultiLanguage<string>;
   numAbstains?: string;
+  meta?: CustomMeta;
   choices: Array<IChoice>;
 }
 
