@@ -115,7 +115,7 @@ export class UnpublishedElection extends Election {
           return {
             title: choice.title,
             value: choice.value,
-              meta: choice.meta,
+            meta: choice.meta,
           };
         }),
       };
