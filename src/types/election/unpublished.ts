@@ -42,7 +42,11 @@ export class UnpublishedElection extends Election {
   public addQuestion(
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
-    choices: Array<{ title: string; value: number } | { title: MultiLanguage<string>; value: number }>
+    choices: Array<
+      | { title: string; value: number; meta?: CustomMeta }
+      | { title: MultiLanguage<string>; value: number; meta?: CustomMeta }
+    >,
+    meta?: CustomMeta
   ): UnpublishedElection {
     this._questions.push({
       title: typeof title === 'string' ? { default: title } : title,
@@ -51,8 +55,10 @@ export class UnpublishedElection extends Election {
         return {
           title: typeof choice.title === 'string' ? { default: choice.title } : choice.title,
           value: choice.value,
+          ...(choice.meta && { meta: choice.meta }),
         } as IChoice;
       }),
+      ...(meta && { meta: meta }),
     });
 
     return this;
