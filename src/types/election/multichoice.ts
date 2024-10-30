@@ -1,7 +1,7 @@
 import { MultiLanguage } from '../../util/lang';
-import { IElectionParameters, IVoteType } from './election';
+import { CustomMeta, IElectionParameters, IVoteType } from './election';
 import { UnpublishedElection } from './unpublished';
-import { ElectionMetadata, ElectionResultsTypeNames, getElectionMetadataTemplate } from '../metadata';
+import { Choice, ElectionMetadata, ElectionResultsTypeNames, getElectionMetadataTemplate } from '../metadata';
 import { Vote } from '../vote';
 
 export interface IMultiChoiceElectionParameters extends IElectionParameters {
@@ -35,7 +35,8 @@ export class MultiChoiceElection extends UnpublishedElection {
   public addQuestion(
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
-    choices: Array<{ title: string } | { title: MultiLanguage<string> }>
+    choices: Array<{ title: string; value: number; meta?: CustomMeta } | Choice>,
+    meta?: CustomMeta
   ) {
     if (this.questions.length > 0) {
       throw new Error('This type of election can only have one question');
@@ -44,10 +45,12 @@ export class MultiChoiceElection extends UnpublishedElection {
     return super.addQuestion(
       title,
       description,
-      choices.map((choice, index) => ({
+      choices.map((choice) => ({
         title: typeof choice.title === 'string' ? { default: choice.title } : choice.title,
-        value: index,
-      }))
+        value: choice.value,
+        meta: choice.meta,
+      })),
+      meta
     );
   }
 
