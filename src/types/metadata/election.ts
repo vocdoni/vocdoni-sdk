@@ -20,6 +20,8 @@ export function checkValidElectionMetadata(electionMetadata: ElectionMetadata): 
     throw err;
   }
 }
+export type Choice = Pick<IChoice, 'title' | 'value' | 'meta'>;
+export type Question = Pick<IQuestion, 'title' | 'description' | 'choices' | 'meta'>;
 
 export interface IChoice {
   title: MultiLanguage<string>;

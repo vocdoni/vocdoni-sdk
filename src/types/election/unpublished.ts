@@ -1,6 +1,7 @@
 import { MultiLanguage } from '../../util/lang';
 import {
   checkValidElectionMetadata,
+  Choice,
   ElectionMetadata,
   getElectionMetadataTemplate,
   IChoice,
@@ -42,10 +43,7 @@ export class UnpublishedElection extends Election {
   public addQuestion(
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
-    choices: Array<
-      | { title: string; value: number; meta?: CustomMeta }
-      | { title: MultiLanguage<string>; value: number; meta?: CustomMeta }
-    >,
+    choices: Array<{ title: string; value: number; meta?: CustomMeta } | Choice>,
     meta?: CustomMeta
   ): UnpublishedElection {
     this._questions.push({
