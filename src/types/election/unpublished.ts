@@ -43,16 +43,16 @@ export class UnpublishedElection extends Election {
   public addQuestion(
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
-    choices: Array<{ title: string; value: number; meta?: CustomMeta } | Choice>,
+    choices: Array<{ title: string; value?: number; meta?: CustomMeta } | Choice>,
     meta?: CustomMeta
   ): UnpublishedElection {
     this._questions.push({
       title: typeof title === 'string' ? { default: title } : title,
       description: typeof description === 'string' ? { default: description } : description,
-      choices: choices.map((choice) => {
+      choices: choices.map((choice, index) => {
         return {
           title: typeof choice.title === 'string' ? { default: choice.title } : choice.title,
-          value: choice.value,
+          value: choice.value ?? index,
           ...(choice.meta && { meta: choice.meta }),
         } as IChoice;
       }),

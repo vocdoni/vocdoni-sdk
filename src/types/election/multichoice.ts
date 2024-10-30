@@ -35,7 +35,7 @@ export class MultiChoiceElection extends UnpublishedElection {
   public addQuestion(
     title: string | MultiLanguage<string>,
     description: string | MultiLanguage<string>,
-    choices: Array<{ title: string; value: number; meta?: CustomMeta } | Choice>,
+    choices: Array<{ title: string; value?: number; meta?: CustomMeta } | Choice>,
     meta?: CustomMeta
   ) {
     if (this.questions.length > 0) {
@@ -45,9 +45,9 @@ export class MultiChoiceElection extends UnpublishedElection {
     return super.addQuestion(
       title,
       description,
-      choices.map((choice) => ({
+      choices.map((choice, index) => ({
         title: typeof choice.title === 'string' ? { default: choice.title } : choice.title,
-        value: choice.value,
+        value: choice.value ?? index,
         meta: choice.meta,
       })),
       meta
