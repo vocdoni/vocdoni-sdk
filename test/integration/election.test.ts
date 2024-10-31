@@ -616,6 +616,7 @@ describe('Election integration tests', () => {
       maxNumberOfChoices: 3,
       canAbstain: true,
       canRepeatChoices: false,
+      minNumberOfChoices: 2,
     });
 
     election.addQuestion('This is a title', 'This is a description', [
@@ -664,6 +665,10 @@ describe('Election integration tests', () => {
           canAbstain: true,
           repeatChoice: false,
           abstainValues: ['5', '6', '7'],
+          numChoices: {
+            max: 3,
+            min: 2,
+          },
         });
         expect(election.results).toStrictEqual([
           ['5', '0', '0', '0', '0', '0', '0', '0'],
@@ -672,12 +677,19 @@ describe('Election integration tests', () => {
         ]);
         expect(election.questions[0].numAbstains).toEqual('10');
         expect(election.checkVote(new Vote([0, 5, 7]))).toBeUndefined();
+        expect(election.checkVote(new Vote([0, 1]))).toBeUndefined();
+        expect(() => {
+          election.checkVote(new Vote([0, 1]));
+        }).not.toThrow();
         expect(() => {
           election.checkVote(new Vote([5, 5, 7]));
         }).toThrow('Choices are not unique');
         expect(() => {
+          election.checkVote(new Vote([1]));
+        }).toThrow('Invalid number of choices, minimum is 2');
+        expect(() => {
           election.checkVote(new Vote([0, 1, 5, 7]));
-        }).toThrow('Invalid number of choices');
+        }).toThrow('Invalid number of choices, maximum is 3');
         expect(() => {
           election.checkVote(new Vote([0, 15, 7]));
         }).toThrow('Invalid choice value');

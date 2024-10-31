@@ -47,6 +47,31 @@ export enum ElectionResultsTypeNames {
   QUADRATIC = 'quadratic',
 }
 
+export type AbstainProperties = {
+  canAbstain: boolean;
+  abstainValues: Array<string>;
+};
+
+export type ChoiceProperties = {
+  repeatChoice: boolean;
+  numChoices: {
+    min: number;
+    max: number;
+  };
+};
+
+export type BudgetProperties = {
+  useCensusWeightAsBudget: boolean;
+  maxBudget: number;
+  minStep: number;
+  forceFullBudget: boolean;
+};
+
+export type ApprovalProperties = {
+  rejectValue: number;
+  acceptValue: number;
+};
+
 export type ElectionResultsType =
   | {
       name: ElectionResultsTypeNames.SINGLE_CHOICE_MULTIQUESTION;
@@ -54,35 +79,19 @@ export type ElectionResultsType =
     }
   | {
       name: ElectionResultsTypeNames.MULTIPLE_CHOICE;
-      properties: {
-        canAbstain: boolean;
-        abstainValues: Array<string>;
-        repeatChoice: boolean;
-      };
+      properties: AbstainProperties & ChoiceProperties;
     }
   | {
       name: ElectionResultsTypeNames.BUDGET;
-      properties: {
-        useCensusWeightAsBudget: boolean;
-        maxBudget: number;
-        minStep: number;
-        forceFullBudget: boolean;
-      };
+      properties: BudgetProperties;
     }
   | {
       name: ElectionResultsTypeNames.APPROVAL;
-      properties: {
-        rejectValue: number;
-        acceptValue: number;
-      };
+      properties: ApprovalProperties;
     }
   | {
       name: ElectionResultsTypeNames.QUADRATIC;
-      properties: {
-        useCensusWeightAsBudget: boolean;
-        maxBudget: number;
-        minStep: number;
-        forceFullBudget: boolean;
+      properties: BudgetProperties & {
         quadraticCost: number;
       };
     };
