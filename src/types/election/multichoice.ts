@@ -1,11 +1,18 @@
 import { MultiLanguage } from '../../util/lang';
 import { CustomMeta, IElectionParameters, IVoteType } from './election';
 import { UnpublishedElection } from './unpublished';
-import { Choice, ElectionMetadata, ElectionResultsTypeNames, getElectionMetadataTemplate } from '../metadata';
+import {
+  Choice,
+  ChoiceProperties,
+  ElectionMetadata,
+  ElectionResultsTypeNames,
+  getElectionMetadataTemplate,
+} from '../metadata';
 import { Vote } from '../vote';
 
 export interface IMultiChoiceElectionParameters extends IElectionParameters {
   maxNumberOfChoices: number;
+  minNumberOfChoices: number;
   canRepeatChoices?: boolean;
   canAbstain?: boolean;
 }
@@ -15,6 +22,7 @@ export interface IMultiChoiceElectionParameters extends IElectionParameters {
  */
 export class MultiChoiceElection extends UnpublishedElection {
   private _canAbstain: boolean;
+  private _minNumberOfChoices: number;
 
   /**
    * Constructs a multi choice election
@@ -24,6 +32,7 @@ export class MultiChoiceElection extends UnpublishedElection {
   public constructor(params: IMultiChoiceElectionParameters) {
     super(params);
     this.maxNumberOfChoices = params.maxNumberOfChoices;
+    this.minNumberOfChoices = params.minNumberOfChoices;
     this.canRepeatChoices = params.canRepeatChoices ?? false;
     this.canAbstain = params.canAbstain ?? false;
   }
@@ -86,19 +95,27 @@ export class MultiChoiceElection extends UnpublishedElection {
           (_v, index) => String(index + this.questions[0].choices.length)
         ),
         repeatChoice: this.canRepeatChoices,
+        numChoices: {
+          min: this.minNumberOfChoices,
+          max: this.maxNumberOfChoices,
+        },
       },
     };
 
     return super.generateMetadata(metadata);
   }
 
-  public static checkVote(vote: Vote, voteType: IVoteType): void {
+  public static checkVote(vote: Vote, voteType: IVoteType, voteProperties: ChoiceProperties): void {
     if (voteType.uniqueChoices && new Set(vote.votes).size !== vote.votes.length) {
       throw new Error('Choices are not unique');
     }
 
-    if (voteType.maxCount != vote.votes.length) {
-      throw new Error('Invalid number of choices');
+    if (vote.votes.length > voteType.maxCount) {
+      throw new Error('Invalid number of choices, maximum is ' + voteType.maxCount);
+    }
+
+    if (vote.votes.length < voteProperties.numChoices.min) {
+      throw new Error('Invalid number of choices, minimum is ' + voteProperties.numChoices.min);
     }
 
     vote.votes.forEach((vote) => {
@@ -114,6 +131,14 @@ export class MultiChoiceElection extends UnpublishedElection {
 
   set maxNumberOfChoices(value: number) {
     this.voteType.maxCount = value;
+  }
+
+  get minNumberOfChoices(): number {
+    return this._minNumberOfChoices;
+  }
+
+  set minNumberOfChoices(value: number) {
+    this._minNumberOfChoices = value;
   }
 
   get canRepeatChoices(): boolean {
