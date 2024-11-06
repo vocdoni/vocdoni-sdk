@@ -9,10 +9,11 @@ import {
   getElectionMetadataTemplate,
 } from '../metadata';
 import { Vote } from '../vote';
+import invariant from 'tiny-invariant';
 
 export interface IMultiChoiceElectionParameters extends IElectionParameters {
   maxNumberOfChoices: number;
-  minNumberOfChoices: number;
+  minNumberOfChoices?: number;
   canRepeatChoices?: boolean;
   canAbstain?: boolean;
 }
@@ -32,7 +33,7 @@ export class MultiChoiceElection extends UnpublishedElection {
   public constructor(params: IMultiChoiceElectionParameters) {
     super(params);
     this.maxNumberOfChoices = params.maxNumberOfChoices;
-    this.minNumberOfChoices = params.minNumberOfChoices;
+    this.minNumberOfChoices = params.minNumberOfChoices ?? null;
     this.canRepeatChoices = params.canRepeatChoices ?? false;
     this.canAbstain = params.canAbstain ?? false;
   }
@@ -130,6 +131,10 @@ export class MultiChoiceElection extends UnpublishedElection {
   }
 
   set maxNumberOfChoices(value: number) {
+    invariant(
+      value >= (this.minNumberOfChoices ?? 0),
+      'Max number of choices must be greater than or equal to min number of choices'
+    );
     this.voteType.maxCount = value;
   }
 
@@ -138,6 +143,10 @@ export class MultiChoiceElection extends UnpublishedElection {
   }
 
   set minNumberOfChoices(value: number) {
+    invariant(
+      value <= this.maxNumberOfChoices,
+      'Min number of choices must be less than or equal to max number of choices'
+    );
     this._minNumberOfChoices = value;
   }
 
