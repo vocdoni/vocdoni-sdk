@@ -9,6 +9,7 @@ This library exports the TypeDoc to `.md` format, which is compatible with docus
 Run:
 
 ```bash
+cd docs
 yarn
 ```
 
@@ -18,5 +19,5 @@ Then you can just run the npm script:
 yarn build
 ```
 
-This will generate a `temp_docs` folder with all generated documentation. It also copies de `../README.md` into 
-`temp_docs/README.md` to use it as docusaurus main page.
+This will generate a `temp_docs` folder with all generated documentation. It also copies the `../CHANGELOG.md` into 
+`temp_docs/changelog.md` and creates a `README/md` to use as a table of contents.
