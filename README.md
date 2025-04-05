@@ -5,7 +5,7 @@
 <div align="center">
 
 ![npm](https://img.shields.io/npm/v/%40vocdoni%2Fsdk)
-![GitHub commit activity (main)](https://img.shields.io/github/commit-activity/m/vocdoni/vocdoni-sdk)
+[![GitHub commit activity (main)](https://img.shields.io/github/commit-activity/m/vocdoni/vocdoni-sdk)](https://github.com/vocdoni/vocdoni-sdk/commits/main)
 [![Example workflow](https://github.com/vocdoni/vocdoni-sdk/actions/workflows/examples.yml/badge.svg)](https://vocdoni.github.io/vocdoni-sdk/)
 ![Main workflow](https://github.com/vocdoni/vocdoni-sdk/actions/workflows/main.yml/badge.svg)
 [![Join Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://discord.gg/xFTh8Np2ga)
