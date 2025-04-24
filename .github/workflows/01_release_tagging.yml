@@ -24,7 +24,7 @@ jobs:
       PKG_VER_FINAL: ${{ steps.getinfo.outputs.pkg_ver_final }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       ## Tag pattern: v1.2.3-xyz
       - name: Get PR labels and pkg version
