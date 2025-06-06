@@ -28,7 +28,7 @@ jobs:
       ## The 'fs' scan mode requires *.lock files in order to scan vulns
       ## and to collect license info of packages, then you should run npm install before.
       - name: Setup NodeJS before scanning with Trivy
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18.x
 
