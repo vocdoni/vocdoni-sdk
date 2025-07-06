@@ -63,7 +63,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Repo Scan Results as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
           name: trivy-results-repo-${{ steps.myvars.outputs.DATE_IN_SECS }}
