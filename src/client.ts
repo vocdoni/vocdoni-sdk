@@ -967,6 +967,7 @@ export class VocdoniSDKClient {
         address: await this.wallet.getAddress(),
         signature: vote.signature,
         proof_type: vote.proof_type,
+        weight: vote.weight,
       };
       yield {
         key: VoteSteps.GET_PROOF,
