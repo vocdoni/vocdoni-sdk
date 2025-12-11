@@ -3,6 +3,8 @@ import { formatUnits as ethersFormatUnits } from '@ethersproject/units';
 import nacl from 'tweetnacl';
 import { BigNumberish } from '@ethersproject/bignumber';
 
+export type { MultiLanguage } from './lang';
+
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export function strip0x(value: string): string {

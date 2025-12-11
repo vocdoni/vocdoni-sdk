@@ -4,7 +4,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
-import { default as pkg } from './package.json' assert { type: 'json' };
+import { default as pkg } from './package.json' with { type: 'json' };
 
 // take name from package "output" defined field
 const name = pkg.output;

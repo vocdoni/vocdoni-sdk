@@ -124,7 +124,7 @@ export abstract class VoteCore extends TransactionCore {
       const caProof = ProofCA.fromPartial({
         type: proof.proof_type ? (proof.proof_type as unknown as ProofCA_Type) : ProofCA_Type.ECDSA_BLIND_PIDSALTED,
         signature: new Uint8Array(Buffer.from(strip0x(proof.signature), 'hex')),
-        bundle: this.cspCaBundle(electionId, proof.address),
+        bundle: this.cspCaBundle(electionId, proof.address, proof.weight),
       });
 
       return Proof.fromPartial({
@@ -161,10 +161,11 @@ export abstract class VoteCore extends TransactionCore {
     }
   }
 
-  public static cspCaBundle(electionId: string, address: string) {
+  public static cspCaBundle(electionId: string, address: string, weight?: bigint) {
     return CAbundle.fromPartial({
       processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
       address: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
+      voteWeight: weight ? new Uint8Array(Buffer.from(strip0x(weight.toString()), 'hex')) : undefined,
     });
   }
 
