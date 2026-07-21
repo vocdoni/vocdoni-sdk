@@ -94,7 +94,7 @@
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "rollup": "^4.13.2",
-    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-dts": ">=6.1.0 <6.4.1",
     "rollup-plugin-esbuild": "^6.1.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "size-limit": "^8.1.0",
