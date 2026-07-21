@@ -1,5 +1,9 @@
 <p align="center" width="100%">
-    <img src="https://docs.vocdoni.io/Logotype.svg" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://vocdoni.io/images/vocdoni_logotype_full_blank.svg" />
+      <source media="(prefers-color-scheme: light)" srcset="https://vocdoni.io/images/vocdoni_logotype_full_white.svg" />
+      <img alt="Vocdoni" src="https://vocdoni.io/images/vocdoni_logotype_full_white.svg" />
+  </picture>
 </p>
 
 <div align="center">
@@ -13,11 +17,13 @@
 
 </div>
 
-# Vocdoni SDK 
+# Vocdoni SDK
 
 The Vocdoni SDK is a convenient way to interact with the Vocdoni Protocol
-through [the new API][Vocdoni API], allowing anyone to create, manage and
+through [its API][Vocdoni API], allowing anyone to create, manage and
 participate in voting processes and collective decision-making.
+
+If you're using our integrator's/SaaS API, [use the integrator-sdk instead](https://github.com/vocdoni/integrator-sdk).
 
 ## Live preview
 
@@ -519,7 +525,7 @@ The SDK comes with an implementation of the common handler API of a CSP which is
 [here](https://github.com/vocdoni/blind-csp#api).
 
 For creating a CSP based election, a `CspCensus` has to be set to the election. This census need the
-CSP public key (`CSP_PUBKEY` in the example) and the CSP Url (`CSP_URL` in the example). 
+CSP public key (`CSP_PUBKEY` in the example) and the CSP Url (`CSP_URL` in the example).
 
 ~~~ts
 const election = Election.from({
@@ -594,7 +600,7 @@ const supportedChains = await client.getSupportedChains();
 //     "chainID": 1,
 //     "shortName": "eth",
 //     "name": "Ethereum Mainnet"
-//     }, 
+//     },
 //     {
 //       "chainID": 5,
 //       "shortName": "gor",
@@ -692,8 +698,8 @@ const token = await client.getToken('0x0AaCfbeC6a24756c20D41914F2caba817C0d8521'
 ~~~ts
 // Check if a holder is registered for a given token
 const token = await client.isHolderInToken(
-  '0x0AaCfbeC6a24756c20D41914F2caba817C0d8521', 
-  1, 
+  '0x0AaCfbeC6a24756c20D41914F2caba817C0d8521',
+  1,
   '0x111000000000000000000000000000000000dEaD'
 );
 // false
