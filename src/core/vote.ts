@@ -165,7 +165,14 @@ export abstract class VoteCore extends TransactionCore {
     return CAbundle.fromPartial({
       processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
       address: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
-      voteWeight: weight ? new Uint8Array(Buffer.from(weight.toString(16).padStart(weight.toString(16).length + (weight.toString(16).length % 2), '0'), 'hex')) : undefined,
+      voteWeight: weight
+        ? new Uint8Array(
+            Buffer.from(
+              weight.toString(16).padStart(weight.toString(16).length + (weight.toString(16).length % 2), '0'),
+              'hex'
+            )
+          )
+        : undefined,
     });
   }
 
