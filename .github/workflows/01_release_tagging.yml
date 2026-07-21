@@ -24,7 +24,7 @@ jobs:
       PKG_VER_FINAL: ${{ steps.getinfo.outputs.pkg_ver_final }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       ## Tag pattern: v1.2.3-xyz
       - name: Get PR labels and pkg version
@@ -70,7 +70,7 @@ jobs:
     steps:
       - name: Set Github Tag via API
         id: settag
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         ## This condition gets TRUE if used in this way: contains(toJson(xyz), 'substr')
         if: ${{ contains( toJson(github.event.pull_request.labels.*.name), env.RELEASE_LABEL ) || contains( toJson(github.event.pull_request.labels.*.name), env.RELEASE_LABEL_DRYRUN ) }}
         with:

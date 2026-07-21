@@ -18,7 +18,7 @@ jobs:
       IS_DRYRUN: ${{ steps.taginfo.outputs.is_dryrun }}         ## yes|not
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       ## Tag pattern: v1.2.3-xyz
       ## Version pattern: 1.2.3
@@ -45,10 +45,10 @@ jobs:
     needs: [prepare]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: 18.x
           registry-url: https://registry.npmjs.org
@@ -70,7 +70,7 @@ jobs:
     needs: [prepare]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       ## The CHANGELOG.md must contain the current version being published (i.e. [1.2.3])"
       - name: Check if CHANGELOG.md is updated
@@ -97,7 +97,7 @@ jobs:
 
       - name: Create a Github Release
         id: setrelease
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         ##if: ${{ steps.checkchangelog.outputs.matches_pattern == '1' && needs.prepare.outputs.IS_DRYRUN == 'not' }}
         if: ${{ steps.checkchangelog.outputs.matches_pattern == '1' }}
         with:

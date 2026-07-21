@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout vocdoni-sdk repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Install node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: 18
 
@@ -36,7 +36,7 @@ jobs:
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Checkout developer-portal repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: vocdoni/developer-portal
           ref: main
@@ -51,7 +51,7 @@ jobs:
 
       - name: Create PR to developer-portal repo
         id: cpr
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.VOCDONIBOT_PAT }}
           path: developer-portal

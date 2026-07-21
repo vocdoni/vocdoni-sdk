@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Set myvars
         id: myvars
@@ -28,7 +28,7 @@ jobs:
       ## The 'fs' scan mode requires *.lock files in order to scan vulns
       ## and to collect license info of packages, then you should run npm install before.
       - name: Setup NodeJS before scanning with Trivy
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: 18.x
 
@@ -63,14 +63,14 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Repo Scan Results as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         if: success() || failure()
         with:
           name: trivy-results-repo-${{ steps.myvars.outputs.DATE_IN_SECS }}
           path: trivy-results-repo-${{ steps.myvars.outputs.GIT_HASH_SHORT }}.*
 
       - name: Load Repo Scan Results (sarif) to Github
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         #if: false        ## false = bypass
         with:
