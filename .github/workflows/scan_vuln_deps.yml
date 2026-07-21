@@ -35,22 +35,8 @@ jobs:
       - name: Install deps before scanning with Trivy
         run: yarn install
 
-      - name: Scan in Repo (html)
-        uses: aquasecurity/trivy-action@master
-        if: success() || failure()
-        with:
-          scan-type: fs
-          scanners: vuln,secret,config
-          scan-ref: .
-          format: template
-          template: '@/contrib/html.tpl'
-          output: trivy-results-repo-${{ steps.myvars.outputs.GIT_HASH_SHORT }}.html
-        env:
-          TRIVY_USERNAME: ${{ github.repository_owner }}
-          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Scan in Repo (sarif)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         if: success() || failure()
         with:
           scan-type: fs
