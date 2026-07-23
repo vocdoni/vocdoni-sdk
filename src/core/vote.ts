@@ -75,6 +75,7 @@ export abstract class VoteCore extends TransactionCore {
         nonce: new Uint8Array(nonce),
         votePackage: new Uint8Array(generatedVotePackage ?? votePackage),
         encryptionKeyIndexes: keyIndexes || [],
+        memo: vote.memo ? new Uint8Array(Buffer.from(vote.memo, 'utf8')) : undefined,
       };
     } catch (error) {
       throw new Error('The poll vote envelope could not be generated');
