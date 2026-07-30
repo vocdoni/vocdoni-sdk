@@ -165,15 +165,24 @@ export abstract class VoteCore extends TransactionCore {
     return CAbundle.fromPartial({
       processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
       address: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
-      voteWeight: weight
-        ? new Uint8Array(
-            Buffer.from(
-              weight.toString(16).padStart(weight.toString(16).length + (weight.toString(16).length % 2), '0'),
-              'hex'
-            )
-          )
-        : undefined,
+      // `weight == null` also covers `null`, not just `undefined`: only the absence of a weight means
+      // "unweighted". `0n` is a valid weight and must still encode to 8 zero bytes.
+      voteWeight: weight == null ? undefined : this.encodeVoteWeight(weight),
     });
+  }
+
+  /**
+   * Encodes a vote weight in its canonical form: fixed 8-byte big-endian. The chain folds this exact
+   * encoding into the CSP salt derivation (`keccak256(DOMAIN || ProcessId || weightBE8)`), so the
+   * bundle's `voteWeight` must encode the same integer identically.
+   *
+   * @param weight - The vote weight
+   */
+  public static encodeVoteWeight(weight: bigint): Uint8Array {
+    if (typeof weight !== 'bigint' || weight < 0n || weight > 0xffffffffffffffffn) {
+      throw new Error('Vote weight must fit in an unsigned 64 bit integer');
+    }
+    return new Uint8Array(Buffer.from(weight.toString(16).padStart(16, '0'), 'hex'));
   }
 
   public static encodeCspCaBundle(bundle: CAbundle) {

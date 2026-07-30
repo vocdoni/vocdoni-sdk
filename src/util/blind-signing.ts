@@ -15,9 +15,21 @@ import {
 } from 'blindsecp256k1';
 import { VoteCore } from '../core/vote';
 
-export function getBlindedPayload(electionId: string, hexTokenR: string, address: string) {
+/**
+ * Blinds the CA bundle payload to be signed by the CSP.
+ *
+ * The weight (if any) MUST be the same one submitted later with the vote: the CSP blind-signs
+ * `keccak256(bundle)` and the chain verifies that signature against the bundle submitted in the
+ * `ProofCA`, so both must be built from the exact same `CAbundle` (including `voteWeight`).
+ *
+ * @param electionId - The election id
+ * @param hexTokenR - The R point provided by the CSP, hex encoded
+ * @param address - The voter address
+ * @param weight - The vote weight attested by the CSP
+ */
+export function getBlindedPayload(electionId: string, hexTokenR: string, address: string, weight?: bigint) {
   const tokenR = CensusBlind.decodePoint(hexTokenR);
-  const caBundle = VoteCore.cspCaBundle(electionId, address);
+  const caBundle = VoteCore.cspCaBundle(electionId, address, weight);
 
   // hash(bundle)
   const hexCaBundle = hexlify(VoteCore.encodeCspCaBundle(caBundle));

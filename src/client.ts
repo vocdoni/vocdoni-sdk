@@ -1093,13 +1093,13 @@ export class VocdoniSDKClient {
     return this.cspService.cspStep(this.electionId, stepNumber, data, authToken);
   }
 
-  async cspSign(address: string, token: string) {
+  async cspSign(address: string, token: string, weight?: bigint) {
     invariant(this.electionId, 'No election id set');
-    return this.cspService.cspSign(this.electionId, address, token);
+    return this.cspService.cspSign(this.electionId, address, token, weight);
   }
 
-  cspVote(vote: Vote, signature: string, proof_type?: CspProofType) {
-    return this.cspService.cspVote(vote, signature, proof_type);
+  cspVote(vote: Vote, signature: string, proof_type?: CspProofType, weight?: bigint) {
+    return this.cspService.cspVote(vote, signature, proof_type, weight);
   }
 
   /**
