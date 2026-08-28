@@ -1,9 +1,10 @@
-import { API_URL } from '../../../src/util/constants';
 import { VocdoniSDKClient } from '../../../src';
+// @ts-ignore
+import { requireEnv } from '../../util/env';
 
-export const URL = process.env.API_URL ?? API_URL.dev;
+export const URL = requireEnv('API_URL');
 
 export const setFaucetURL = (client: VocdoniSDKClient): VocdoniSDKClient => {
-  client.faucetService.url = process.env.FAUCET_URL ?? client.faucetService.url;
+  client.faucetService.url = requireEnv('FAUCET_URL');
   return client;
 };

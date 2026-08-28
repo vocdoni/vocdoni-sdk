@@ -12,9 +12,11 @@ import { Wallet } from '@ethersproject/wallet';
 import { clientParams, setFaucetURL } from './util/client.params';
 // @ts-ignore
 import { waitForElectionReady } from './util/client.utils';
+// @ts-ignore
+import { requireEnv } from '../util/env';
 
-const CSP_URL = process.env.BLINDCSP_URL ?? 'https://csp-dev-simplemath.vocdoni.net/v1';
-const CSP_PUBKEY = process.env.BLINDCSP_PUBKEY ?? '025de8cb8de1005aa939c1403e37e1fa165ebc758da49cb37215c6237d01591104';
+const CSP_URL = requireEnv('BLINDCSP_URL');
+const CSP_PUBKEY = requireEnv('BLINDCSP_PUBKEY');
 
 describe('CSP tests', () => {
   it('should create an election with 4 participants and each of them should vote correctly', async () => {

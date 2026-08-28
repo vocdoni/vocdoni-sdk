@@ -1,8 +1,10 @@
-import { EnvOptions, VocdoniCensus3Client } from '../../../src';
+import { VocdoniCensus3Client } from '../../../src';
+// @ts-ignore
+import { clientParams, describeIfCensus3 } from './util/client.params';
 
-describe('Census3 service integration tests', () => {
+describeIfCensus3('Census3 service integration tests', () => {
   it('should return the supported chains information', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const supportedChains = await client.getSupportedChains();
     supportedChains.forEach((chain) => {
       expect(chain).toMatchObject({

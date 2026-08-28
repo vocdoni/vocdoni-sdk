@@ -1,4 +1,4 @@
-version: "3.4"
+name: vocdoni-sdk-integration
 
 x-common: &common
   env_file: .env # the container env will inherit all vars defined in this file
@@ -22,7 +22,20 @@ services:
       --fundedAccounts ${FAUCET_ACCOUNT}:${FAUCET_ACCOUNT_FUNDS}
     # voconed will fund FAUCET_ACCOUNT so that faucet packages signed by vocfaucet actually work
     ports:
-      - "127.0.0.1::${VOCONED_PORT}"
+      - "127.0.0.1:${VOCONED_HOST_PORT:-9095}:${VOCONED_PORT}"
+    volumes:
+      # Caches the zk circuit artifacts downloaded on first boot, so repeated
+      # local `up` cycles skip the download entirely. `down -v` drops it.
+      - voconed_run:/app/run
+    restart: on-failure
+    healthcheck:
+      # The generous window exists because voconed's first boot downloads the zk
+      # circuit artifacts, and its own deadline on that download is 300s: a
+      # shorter window cannot survive even one slow-but-recoverable fetch.
+      test: ['CMD', 'curl', '-sf', 'http://localhost:${VOCONED_PORT}${VOCONED_URLPATH}/chain/info']
+      interval: 3s
+      retries: 120
+      start_period: 60s
     <<: *common
 
   blind-csp:
@@ -30,7 +43,7 @@ services:
     command: |
       --key ${BLINDCSP_PRIVKEY}
     ports:
-      - "127.0.0.1::${BLINDCSP_PORT}"
+      - "127.0.0.1:${BLINDCSP_HOST_PORT:-5000}:${BLINDCSP_PORT}"
     <<: *common
 
   vocfaucet:
@@ -46,5 +59,8 @@ services:
       --auth=${FAUCET_AUTH}
       --privKey=${FAUCET_PRIVKEY}
     ports:
-      - "127.0.0.1::${FAUCET_LISTENPORT}"
+      - "127.0.0.1:${VOCFAUCET_HOST_PORT:-8085}:${FAUCET_LISTENPORT}"
     <<: *common
+
+volumes:
+  voconed_run:

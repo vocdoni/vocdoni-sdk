@@ -1,8 +1,10 @@
-import { EnvOptions, VocdoniCensus3Client } from '../../../src';
+import { VocdoniCensus3Client } from '../../../src';
+// @ts-ignore
+import { clientParams, describeIfCensus3 } from './util/client.params';
 
-describe('Census3 censuses integration tests', () => {
+describeIfCensus3('Census3 censuses integration tests', () => {
   it('should return the supported censuses information', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const strategies = await client.getStrategies();
     if (strategies.length > 0) {
       const censuses = await client.getCensuses(strategies[0].ID);
@@ -20,7 +22,7 @@ describe('Census3 censuses integration tests', () => {
     }
   }, 15000);
   it('should return the census information', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const strategies = await client.getStrategies();
     if (strategies.length > 0) {
       const censuses = await client.getCensuses(strategies[0].ID);
