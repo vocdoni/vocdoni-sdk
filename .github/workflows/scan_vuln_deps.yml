@@ -42,6 +42,7 @@ jobs:
           scan-type: fs
           scanners: vuln,secret,config
           scan-ref: .
+          skip-dirs: node_modules,**/node_modules
           format: sarif
           output: trivy-results-repo-${{ steps.myvars.outputs.GIT_HASH_SHORT }}.sarif
         env:
