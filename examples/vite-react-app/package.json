@@ -21,8 +21,8 @@
     "@ethersproject/wallet": "^5.7.0",
     "@walletconnect/ethereum-provider": "^1.7.5",
     "@web3-react/core": "8.0.35-beta.0",
-    "@web3-react/metamask": "8.0.28-beta.0",
-    "@web3-react/walletconnect": "8.0.35-beta.0",
+    "@web3-react/metamask": "8.0.30-beta.0",
+    "@web3-react/walletconnect": "8.0.37-beta.0",
     "buffer": "^6.0.3",
     "framer-motion": "^10.12.22",
     "react": "^18.2.0",
@@ -39,6 +39,12 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.1",
     "typescript": "^5.0.2",
-    "vite": "^4.4.0"
+    "vite": "^6.4.3"
+  },
+  "resolutions": {
+    "axios": "0.33.0",
+    "elliptic": "6.6.1",
+    "ws": "7.5.11",
+    "**/@walletconnect/utils/bn.js": "4.12.5"
   }
 }
