@@ -27,12 +27,19 @@ BLINDCSP_HOST_PORT="${BLINDCSP_HOST_PORT:-5000}"
 VOCFAUCET_HOST_PORT="${VOCFAUCET_HOST_PORT:-8085}"
 export VOCONED_HOST_PORT BLINDCSP_HOST_PORT VOCFAUCET_HOST_PORT
 
-API_URL="http://127.0.0.1:${VOCONED_HOST_PORT}/v2"
+# Reads a variable from the stack's .env file, keeping it the single source
+# of truth for anything the containers are configured with.
+stack_env() {
+  sed -n "s/^$1=//p" "$STACK_ENV_FILE"
+}
+
+API_URL="http://127.0.0.1:${VOCONED_HOST_PORT}$(stack_env VOCONED_URLPATH)"
+# blind-csp's /v1 API prefix is hardcoded upstream, not configurable via .env.
 BLINDCSP_URL="http://127.0.0.1:${BLINDCSP_HOST_PORT}/v1"
-FAUCET_URL="http://127.0.0.1:${VOCFAUCET_HOST_PORT}/v2"
+FAUCET_URL="http://127.0.0.1:${VOCFAUCET_HOST_PORT}$(stack_env FAUCET_BASEROUTE)"
 # The CSP public key is derived from the hardcoded test private key in the
 # stack's .env file; tests need it to build CspCensus objects.
-BLINDCSP_PUBKEY=$(sed -n 's/^BLINDCSP_PUBKEY=//p' "$STACK_ENV_FILE")
+BLINDCSP_PUBKEY=$(stack_env BLINDCSP_PUBKEY)
 
 compose() {
   # The compose project directory defaults to the compose file's directory, so
@@ -104,6 +111,8 @@ print_env() {
 
 cmd_up() {
   if stack_is_running; then
+    # `compose up -d` is idempotent: it reconciles the stack, (re)starting any
+    # service that exited while leaving the running ones untouched.
     echo "== stack already running, reusing it" >&2
   else
     for port in "$VOCONED_HOST_PORT" "$BLINDCSP_HOST_PORT" "$VOCFAUCET_HOST_PORT"; do
@@ -113,8 +122,8 @@ cmd_up() {
       fi
     done
     echo "== starting stack (voconed, blind-csp, vocfaucet)" >&2
-    compose up -d
   fi
+  compose up -d
 
   # The 450s ceiling covers voconed's first-boot zk circuit download (its own
   # deadline on that download is 300s) plus one restart. Do not tighten it.
