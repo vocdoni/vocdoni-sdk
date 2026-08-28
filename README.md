@@ -490,6 +490,34 @@ option (or options) being voted:
 })();
 ~~~
 
+#### Vote memo
+
+Votes can optionally carry a free-text note of up to 256 bytes, useful for an
+open "Other" answer. It travels inside the vote envelope and is read back from
+the votes endpoint:
+
+~~~ts
+(async () => {
+  const vote = new Vote([0, 2], 'Other: none of the above');
+  const voteId = await client.submitVote(vote);
+
+  const info = await client.voteService.info(voteId);
+  console.log(info.memo); // "Other: none of the above"
+})();
+~~~
+
+The memo is also available on `AnonymousVote` and `CspVote`, either through their
+constructors or the inherited `memo` property.
+
+Two things to keep in mind:
+
+- The memo is gated behind a soft fork on the chain side. Until it activates for
+  the chain you are voting on, the memo is silently ignored: it is not stored,
+  not hashed into the vote and not returned by the API.
+- On anonymous elections the vote transaction is not signed and the memo is not
+  covered by the zk proof, so it can be altered in transit. Free text also
+  weakens the anonymity set. Do not put anything sensitive in it.
+
 ### Other SDK functionalities
 
 #### Generate a random Wallet

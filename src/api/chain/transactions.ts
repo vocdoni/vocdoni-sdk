@@ -79,6 +79,11 @@ export interface VoteEnvelope {
    * On encrypted votes, contains the (sorted) indexes of the keys used to encrypt
    * */
   encryptionKeyIndexes: number[];
+  /**
+   * Optional free-text note attached by the voter (max 256 bytes), encoded as bytes.
+   * This is the raw envelope value; for the decoded note see `VoteInfoResponse.memo`
+   * */
+  memo?: string;
 }
 
 export interface NewProcessTx {

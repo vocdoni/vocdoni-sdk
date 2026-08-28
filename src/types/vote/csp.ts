@@ -13,9 +13,16 @@ export class CspVote extends Vote {
    * @param signature - The CSP signature
    * @param proof -_type The CSP proof type
    * @param weight - The vote weight
+   * @param memo - Optional free-text note attached by the voter (max 256 bytes when UTF-8 encoded)
    */
-  public constructor(votes: Array<number | bigint>, signature: string, proof_type?: CspProofType, weight?: bigint) {
-    super(votes);
+  public constructor(
+    votes: Array<number | bigint>,
+    signature: string,
+    proof_type?: CspProofType,
+    weight?: bigint,
+    memo?: string
+  ) {
+    super(votes, memo);
     this.signature = signature;
     this.proof_type = proof_type;
     this.weight = weight;

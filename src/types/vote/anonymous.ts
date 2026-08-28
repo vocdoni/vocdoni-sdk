@@ -10,9 +10,11 @@ export class AnonymousVote extends Vote {
    * @param votes - The list of votes values
    * @param signature - The signature of the payload
    * @param password - The password of the anonymous vote
+   * @param memo - Optional free-text note attached by the voter (max 256 bytes when UTF-8 encoded).
+   *   Note it is neither signed nor covered by the zk proof on anonymous elections, see {@link Vote.memo}
    */
-  public constructor(votes: Array<number | bigint>, signature?: string, password: string = '0') {
-    super(votes);
+  public constructor(votes: Array<number | bigint>, signature?: string, password: string = '0', memo?: string) {
+    super(votes, memo);
     this.password = password;
     this.signature = signature;
   }

@@ -51,7 +51,7 @@ export interface VotesList {
 
 export type VoteSummary = Pick<
   VoteInfoResponse,
-  'txHash' | 'voteID' | 'voterID' | 'electionID' | 'blockHeight' | 'transactionIndex'
+  'txHash' | 'voteID' | 'voterID' | 'electionID' | 'blockHeight' | 'transactionIndex' | 'memo'
 >;
 
 export type VoteInfoResponse = {
@@ -109,6 +109,14 @@ export type VoteInfoResponse = {
    * Date when the vote was emitted
    */
   date: string;
+
+  /**
+   * The optional free-text note attached by the voter, as plain text.
+   *
+   * Absent when the vote carries no memo, and also when the memo soft fork was
+   * not active on the chain at the time the vote was cast.
+   */
+  memo?: string;
 };
 
 export abstract class VoteAPI extends API {
