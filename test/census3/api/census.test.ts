@@ -1,8 +1,8 @@
 // @ts-ignore
-import { URL } from './util/client.params';
+import { URL, describeIfCensus3 } from './util/client.params';
 import { Census3CensusAPI, ErrMalformedCensusID, ErrNotFoundCensus } from '../../../src';
 
-describe('Census3 census API tests', () => {
+describeIfCensus3('Census3 census API tests', () => {
   it('should throw when fetching a non existent census', async () => {
     await expect(async () => {
       await Census3CensusAPI.census(URL, 999999);

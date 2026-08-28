@@ -37,11 +37,7 @@ jobs:
     name: Integration tests
 
     runs-on: ubuntu-latest
-
-    env:
-      COMPOSE_PROJECT_NAME: ci_${{ github.run_id }}
-      COMPOSE_FILE: ./test/integration/util/docker-compose.yml
-      COMPOSE_ENV: ./test/integration/util/.env
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repo
@@ -55,37 +51,13 @@ jobs:
       - name: Install deps
         run: yarn
 
-      - name: Start docker containers (voconed, blind-csp, vocfaucet)
+      - name: Print resolved image digests
         run: |
-          docker compose pull -q
-          docker compose up -d
-          docker compose images # check logs to see version used
+          docker compose -f test/integration/util/docker-compose.yml pull -q
+          docker compose -f test/integration/util/docker-compose.yml images
 
-          voconed_hostport=$(docker compose port voconed 9095)
-          blindcsp_hostport=$(docker compose port blind-csp 5000)
-          vocfaucet_hostport=$(docker compose port vocfaucet 8080)
-
-          cat << EOF >> $GITHUB_ENV
-          API_URL=http://$voconed_hostport/v2
-          BLINDCSP_URL=http://$blindcsp_hostport/v1
-          FAUCET_URL=http://$vocfaucet_hostport/v2
-          EOF
-
-          # source all env vars in ${{ env.COMPOSE_ENV }}
-          # and merge them into GHA environment, some are needed in the following steps
-          env -i sh -o allexport -c '. ${{ env.COMPOSE_ENV }} ; env' >> $GITHUB_ENV
-
-      - name: Wait until voconed is ready
-        run: |
-          for i in {1..20}; do
-            if curl -s --fail ${{ env.API_URL }}/chain/info 2>/dev/null ; then
-              exit 0
-            fi
-            date
-            sleep 1
-          done
-          echo "timed out waiting"
-          exit 1
+      - name: Start docker stack (voconed, blind-csp, vocfaucet)
+        run: scripts/integration-stack.sh up # appends API_URL & friends to GITHUB_ENV
 
       - name: Integration tests
         run: yarn test:integration --ci --coverage --maxWorkers=2
@@ -101,8 +73,8 @@ jobs:
 
       - name: Debug docker logs in case of failure
         if: failure()
-        run: docker compose logs
+        run: scripts/integration-stack.sh logs
 
       - name: Stop and cleanup docker containers
         if: always()
-        run: docker compose down -v
+        run: scripts/integration-stack.sh down

@@ -1,8 +1,8 @@
 // @ts-ignore
-import { URL } from './util/client.params';
+import { URL, describeIfCensus3 } from './util/client.params';
 import { Census3TokenAPI, ErrCantGetToken, ErrNotFoundToken, ErrTokenAlreadyExists } from '../../../src';
 
-describe('Census3 token API tests', () => {
+describeIfCensus3('Census3 token API tests', () => {
   it('should throw when creating a non existent token', async () => {
     await expect(async () => {
       await Census3TokenAPI.create(URL, '0x0', 'erc20', 1);

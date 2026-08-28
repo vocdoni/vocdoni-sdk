@@ -1,10 +1,12 @@
-import { EnvOptions, VocdoniCensus3Client } from '../../../src';
+import { VocdoniCensus3Client } from '../../../src';
+// @ts-ignore
+import { clientParams, describeIfCensus3 } from './util/client.params';
 import { isAddress } from '@ethersproject/address';
 import { StrategyCensus } from '../../../src/types/census/census3/strategy';
 
-describe('Census3 strategies integration tests', () => {
+describeIfCensus3('Census3 strategies integration tests', () => {
   it('should return the supported strategies', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const strategies = await client.getStrategies();
     strategies.forEach((strategy) => {
       expect(strategy).toMatchObject({
@@ -17,7 +19,7 @@ describe('Census3 strategies integration tests', () => {
     });
   }, 5000);
   it('should return the supported strategies by token', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const supportedTokens = await client.getSupportedTokens();
     if (supportedTokens.length > 0) {
       const strategies = await client.getStrategiesByToken(supportedTokens[0].ID, supportedTokens[0].chainID);
@@ -34,7 +36,7 @@ describe('Census3 strategies integration tests', () => {
     }
   }, 5000);
   it('should return the holders by strategy', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const strategies = await client.getStrategies();
     if (strategies.length > 1) {
       const holders = await client.getStrategyHolders(strategies[1].ID);
@@ -45,7 +47,7 @@ describe('Census3 strategies integration tests', () => {
     }
   }, 85000);
   it('should return the given strategy', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const strategies = await client.getStrategies();
     if (strategies.length > 0) {
       const strategy = await client.getStrategy(strategies[0].ID);
@@ -59,7 +61,7 @@ describe('Census3 strategies integration tests', () => {
     }
   }, 5000);
   it('should return the given strategy estimation', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const strategies = await client.getStrategies();
     if (strategies.length > 0) {
       const estimation = await client.getStrategyEstimation(strategies[0].ID);
@@ -74,7 +76,7 @@ describe('Census3 strategies integration tests', () => {
     }
   }, 65000);
   it('should create a new strategy', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const supportedTokens = await client.getSupportedTokens();
     if (supportedTokens.length > 2) {
       const tokens = {
@@ -102,7 +104,7 @@ describe('Census3 strategies integration tests', () => {
     }
   }, 25000);
   it('should validate a predicate', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const supportedTokens = await client.getSupportedTokens();
     if (supportedTokens.length > 2) {
       const parsedPredicate = await client.validatePredicate(
@@ -112,7 +114,7 @@ describe('Census3 strategies integration tests', () => {
     }
   }, 5000);
   it('should return the supported strategies operators', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const operators = await client.getSupportedOperators();
     operators.forEach((strategy) => {
       expect(strategy).toMatchObject({
@@ -122,7 +124,7 @@ describe('Census3 strategies integration tests', () => {
     });
   }, 5000);
   it('should import a strategy from a given CID', async () => {
-    const client = new VocdoniCensus3Client({ env: EnvOptions.DEV });
+    const client = new VocdoniCensus3Client(clientParams());
     const cid = '';
     if (cid) {
       const importedStrategy = await client.importStrategy(cid);
@@ -137,7 +139,7 @@ describe('Census3 strategies integration tests', () => {
   }, 25000);
   it('should create the census from the given strategy', async () => {
     const client = new VocdoniCensus3Client({
-      env: EnvOptions.DEV,
+      ...clientParams(),
       tx_wait: {
         retry_time: 10000,
         attempts: 20,

@@ -1,5 +1,5 @@
 // @ts-ignore
-import { URL } from './util/client.params';
+import { URL, describeIfCensus3 } from './util/client.params';
 import {
   Census3StrategyAPI,
   ErrInvalidStrategyPredicate,
@@ -8,7 +8,7 @@ import {
   ErrNotFoundToken,
 } from '../../../src';
 
-describe('Census3 strategy API tests', () => {
+describeIfCensus3('Census3 strategy API tests', () => {
   it('should throw when fetching a non existent strategy', async () => {
     await expect(async () => {
       await Census3StrategyAPI.strategy(URL, 999999);
