@@ -6,6 +6,11 @@
     "@ethersproject/wallet": "^5.7.0",
     "@vocdoni/sdk": "^0.7.5"
   },
+  "resolutions": {
+    "axios": "0.33.0",
+    "elliptic": "6.6.1",
+    "ws": "7.5.11"
+  },
   "scripts": {
     "start": "ts-node src/index.ts"
   },
