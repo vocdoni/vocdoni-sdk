@@ -43,6 +43,7 @@
   },
   "resolutions": {
     "axios": "0.33.0",
+    "decode-uri-component": "0.5.0",
     "elliptic": "6.6.1",
     "ws": "7.5.11",
     "**/@walletconnect/utils/bn.js": "4.12.5"
