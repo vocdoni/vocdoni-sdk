@@ -19,24 +19,30 @@ export type DivisorMethod = 'dhondt' | 'sainte-lague';
 export interface AllocationConfig {
   method: DivisorMethod;
   seats: number;
-  /** Minimum share of the total vote to receive any seat. 0 disables it. */
-  threshold?: number;
+  /**
+   * Minimum share of the total vote to receive any seat, as an exact
+   * fraction: `{ num: 5, den: 100 }` is 5%. Omitted disables it. A fraction
+   * (not a float) so thresholds that are not representable in binary — 1/3,
+   * 2/3 — are compared exactly.
+   */
+  threshold?: { num: number; den: number };
   /** How ties in the seat-by-seat comparison are broken. */
-  tieBreak?: 'lowerIndex';
+  tieBreak: 'lowerIndex';
 }
 
 const divisor = (method: DivisorMethod, seatsWon: number): bigint =>
   method === 'dhondt' ? BigInt(seatsWon + 1) : BigInt(2 * seatsWon + 1);
 
 export function allocateSeats(votes: bigint[], config: AllocationConfig): number[] {
-  const { method, seats, threshold = 0 } = config;
+  const { method, seats, threshold = { num: 0, den: 1 } } = config;
 
   const total = votes.reduce((a, b) => a + b, 0n);
-  // v / total >= threshold  <=>  v * SCALE >= round(threshold * SCALE) * total
-  // compared directly (no intermediate floored cutoff) so a list exactly at
-  // the boundary from below is never let in by a rounding-down cutoff.
-  const thresholdScaled = BigInt(Math.round(threshold * 1_000_000));
-  const eligible = votes.map((v) => (v * 1_000_000n >= thresholdScaled * total && v > 0n ? v : 0n));
+  // v / total >= num / den  <=>  v * den >= num * total, cross-multiplied in
+  // bigint: no intermediate cutoff to floor, and no float to round, so a list
+  // exactly on the boundary is neither let in nor kept out by rounding.
+  const num = BigInt(threshold.num);
+  const den = BigInt(threshold.den);
+  const eligible = votes.map((v) => (v * den >= num * total && v > 0n ? v : 0n));
 
   const result: number[] = new Array(votes.length).fill(0);
   for (let s = 0; s < seats; s++) {
