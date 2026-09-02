@@ -21,6 +21,8 @@ export interface AllocationConfig {
   seats: number;
   /** Minimum share of the total vote to receive any seat. 0 disables it. */
   threshold?: number;
+  /** How ties in the seat-by-seat comparison are broken. */
+  tieBreak?: 'lowerIndex';
 }
 
 const divisor = (method: DivisorMethod, seatsWon: number): bigint =>
@@ -30,9 +32,11 @@ export function allocateSeats(votes: bigint[], config: AllocationConfig): number
   const { method, seats, threshold = 0 } = config;
 
   const total = votes.reduce((a, b) => a + b, 0n);
-  // integer cutoff: floor(threshold * total), threshold scaled to avoid floats
-  const cutoff = (BigInt(Math.round(threshold * 1_000_000)) * total) / 1_000_000n;
-  const eligible = votes.map((v) => (v >= cutoff && v > 0n ? v : 0n));
+  // v / total >= threshold  <=>  v * SCALE >= round(threshold * SCALE) * total
+  // compared directly (no intermediate floored cutoff) so a list exactly at
+  // the boundary from below is never let in by a rounding-down cutoff.
+  const thresholdScaled = BigInt(Math.round(threshold * 1_000_000));
+  const eligible = votes.map((v) => (v * 1_000_000n >= thresholdScaled * total && v > 0n ? v : 0n));
 
   const result: number[] = new Array(votes.length).fill(0);
   for (let s = 0; s < seats; s++) {

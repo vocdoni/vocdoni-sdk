@@ -26,6 +26,11 @@ describe('Highest-averages seat allocation', () => {
     expect(allocateSeats(v(10, 10), { method: 'dhondt', seats: 3, threshold: 0.9 })).toEqual([0, 0]);
   });
 
+  it('excludes a list that falls just short of the threshold, no rounding-down leak', () => {
+    // total 9, 50% threshold: 4/9 = 44.4% must NOT clear it (floor(0.5*9)=4 would wrongly let it in)
+    expect(allocateSeats(v(5, 4), { method: 'dhondt', seats: 4, threshold: 0.5 })).toEqual([4, 0]);
+  });
+
   it('handles vote totals past Number.MAX_SAFE_INTEGER without rounding', () => {
     const big = v(9007199254740993, 9007199254740991); // differ by 2, both > 2^53
     expect(allocateSeats(big, { method: 'dhondt', seats: 2 })).toEqual([1, 1]);

@@ -23,7 +23,7 @@ import { allocateSeats, AllocationConfig } from './utils/party-list-tally';
 const LISTS = ['List A', 'List B', 'List C'];
 const VOTE_DISTRIBUTION = [11, 7, 4]; // deterministic voters per list, for the demo
 
-const ALLOCATION: AllocationConfig = { method: 'dhondt', seats: 4, threshold: 0 };
+const ALLOCATION: AllocationConfig = { method: 'dhondt', seats: 4, threshold: 0, tieBreak: 'lowerIndex' };
 
 async function main() {
   const totalVoters = VOTE_DISTRIBUTION.reduce((a, b) => a + b, 0);
