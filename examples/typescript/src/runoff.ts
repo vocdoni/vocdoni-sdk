@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { CustomMeta, Election, PlainCensus, Vote, VocdoniSDKClient } from '@vocdoni/sdk';
+import { ElectionMeta, Election, PlainCensus, Vote, VocdoniSDKClient } from '@vocdoni/sdk';
 import { Wallet } from '@ethersproject/wallet';
 import { getDefaultClient, waitForElectionReady } from './utils/utils';
 import { getPlainCensus } from './utils/election-process';
@@ -20,7 +20,11 @@ import { needsRunoff, roundWinner, runoffContenders, RunoffRules } from './utils
  */
 
 const CANDIDATES = ['Alameda', 'Bettencourt', 'Carvalho', 'Dias'];
-const RULES: RunoffRules = { majorityThreshold: 0.5 };
+const RULES: RunoffRules = {
+  majorityThreshold: { num: 1, den: 2 },
+  denominator: 'validVotes',
+  tieBreak: 'lowerIndex',
+};
 
 // Deterministic demo. Round 1: nobody clears 50%. Round 2: the same voters
 // choose between the top two.
@@ -34,8 +38,8 @@ async function runRound(
   title: string,
   options: string[],
   distribution: number[],
-  meta: CustomMeta
-): Promise<{ electionId: string; votes: bigint[] }> {
+  meta: ElectionMeta
+): Promise<{ electionId: string; votes: bigint[]; meta: ElectionMeta }> {
   const endDate = new Date();
   endDate.setHours(endDate.getHours() + 10);
   const election = Election.from({ title, description: '', endDate: endDate.getTime(), census });
@@ -63,7 +67,18 @@ async function runRound(
   // End the round before reading its results — no decision on provisional counts.
   await client.endElection(electionId);
   const finalElection = await client.fetchElection(electionId);
-  return { electionId, votes: finalElection.results[0].map((count) => BigInt(count)) };
+  return {
+    electionId,
+    votes: finalElection.results[0].map((count) => BigInt(count)),
+    meta: finalElection.meta,
+  };
+}
+
+/** A round with no valid votes has no winner — never fall through to a tie-break. */
+function assertVotesCast(votes: bigint[]): void {
+  if (votes.reduce((a, b) => a + b, 0n) === 0n) {
+    throw new Error('No votes cast — no winner can be declared');
+  }
 }
 
 async function main() {
@@ -85,7 +100,12 @@ async function main() {
   );
   console.log('Votes:', CANDIDATES.map((c, i) => `${c}: ${round1.votes[i]}`).join(', '));
 
-  if (!needsRunoff(round1.votes, RULES)) {
+  // Decide from the rule published in round 1's metadata, not the local
+  // constant — that published copy is what an observer can check.
+  const { rules } = (round1.meta as { runoff: { rules: RunoffRules } }).runoff;
+
+  if (!needsRunoff(round1.votes, rules)) {
+    assertVotesCast(round1.votes);
     const [top] = runoffContenders(round1.votes);
     console.log(chalk.green(`${CANDIDATES[top]} wins in round 1 (absolute majority)`));
     return;
@@ -102,9 +122,10 @@ async function main() {
     'Council presidency, round 2 ' + new Date().toISOString(),
     runoffCandidates,
     ROUND2_DISTRIBUTION,
-    { runoff: { round: 2, runoffOf: round1.electionId, contenders: [firstIdx, secondIdx], rules: RULES } }
+    { runoff: { round: 2, runoffOf: round1.electionId, contenders: [firstIdx, secondIdx], rules } }
   );
 
+  assertVotesCast(round2.votes);
   const winner = roundWinner(round2.votes);
   console.log(chalk.green(`Winner: ${runoffCandidates[winner]}`), `(${round2.votes[0]} vs ${round2.votes[1]})`);
 }

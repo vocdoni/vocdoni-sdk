@@ -11,12 +11,16 @@
 export interface RunoffRules {
   /**
    * A round-1 candidate wins outright with strictly more than this fraction
-   * of the valid votes. 0.5 = absolute majority.
+   * of the valid votes, given as an exact fraction: `{ num: 1, den: 2 }` is
+   * an absolute majority. A fraction (not a float) so thresholds that are
+   * not representable in binary — 1/3, 2/3 — are compared exactly.
    */
-  majorityThreshold: number;
+  majorityThreshold: { num: number; den: number };
+  /** What the threshold is measured against. */
+  denominator: 'validVotes';
+  /** How ties (for the runoff cutline, and for the round-2 winner) are broken. */
+  tieBreak: 'lowerIndex';
 }
-
-const SCALE = 1_000_000n;
 
 /** Candidate index with the most votes; ties broken by lower index. */
 export const leader = (votes: bigint[]): number => {
@@ -29,12 +33,15 @@ export const leader = (votes: bigint[]): number => {
 
 /** True when no candidate clears the threshold, so a second round is held. */
 export const needsRunoff = (votes: bigint[], rules: RunoffRules): boolean => {
+  // Empty ballot: there is no leader to index, and nobody has a majority.
+  // (An all-zero ballot needs no special case — the comparison below is
+  // 0 <= 0, so a runoff is signalled anyway.)
+  if (votes.length === 0) return true;
   const total = votes.reduce((a, b) => a + b, 0n);
-  if (total === 0n) return false;
   const top = votes[leader(votes)];
-  // top / total > threshold  <=>  top * SCALE > round(threshold * SCALE) * total
-  const thr = BigInt(Math.round(rules.majorityThreshold * Number(SCALE)));
-  return top * SCALE <= thr * total;
+  const { num, den } = rules.majorityThreshold;
+  // top / total > num / den  <=>  top * den > num * total
+  return top * BigInt(den) <= BigInt(num) * total;
 };
 
 /**
@@ -42,6 +49,7 @@ export const needsRunoff = (votes: bigint[], rules: RunoffRules): boolean => {
  * Ties for either place are broken by lower candidate index.
  */
 export const runoffContenders = (votes: bigint[]): [number, number] => {
+  if (votes.length < 2) throw new Error('A runoff needs at least two candidates');
   const order = votes
     .map((v, index) => ({ v, index }))
     .sort((a, b) => (a.v === b.v ? a.index - b.index : a.v < b.v ? 1 : -1));

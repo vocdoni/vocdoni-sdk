@@ -1,7 +1,11 @@
 import { leader, needsRunoff, roundWinner, runoffContenders } from '../../examples/typescript/src/utils/runoff-tally';
 
 const v = (...n: number[]): bigint[] => n.map(BigInt);
-const RULES = { majorityThreshold: 0.5 };
+const RULES = {
+  majorityThreshold: { num: 1, den: 2 },
+  denominator: 'validVotes' as const,
+  tieBreak: 'lowerIndex' as const,
+};
 
 describe('Two-round (runoff) decision logic', () => {
   it('no runoff when a candidate has an absolute majority', () => {
@@ -32,12 +36,26 @@ describe('Two-round (runoff) decision logic', () => {
   });
 
   it('honours a custom majority threshold', () => {
-    expect(needsRunoff(v(58, 42), { majorityThreshold: 0.6 })).toBe(true);
-    expect(needsRunoff(v(61, 39), { majorityThreshold: 0.6 })).toBe(false);
+    expect(needsRunoff(v(58, 42), { ...RULES, majorityThreshold: { num: 3, den: 5 } })).toBe(true);
+    expect(needsRunoff(v(61, 39), { ...RULES, majorityThreshold: { num: 3, den: 5 } })).toBe(false);
   });
 
-  it('no votes cast means no runoff', () => {
-    expect(needsRunoff(v(0, 0, 0), RULES)).toBe(false);
+  it('compares a non-binary threshold exactly: 1/3 each is not more than 1/3', () => {
+    const oneThird = { ...RULES, majorityThreshold: { num: 1, den: 3 } };
+    // Scaling 1/3 to an integer (round(1/3 * 1e6) = 333333 < 1/3) would wrongly
+    // hand this to the leader; cross-multiplication sees the exact tie.
+    expect(needsRunoff(v(1, 1, 1), oneThird)).toBe(true);
+    expect(needsRunoff(v(2, 1, 1), oneThird)).toBe(false);
+  });
+
+  it('no votes cast means a runoff is held (nobody has a majority)', () => {
+    expect(needsRunoff(v(0, 0, 0), RULES)).toBe(true);
+  });
+
+  it('an empty ballot needs a runoff and has no contenders', () => {
+    expect(needsRunoff([], RULES)).toBe(true);
+    expect(() => runoffContenders([])).toThrow('at least two candidates');
+    expect(() => runoffContenders(v(5))).toThrow('at least two candidates');
   });
 
   it('uses exact bigint math past Number.MAX_SAFE_INTEGER', () => {
