@@ -26,7 +26,14 @@ describe('Pairwise / Schulze tally', () => {
   });
 
   it('rebuilds the preference matrix from native field results', () => {
-    const d = pairwiseFromResults([['5', '2'], ['3', '4'], ['6', '1']], 3);
+    const d = pairwiseFromResults(
+      [
+        ['5', '2'],
+        ['3', '4'],
+        ['6', '1'],
+      ],
+      3
+    );
     expect(d.map((row) => row.map(String))).toEqual([
       ['0', '5', '3'],
       ['2', '0', '6'],
@@ -36,7 +43,15 @@ describe('Pairwise / Schulze tally', () => {
 
   it('elects the Condorcet winner when one exists', () => {
     // candidate 1 beats both others head-to-head
-    expect(schulze(m([[0, 1, 9], [9, 0, 9], [1, 1, 0]])).winner).toBe(1);
+    expect(
+      schulze(
+        m([
+          [0, 1, 9],
+          [9, 0, 9],
+          [1, 1, 0],
+        ])
+      ).winner
+    ).toBe(1);
   });
 
   it('resolves the Schulze method Wikipedia example (45 voters, winner E)', () => {
@@ -51,6 +66,14 @@ describe('Pairwise / Schulze tally', () => {
   });
 
   it('breaks a perfect preference cycle by lowest candidate index', () => {
-    expect(schulze(m([[0, 2, 1], [1, 0, 2], [2, 1, 0]])).winner).toBe(0);
+    expect(
+      schulze(
+        m([
+          [0, 2, 1],
+          [1, 0, 2],
+          [2, 1, 0],
+        ])
+      ).winner
+    ).toBe(0);
   });
 });
