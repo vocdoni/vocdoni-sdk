@@ -333,6 +333,15 @@ More information can be found in the [documentation][approval voting documentati
 Here is a [full working example][ranked voting example] of how to create a ranked voting election.
 More information can be found in the [documentation][ranked voting documentation].
 
+#### Two-round (runoff) elections
+
+Orchestration of two ordinary native single-choice elections by one
+organiser over one census. The [full working example][runoff example] ends
+round 1 before reading its result, commits the runoff rule (majority
+denominator, tie-break) to round 1's metadata and links round 2 back to it.
+A round-2 vote is a fresh vote by the same electorate, not a transfer of
+round-1 votes.
+
 ### Other election functionalities
 
 #### Estimate election cost
@@ -1043,6 +1052,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [approval voting documentation]: https://developer.vocdoni.io/protocol/ballot#multiquestion
 [ranked voting example]: ./examples/typescript/src/ranked.ts
 [ranked voting documentation]: https://developer.vocdoni.io/protocol/ballot#linear-weighted-choice
+[runoff example]: ./examples/typescript/src/runoff.ts
 [license]: ./LICENSE
 [devportal]: https://developer.vocdoni.io/sdk
 [builddocs]: ./docs/README.md
