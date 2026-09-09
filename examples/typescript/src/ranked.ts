@@ -1,6 +1,7 @@
 import { IVoteType, OffchainCensus } from '@vocdoni/sdk';
 import chalk from 'chalk';
 import { createElection, executeElection, getPlainCensus } from './utils/election-process';
+import { bordaScores, bordaWinner } from './utils/borda-tally';
 
 /**
  * Example for ranked election.
@@ -113,16 +114,14 @@ async function main() {
   console.log('Creating election...');
   const election = _createElection(census);
 
-  await executeElection(election, participants, VOTE_ARRAY);
-  // Calculate the results array depending on the parameters above
-  // This example only work if the VOTE_ARRAY is the same for all the voters
-  const result = VOTE_ARRAY.map((vote) => {
-    let arr = Array(MAX_COUNT).fill('0');
-    arr[vote] = VOTERS_NUM.toString();
-    return arr;
-  });
-  console.log('Expected results: ', result);
-  console.log(chalk.yellow('This results only work if the VOTE_ARRAY is the same for all voters'));
+  const results = await executeElection(election, participants, VOTE_ARRAY);
+
+  // `results[choice][value]` is the summed voter weight that gave `choice`
+  // that many points. A Borda count is the weighted sum of points per
+  // choice, read straight from this canonical on-chain aggregate: census
+  // weights are already applied and no raw envelopes are needed.
+  console.log('Borda score per choice:', bordaScores(results).map(String));
+  console.log(chalk.green('Borda winner: choice'), bordaWinner(results));
 }
 
 main()

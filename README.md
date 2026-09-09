@@ -333,6 +333,15 @@ More information can be found in the [documentation][approval voting documentati
 Here is a [full working example][ranked voting example] of how to create a ranked voting election.
 More information can be found in the [documentation][ranked voting documentation].
 
+#### Borda count
+
+A Borda count is a ranked election tallied by weighted points. The native
+`results[choice][value]` matrix already holds what is needed: a choice's
+score is the weighted sum of the points it received. The [ranked voting
+example][ranked voting example] computes and prints the Borda winner from
+that matrix — no extra election type and no raw envelope reading, so census
+weights apply and the result is reproducible.
+
 ### Other election functionalities
 
 #### Estimate election cost
