@@ -258,6 +258,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
             }, 0)
             .toString();
         case ElectionResultsTypeNames.BUDGET:
+        case ElectionResultsTypeNames.QUADRATIC:
           return result[cIndex][0];
         default:
           return result ? result[qIndex][cIndex] : null;

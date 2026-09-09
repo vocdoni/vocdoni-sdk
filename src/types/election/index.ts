@@ -5,4 +5,5 @@ export * from './published';
 export * from './invalid';
 export * from './multichoice';
 export * from './budget';
+export * from './quadratic';
 export * from './approval';
