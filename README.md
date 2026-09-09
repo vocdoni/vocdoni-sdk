@@ -333,6 +333,25 @@ More information can be found in the [documentation][approval voting documentati
 Here is a [full working example][ranked voting example] of how to create a ranked voting election.
 More information can be found in the [documentation][ranked voting documentation].
 
+#### Mixed-Member Proportional (MMP)
+
+Not a native election type — it's a composition of several *separate*
+native elections (one native single-choice election per local
+constituency, plus one native single-choice "list vote" election), with the
+compensation math (turning local wins + list proportions into final seat
+counts) computed afterwards from their aggregate results. Builds on the
+same seat-allocation helper as the D'Hondt / Sainte-Laguë example
+(./examples/typescript/src/party-list.ts). Nothing here needs raw envelope access — every piece is an
+ordinary native election. Here is a
+[full working example][mmp example].
+
+Known simplification (documented in the code, not fixed there): this
+doesn't handle "overhang" seats, where a party wins more local
+constituencies than its proportional target entitles it to. Real MMP
+systems handle this differently (Germany adds "leveling seats" for
+everyone else; New Zealand lets the chamber grow) — picking one is a policy
+decision, left to whoever adapts this example.
+
 ### Other election functionalities
 
 #### Estimate election cost
@@ -1043,6 +1062,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [approval voting documentation]: https://developer.vocdoni.io/protocol/ballot#multiquestion
 [ranked voting example]: ./examples/typescript/src/ranked.ts
 [ranked voting documentation]: https://developer.vocdoni.io/protocol/ballot#linear-weighted-choice
+[mmp example]: ./examples/typescript/src/mmp.ts
 [license]: ./LICENSE
 [devportal]: https://developer.vocdoni.io/sdk
 [builddocs]: ./docs/README.md
