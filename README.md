@@ -333,6 +333,15 @@ More information can be found in the [documentation][approval voting documentati
 Here is a [full working example][ranked voting example] of how to create a ranked voting election.
 More information can be found in the [documentation][ranked voting documentation].
 
+#### Proportional seat allocation (D'Hondt / Sainte-Laguë)
+
+An ordinary native single-choice election (each voter picks one list); the
+only non-native step is turning the aggregate vote totals into seat counts.
+The [full working example][party list example] commits the allocation rule
+(method, seat count, threshold, tie-break) to the election metadata before
+voting opens and reads it back to run the tally, so the result is
+reproducible from the published process.
+
 ### Other election functionalities
 
 #### Estimate election cost
@@ -1043,6 +1052,7 @@ This SDK is licensed under the [GNU Affero General Public License v3.0][license]
 [approval voting documentation]: https://developer.vocdoni.io/protocol/ballot#multiquestion
 [ranked voting example]: ./examples/typescript/src/ranked.ts
 [ranked voting documentation]: https://developer.vocdoni.io/protocol/ballot#linear-weighted-choice
+[party list example]: ./examples/typescript/src/party-list.ts
 [license]: ./LICENSE
 [devportal]: https://developer.vocdoni.io/sdk
 [builddocs]: ./docs/README.md
