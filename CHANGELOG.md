@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2026-09-09
+
+### Fixed
+
+- Exported `QuadraticElection` from the public API.
+- Patched vulnerable dependencies across the whole tree: `axios`, `esbuild`,
+  `decode-uri-component`, and, via `resolutions`, `tar`, `underscore` and `ws`.
+- Patched vulnerable transitive dependencies in the `tutorial` and
+  `vite-react-app` examples.
+- Picked up the patched `circomlibjs` and `snarkjs` forks, which now resolve
+  `elliptic@6.6.1`, `bn.js@4.12.5`/`5.2.5`, `ws@7.5.13`, `tar@7.5.22` and
+  `ip-address@10.7.0`. Both forks are clear of Dependabot alerts.
+
+### Changed
+
+- Integration tests now run against a local docker stack instead of a deployed
+  server (`yarn test:integration:stack`).
+- Pinned `@eslint-community/eslint-utils` and `rollup-plugin-dts` to keep
+  node 18 support.
+
+## [0.9.3] - 2025-12-11
+
+### Added
+
+- `weight` property in `CspVote`.
+
+### Fixed
+
+- Vote weight encoding in the `cspCaBundle` method.
+
 ## [0.9.2] - 2025-02-25
 
 ## [0.9.1] - 2024-09-17
