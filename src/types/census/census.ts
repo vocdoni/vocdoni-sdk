@@ -83,6 +83,7 @@ export abstract class Census {
       case 'OFF_CHAIN_TREE_WEIGHTED':
         return anonymous ? CensusType.ANONYMOUS : CensusType.WEIGHTED;
       case 'OFF_CHAIN_CA':
+      case 'OFF_CHAIN_CA_V2':
         return CensusType.CSP;
       default:
         throw new Error('Census type not defined by the census origin');

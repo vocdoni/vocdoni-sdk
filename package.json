@@ -121,7 +121,7 @@
     "@ethersproject/units": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
     "@size-limit/file": "^8.2.4",
-    "@vocdoni/proto": "1.15.12",
+    "@vocdoni/proto": "1.15.14",
     "axios": "0.33.0",
     "blakejs": "^1.2.1",
     "blindsecp256k1": "^0.0.9",

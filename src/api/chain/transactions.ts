@@ -236,6 +236,7 @@ export declare enum CensusOrigin {
   OFF_CHAIN_TREE = 1,
   OFF_CHAIN_TREE_WEIGHTED = 2,
   OFF_CHAIN_CA = 3,
+  OFF_CHAIN_CA_V2 = 4,
   ERC20 = 11,
   ERC721 = 12,
   ERC1155 = 13,
