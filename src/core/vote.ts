@@ -172,9 +172,12 @@ export abstract class VoteCore extends TransactionCore {
   }
 
   /**
-   * Encodes a vote weight in its canonical form: fixed 8-byte big-endian. The chain folds this exact
-   * encoding into the CSP salt derivation (`keccak256(DOMAIN || ProcessId || weightBE8)`), so the
-   * bundle's `voteWeight` must encode the same integer identically.
+   * Encodes a vote weight in its canonical form: fixed 8-byte big-endian. The chain re-interprets
+   * `bundle.voteWeight` as a big-endian unsigned integer and folds it into the CSP salt derivation
+   * for the OFF_CHAIN_CA_V2 origin (`keccak256(processID || wBE32)[:20]`, issue vocdoni-node#1424).
+   * Any bundle whose `voteWeight` decodes to the same integer yields the same salt, so pinning a
+   * canonical fixed-width encoding keeps the two sides of sign/verify agreeing without special-case
+   * on the caller. Chain enforces `w < 2^160`; 8 bytes stays comfortably inside that bound.
    *
    * @param weight - The vote weight
    */
