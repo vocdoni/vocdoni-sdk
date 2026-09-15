@@ -120,7 +120,10 @@ export class ElectionService extends Service implements ElectionServicePropertie
   }
 
   private buildCensus(electionInfo): Promise<PublishedCensus> {
-    if (electionInfo.census.censusOrigin === CensusTypeEnum.OFF_CHAIN_CA) {
+    if (
+      electionInfo.census.censusOrigin === CensusTypeEnum.OFF_CHAIN_CA ||
+      electionInfo.census.censusOrigin === CensusTypeEnum.OFF_CHAIN_CA_V2
+    ) {
       return Promise.resolve(new CspCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL));
     }
     return this.buildPublishedCensus(electionInfo);

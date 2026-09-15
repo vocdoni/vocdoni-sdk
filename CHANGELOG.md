@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **[BREAKING wire-format]** `CensusType.CSP` now maps to the new `OFF_CHAIN_CA_V2` census origin (`4` on the wire) instead of the legacy `OFF_CHAIN_CA` (`3`). Consumer call sites do not change, but every election created with this SDK release forward is a V2 one, with the fixed CSP salt derivation from vocdoni-node PR #1434 (issue #1424). Integrators who need to keep producing legacy-origin elections must pin an earlier SDK release. Integrators' CSP signer services must be updated to the V2 salt derivation before deploying this release — otherwise blind signatures on the new elections will fail on-chain verification.
+- Reading legacy `OFF_CHAIN_CA` elections is unchanged: `censusTypeFromCensusOrigin` maps both origins to `CensusType.CSP` and `buildCensus` returns a `CspCensus` for either.
+- Bumped `@vocdoni/proto` to `1.15.14`, which exposes `OFF_CHAIN_CA_V2 = 4` on the wire.
+
+### Added
+
+- `client.cspSign` and `client.cspVote` now accept an optional `weight` parameter for weighted CSP elections. When `weight` is omitted from `cspVote`, it defaults to the weight passed to the preceding `cspSign` call on the same client/CSP service instance; passing a conflicting weight throws instead of silently mismatching the two.
+
+### Fixed
+
+- Fixed weighted CSP blind votes being rejected on-chain: the blind-signed CA bundle (`cspSign`) omitted the vote weight while the submitted bundle (`cspVote`/`submitVote`) included it, so the chain's signature verification always failed for weighted blind votes. The blinded payload and the submitted bundle are now built from the same `CAbundle` (including `voteWeight`), so both sides are byte-identical by construction.
+- `voteWeight` in the CSP `CAbundle` is now encoded as a canonical fixed 8-byte big-endian value instead of a minimal-length encoding, matching what the chain expects for the CSP salt derivation. This is a wire-format change: anyone using the non-blind `ECDSA_PIDSALTED` CSP proof type with a signature obtained externally (i.e. not produced by this SDK) needs to re-generate it against the new encoding.
+
 ## [0.9.4] - 2026-09-09
 
 ### Fixed

@@ -568,6 +568,18 @@ const vote = client.cspVote(new Vote([index % 2]), signature);
 const voteId = await client.submitVote(vote);
 ~~~
 
+For weighted CSP elections, pass the voter's `weight` to `cspSign`. The CSP signs the vote weight along with the
+rest of the bundle, so `cspVote` reuses it automatically — there's no need to pass it twice, and passing a
+different weight to `cspVote` throws:
+
+~~~ts
+// Get the blind signature for a weighted vote
+const signature = await client.cspSign(signer.address, step1.token, weight);
+
+// weight is remembered from the cspSign call above and reused here
+const vote = client.cspVote(new Vote([index % 2]), signature);
+~~~
+
 ## Census3
 
 ### What is Census3?
