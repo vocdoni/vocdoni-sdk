@@ -1,5 +1,6 @@
 import { Vote } from './vote';
 import { CspProofType } from '../../services';
+import { normalizeVoteWeight } from '../../util/weight';
 
 export class CspVote extends Vote {
   private _signature: string;
@@ -42,6 +43,7 @@ export class CspVote extends Vote {
   }
 
   set weight(value: bigint) {
-    this._weight = value;
+    // validate here so an invalid weight fails when the vote is built, not at submitVote time
+    this._weight = value == null ? undefined : normalizeVoteWeight(value);
   }
 }

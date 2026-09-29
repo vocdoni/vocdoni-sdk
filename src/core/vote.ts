@@ -11,6 +11,8 @@ import {
   VoteEnvelope,
 } from '@vocdoni/proto/vochain';
 import { getHex, strip0x } from '../util/common';
+import { normalizeVoteWeight } from '../util/weight';
+import { arrayify, hexlify } from '@ethersproject/bytes';
 import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
@@ -79,7 +81,7 @@ export abstract class VoteCore extends TransactionCore {
         memo: vote.memo ? new Uint8Array(Buffer.from(vote.memo, 'utf8')) : undefined,
       };
     } catch (error) {
-      throw new Error('The poll vote envelope could not be generated');
+      throw new Error('The poll vote envelope could not be generated', { cause: error });
     }
   }
 
@@ -167,15 +169,24 @@ export abstract class VoteCore extends TransactionCore {
     return CAbundle.fromPartial({
       processId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
       address: new Uint8Array(Buffer.from(strip0x(address), 'hex')),
-      voteWeight: weight
-        ? new Uint8Array(
-            Buffer.from(
-              weight.toString(16).padStart(weight.toString(16).length + (weight.toString(16).length % 2), '0'),
-              'hex'
-            )
-          )
-        : undefined,
+      // `weight == null` also covers `null`, not just `undefined`: only the absence of a weight means "unweighted"
+      voteWeight: weight == null ? undefined : this.encodeVoteWeight(weight),
     });
+  }
+
+  /**
+   * Encodes a vote weight as minimal-length big-endian bytes, the same encoding Go CSPs produce with
+   * `big.Int.Bytes()` (saas-backend, vocdoni-node's testcsp and apiclient).
+   *
+   * The chain verifies the CSP signature against the marshaled bundle, so for the non-blind proof types,
+   * where the CSP builds and signs the bundle itself, the SDK must reproduce the CSP's bytes exactly.
+   * The OFF_CHAIN_CA_V2 salt derivation parses the weight as an integer first, so it does not depend on
+   * the encoding.
+   *
+   * @param weight - The vote weight
+   */
+  public static encodeVoteWeight(weight: bigint): Uint8Array {
+    return arrayify(hexlify(normalizeVoteWeight(weight)));
   }
 
   public static encodeCspCaBundle(bundle: CAbundle) {

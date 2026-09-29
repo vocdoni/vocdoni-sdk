@@ -568,6 +568,33 @@ const vote = client.cspVote(new Vote([index % 2]), signature);
 const voteId = await client.submitVote(vote);
 ~~~
 
+For weighted CSP elections, pass the voter's `weight` to `cspSign`. The weight is part of the bundle the CSP
+blind-signs, so `cspSign` returns it together with the signature (`{ signature, weight }`) and `cspVote` reuses
+it automatically — there's no need to pass it twice, and passing a different weight to `cspVote` throws:
+
+~~~ts
+// Get the blind signature for a weighted vote
+const signature = await client.cspSign(signer.address, step1.token, weight);
+
+// the weight travels with the signature returned by cspSign and is reused here
+const vote = client.cspVote(new Vote([index % 2]), signature);
+~~~
+
+If you need to send the signature elsewhere (e.g. sign on a backend and vote from a frontend), note that `weight` is
+a `bigint`, which `JSON.stringify` can't serialize. Send it as a decimal string instead; `cspVote` accepts it as is:
+
+~~~ts
+const payload = JSON.stringify({ ...signature, weight: signature.weight?.toString() });
+// ...later, somewhere else
+const vote = client.cspVote(new Vote([index % 2]), JSON.parse(payload));
+~~~
+
+The `weight` you pass here is a claim about what the CSP attested, not an instruction to it: the CSP blind-signs
+without seeing the bundle, using a key salted with the weight *it* holds for that voter. If the two disagree the
+chain rejects the vote, so the weight must be the one the CSP authorized. This means the CSP must implement the
+`OFF_CHAIN_CA_V2` salt derivation *including* the weight — the reference [blind-csp](https://github.com/vocdoni/blind-csp)
+service does not yet carry a per-voter weight, so weighted blind votes only work against a CSP that does.
+
 ## Census3
 
 ### What is Census3?
