@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **[BREAKING wire-format]** `CensusType.CSP` now maps to the new `OFF_CHAIN_CA_V2` census origin (`4` on the wire) instead of the legacy `OFF_CHAIN_CA` (`3`). Consumer call sites do not change, but every election created with this SDK release forward is a V2 one, with the fixed CSP salt derivation from vocdoni-node PR #1434 (issue #1424). Integrators who need to keep producing legacy-origin elections must pin an earlier SDK release. Integrators' CSP signer services must be updated to the V2 salt derivation before deploying this release — otherwise blind signatures on the new elections will fail on-chain verification.
+- Reading legacy `OFF_CHAIN_CA` elections is unchanged: `censusTypeFromCensusOrigin` maps both origins to `CensusType.CSP` and `buildCensus` returns a `CspCensus` for either.
+- Bumped `@vocdoni/proto` to `1.15.14`, which exposes `OFF_CHAIN_CA_V2 = 4` on the wire.
+
 ## [0.9.4] - 2026-09-09
 
 ### Fixed

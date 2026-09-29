@@ -39,7 +39,10 @@ services:
     <<: *common
 
   blind-csp:
-    image: "vocdoni/blind-csp:master"
+    # Overridable via BLINDCSP_IMAGE so CI/local runs can pin a preview image
+    # without editing this file. Default keeps `up` working out of the box
+    # against the upstream image.
+    image: "${BLINDCSP_IMAGE:-vocdoni/blind-csp:master}"
     command: |
       --key ${BLINDCSP_PRIVKEY}
     ports:
