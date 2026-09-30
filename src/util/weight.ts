@@ -12,7 +12,9 @@
  */
 export function normalizeVoteWeight(weight: bigint | number | string): bigint {
   if (typeof weight === 'number' && Number.isInteger(weight) && !Number.isSafeInteger(weight)) {
-    throw new Error('Vote weight is above 2^53 and has lost precision as a number; pass it as a bigint or string');
+    throw new Error(
+      'Vote weight is outside the safe integer range and has lost precision as a number; pass it as a bigint or string'
+    );
   }
   if (typeof weight === 'number' && Number.isSafeInteger(weight)) {
     weight = BigInt(weight);

@@ -43,7 +43,7 @@ describe('Vote core tests', () => {
     });
     it('should point to bigint or string for numbers that lost precision', () => {
       expect(() => VoteCore.encodeVoteWeight(2e19 as unknown as bigint)).toThrow(
-        'Vote weight is above 2^53 and has lost precision as a number; pass it as a bigint or string'
+        'Vote weight is outside the safe integer range and has lost precision as a number; pass it as a bigint or string'
       );
     });
   });
