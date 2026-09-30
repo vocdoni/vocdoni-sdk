@@ -26,11 +26,11 @@ export class Vote {
     this._votes = value;
   }
 
-  get memo(): string {
+  get memo(): string | undefined {
     return this._memo;
   }
 
-  set memo(value: string) {
+  set memo(value: string | undefined) {
     if (value && new TextEncoder().encode(value).length > Vote.MAX_MEMO_BYTES) {
       throw new Error('Memo cannot be longer than ' + Vote.MAX_MEMO_BYTES + ' bytes');
     }

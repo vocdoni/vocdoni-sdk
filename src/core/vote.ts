@@ -75,6 +75,7 @@ export abstract class VoteCore extends TransactionCore {
         nonce: new Uint8Array(nonce),
         votePackage: new Uint8Array(generatedVotePackage ?? votePackage),
         encryptionKeyIndexes: keyIndexes || [],
+        // an empty memo carries no information, so it is omitted from the envelope
         memo: vote.memo ? new Uint8Array(Buffer.from(vote.memo, 'utf8')) : undefined,
       };
     } catch (error) {
