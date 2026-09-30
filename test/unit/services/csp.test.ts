@@ -1,4 +1,4 @@
-import { CspProofType, CspService, EnvOptions, ICspInfoResponse, Vote, VocdoniSDKClient } from '../../../src';
+import { CspProofType, CspService, CspVote, EnvOptions, ICspInfoResponse, Vote, VocdoniSDKClient } from '../../../src';
 import { CspAPI } from '../../../src/api/csp';
 import { getBlindedPayload } from '../../../src/util/blind-signing';
 
@@ -130,6 +130,11 @@ describe('Csp service unit tests', () => {
       const signed = { signature: 'signature', weight: 42 as unknown as bigint };
       expect(CspService.cspVote(new Vote([1]), signed, undefined, 42n).weight).toEqual(42n);
       expect(() => CspService.cspVote(new Vote([1]), signed, undefined, 43n)).toThrow(/42.*43|43.*42/);
+    });
+
+    it('should reject a CspSignature object passed straight to the CspVote constructor', async () => {
+      const signed = await buildService().cspSign(ELECTION_ID, ADDRESS, 'token', 42n);
+      expect(() => new CspVote([1], signed as unknown as string)).toThrow('Invalid CSP signature');
     });
 
     it('should keep each weight with its signature when voters sign concurrently', async () => {

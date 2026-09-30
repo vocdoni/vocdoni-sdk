@@ -27,6 +27,12 @@ export class CspVote extends Vote {
   }
 
   set signature(value: string) {
+    // cspSign resolves to a `{ signature, weight }` object: fail here rather than deep inside submitVote
+    if (typeof value !== 'string') {
+      throw new Error(
+        'Invalid CSP signature: expected a hex string; pass the object returned by cspSign to cspVote instead'
+      );
+    }
     this._signature = value;
   }
 
