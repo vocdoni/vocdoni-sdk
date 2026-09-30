@@ -1,4 +1,4 @@
-import { Vote } from '../../../src';
+import { CspService, Vote } from '../../../src';
 
 describe('Vote tests', () => {
   it('should have the correct type', () => {
@@ -21,5 +21,12 @@ describe('Vote tests', () => {
     expect(() => new Vote([1], 'a'.repeat(257))).toThrow('Memo cannot be longer than 256 bytes');
     // multibyte characters count as their UTF-8 encoded size
     expect(() => new Vote([1], '€'.repeat(86))).toThrow('Memo cannot be longer than 256 bytes');
+  });
+});
+
+describe('CSP vote memo', () => {
+  it('should keep the memo when converting a vote into a CSP vote', () => {
+    const cspVote = CspService.cspVote(new Vote([1], 'note'), '0x00');
+    expect(cspVote.memo).toEqual('note');
   });
 });
