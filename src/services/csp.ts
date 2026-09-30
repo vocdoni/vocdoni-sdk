@@ -139,10 +139,10 @@ export class CspService extends Service implements CspServiceProperties {
       cspVote.memo = vote.memo;
       return cspVote;
     }
-    invariant(
-      typeof signature?.signature === 'string',
-      'Invalid CSP signature: expected a hex string or the object returned by cspSign'
-    );
+    // a plain Error rather than tiny-invariant, which strips the message in production builds
+    if (typeof signature?.signature !== 'string') {
+      throw new Error('Invalid CSP signature: expected a hex string or the object returned by cspSign');
+    }
 
     // normalize both sides: a CspSignature rebuilt from JSON may carry the weight as a number or string
     const signedWeight = signature.weight == null ? undefined : normalizeVoteWeight(signature.weight);
