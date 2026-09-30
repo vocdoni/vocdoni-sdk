@@ -48,7 +48,7 @@ import {
   ChainService,
   CspCensusProof,
   CspProofType,
-  CspSignature,
+  CspSignatureInput,
   CspService,
   ElectionCreationSteps,
   ElectionCreationStepValue,
@@ -1099,7 +1099,7 @@ export class VocdoniSDKClient {
     return this.cspService.cspSign(this.electionId, address, token, weight);
   }
 
-  cspVote(vote: Vote, signature: string | CspSignature, proof_type?: CspProofType, weight?: bigint) {
+  cspVote(vote: Vote, signature: string | CspSignatureInput, proof_type?: CspProofType, weight?: bigint) {
     return this.cspService.cspVote(vote, signature, proof_type, weight);
   }
 

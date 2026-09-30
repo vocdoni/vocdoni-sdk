@@ -32,6 +32,12 @@ export type CspSignature = {
   weight?: bigint;
 };
 
+/**
+ * What `cspVote` accepts as a signature: a `CspSignature` as returned by `cspSign`, or one rebuilt from
+ * JSON, where the weight was serialized with `weight.toString()`.
+ */
+export type CspSignatureInput = CspSignature | { signature: string; weight?: bigint | string };
+
 export class CspService extends Service implements CspServiceProperties {
   public info: ICspInfoResponse;
 
@@ -105,7 +111,7 @@ export class CspService extends Service implements CspServiceProperties {
     return { signature: CensusBlind.unblind(blindSignature, userSecretData), weight: signedWeight };
   }
 
-  cspVote(vote: Vote, signature: string | CspSignature, proof_type?: CspProofType, weight?: bigint): CspVote {
+  cspVote(vote: Vote, signature: string | CspSignatureInput, proof_type?: CspProofType, weight?: bigint): CspVote {
     return CspService.cspVote(vote, signature, proof_type, weight);
   }
 
@@ -122,18 +128,27 @@ export class CspService extends Service implements CspServiceProperties {
    * @param proof_type - The CSP proof type
    * @param weight - The vote weight; defaults to the weight carried by `signature`, if any
    */
-  static cspVote(vote: Vote, signature: string | CspSignature, proof_type?: CspProofType, weight?: bigint): CspVote {
+  static cspVote(
+    vote: Vote,
+    signature: string | CspSignatureInput,
+    proof_type?: CspProofType,
+    weight?: bigint
+  ): CspVote {
     if (typeof signature === 'string') {
       const cspVote = new CspVote(vote.votes, signature, proof_type, weight);
       cspVote.memo = vote.memo;
       return cspVote;
     }
+    invariant(
+      typeof signature?.signature === 'string',
+      'Invalid CSP signature: expected a hex string or the object returned by cspSign'
+    );
 
     // normalize both sides: a CspSignature rebuilt from JSON may carry the weight as a number or string
     const signedWeight = signature.weight == null ? undefined : normalizeVoteWeight(signature.weight);
     if (weight != null && normalizeVoteWeight(weight) !== signedWeight) {
       throw new Error(
-        `Vote weight (${weight}) does not match the weight signed by the CSP (${signedWeight}). ` +
+        `Vote weight (${weight}) does not match the weight signed by the CSP (${signedWeight ?? 'none'}). ` +
           'Pass the same weight to cspSign and cspVote, or omit it from cspVote to reuse the signed weight.'
       );
     }
