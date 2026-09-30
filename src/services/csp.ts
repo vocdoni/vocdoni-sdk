@@ -34,9 +34,9 @@ export type CspSignature = {
 
 /**
  * What `cspVote` accepts as a signature: a `CspSignature` as returned by `cspSign`, or one rebuilt from
- * JSON, where the weight was serialized with `weight.toString()`.
+ * JSON, where the weight was serialized with `weight.toString()` (or as a safe-integer number).
  */
-export type CspSignatureInput = CspSignature | { signature: string; weight?: bigint | string };
+export type CspSignatureInput = { signature: string; weight?: bigint | number | string };
 
 export class CspService extends Service implements CspServiceProperties {
   public info: ICspInfoResponse;
