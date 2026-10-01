@@ -12,7 +12,6 @@ import {
   UnpublishedElection,
 } from '../types';
 import {
-  CensusTypeEnum,
   ElectionAPI,
   IElectionCreateResponse,
   IElectionKeysResponse,
@@ -120,7 +119,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
   }
 
   private buildCensus(electionInfo): Promise<PublishedCensus> {
-    if (electionInfo.census.censusOrigin === CensusTypeEnum.OFF_CHAIN_CA) {
+    if (Census.isCspCensusOrigin(electionInfo.census.censusOrigin)) {
       return Promise.resolve(new CspCensus(electionInfo.census.censusRoot, electionInfo.census.censusURL));
     }
     return this.buildPublishedCensus(electionInfo);

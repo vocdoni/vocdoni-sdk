@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **[BREAKING]** `client.cspSign` / `CspService.cspSign` now resolve to a `CspSignature` object (`{ signature, weight }`) instead of the signature string. Passing the result straight to `cspVote` keeps working; code that used it as a string must read `.signature`.
+- **[BREAKING wire-format]** `CensusType.CSP` now maps to the new `OFF_CHAIN_CA_V2` census origin (`4` on the wire) instead of the legacy `OFF_CHAIN_CA` (`3`). Consumer call sites do not change, but every election created with this SDK release forward is a V2 one, with the fixed CSP salt derivation from vocdoni-node PR #1434 (issue #1424). Integrators who need to keep producing legacy-origin elections must pin an earlier SDK release. Integrators' CSP signer services must be updated to the V2 salt derivation before deploying this release — otherwise blind signatures on the new elections will fail on-chain verification.
+- Reading legacy `OFF_CHAIN_CA` elections is unchanged: `censusTypeFromCensusOrigin` maps both origins to `CensusType.CSP` and `buildCensus` returns a `CspCensus` for either.
+- Bumped `@vocdoni/proto` to `1.15.14`, which exposes `OFF_CHAIN_CA_V2 = 4` on the wire.
+
+### Added
+
+- `client.cspSign` and `client.cspVote` now accept an optional `weight` parameter for weighted CSP elections. `cspSign` returns the signature together with the weight it was signed for (`CspSignature`, i.e. `{ signature, weight }`), and `cspVote` accepts either that object or a plain signature string. When `weight` is omitted from `cspVote`, it defaults to the weight carried by the `CspSignature`; passing a conflicting weight throws instead of silently mismatching the two. The weight must be the one the CSP authorized for that voter: the CSP blind-signs with a key salted with the weight it holds, so a weight the CSP did not attest yields a vote the chain rejects. Weighted blind voting therefore requires a CSP implementing the `OFF_CHAIN_CA_V2` salt derivation including the weight; the reference `blind-csp` service does not yet carry a per-voter weight.
+
+### Fixed
+
+- Fixed weighted CSP blind votes being rejected on-chain: the blind-signed CA bundle (`cspSign`) omitted the vote weight while the submitted bundle (`cspVote`/`submitVote`) included it, so the chain's signature verification always failed for weighted blind votes. The blinded payload and the submitted bundle are now built from the same `CAbundle` (including `voteWeight`), so both sides are byte-identical by construction.
+- CSP vote weights are now validated when the vote is built (`CspVote`, `cspSign`) instead of producing a malformed bundle: a weight must be an integer in `[1, 2^160)` (the chain's own bound). Safe integers passed as `number` and decimal strings (e.g. a weight serialized with `toString()` to go through JSON) are accepted and converted to `bigint`; a `number` outside the safe integer range (`Number.isSafeInteger`, i.e. beyond ±(2^53 − 1)) is rejected with a message pointing to `bigint`/string, since it may have already lost precision.
+- **[BREAKING]** An explicit `0n` CSP weight now throws. It was previously dropped as falsy, producing a bundle with no `voteWeight` (which the chain reads as weight 1); callers defaulting with e.g. `BigInt(x ?? 0)` should pass `undefined` instead. Omitting the weight still produces a byte-identical bundle to before, and the `voteWeight` encoding stays minimal big-endian, matching Go CSPs (`big.Int.Bytes()`).
+
 ## [0.9.4] - 2026-09-09
 
 ### Fixed

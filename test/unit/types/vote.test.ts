@@ -29,4 +29,10 @@ describe('CSP vote memo', () => {
     const cspVote = CspService.cspVote(new Vote([1], 'note'), '0x00');
     expect(cspVote.memo).toEqual('note');
   });
+
+  it('should keep the memo when the signature comes from cspSign', () => {
+    const cspVote = CspService.cspVote(new Vote([1], 'note'), { signature: '0x00', weight: 5n });
+    expect(cspVote.memo).toEqual('note');
+    expect(cspVote.weight).toEqual(5n);
+  });
 });

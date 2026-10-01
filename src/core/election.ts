@@ -155,7 +155,11 @@ export abstract class ElectionCore extends TransactionCore {
   public static censusOriginFromCensusType(censusType: CensusType): CensusOrigin {
     switch (censusType) {
       case CensusType.CSP:
-        return CensusOrigin.OFF_CHAIN_CA;
+        // CensusType.CSP maps to the V2 origin from this SDK release onward
+        // (issue vocdoni-node#1424). The legacy OFF_CHAIN_CA origin cannot
+        // be produced anymore — integrators who need to keep creating
+        // legacy-origin elections must pin an older SDK release.
+        return CensusOrigin.OFF_CHAIN_CA_V2;
       case CensusType.WEIGHTED:
       case CensusType.ANONYMOUS:
         return CensusOrigin.OFF_CHAIN_TREE_WEIGHTED;
