@@ -16,12 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `Vote` accepts an optional `memo` (free-text note, max 256 bytes UTF-8 encoded) that is attached to the vote envelope. Empty memos are omitted.
+- `Vote` accepts an optional `memo` (free-text note, max 256 bytes UTF-8 encoded) that is attached to the vote envelope. Empty memos are omitted; a longer memo throws when it is set (including via the `Vote` constructor).
 - `client.cspSign` and `client.cspVote` now accept an optional `weight` parameter for weighted CSP elections. `cspSign` returns the signature together with the weight it was signed for (`CspSignature`, i.e. `{ signature, weight }`), and `cspVote` accepts either that object or a plain signature string. When `weight` is omitted from `cspVote`, it defaults to the weight carried by the `CspSignature`; passing a conflicting weight throws instead of silently mismatching the two. The weight must be the one the CSP authorized for that voter: the CSP blind-signs with a key salted with the weight it holds, so a weight the CSP did not attest yields a vote the chain rejects. Weighted blind voting therefore requires a CSP implementing the `OFF_CHAIN_CA_V2` salt derivation including the weight; the reference `blind-csp` service does not yet carry a per-voter weight.
 
 ### Fixed
 
-- Bumped `axios` to `0.34.0` and patched `brace-expansion` in the examples to resolve open Dependabot alerts.
+- Bumped the SDK's runtime `axios` dependency (and the examples' `axios` resolution) to `0.34.0`, and patched `brace-expansion` in the examples, to resolve open Dependabot alerts.
 - Fixed weighted CSP blind votes being rejected on-chain: the blind-signed CA bundle (`cspSign`) omitted the vote weight while the submitted bundle (`cspVote`/`submitVote`) included it, so the chain's signature verification always failed for weighted blind votes. The blinded payload and the submitted bundle are now built from the same `CAbundle` (including `voteWeight`), so both sides are byte-identical by construction.
 - CSP vote weights are now validated when the vote is built (`CspVote`, `cspSign`) instead of producing a malformed bundle: a weight must be an integer in `[1, 2^160)` (the chain's own bound). Safe integers passed as `number` and decimal strings (e.g. a weight serialized with `toString()` to go through JSON) are accepted and converted to `bigint`; a `number` outside the safe integer range (`Number.isSafeInteger`, i.e. beyond ±(2^53 − 1)) is rejected with a message pointing to `bigint`/string, since it may have already lost precision.
 - **[BREAKING]** An explicit `0n` CSP weight now throws. It was previously dropped as falsy, producing a bundle with no `voteWeight` (which the chain reads as weight 1); callers defaulting with e.g. `BigInt(x ?? 0)` should pass `undefined` instead. Omitting the weight still produces a byte-identical bundle to before, and the `voteWeight` encoding stays minimal big-endian, matching Go CSPs (`big.Int.Bytes()`).
@@ -577,6 +577,7 @@ which extend from the abstract `Election` class.
 
 - First unstable version of the SDK for testing purposes
 
+[0.10.0]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.10.0
 [0.9.1]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.9.1
 [0.9.0]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.9.0
 [0.8.3]: https://github.com/vocdoni/vocdoni-sdk/releases/tag/v0.8.3
