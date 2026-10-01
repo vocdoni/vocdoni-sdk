@@ -43,7 +43,6 @@
   },
   "resolutions": {
     "axios": "0.34.0",
-    "brace-expansion": "1.1.21",
     "decode-uri-component": "0.5.0",
     "elliptic": "6.6.1",
     "ws": "7.5.11",
