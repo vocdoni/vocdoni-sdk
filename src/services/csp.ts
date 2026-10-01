@@ -77,6 +77,8 @@ export class CspService extends Service implements CspServiceProperties {
   }
 
   static cspVote(vote: Vote, signature: string, proof_type?: CspProofType): CspVote {
-    return new CspVote(vote.votes, signature, proof_type);
+    const cspVote = new CspVote(vote.votes, signature, proof_type);
+    cspVote.memo = vote.memo;
+    return cspVote;
   }
 }
