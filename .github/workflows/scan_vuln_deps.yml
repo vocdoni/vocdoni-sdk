@@ -58,7 +58,9 @@ jobs:
 
       - name: Load Repo Scan Results (sarif) to Github
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
+        ## Dependabot pushes get a read-only GITHUB_TOKEN, so the SARIF upload is
+        ## rejected; the results are still available in the artifact above.
+        if: always() && github.actor != 'dependabot[bot]'
         #if: false        ## false = bypass
         with:
           sarif_file: trivy-results-repo-${{ steps.myvars.outputs.GIT_HASH_SHORT }}.sarif
