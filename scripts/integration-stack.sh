@@ -40,6 +40,9 @@ FAUCET_URL="http://127.0.0.1:${VOCFAUCET_HOST_PORT}$(stack_env FAUCET_BASEROUTE)
 # The CSP public key is derived from the hardcoded test private key in the
 # stack's .env file; tests need it to build CspCensus objects.
 BLINDCSP_PUBKEY=$(stack_env BLINDCSP_PUBKEY)
+# The matching private key lets the CSP integration tests sign as the CSP for
+# the weighted vote cases, which the stack's blind-csp cannot authorize.
+BLINDCSP_PRIVKEY=$(stack_env BLINDCSP_PRIVKEY)
 
 compose() {
   # The compose project directory defaults to the compose file's directory, so
@@ -107,6 +110,7 @@ print_env() {
   echo "FAUCET_URL=$FAUCET_URL"
   echo "BLINDCSP_URL=$BLINDCSP_URL"
   echo "BLINDCSP_PUBKEY=$BLINDCSP_PUBKEY"
+  echo "BLINDCSP_PRIVKEY=$BLINDCSP_PRIVKEY"
 }
 
 cmd_up() {
