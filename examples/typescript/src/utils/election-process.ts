@@ -65,5 +65,6 @@ export const executeElection = async (election: UnpublishedElection, participant
     })
     .then((election) => {
       console.log('Election results: ', election.results);
+      return election.results;
     });
 };
