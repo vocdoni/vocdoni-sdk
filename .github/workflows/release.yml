@@ -1,0 +1,177 @@
+name: Release
+
+## Merging a PR labelled `release` tags the merge commit as v<package.json version>,
+## publishes it to npm and creates the GitHub release. `release-dryrun` tags it as
+## v<version>-dryrun and creates a draft release, without publishing to npm.
+##
+## Everything runs in this single workflow so no PAT is needed to chain workflows
+## (tags pushed with GITHUB_TOKEN don't trigger other workflows), and npm uses
+## trusted publishing (OIDC), so there is no npm token to rotate either. The npm
+## trusted publisher for @vocdoni/sdk must point to this file: release.yml.
+
+on:
+  pull_request:
+    types:
+      - closed
+
+env:
+  RELEASE_LABEL: release
+  RELEASE_LABEL_DRYRUN: release-dryrun
+
+jobs:
+
+  prepare:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.merged &&
+      (contains(github.event.pull_request.labels.*.name, 'release') ||
+       contains(github.event.pull_request.labels.*.name, 'release-dryrun'))
+    outputs:
+      RELEASE_TAG: ${{ steps.getinfo.outputs.release_tag }}     ## v1.2.3 or v1.2.3-dryrun
+      PKG_SEMVER: ${{ steps.getinfo.outputs.pkg_semver }}       ## 1.2.3
+      IS_DRYRUN: ${{ steps.getinfo.outputs.is_dryrun }}         ## yes|not
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Get PR labels and pkg version
+        id: getinfo
+        env:
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          RELEASE_LABELS=$(jq -r --arg r "$RELEASE_LABEL" --arg d "$RELEASE_LABEL_DRYRUN" \
+            '[.[] | select(. == $r or . == $d)] | join(",")' <<<"$PR_LABELS")
+          echo "Release labels: $RELEASE_LABELS"
+          PKG_VER=$(jq -r .version package.json)
+
+          case "$RELEASE_LABELS" in
+            "$RELEASE_LABEL")
+              echo "release_tag=v${PKG_VER}" >> "$GITHUB_OUTPUT"
+              echo "is_dryrun=not" >> "$GITHUB_OUTPUT";;
+            "$RELEASE_LABEL_DRYRUN")
+              echo "release_tag=v${PKG_VER}-dryrun" >> "$GITHUB_OUTPUT"
+              echo "is_dryrun=yes" >> "$GITHUB_OUTPUT";;
+            *)
+              echo "Error: The Pull Request must have exactly one of the $RELEASE_LABEL / $RELEASE_LABEL_DRYRUN labels." | tee -a "$GITHUB_STEP_SUMMARY"
+              exit 1;;
+          esac
+          echo "pkg_semver=${PKG_VER}" >> "$GITHUB_OUTPUT"
+
+  test_bundle:
+    needs: [prepare]
+    uses: ./.github/workflows/test-bundle.yml
+    with:
+      run: true
+
+  tagging:
+    name: Set Github Tag
+    runs-on: ubuntu-latest
+    needs: [prepare, test_bundle]
+    permissions:
+      contents: write
+    steps:
+      - name: Set Github Tag via API
+        uses: actions/github-script@v9
+        with:
+          script: |
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ needs.prepare.outputs.RELEASE_TAG }}',
+              sha: '${{ github.event.pull_request.merge_commit_sha }}',
+            })
+            core.summary.addRaw('The Tag ${{ needs.prepare.outputs.RELEASE_TAG }} has been created successfully.')
+            await core.summary.write()
+
+  publish_npm:
+    runs-on: ubuntu-latest
+    needs: [prepare, tagging]
+    if: ${{ needs.prepare.outputs.IS_DRYRUN == 'not' }}
+    permissions:
+      contents: read
+      id-token: write   ## required for npm trusted publishing (OIDC) and provenance
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Setup NodeJS (build)
+        uses: actions/setup-node@v7
+        with:
+          node-version: 18.x
+
+      - name: Install deps & build
+        run: |
+          yarn install --frozen-lockfile
+          yarn run build
+
+      ## Trusted publishing needs npm >= 11.5.1, which doesn't run on node 18
+      - name: Setup NodeJS (publish)
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          registry-url: https://registry.npmjs.org
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Publish NPM ${{ needs.prepare.outputs.PKG_SEMVER }}
+        run: npm publish --access public
+
+  publish_release:
+    runs-on: ubuntu-latest
+    needs: [prepare, tagging, publish_npm]
+    ## publish_npm is skipped on dryruns; the release must still be drafted then
+    if: ${{ !cancelled() && needs.tagging.result == 'success' && (needs.publish_npm.result == 'success' || needs.publish_npm.result == 'skipped') }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      ## The CHANGELOG.md must contain the current version being published (i.e. [1.2.3])"
+      - name: Check if CHANGELOG.md is updated
+        id: checkchangelog
+        run: |
+          LINE_PATTERN="## \[${{ needs.prepare.outputs.PKG_SEMVER }}\] -"
+          MATCHES_PATTERN=$(grep -c "$LINE_PATTERN" CHANGELOG.md || true)
+          echo "matches_pattern=$MATCHES_PATTERN" >> "$GITHUB_OUTPUT"
+          echo "Number of matches: $MATCHES_PATTERN"  ## It should be 1
+
+      ## Title: v1.2.3
+      ## Head text: Vocdoni SDK v1.2.3
+      ## Body:
+      ##  NPM: https://www.npmjs.com/package/@vocdoni/sdk/v/1.2.3
+      ##  Full Changelog: https://github.com/vocdoni/vocdoni-sdk/blob/v1.2.3/CHANGELOG.md
+      - name: Compose release-notes.txt
+        run: |
+          echo "Vocdoni SDK ${{ needs.prepare.outputs.RELEASE_TAG }}" >> release-notes.txt
+          echo " " >> release-notes.txt
+          echo "* NPM: https://www.npmjs.com/package/@vocdoni/sdk/v/${{ needs.prepare.outputs.PKG_SEMVER }}" >> release-notes.txt
+          echo "* Full Changelog: https://github.com/vocdoni/vocdoni-sdk/blob/${{ needs.prepare.outputs.RELEASE_TAG }}/CHANGELOG.md" >> release-notes.txt
+
+      - name: Create a Github Release
+        id: setrelease
+        uses: softprops/action-gh-release@v3
+        if: ${{ steps.checkchangelog.outputs.matches_pattern == '1' }}
+        with:
+          tag_name: ${{ needs.prepare.outputs.RELEASE_TAG }}
+          name: ${{ needs.prepare.outputs.RELEASE_TAG }}
+          body_path: release-notes.txt
+          draft: ${{ needs.prepare.outputs.IS_DRYRUN == 'yes' }}
+          prerelease: true
+
+      - name: Confirm Release creation
+        if: always()
+        run: |
+          if [[ "${{ steps.setrelease.outcome }}" != 'success' ]]; then
+            echo "Error: The Release ${{ needs.prepare.outputs.RELEASE_TAG }} cannot be created." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "The Release ${{ needs.prepare.outputs.RELEASE_TAG }} has been created successfully." >> "$GITHUB_STEP_SUMMARY"
+            echo "Release URL: ${{ steps.setrelease.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+          fi

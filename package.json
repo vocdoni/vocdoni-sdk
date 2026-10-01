@@ -3,7 +3,10 @@
   "author": "Vocdoni",
   "version": "0.9.4",
   "description": "⚒️An SDK for building applications on top of Vocdoni API",
-  "repository": "https://github.com/vocdoni/vocdoni-sdk.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vocdoni/vocdoni-sdk.git"
+  },
   "license": "AGPL-3.0-or-later",
   "main": "src/index.ts",
   "output": "dist/index",
