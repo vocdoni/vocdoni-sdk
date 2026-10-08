@@ -124,7 +124,7 @@
     "@ethersproject/units": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
     "@size-limit/file": "^8.2.4",
-    "@vocdoni/proto": "github:vocdoni/dvote-protobuf#04e7afe6fe2b24f1a20fd5f3fbef0b9fdad87e76",
+    "@vocdoni/proto": "git+https://github.com/vocdoni/dvote-protobuf.git#04e7afe6fe2b24f1a20fd5f3fbef0b9fdad87e76",
     "axios": "0.34.0",
     "blakejs": "^1.2.1",
     "blindsecp256k1": "^0.0.9",
