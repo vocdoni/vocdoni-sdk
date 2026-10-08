@@ -27,6 +27,17 @@ export type ProcessKeys = {
   revealKeys?: { index: number; key: string }[];
 };
 
+/**
+ * The election metadata versions a vote attests to, as hex-encoded hashes ('' for none). The chain rejects the
+ * vote unless each matches the current one.
+ */
+export type VoteMetadataAttestation = {
+  /** The metadata hash of the election voted on. Defaults to the `metadataHash` of the election. */
+  metadataHash?: string;
+  /** The metadata hash of the election's parent, if it has one. Defaults to none. */
+  parentMetadataHash?: string;
+};
+
 export type VoteValues = Array<number | bigint>;
 export type VotePackage = {
   nonce: string;
@@ -49,8 +60,7 @@ export abstract class VoteCore extends TransactionCore {
    * @param vote - The vote
    * @param processKeys - The election encryption keys, for encrypted elections
    * @param votePackage - A prebuilt vote package, used instead of packaging `vote`
-   * @param metadataHash - The hex-encoded election metadata hash the vote attests to. Defaults to the
-   *   `metadataHash` of `election`; the chain rejects the vote unless it matches the election's current one.
+   * @param attestation - The election (and parent election) metadata hashes the vote attests to
    */
   public static generateVoteTransaction(
     election: PublishedElection,
@@ -58,10 +68,13 @@ export abstract class VoteCore extends TransactionCore {
     vote: Vote,
     processKeys?: ProcessKeys,
     votePackage?: Buffer,
-    metadataHash: string = election.metadataHash
+    attestation?: VoteMetadataAttestation
   ): { tx: Uint8Array; message: string } {
     const message = TxMessage.VOTE.replace('{processId}', strip0x(election.id));
-    const txData = this.prepareVoteData(election, censusProof, vote, processKeys, votePackage, metadataHash);
+    const txData = this.prepareVoteData(election, censusProof, vote, processKeys, votePackage, {
+      metadataHash: attestation?.metadataHash ?? election.metadataHash,
+      parentMetadataHash: attestation?.parentMetadataHash,
+    });
     const voteEnvelope = VoteEnvelope.fromPartial(txData);
     const tx = Tx.encode({
       payload: { $case: 'vote', vote: voteEnvelope },
@@ -76,7 +89,7 @@ export abstract class VoteCore extends TransactionCore {
     vote: Vote,
     processKeys: ProcessKeys,
     generatedVotePackage: Buffer,
-    metadataHash: string
+    attestation: VoteMetadataAttestation
   ): object {
     try {
       const proof = this.packageSignedProof(election.id, election.census.type, censusProof);
@@ -92,13 +105,18 @@ export abstract class VoteCore extends TransactionCore {
         encryptionKeyIndexes: keyIndexes || [],
         // an empty memo carries no information, so it is omitted from the envelope
         memo: vote.memo ? new Uint8Array(Buffer.from(vote.memo, 'utf8')) : undefined,
-        // the chain only accepts the vote if this matches the election's current metadata hash, so a vote cast
-        // against a metadata version other than the one the voter was shown is rejected
-        metadataHash: metadataHash ? new Uint8Array(Buffer.from(strip0x(metadataHash), 'hex')) : undefined,
+        // the chain only accepts the vote if these match the current metadata hashes of the election and its
+        // parent, so a vote cast against metadata versions other than the ones the voter was shown is rejected
+        metadataHash: this.hashBytes(attestation.metadataHash),
+        parentMetadataHash: this.hashBytes(attestation.parentMetadataHash),
       };
     } catch (error) {
       throw new Error('The poll vote envelope could not be generated', { cause: error });
     }
+  }
+
+  private static hashBytes(hash?: string): Uint8Array | undefined {
+    return hash ? new Uint8Array(Buffer.from(strip0x(hash), 'hex')) : undefined;
   }
 
   /** Packages the given parameters into a proof that can be submitted to the Vochain */

@@ -123,9 +123,12 @@ export type ClientOptions = {
  *
  * @property {string} metadataHash Hex-encoded election metadata hash the vote attests to ('' for none). Only needed
  * by apps that show the election to the voter other than through `fetchElection`; see `submitVote`.
+ * @property {string} parentMetadataHash Hex-encoded metadata hash of the election's parent the vote attests to
+ * ('' for none), with the same purpose. Ignored for elections without a parent.
  */
 export type SubmitVoteOptions = {
   metadataHash?: string;
+  parentMetadataHash?: string;
 };
 
 /**
@@ -288,6 +291,22 @@ export class VocdoniSDKClient {
 
     this.election = await this.electionService.fetchElection(electionId ?? this.electionId, password);
     return this.election;
+  }
+
+  /**
+   * Returns the metadata hash a vote attests to for an election ('' for none, so it is not replaced by a
+   * default): the given one, else the version last shown to the app by `fetchElection`, else the current one.
+   *
+   * @param electionId - The id of the election
+   * @param given - An explicitly given metadata hash
+   * @param current - Resolves the election's current metadata hash, only called when needed
+   */
+  private async attestedMetadataHash(
+    electionId: string,
+    given: string | undefined,
+    current: () => Promise<string | undefined>
+  ): Promise<string> {
+    return given ?? this.shownMetadataHashes.get(VocdoniSDKClient.electionKey(electionId)) ?? (await current()) ?? '';
   }
 
   private static electionKey(electionId: string): string {
@@ -936,6 +955,12 @@ export class VocdoniSDKClient {
    *   after a rejection every retry keeps failing until the app calls `fetchElection` again;
    * - when the app never called `fetchElection` for this election, its current version.
    *
+   * When the election has a parent (`parentElectionId`), the vote also attests the parent's metadata version,
+   * chosen by the same rule: `options.parentMetadataHash`, else the version last returned to the app by
+   * `fetchElection` for the parent, else the parent's current version.
+   *
+   * Metadata-only elections take no votes, so submitting a vote to one throws.
+   *
    * @param vote - The vote (or votes) to be sent.
    * @param options - Optional vote submission options.
    * @returns Vote confirmation id.
@@ -954,7 +979,7 @@ export class VocdoniSDKClient {
    * Submits a vote by steps.
    * @category Voting
    *
-   * Attests the same election metadata version as `submitVote`.
+   * Attests the same election metadata versions as `submitVote`.
    *
    * @param vote - The vote (or votes) to be sent.
    * @param options - Optional vote submission options.
@@ -973,12 +998,19 @@ export class VocdoniSDKClient {
     }
 
     const election = await this.loadElection();
-    // '' (not undefined) when there is no hash, so generateVoteTransaction does not default to the current one
-    const metadataHash =
-      options?.metadataHash ??
-      this.shownMetadataHashes.get(VocdoniSDKClient.electionKey(election.id)) ??
-      election.metadataHash ??
-      '';
+    if (election.metadataOnly) {
+      throw Error('Metadata-only elections do not accept votes');
+    }
+    const metadataHash = await this.attestedMetadataHash(election.id, options?.metadataHash, () =>
+      Promise.resolve(election.metadataHash)
+    );
+    const parentElectionId = election.parentElectionId;
+    const parentMetadataHash = parentElectionId
+      ? await this.attestedMetadataHash(parentElectionId, options?.parentMetadataHash, () =>
+          // fetched without recording it as shown, nor replacing the election voted on
+          this.electionService.fetchElection(parentElectionId).then((parent) => parent.metadataHash)
+        )
+      : '';
 
     yield {
       key: VoteSteps.GET_ELECTION,
@@ -1034,7 +1066,10 @@ export class VocdoniSDKClient {
 
     let voteTx: { tx: Uint8Array; message: string };
 
-    voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote, processKeys, votePackage, metadataHash);
+    voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote, processKeys, votePackage, {
+      metadataHash,
+      parentMetadataHash,
+    });
     yield {
       key: VoteSteps.GENERATE_TX,
     };

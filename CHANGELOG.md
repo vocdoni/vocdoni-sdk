@@ -10,13 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Votes now attest to the election metadata hash (vocdoni-node#1486): the chain rejects any vote whose envelope `metadataHash` does not match the election's current one. `PublishedElection.metadataHash` exposes the hash returned by the API, and `submitVote` sets it on the vote envelope from the election version last returned to the app by `fetchElection`, i.e. the one it could have shown the voter, so a vote cast against a stale version is rejected. The client's internal election fetches (including the one inside `submitVote`) never change that version, so after a rejection retries keep failing until the app calls `fetchElection` again. If the app never called `fetchElection` for the election, the current version is attested. Elections without a metadata hash keep working, since the envelope hash is left empty for them.
-- `submitVote` and `submitVoteSteps` accept an optional `{ metadataHash }` (`SubmitVoteOptions`) to attest a given version, for apps that show the election other than through `fetchElection`.
-- `ErrElectionMetadataChanged`, thrown when the chain rejects a vote because the election metadata changed since the vote was built. Fetch the election again before retrying.
+- Parent elections (vocdoni-node#1494): `PublishedElection.parentElectionId` is the metadata-only election an election links to, and `PublishedElection.metadataOnly` flags metadata-only elections. Votes on an election with a parent also attest the parent's metadata hash (`VoteEnvelope.parentMetadataHash`), chosen by the same rule: the parent version last returned to the app by `fetchElection`, else the parent's current version, which `submitVote` then fetches. Elections without a parent attest an empty parent hash. Submitting a vote to a metadata-only election throws, since the chain does not accept votes on them.
+- `submitVote` and `submitVoteSteps` accept optional `{ metadataHash, parentMetadataHash }` (`SubmitVoteOptions`) to attest given versions, for apps that show the election other than through `fetchElection`.
+- `ErrElectionMetadataChanged`, thrown when the chain rejects a vote because the election's or its parent's metadata changed since the vote was built. Fetch the election (and its parent) again before retrying.
 - `ElectionAPI.metadataHistory` wraps `GET /elections/{id}/metadata/history`, returning every metadata version an election has had, oldest first.
 
 ### Changed
 
-- Bumped `@vocdoni/proto` to `1.17.0`, which adds `metadataHash` to `VoteEnvelope`, `Process` and `SetProcessTx`.
+- Bumped `@vocdoni/proto` to `1.18.0` (vocdoni/dvote-protobuf#86), which adds `metadataHash` and `parentMetadataHash` to `VoteEnvelope`, and the metadata hash and parent process fields to `Process` and `SetProcessTx`.
 
 ## [0.10.0] - 2026-10-01
 

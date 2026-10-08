@@ -14,6 +14,11 @@ describe('API error mapping', () => {
     expect(() => isApiError(5001, METADATA_MISMATCH)).toThrow(ErrElectionMetadataChanged);
     expect(() => isApiError(5003, METADATA_MISMATCH)).toThrow(ErrElectionMetadataChanged);
   });
+  it('should map a vote rejected for a changed parent metadata hash', () => {
+    expect(() =>
+      isApiError(5001, 'vote parent metadata hash aaaa does not match the parent election metadata hash bbbb')
+    ).toThrow(ErrElectionMetadataChanged);
+  });
   it('should keep mapping other vochain errors', () => {
     expect(() => isApiError(5001, 'process current state: ENDED')).toThrow(ErrElectionFinished);
     expect(() => isApiError(5001, 'some other error')).toThrow(ErrVochainSendTxFailed);

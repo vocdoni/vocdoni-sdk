@@ -205,9 +205,9 @@ export interface IElectionInfoResponse {
   chainId: string;
 
   /**
-   * The census of the election
+   * The census of the election. Omitted for metadata-only elections.
    */
-  census: ICensus;
+  census?: ICensus;
 
   /**
    * The URL of the metadata
@@ -218,6 +218,17 @@ export interface IElectionInfoResponse {
    * The hex-encoded hash of the current election metadata. Omitted when the election has no metadata hash.
    */
   metadataHash?: string;
+
+  /**
+   * The id of the metadata-only election this election links to as its parent. Omitted when it has none.
+   */
+  parentElectionId?: string;
+
+  /**
+   * Set for a metadata-only election, which only commits metadata shared by the elections linking to it as
+   * their parent, and takes no votes. Omitted otherwise.
+   */
+  metadataOnly?: boolean;
 
   /**
    * The date of creation of the election
@@ -353,6 +364,17 @@ export interface IElectionSummary {
    * The chain identifier
    */
   chainId: string;
+
+  /**
+   * The id of the metadata-only election this election links to as its parent. Omitted when it has none.
+   */
+  parentElectionId?: string;
+
+  /**
+   * Set for a metadata-only election, which only commits metadata shared by the elections linking to it as
+   * their parent, and takes no votes. Omitted otherwise.
+   */
+  metadataOnly?: boolean;
 }
 
 export interface IElectionListResponse extends IElectionList, PaginationResponse {}

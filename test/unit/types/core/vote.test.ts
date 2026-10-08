@@ -112,7 +112,7 @@ describe('Vote core tests', () => {
         new Vote([1]),
         undefined,
         undefined,
-        shown
+        { metadataHash: shown }
       );
       expect(hex(decodeEnvelope(tx).metadataHash)).toEqual(shown);
     });
@@ -123,9 +123,27 @@ describe('Vote core tests', () => {
         new Vote([1]),
         undefined,
         undefined,
-        ''
+        { metadataHash: '' }
       );
       expect(hex(decodeEnvelope(tx).metadataHash)).toEqual('');
+    });
+    it('should leave the parent metadata hash empty by default', () => {
+      const { tx } = VoteCore.generateVoteTransaction(election(METADATA_HASH), cspProof, new Vote([1]));
+      expect(hex(decodeEnvelope(tx).parentMetadataHash)).toEqual('');
+    });
+    it('should attest the given parent metadata hash alongside the election one', () => {
+      const parent = 'dd'.repeat(32);
+      const { tx } = VoteCore.generateVoteTransaction(
+        election(METADATA_HASH),
+        cspProof,
+        new Vote([1]),
+        undefined,
+        undefined,
+        { parentMetadataHash: '0x' + parent }
+      );
+      const envelope = decodeEnvelope(tx);
+      expect(hex(envelope.metadataHash)).toEqual(METADATA_HASH);
+      expect(hex(envelope.parentMetadataHash)).toEqual(parent);
     });
   });
 });
