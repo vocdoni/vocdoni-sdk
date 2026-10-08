@@ -564,6 +564,17 @@ export class ErrElectionFinished extends Error {
   }
 }
 
+/**
+ * The chain rejected a vote because it attests to an election metadata hash other than the election's current
+ * one, i.e. the election metadata changed after the vote was built. Fetch the election again (and show the
+ * voter the current version) before voting again.
+ */
+export class ErrElectionMetadataChanged extends Error {
+  constructor(message?: string) {
+    super(message ? message : 'election metadata changed');
+  }
+}
+
 export class CensusStillNotPublished extends Error {
   constructor(message?: string) {
     super(message ? message : 'census still not published');

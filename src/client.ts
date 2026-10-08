@@ -894,6 +894,11 @@ export class VocdoniSDKClient {
    * Submits a vote.
    * @category Voting
    *
+   * The vote attests to the metadata hash of the election as last loaded by this client (through
+   * `fetchElection`), i.e. the version the voter was shown, so the chain rejects it with
+   * `ErrElectionMetadataChanged` if the election metadata changed since. When the election was not loaded
+   * before, its current version is used.
+   *
    * @param vote - The vote (or votes) to be sent.
    * @returns Vote confirmation id.
    */
@@ -923,7 +928,12 @@ export class VocdoniSDKClient {
       throw Error('No wallet set');
     }
 
+    // the election as last loaded through this client is the metadata version the voter was shown
+    const shownElection = this.election instanceof PublishedElection ? this.election : null;
     const election = await this.fetchElection();
+    // '' (not undefined) for a shown version without hash, so it is not replaced by the current one's hash
+    const metadataHash =
+      shownElection?.id === election.id ? shownElection.metadataHash ?? '' : election.metadataHash ?? '';
 
     yield {
       key: VoteSteps.GET_ELECTION,
@@ -979,7 +989,7 @@ export class VocdoniSDKClient {
 
     let voteTx: { tx: Uint8Array; message: string };
 
-    voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote, processKeys, votePackage);
+    voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote, processKeys, votePackage, metadataHash);
     yield {
       key: VoteSteps.GENERATE_TX,
     };

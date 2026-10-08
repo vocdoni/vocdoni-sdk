@@ -35,6 +35,7 @@ export interface IPublishedElectionParameters extends IElectionParameters {
   chainId: string;
   creationTime: string;
   metadataURL: string;
+  metadataHash?: string;
   resultsType: ElectionResultsType;
   raw: object;
 }
@@ -53,6 +54,7 @@ export class PublishedElection extends Election {
   private readonly _results: Array<Array<string>>;
   private readonly _creationTime: Date;
   private readonly _metadataURL: string;
+  private readonly _metadataHash: string;
   private readonly _resultsType: ElectionResultsType;
   private readonly _raw: object;
 
@@ -86,6 +88,7 @@ export class PublishedElection extends Election {
     this._chainId = params.chainId;
     this._creationTime = new Date(params.creationTime);
     this._metadataURL = params.metadataURL;
+    this._metadataHash = params.metadataHash;
     this._resultsType = params.resultsType;
     this._raw = params.raw;
   }
@@ -222,6 +225,15 @@ export class PublishedElection extends Election {
 
   get metadataURL(): string {
     return this._metadataURL;
+  }
+
+  /**
+   * The hex-encoded hash of the election metadata version this object was built from, or undefined when the
+   * election has no metadata hash. Votes built from this election attest to it, and the chain rejects them if
+   * the election metadata has changed since.
+   */
+  get metadataHash(): string {
+    return this._metadataHash;
   }
 
   get resultsType(): ElectionResultsType {

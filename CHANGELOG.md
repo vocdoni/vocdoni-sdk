@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Votes now attest to the election metadata hash (vocdoni-node#1486): the chain rejects any vote whose envelope `metadataHash` does not match the election's current one. `PublishedElection.metadataHash` exposes the hash returned by the API, and `submitVote` sets it on the vote envelope from the election as last loaded through the client (`fetchElection`), i.e. the version the voter was shown, so a vote cast against a stale version is rejected. Elections without a metadata hash keep working, since the envelope hash is left empty for them.
+- `ErrElectionMetadataChanged`, thrown when the chain rejects a vote because the election metadata changed since the vote was built. Fetch the election again before retrying.
+- `ElectionAPI.metadataHistory` wraps `GET /elections/{id}/metadata/history`, returning every metadata version an election has had, oldest first.
+
+### Changed
+
+- Bumped `@vocdoni/proto` to `1.17.0`, which adds `metadataHash` to `VoteEnvelope`, `Process` and `SetProcessTx`.
+
 ## [0.10.0] - 2026-10-01
 
 ### Changed

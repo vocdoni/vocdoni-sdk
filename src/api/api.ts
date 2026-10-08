@@ -47,6 +47,7 @@ import {
   ErrElectionEndDateInThePast,
   ErrElectionFinished,
   ErrElectionIsNil,
+  ErrElectionMetadataChanged,
   ErrElectionNotFound,
   ErrElectionNotStarted,
   ErrElectionResultsIsNil,
@@ -385,6 +386,8 @@ export abstract class API {
         throw new ErrElectionFinished(error);
       case error.includes('current state: ENDED'):
         throw new ErrElectionFinished(error);
+      case error.includes('does not match the election metadata hash'):
+        throw new ErrElectionMetadataChanged(error);
       default:
         throw new ErrVochainReturnedErrorCode(error);
     }

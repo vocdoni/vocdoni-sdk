@@ -204,6 +204,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
       finalResults: electionInfo.finalResults,
       results: electionInfo.result,
       metadataURL: electionInfo.metadataURL,
+      metadataHash: electionInfo.metadataHash,
       creationTime: electionInfo.creationTime,
       electionType: {
         interruptible: electionInfo.electionMode.interruptible,

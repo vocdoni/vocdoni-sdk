@@ -41,15 +41,27 @@ export abstract class VoteCore extends TransactionCore {
     super();
   }
 
+  /**
+   * Builds a vote transaction.
+   *
+   * @param election - The election to vote on
+   * @param censusProof - The census proof of the voter
+   * @param vote - The vote
+   * @param processKeys - The election encryption keys, for encrypted elections
+   * @param votePackage - A prebuilt vote package, used instead of packaging `vote`
+   * @param metadataHash - The hex-encoded election metadata hash the vote attests to. Defaults to the
+   *   `metadataHash` of `election`; the chain rejects the vote unless it matches the election's current one.
+   */
   public static generateVoteTransaction(
     election: PublishedElection,
     censusProof: CensusProof | CspCensusProof | ZkProof,
     vote: Vote,
     processKeys?: ProcessKeys,
-    votePackage?: Buffer
+    votePackage?: Buffer,
+    metadataHash: string = election.metadataHash
   ): { tx: Uint8Array; message: string } {
     const message = TxMessage.VOTE.replace('{processId}', strip0x(election.id));
-    const txData = this.prepareVoteData(election, censusProof, vote, processKeys, votePackage);
+    const txData = this.prepareVoteData(election, censusProof, vote, processKeys, votePackage, metadataHash);
     const voteEnvelope = VoteEnvelope.fromPartial(txData);
     const tx = Tx.encode({
       payload: { $case: 'vote', vote: voteEnvelope },
@@ -63,7 +75,8 @@ export abstract class VoteCore extends TransactionCore {
     censusProof: CensusProof | CspCensusProof | ZkProof,
     vote: Vote,
     processKeys: ProcessKeys,
-    generatedVotePackage: Buffer
+    generatedVotePackage: Buffer,
+    metadataHash: string
   ): object {
     try {
       const proof = this.packageSignedProof(election.id, election.census.type, censusProof);
@@ -79,6 +92,9 @@ export abstract class VoteCore extends TransactionCore {
         encryptionKeyIndexes: keyIndexes || [],
         // an empty memo carries no information, so it is omitted from the envelope
         memo: vote.memo ? new Uint8Array(Buffer.from(vote.memo, 'utf8')) : undefined,
+        // the chain only accepts the vote if this matches the election's current metadata hash, so a vote cast
+        // against a metadata version other than the one the voter was shown is rejected
+        metadataHash: metadataHash ? new Uint8Array(Buffer.from(strip0x(metadataHash), 'hex')) : undefined,
       };
     } catch (error) {
       throw new Error('The poll vote envelope could not be generated', { cause: error });
