@@ -64,6 +64,7 @@ import {
   ZkProof,
 } from './services';
 import { isAddress } from '@ethersproject/address';
+import { strip0x } from './util/common';
 
 export enum EnvOptions {
   DEV = 'dev',
@@ -118,6 +119,19 @@ export type ClientOptions = {
 };
 
 /**
+ * Options for submitting a vote.
+ *
+ * @property {string} metadataHash Hex-encoded election metadata hash the vote attests to ('' for none). Only needed
+ * by apps that show the election to the voter other than through `fetchElection`; see `submitVote`.
+ * @property {string} parentMetadataHash Hex-encoded metadata hash of the election's parent the vote attests to
+ * ('' for none), with the same purpose. Ignored for elections without a parent.
+ */
+export type SubmitVoteOptions = {
+  metadataHash?: string;
+  parentMetadataHash?: string;
+};
+
+/**
  * Main Vocdoni client object. It's a wrapper for all the methods in api, core
  * and types, allowing you to easily use the vocdoni API from a single entry
  * point.
@@ -125,6 +139,12 @@ export type ClientOptions = {
 export class VocdoniSDKClient {
   private accountData: AccountData | ArchivedAccountData | null = null;
   private election: UnpublishedElection | PublishedElection | null = null;
+  /**
+   * Metadata hash ('' for none) of the election version last returned to the app by `fetchElection`, by election
+   * id. This is the version the app could have shown the voter, so it is what `submitVote` attests to. The
+   * client's own internal fetches never update it.
+   */
+  private shownMetadataHashes = new Map<string, string>();
 
   public censusService: CensusService;
   public chainService: ChainService;
@@ -254,10 +274,43 @@ export class VocdoniSDKClient {
    * @param password - The password to decrypt the metadata
    */
   async fetchElection(electionId?: string, password?: string): Promise<PublishedElection> {
+    const election = await this.loadElection(electionId, password);
+    this.shownMetadataHashes.set(VocdoniSDKClient.electionKey(election.id), election.metadataHash ?? '');
+    return election;
+  }
+
+  /**
+   * Fetches an election for the client's own use. Unlike `fetchElection`, it does not record the fetched
+   * version as the one shown to the voter.
+   *
+   * @param electionId - The id of the election
+   * @param password - The password to decrypt the metadata
+   */
+  private async loadElection(electionId?: string, password?: string): Promise<PublishedElection> {
     invariant(this.electionId || electionId, 'No election set');
 
     this.election = await this.electionService.fetchElection(electionId ?? this.electionId, password);
     return this.election;
+  }
+
+  /**
+   * Returns the metadata hash a vote attests to for an election ('' for none, so it is not replaced by a
+   * default): the given one, else the version last shown to the app by `fetchElection`, else the current one.
+   *
+   * @param electionId - The id of the election
+   * @param given - An explicitly given metadata hash
+   * @param current - Resolves the election's current metadata hash, only called when needed
+   */
+  private async attestedMetadataHash(
+    electionId: string,
+    given: string | undefined,
+    current: () => Promise<string | undefined>
+  ): Promise<string> {
+    return given ?? this.shownMetadataHashes.get(VocdoniSDKClient.electionKey(electionId)) ?? (await current()) ?? '';
+  }
+
+  private static electionKey(electionId: string): string {
+    return strip0x(electionId).toLowerCase();
   }
 
   /**
@@ -739,7 +792,7 @@ export class VocdoniSDKClient {
       throw Error('No election set');
     }
 
-    return this.fetchElection(electionId ?? this.electionId).then((election) =>
+    return this.loadElection(electionId ?? this.electionId).then((election) =>
       this.changeElectionCensus(
         electionId ?? this.electionId,
         election.census.censusId,
@@ -784,7 +837,7 @@ export class VocdoniSDKClient {
       throw Error('No election set');
     }
 
-    return this.fetchElection(electionId ?? this.electionId).then((election) =>
+    return this.loadElection(electionId ?? this.electionId).then((election) =>
       this.changeElectionDuration(electionId ?? this.electionId, (date.getTime() - election.startDate.getTime()) / 1000)
     );
   }
@@ -804,7 +857,7 @@ export class VocdoniSDKClient {
     invariant(settings.wallet, 'No wallet or signer set or given');
     invariant(settings.electionId, 'No election identifier set or given');
 
-    return this.fetchElection(settings.electionId)
+    return this.loadElection(settings.electionId)
       .then((election) => this.fetchProofForWallet(election.census.censusId, settings.wallet))
       .then(() => true)
       .catch(() => false);
@@ -826,7 +879,7 @@ export class VocdoniSDKClient {
     invariant(settings.wallet, 'No wallet or signer set or given');
     invariant(settings.electionId, 'No election identifier set or given');
 
-    const election = await this.fetchElection(settings.electionId);
+    const election = await this.loadElection(settings.electionId);
 
     if (election.electionType.anonymous && !settings?.voteId) {
       throw Error('This function cannot be used without a vote identifier for an anonymous election');
@@ -868,7 +921,7 @@ export class VocdoniSDKClient {
     invariant(settings.wallet, 'No wallet or signer set or given');
     invariant(settings.electionId, 'No election identifier set or given');
 
-    const election = await this.fetchElection(settings.electionId);
+    const election = await this.loadElection(settings.electionId);
 
     if (election.electionType.anonymous && !settings?.voteId) {
       throw Error('This function cannot be used without a vote identifier for an anonymous election');
@@ -894,11 +947,26 @@ export class VocdoniSDKClient {
    * Submits a vote.
    * @category Voting
    *
+   * The vote attests to an election metadata version, and the chain rejects it with `ErrElectionMetadataChanged`
+   * unless that is the election's current one. The attested version is, in order of precedence:
+   * - `options.metadataHash`, for apps that load and show the election other than through this client;
+   * - the version last returned to the app by `fetchElection` for this election, i.e. the one it could have shown
+   *   the voter. Fetches done internally by the client (including the one in `submitVote`) never change it, so
+   *   after a rejection every retry keeps failing until the app calls `fetchElection` again;
+   * - when the app never called `fetchElection` for this election, its current version.
+   *
+   * When the election has a parent (`parentElectionId`), the vote also attests the parent's metadata version,
+   * chosen by the same rule: `options.parentMetadataHash`, else the version last returned to the app by
+   * `fetchElection` for the parent, else the parent's current version.
+   *
+   * Metadata-only elections take no votes, so submitting a vote to one throws.
+   *
    * @param vote - The vote (or votes) to be sent.
+   * @param options - Optional vote submission options.
    * @returns Vote confirmation id.
    */
-  async submitVote(vote: Vote | CspVote | AnonymousVote): Promise<string> {
-    for await (const step of this.submitVoteSteps(vote)) {
+  async submitVote(vote: Vote | CspVote | AnonymousVote, options?: SubmitVoteOptions): Promise<string> {
+    for await (const step of this.submitVoteSteps(vote, options)) {
       switch (step.key) {
         case VoteSteps.DONE:
           return step.voteId;
@@ -911,10 +979,16 @@ export class VocdoniSDKClient {
    * Submits a vote by steps.
    * @category Voting
    *
+   * Attests the same election metadata versions as `submitVote`.
+   *
    * @param vote - The vote (or votes) to be sent.
+   * @param options - Optional vote submission options.
    * @returns Vote confirmation id.
    */
-  async *submitVoteSteps(vote: Vote | CspVote | AnonymousVote): AsyncGenerator<VoteStepValue> {
+  async *submitVoteSteps(
+    vote: Vote | CspVote | AnonymousVote,
+    options?: SubmitVoteOptions
+  ): AsyncGenerator<VoteStepValue> {
     if (this.election instanceof UnpublishedElection) {
       throw Error('Election is not published');
     }
@@ -923,7 +997,20 @@ export class VocdoniSDKClient {
       throw Error('No wallet set');
     }
 
-    const election = await this.fetchElection();
+    const election = await this.loadElection();
+    if (election.metadataOnly) {
+      throw Error('Metadata-only elections do not accept votes');
+    }
+    const metadataHash = await this.attestedMetadataHash(election.id, options?.metadataHash, () =>
+      Promise.resolve(election.metadataHash)
+    );
+    const parentElectionId = election.parentElectionId;
+    const parentMetadataHash = parentElectionId
+      ? await this.attestedMetadataHash(parentElectionId, options?.parentMetadataHash, () =>
+          // fetched without recording it as shown, nor replacing the election voted on
+          this.electionService.fetchElection(parentElectionId).then((parent) => parent.metadataHash)
+        )
+      : '';
 
     yield {
       key: VoteSteps.GET_ELECTION,
@@ -979,7 +1066,10 @@ export class VocdoniSDKClient {
 
     let voteTx: { tx: Uint8Array; message: string };
 
-    voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote, processKeys, votePackage);
+    voteTx = VoteCore.generateVoteTransaction(election, censusProof, vote, processKeys, votePackage, {
+      metadataHash,
+      parentMetadataHash,
+    });
     yield {
       key: VoteSteps.GENERATE_TX,
     };
@@ -1080,7 +1170,7 @@ export class VocdoniSDKClient {
 
   async cspUrl(): Promise<string> {
     invariant(this.electionId, 'No election id set');
-    return this.fetchElection(this.electionId).then((election) => this.cspService.setUrlFromElection(election));
+    return this.loadElection(this.electionId).then((election) => this.cspService.setUrlFromElection(election));
   }
 
   async cspInfo() {

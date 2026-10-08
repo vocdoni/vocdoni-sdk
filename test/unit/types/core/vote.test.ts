@@ -1,5 +1,6 @@
-import { CAbundle } from '@vocdoni/proto/vochain';
+import { CAbundle, Tx, VoteEnvelope } from '@vocdoni/proto/vochain';
 import { VoteCore } from '../../../../src/core/vote';
+import { CensusType, CspCensusProof, PublishedElection, Vote } from '../../../../src';
 
 const ELECTION_ID = '934234098f1c8d4b7d0c73f2f6b0d2b3a2f7b0e1c2d3e4f5a6b7c8d9e0f1a2b3';
 const ADDRESS = '0x0000000000000000000000000000000000000001';
@@ -76,6 +77,73 @@ describe('Vote core tests', () => {
       const unweighted = VoteCore.encodeCspCaBundle(VoteCore.cspCaBundle(ELECTION_ID, ADDRESS));
       const weighted = VoteCore.encodeCspCaBundle(VoteCore.cspCaBundle(ELECTION_ID, ADDRESS, 1n));
       expect(Buffer.from(weighted).toString('hex')).not.toEqual(Buffer.from(unweighted).toString('hex'));
+    });
+  });
+
+  describe('generateVoteTransaction', () => {
+    const METADATA_HASH = 'aa'.repeat(32);
+    const cspProof: CspCensusProof = { address: ADDRESS, signature: 'bb'.repeat(65) };
+    const election = (metadataHash?: string) =>
+      ({ id: ELECTION_ID, census: { type: CensusType.CSP }, metadataHash } as unknown as PublishedElection);
+    const decodeEnvelope = (tx: Uint8Array): VoteEnvelope => {
+      const { payload } = Tx.decode(tx);
+      if (payload?.$case !== 'vote') throw new Error('not a vote transaction');
+      return payload.vote;
+    };
+    const hex = (bytes?: Uint8Array) => Buffer.from(bytes ?? []).toString('hex');
+
+    it('should attest the election metadata hash', () => {
+      const { tx } = VoteCore.generateVoteTransaction(election(METADATA_HASH), cspProof, new Vote([1]));
+      expect(hex(decodeEnvelope(tx).metadataHash)).toEqual(METADATA_HASH);
+    });
+    it('should accept a 0x-prefixed metadata hash', () => {
+      const { tx } = VoteCore.generateVoteTransaction(election('0x' + METADATA_HASH), cspProof, new Vote([1]));
+      expect(hex(decodeEnvelope(tx).metadataHash)).toEqual(METADATA_HASH);
+    });
+    it('should leave the metadata hash empty for elections without one', () => {
+      const { tx } = VoteCore.generateVoteTransaction(election(), cspProof, new Vote([1]));
+      expect(hex(decodeEnvelope(tx).metadataHash)).toEqual('');
+    });
+    it('should attest the given metadata hash instead of the election one', () => {
+      const shown = 'cc'.repeat(32);
+      const { tx } = VoteCore.generateVoteTransaction(
+        election(METADATA_HASH),
+        cspProof,
+        new Vote([1]),
+        undefined,
+        undefined,
+        { metadataHash: shown }
+      );
+      expect(hex(decodeEnvelope(tx).metadataHash)).toEqual(shown);
+    });
+    it('should leave the metadata hash empty when given an empty one', () => {
+      const { tx } = VoteCore.generateVoteTransaction(
+        election(METADATA_HASH),
+        cspProof,
+        new Vote([1]),
+        undefined,
+        undefined,
+        { metadataHash: '' }
+      );
+      expect(hex(decodeEnvelope(tx).metadataHash)).toEqual('');
+    });
+    it('should leave the parent metadata hash empty by default', () => {
+      const { tx } = VoteCore.generateVoteTransaction(election(METADATA_HASH), cspProof, new Vote([1]));
+      expect(hex(decodeEnvelope(tx).parentMetadataHash)).toEqual('');
+    });
+    it('should attest the given parent metadata hash alongside the election one', () => {
+      const parent = 'dd'.repeat(32);
+      const { tx } = VoteCore.generateVoteTransaction(
+        election(METADATA_HASH),
+        cspProof,
+        new Vote([1]),
+        undefined,
+        undefined,
+        { parentMetadataHash: '0x' + parent }
+      );
+      const envelope = decodeEnvelope(tx);
+      expect(hex(envelope.metadataHash)).toEqual(METADATA_HASH);
+      expect(hex(envelope.parentMetadataHash)).toEqual(parent);
     });
   });
 });

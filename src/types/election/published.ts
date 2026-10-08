@@ -35,6 +35,9 @@ export interface IPublishedElectionParameters extends IElectionParameters {
   chainId: string;
   creationTime: string;
   metadataURL: string;
+  metadataHash?: string;
+  parentElectionId?: string;
+  metadataOnly?: boolean;
   resultsType: ElectionResultsType;
   raw: object;
 }
@@ -53,6 +56,9 @@ export class PublishedElection extends Election {
   private readonly _results: Array<Array<string>>;
   private readonly _creationTime: Date;
   private readonly _metadataURL: string;
+  private readonly _metadataHash: string;
+  private readonly _parentElectionId: string;
+  private readonly _metadataOnly: boolean;
   private readonly _resultsType: ElectionResultsType;
   private readonly _raw: object;
 
@@ -86,6 +92,9 @@ export class PublishedElection extends Election {
     this._chainId = params.chainId;
     this._creationTime = new Date(params.creationTime);
     this._metadataURL = params.metadataURL;
+    this._metadataHash = params.metadataHash;
+    this._parentElectionId = params.parentElectionId;
+    this._metadataOnly = params.metadataOnly ?? false;
     this._resultsType = params.resultsType;
     this._raw = params.raw;
   }
@@ -222,6 +231,31 @@ export class PublishedElection extends Election {
 
   get metadataURL(): string {
     return this._metadataURL;
+  }
+
+  /**
+   * The hex-encoded hash of the election metadata version this object was built from, or undefined when the
+   * election has no metadata hash. Votes built from this election attest to it, and the chain rejects them if
+   * the election metadata has changed since.
+   */
+  get metadataHash(): string {
+    return this._metadataHash;
+  }
+
+  /**
+   * The id of the metadata-only election this election links to as its parent, whose metadata applies to it
+   * too, or undefined when it has none. Votes on this election also attest the parent's metadata hash.
+   */
+  get parentElectionId(): string {
+    return this._parentElectionId;
+  }
+
+  /**
+   * Whether this is a metadata-only election: it only commits a metadata URI and hash shared by the elections
+   * that link to it as their parent, and has no census, votes nor results.
+   */
+  get metadataOnly(): boolean {
+    return this._metadataOnly;
   }
 
   get resultsType(): ElectionResultsType {

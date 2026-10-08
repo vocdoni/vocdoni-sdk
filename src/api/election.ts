@@ -9,6 +9,7 @@ enum ElectionAPIMethods {
   NEXT_ELECTION_ID = '/elections/id',
   PRICE = '/elections/price',
   KEYS = '/elections/{id}/keys',
+  METADATA_HISTORY = '/elections/{id}/metadata/history',
   CREATE = '/elections',
 }
 
@@ -204,14 +205,30 @@ export interface IElectionInfoResponse {
   chainId: string;
 
   /**
-   * The census of the election
+   * The census of the election. Omitted for metadata-only elections.
    */
-  census: ICensus;
+  census?: ICensus;
 
   /**
    * The URL of the metadata
    */
   metadataURL: string;
+
+  /**
+   * The hex-encoded hash of the current election metadata. Omitted when the election has no metadata hash.
+   */
+  metadataHash?: string;
+
+  /**
+   * The id of the metadata-only election this election links to as its parent. Omitted when it has none.
+   */
+  parentElectionId?: string;
+
+  /**
+   * Set for a metadata-only election, which only commits metadata shared by the elections linking to it as
+   * their parent, and takes no votes. Omitted otherwise.
+   */
+  metadataOnly?: boolean;
 
   /**
    * The date of creation of the election
@@ -254,6 +271,45 @@ export interface IEncryptionKey {
 export interface IElectionKeysResponse {
   publicKeys: IEncryptionKey[];
   privateKeys: IEncryptionKey[];
+}
+
+export interface IElectionMetadataVersion {
+  /**
+   * The URL of the metadata of this version
+   */
+  metadataURL: string;
+
+  /**
+   * The hex-encoded hash of the metadata of this version. Omitted when the version has no metadata hash.
+   */
+  metadataHash?: string;
+
+  /**
+   * The block height at which this version was set
+   */
+  blockHeight: number;
+
+  /**
+   * The index of the transaction that set this version within its block
+   */
+  txIndex: number;
+
+  /**
+   * The hash of the transaction that set this version
+   */
+  txHash: string;
+
+  /**
+   * The timestamp of the block at which this version was set
+   */
+  timestamp: string;
+}
+
+export interface IElectionMetadataHistoryResponse {
+  /**
+   * The metadata versions the election has had, oldest first
+   */
+  versions: Array<IElectionMetadataVersion>;
 }
 
 interface IElectionCalculatePriceResponse {
@@ -308,6 +364,17 @@ export interface IElectionSummary {
    * The chain identifier
    */
   chainId: string;
+
+  /**
+   * The id of the metadata-only election this election links to as its parent. Omitted when it has none.
+   */
+  parentElectionId?: string;
+
+  /**
+   * Set for a metadata-only election, which only commits metadata shared by the elections linking to it as
+   * their parent, and takes no votes. Omitted otherwise.
+   */
+  metadataOnly?: boolean;
 }
 
 export interface IElectionListResponse extends IElectionList, PaginationResponse {}
@@ -349,6 +416,19 @@ export abstract class ElectionAPI extends API {
   public static keys(url: string, electionId: string): Promise<IElectionKeysResponse> {
     return axios
       .get<IElectionKeysResponse>(url + ElectionAPIMethods.KEYS.replace('{id}', electionId))
+      .then((response) => response.data)
+      .catch(this.isApiError);
+  }
+
+  /**
+   * Fetches the metadata version history of the specified election.
+   *
+   * @param url - API endpoint URL
+   * @param electionId - The identifier of the election
+   */
+  public static metadataHistory(url: string, electionId: string): Promise<IElectionMetadataHistoryResponse> {
+    return axios
+      .get<IElectionMetadataHistoryResponse>(url + ElectionAPIMethods.METADATA_HISTORY.replace('{id}', electionId))
       .then((response) => response.data)
       .catch(this.isApiError);
   }

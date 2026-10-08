@@ -190,13 +190,14 @@ export class ElectionService extends Service implements ElectionServicePropertie
       organizationId: electionInfo.organizationId,
       title: electionInfo.metadata?.title,
       description: electionInfo.metadata?.description,
-      header: electionInfo.metadata?.media.header,
-      streamUri: electionInfo.metadata?.media.streamUri,
+      header: electionInfo.metadata?.media?.header,
+      streamUri: electionInfo.metadata?.media?.streamUri,
       meta: electionInfo.metadata?.meta,
       startDate: electionInfo.startDate,
       endDate: electionInfo.endDate,
       census,
-      maxCensusSize: electionInfo.census.maxCensusSize,
+      // metadata-only elections have no census
+      maxCensusSize: electionInfo.census?.maxCensusSize,
       manuallyEnded: electionInfo.manuallyEnded,
       chainId: electionInfo.chainId,
       status: electionInfo.status,
@@ -204,6 +205,9 @@ export class ElectionService extends Service implements ElectionServicePropertie
       finalResults: electionInfo.finalResults,
       results: electionInfo.result,
       metadataURL: electionInfo.metadataURL,
+      metadataHash: electionInfo.metadataHash,
+      parentElectionId: electionInfo.parentElectionId,
+      metadataOnly: electionInfo.metadataOnly ?? false,
       creationTime: electionInfo.creationTime,
       electionType: {
         interruptible: electionInfo.electionMode.interruptible,
@@ -224,7 +228,7 @@ export class ElectionService extends Service implements ElectionServicePropertie
         maxValue: electionInfo.tallyMode.maxValue,
         maxTotalCost: electionInfo.tallyMode.maxTotalCost,
       },
-      questions: electionInfo.metadata?.questions.map((question, qIndex) => ({
+      questions: electionInfo.metadata?.questions?.map((question, qIndex) => ({
         title: question.title,
         description: question.description,
         numAbstains: this.calculateMultichoiceAbstains(electionInfo.metadata.type, electionInfo.result),
