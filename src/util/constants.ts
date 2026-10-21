@@ -16,12 +16,6 @@ export const EXPLORER_URL = {
   prod: 'https://explorer.vote',
 };
 
-export const CENSUS3_URL = {
-  dev: 'https://census3-dev.vocdoni.net/api',
-  stg: 'https://census3-stg.vocdoni.net/api',
-  prod: 'https://census3.vocdoni.io/api',
-};
-
 export const FAUCET_URL = {
   dev: 'https://api-dev.faucet.vocdoni.net/v2',
   stg: 'https://api-stg.faucet.vocdoni.net/v2',
@@ -31,11 +25,6 @@ export const FAUCET_URL = {
 export const TX_WAIT_OPTIONS = {
   retry_time: 5000,
   attempts: 6,
-};
-
-export const QUEUE_WAIT_OPTIONS = {
-  retry_time: 2000,
-  attempts: 10,
 };
 
 export const VOCDONI_SIK_SIGNATURE_LENGTH = 64;

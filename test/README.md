@@ -31,9 +31,3 @@ The stack publishes on `127.0.0.1` ports 9095 (voconed), 5000 (blind-csp) and
 8085 (vocfaucet); override `VOCONED_HOST_PORT`, `BLINDCSP_HOST_PORT` or
 `VOCFAUCET_HOST_PORT` if any of them clash. Container configuration lives in
 `test/integration/util/docker-compose.yml` + `test/integration/util/.env`.
-
-## Census3
-
-Census3 indexes real token contracts on real chains, so it has no local
-container. The `test:census3` suites **skip themselves** unless you explicitly
-provide an endpoint via `CENSUS3_URL`.

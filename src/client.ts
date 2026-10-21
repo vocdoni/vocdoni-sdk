@@ -21,8 +21,6 @@ import {
   PublishedElection,
   RemoteSigner,
   SendTokensOptions,
-  StrategyCensus,
-  TokenCensus,
   UnpublishedElection,
   Vote,
   VotesLeftCountOptions,
@@ -579,14 +577,6 @@ export class VocdoniSDKClient {
       });
     } else if (election.maxCensusSize && election.maxCensusSize > chainData.maxCensusSize) {
       throw new Error('Max census size for the election is greater than allowed size: ' + chainData.maxCensusSize);
-    }
-
-    if (election.census instanceof TokenCensus) {
-      election.meta = { ...election.meta, ...{ token: election.census.token } };
-    }
-
-    if (election.census instanceof StrategyCensus) {
-      election.meta = { ...election.meta, ...{ strategy: election.census.strategy } };
     }
 
     yield {
