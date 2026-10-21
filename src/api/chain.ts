@@ -14,7 +14,6 @@ export * from './chain/';
 enum ChainAPIMethods {
   INFO = '/chain/info',
   COSTS = '/chain/info/electionPriceFactors',
-  CIRCUITS = '/chain/info/circuit',
   TX_COSTS = '/chain/transactions/cost',
   TX_INFO = '/chain/transactions/{txHash}',
   TX_LIST = '/chain/transactions',
@@ -87,11 +86,6 @@ export interface IChainGetInfoResponse {
   voteCount: number;
 
   /**
-   * The circuit configuration tag.
-   */
-  circuitConfigurationTag: string;
-
-  /**
    * The maximum size of a census.
    */
   maxCensusSize: number;
@@ -120,53 +114,6 @@ export interface IChainGetCostsResponse {
     k6: number;
     k7: number;
   };
-}
-
-export interface IChainGetCircuitResponse {
-  /**
-   * The base uri of the files.
-   */
-  uri: string;
-
-  /**
-   * The path of the circuit.
-   */
-  circuitPath: string;
-
-  /**
-   * The circuit levels.
-   */
-  levels: number;
-
-  /**
-   * The hash of the proving key file.
-   */
-  zKeyHash: string;
-
-  /**
-   * The name of the proving key file.
-   */
-  zKeyFilename: string;
-
-  /**
-   * The hash of the verification key file.
-   */
-  vKeyHash: string;
-
-  /**
-   * The name of the verification key file.
-   */
-  vKeyFilename: string;
-
-  /**
-   * The hash of the WASM file.
-   */
-  wasmHash: string;
-
-  /**
-   * The name of the WASM file.
-   */
-  wasmFilename: string;
 }
 
 export enum TransactionType {
@@ -483,30 +430,6 @@ export abstract class ChainAPI extends API {
     return axios
       .get<IChainGetCostsResponse>(url + ChainAPIMethods.COSTS)
       .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Fetches info about the blockchain anonymous circuits.
-   *
-   * @param url - API endpoint URL
-   */
-  public static circuits(url: string): Promise<IChainGetCircuitResponse> {
-    return axios
-      .get<IChainGetCircuitResponse>(url + ChainAPIMethods.CIRCUITS)
-      .then((response) => response.data)
-      .catch(this.isApiError);
-  }
-
-  /**
-   * Fetches a circuit.
-   *
-   * @param url - Circuit URL
-   */
-  public static circuit(url: string): Promise<Uint8Array> {
-    return axios
-      .get<Uint8Array>(url, { responseType: 'arraybuffer' })
-      .then((response) => new Uint8Array(response.data))
       .catch(this.isApiError);
   }
 

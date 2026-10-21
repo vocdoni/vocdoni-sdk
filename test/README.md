@@ -1,10 +1,9 @@
 # Running the tests
 
 The unit tests (`yarn test:unit`) run standalone. Every other suite
-(`test:integration`, `test:service`, `test:api`, `test:integration:zk`) talks
-to a **local docker stack** — voconed (a single-node vochain), blind-csp and
-vocfaucet — and will refuse to run without it. The suites never run against a
-deployed server.
+(`test:integration`, `test:service`, `test:api`) talks to a **local docker
+stack** — voconed (a single-node vochain), blind-csp and vocfaucet — and will
+refuse to run without it. The suites never run against a deployed server.
 
 ## One command
 

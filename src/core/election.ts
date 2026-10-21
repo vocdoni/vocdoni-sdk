@@ -139,7 +139,6 @@ export abstract class ElectionCore extends TransactionCore {
           censusOrigin: this.censusOriginFromCensusType(election.census.type),
           metadata: cid,
           maxCensusSize: election.maxCensusSize ?? election.census.size ?? undefined,
-          tempSIKs: election.temporarySecretIdentity ?? false,
         },
       },
     };
@@ -161,7 +160,6 @@ export abstract class ElectionCore extends TransactionCore {
         // legacy-origin elections must pin an older SDK release.
         return CensusOrigin.OFF_CHAIN_CA_V2;
       case CensusType.WEIGHTED:
-      case CensusType.ANONYMOUS:
         return CensusOrigin.OFF_CHAIN_TREE_WEIGHTED;
       default:
         throw new Error('Census origin not defined by the census type');

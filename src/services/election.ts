@@ -2,6 +2,7 @@ import { Service, ServiceProperties } from './service';
 import {
   AllElectionStatus,
   Census,
+  CensusType,
   CspCensus,
   ElectionResultsTypeNames,
   ElectionStatus,
@@ -103,19 +104,19 @@ export class ElectionService extends Service implements ElectionServicePropertie
   }
 
   private buildPublishedCensus(electionInfo): Promise<PublishedCensus> {
-    return this.censusService
-      .get(electionInfo.census.censusRoot)
-      .then(
-        (censusInfo) =>
-          new PublishedCensus(
-            electionInfo.census.censusRoot,
-            electionInfo.census.censusURL,
-            censusInfo.type ??
-              Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin, electionInfo.voteMode.anonymous),
-            censusInfo.size,
-            censusInfo.weight
-          )
-      );
+    return this.censusService.get(electionInfo.census.censusRoot).then(
+      (censusInfo) =>
+        new PublishedCensus(
+          electionInfo.census.censusRoot,
+          electionInfo.census.censusURL,
+          // an anonymous election stays readable, but its census cannot be used to vote
+          electionInfo.voteMode.anonymous
+            ? CensusType.UNKNOWN
+            : censusInfo.type ?? Census.censusTypeFromCensusOrigin(electionInfo.census.censusOrigin),
+          censusInfo.size,
+          censusInfo.weight
+        )
+    );
   }
 
   private buildCensus(electionInfo): Promise<PublishedCensus> {

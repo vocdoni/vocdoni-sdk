@@ -6,7 +6,6 @@ import {
   ProofArbo_Type,
   ProofCA,
   ProofCA_Type,
-  ProofZkSNARK,
   Tx,
   VoteEnvelope,
 } from '@vocdoni/proto/vochain';
@@ -17,7 +16,7 @@ import { Buffer } from 'buffer';
 import { Asymmetric } from '../util/encryption';
 import { CensusType, PublishedElection, Vote } from '../types';
 import { TransactionCore } from './transaction';
-import { CensusProof, CspCensusProof, ZkProof } from '../services';
+import { CensusProof, CspCensusProof } from '../services';
 import { TxMessage } from '../util/constants';
 
 export type ProcessKeys = {
@@ -43,11 +42,14 @@ export abstract class VoteCore extends TransactionCore {
 
   public static generateVoteTransaction(
     election: PublishedElection,
-    censusProof: CensusProof | CspCensusProof | ZkProof,
+    censusProof: CensusProof | CspCensusProof,
     vote: Vote,
     processKeys?: ProcessKeys,
     votePackage?: Buffer
   ): { tx: Uint8Array; message: string } {
+    if (election.electionType?.anonymous) {
+      throw new Error('Anonymous voting is not supported');
+    }
     const message = TxMessage.VOTE.replace('{processId}', strip0x(election.id));
     const txData = this.prepareVoteData(election, censusProof, vote, processKeys, votePackage);
     const voteEnvelope = VoteEnvelope.fromPartial(txData);
@@ -60,7 +62,7 @@ export abstract class VoteCore extends TransactionCore {
 
   private static prepareVoteData(
     election: PublishedElection,
-    censusProof: CensusProof | CspCensusProof | ZkProof,
+    censusProof: CensusProof | CspCensusProof,
     vote: Vote,
     processKeys: ProcessKeys,
     generatedVotePackage: Buffer
@@ -89,7 +91,7 @@ export abstract class VoteCore extends TransactionCore {
   private static packageSignedProof(
     electionId: string,
     type: CensusType,
-    censusProof: CensusProof | CspCensusProof | ZkProof
+    censusProof: CensusProof | CspCensusProof
   ): Proof {
     if (type == CensusType.WEIGHTED) {
       const proof = censusProof as CensusProof;
@@ -107,19 +109,6 @@ export abstract class VoteCore extends TransactionCore {
 
       return Proof.fromPartial({
         payload: { $case: 'arbo', arbo: aProof },
-      });
-    } else if (type == CensusType.ANONYMOUS) {
-      const proof = censusProof as ZkProof;
-
-      const zkSnark = ProofZkSNARK.fromPartial({
-        a: proof.proof.pi_a,
-        b: proof.proof.pi_b.reduce((a, b) => a.concat(b), []),
-        c: proof.proof.pi_c,
-        publicInputs: proof.publicSignals,
-      });
-
-      return Proof.fromPartial({
-        payload: { $case: 'zkSnark', zkSnark },
       });
     } else if (type == CensusType.CSP) {
       const proof = censusProof as CspCensusProof;

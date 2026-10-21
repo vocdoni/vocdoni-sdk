@@ -1,7 +1,6 @@
 import { CensusTypeEnum } from '../../api/election';
 export enum CensusType {
   WEIGHTED = 'weighted',
-  ANONYMOUS = 'zkweighted',
   CSP = 'csp',
   UNKNOWN = 'unknown',
 }
@@ -89,7 +88,7 @@ export abstract class Census {
     }
     switch (censusOrigin) {
       case CensusTypeEnum.OFF_CHAIN_TREE_WEIGHTED:
-        return anonymous ? CensusType.ANONYMOUS : CensusType.WEIGHTED;
+        return anonymous ? CensusType.UNKNOWN : CensusType.WEIGHTED;
       default:
         throw new Error('Census type not defined by the census origin');
     }

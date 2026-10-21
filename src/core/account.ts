@@ -1,15 +1,4 @@
-import {
-  CollectFaucetTx,
-  Proof,
-  ProofArbo,
-  ProofArbo_KeyType,
-  ProofArbo_Type,
-  RegisterSIKTx,
-  SendTokensTx,
-  SetAccountTx,
-  Tx,
-  TxType,
-} from '@vocdoni/proto/vochain';
+import { CollectFaucetTx, SendTokensTx, SetAccountTx, Tx, TxType } from '@vocdoni/proto/vochain';
 import { Buffer } from 'buffer';
 import { TransactionCore } from './transaction';
 import { strip0x } from '../util/common';
@@ -28,8 +17,7 @@ export abstract class AccountCore extends TransactionCore {
     metadata: string,
     cid: string,
     faucetPayload: string,
-    faucetSignature: string,
-    sik: string
+    faucetSignature: string
   ): { tx: Uint8Array; metadata: string; message: string } {
     const message = TxMessage.CREATE_ACCOUNT.replace('{address}', strip0x(address).toLowerCase());
     const txData = this.prepareSetAccountData({
@@ -38,7 +26,6 @@ export abstract class AccountCore extends TransactionCore {
       metadata,
       cid,
       faucet: { payload: faucetPayload, signature: faucetSignature },
-      sik,
     });
     return {
       message,
@@ -93,38 +80,6 @@ export abstract class AccountCore extends TransactionCore {
     };
   }
 
-  public static generateRegisterSIKTransaction(
-    electionId: string,
-    sik: string,
-    proof: string,
-    value: string
-  ): { tx: Uint8Array; message: string } {
-    const message = TxMessage.REGISTER_SIK.replace('{sik}', sik);
-    const aProof = ProofArbo.fromPartial({
-      siblings: Uint8Array.from(Buffer.from(proof, 'hex')),
-      type: ProofArbo_Type.POSEIDON,
-      availableWeight: new Uint8Array(Buffer.from(value, 'hex')),
-      keyType: ProofArbo_KeyType.ADDRESS,
-    });
-
-    const registerSIK = RegisterSIKTx.fromPartial({
-      electionId: new Uint8Array(Buffer.from(strip0x(electionId), 'hex')),
-      SIK: new Uint8Array(Buffer.from(strip0x(sik), 'hex')),
-      censusProof: Proof.fromPartial({
-        payload: { $case: 'arbo', arbo: aProof },
-      }),
-    });
-
-    const tx = Tx.encode({
-      payload: { $case: 'registerSIK', registerSIK },
-    }).finish();
-
-    return {
-      message,
-      tx,
-    };
-  }
-
   public static generateTransferTransaction(
     nonce: number,
     from: string,
@@ -157,7 +112,6 @@ export abstract class AccountCore extends TransactionCore {
       metadata: string;
       cid: string;
       faucet?: { payload: string; signature: string };
-      sik?: string;
     },
     create: boolean = true
   ): { metadata: string; accountData: object } {
@@ -169,7 +123,6 @@ export abstract class AccountCore extends TransactionCore {
         account: new Uint8Array(Buffer.from(strip0x(data.address), 'hex')),
         infoURI: data.cid,
         faucetPackage: data.faucet ? this.prepareFaucetPackage(data.faucet) : null,
-        SIK: data.sik ? new Uint8Array(Buffer.from(strip0x(data.sik), 'hex')) : null,
       },
     };
   }

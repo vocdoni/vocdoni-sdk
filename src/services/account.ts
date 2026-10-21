@@ -30,7 +30,7 @@ export type AccountData = {
   account: Account;
 } & Pick<
   IAccountInfoResponse,
-  'address' | 'balance' | 'nonce' | 'electionIndex' | 'infoURL' | 'sik' | 'transfersCount' | 'feesCount'
+  'address' | 'balance' | 'nonce' | 'electionIndex' | 'infoURL' | 'transfersCount' | 'feesCount'
 >;
 
 export type ArchivedAccountData = Pick<AccountData, 'address' | 'account'>;
