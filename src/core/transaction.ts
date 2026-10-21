@@ -5,7 +5,7 @@ import { Buffer } from 'buffer';
 import { strip0x } from '../util/common';
 import { Signing } from '../util/signing';
 import { keccak256 } from '@ethersproject/keccak256';
-import { RemoteSigner } from '../types';
+import type { RemoteSigner } from '../types';
 
 export abstract class TransactionCore {
   /**
@@ -18,8 +18,8 @@ export abstract class TransactionCore {
     payload: string,
     walletOrSigner: Wallet | Signer | RemoteSigner
   ): Promise<string> {
-    if (walletOrSigner instanceof RemoteSigner) {
-      return walletOrSigner.signTransactionRemotely(tx);
+    if (typeof (walletOrSigner as RemoteSigner).signTransactionRemotely === 'function') {
+      return (walletOrSigner as RemoteSigner).signTransactionRemotely(tx);
     }
     return Signing.signTransaction(payload, walletOrSigner).then((hexSignature) =>
       this.encodeTransaction(tx, hexSignature)
