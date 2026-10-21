@@ -1,5 +1,5 @@
 import { CensusOrigin } from '@vocdoni/proto/vochain';
-import { Census, CensusType, CspCensus, ElectionService } from '../../../../src';
+import { Census, CensusType, CspCensus, ElectionService, PublishedCensus } from '../../../../src';
 import { ElectionCore } from '../../../../src/core/election';
 
 const CENSUS_ROOT = '0x02a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90';
@@ -27,4 +27,29 @@ describe('Census origin mapping tests', () => {
     expect(census.type).toEqual(CensusType.CSP);
     expect(census.censusURI).toEqual(CENSUS_URL);
   });
+
+  it('should read Merkle tree origins as a weighted census, and anonymous ones as unknown', () => {
+    expect(Census.censusTypeFromCensusOrigin('OFF_CHAIN_TREE_WEIGHTED')).toEqual(CensusType.WEIGHTED);
+    expect(Census.censusTypeFromCensusOrigin('OFF_CHAIN_TREE_WEIGHTED', true)).toEqual(CensusType.UNKNOWN);
+  });
+
+  it.each([
+    [false, CensusType.WEIGHTED],
+    [true, CensusType.UNKNOWN],
+  ])(
+    'should build a PublishedCensus for an OFF_CHAIN_TREE_WEIGHTED election (anonymous: %s)',
+    async (anonymous, type) => {
+      const censusService = {
+        get: () => Promise.resolve({ size: 2, weight: BigInt(2), type: CensusType.WEIGHTED }),
+      };
+      const service = new ElectionService({ censusService: censusService as any });
+      const census = await (service as any).buildCensus({
+        census: { censusOrigin: 'OFF_CHAIN_TREE_WEIGHTED', censusRoot: CENSUS_ROOT, censusURL: 'ipfs://census' },
+        voteMode: { anonymous },
+      });
+      expect(census).toBeInstanceOf(PublishedCensus);
+      expect(census.type).toEqual(type);
+      expect(census.size).toEqual(2);
+    }
+  );
 });

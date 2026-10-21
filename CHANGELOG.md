@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+This release targets nodes running vochain-sequencer and keeps working against vocdoni-node. Census publishing
+(`PlainCensus`, `WeightedCensus`, `CensusService`, `createCensus`, `fetchProof`, `isInCensus`, ...), voting on
+Merkle tree (`OFF_CHAIN_TREE`, `OFF_CHAIN_TREE_WEIGHTED`) and CSP (`OFF_CHAIN_CA`, `OFF_CHAIN_CA_V2`) elections
+are unchanged.
+
+### Removed
+
+- **[BREAKING]** Anonymous (zk) voting. vochain-sequencer rejects anonymous elections and answers `410` on
+  `/siks/*` and `/chain/info/circuit`. Removed `ZkAPI`, `AnonymousService`, `AnonymousVote`,
+  `CensusType.ANONYMOUS`, `client.fetchCircuits` / `client.setCircuits`, `ChainAPI.circuits` / `ChainAPI.circuit`,
+  `AccountCore.generateRegisterSIKTransaction`, the `sik` field of account info, the `temporarySecretIdentity`
+  election option, the `GET_SIGNATURE` and `CALC_ZK_PROOF` vote steps, and the `snarkjs`, `circomlibjs`,
+  `wasmbuilder`, `wasmcurves`, `blake2b`, `readable-stream` and `web-worker` dependencies. Anonymous elections
+  stay readable: `fetchElection` returns them with a census of type `CensusType.UNKNOWN`. Creating an anonymous
+  election or voting on one throws before anything is sent.
+- **[BREAKING]** `createAccount` takes only `account` and `faucetPackage` (and `createAccountInfo` drops
+  `signedSikPayload` and `password`): account creation asks the signer for the transaction signature only.
+- **[BREAKING]** `WalletAPI`. vochain-sequencer answers `410` on the `/wallet` routes. `CensusService` generates
+  its bearer token for the `/censuses` routes as a random UUID v4 instead of calling `POST /wallet/add`, and its
+  `auth` has no `wallet` field.
+- **[BREAKING]** The Census3 client (`VocdoniCensus3Client`, `TokenCensus`, `StrategyCensus`, the census3 API
+  modules, `CENSUS3_URL`, `QUEUE_WAIT_OPTIONS`). The Census3 service is shut down; it is a separate service from
+  the Vochain node.
+
+### Added
+
+- `randomUUID` in the common utils.
+
 ## [0.10.0] - 2026-10-01
 
 ### Changed

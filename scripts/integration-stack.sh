@@ -173,7 +173,7 @@ cmd_run() {
 
   local suites=("$@")
   if [ "${#suites[@]}" -eq 0 ]; then
-    suites=(test:integration test:service test:api test:integration:zk)
+    suites=(test:integration test:service test:api)
   fi
 
   local status=0

@@ -78,4 +78,13 @@ describe('Vote core tests', () => {
       expect(Buffer.from(weighted).toString('hex')).not.toEqual(Buffer.from(unweighted).toString('hex'));
     });
   });
+
+  describe('generateVoteTransaction', () => {
+    it('should refuse to build a vote for an anonymous election', () => {
+      const election = { id: ELECTION_ID, electionType: { anonymous: true }, census: { type: 'weighted' } };
+      expect(() => VoteCore.generateVoteTransaction(election as any, null, { votes: [0] } as any)).toThrow(
+        'Anonymous voting is not supported'
+      );
+    });
+  });
 });

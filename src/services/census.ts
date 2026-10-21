@@ -1,10 +1,9 @@
 import { Service, ServiceProperties } from './service';
 import { CensusType, ICensusParticipant, PlainCensus, WeightedCensus } from '../types';
-import { CensusAPI, CensusStillNotPublished, ICensusImportResponse, ICensusPublishResponse, WalletAPI } from '../api';
-import { Wallet } from '@ethersproject/wallet';
+import { CensusAPI, CensusStillNotPublished, ICensusImportResponse, ICensusPublishResponse } from '../api';
 import invariant from 'tiny-invariant';
 import { CspProofType } from './csp';
-import { delay } from '../util/common';
+import { delay, randomUUID } from '../util/common';
 
 interface CensusServiceProperties {
   auth: CensusAuth;
@@ -14,9 +13,12 @@ interface CensusServiceProperties {
 
 type CensusServiceParameters = ServiceProperties & CensusServiceProperties;
 
+/**
+ * The bearer token sent on census requests. The node accepts any UUID and
+ * only lets the token a census was created with modify it.
+ */
 type CensusAuth = {
   identifier: string;
-  wallet?: Wallet;
 };
 
 type CensusAsync = {
@@ -288,22 +290,13 @@ export class CensusService extends Service implements CensusServiceProperties {
   }
 
   /**
-   * Fetches the specific account token auth and sets it to the current instance.
+   * Sets a census auth token on the current instance, generating a random UUID if none is set.
    *
    */
   fetchAccountToken(): Promise<void> {
-    if (this.auth) {
-      return Promise.resolve();
+    if (!this.auth) {
+      this.auth = { identifier: randomUUID() };
     }
-    invariant(this.url, 'No URL set');
-
-    this.auth = {
-      identifier: '',
-      wallet: Wallet.createRandom(),
-    };
-
-    return WalletAPI.add(this.url, this.auth.wallet.privateKey).then((addWalletResponse) => {
-      this.auth.identifier = addWalletResponse.token;
-    });
+    return Promise.resolve();
   }
 }

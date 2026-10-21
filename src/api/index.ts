@@ -1,7 +1,6 @@
 export * from './account';
 export * from './api';
 export * from './census';
-export * from './census3/index';
 export * from './chain';
 export * from './chain/index';
 export * from './election';
@@ -9,8 +8,6 @@ export * from './errors';
 export * from './faucet';
 export * from './file';
 export * from './vote';
-export * from './wallet';
 export * from './csp';
-export * from './zk';
 export * from './remote-signer';
 export * from './saas/index';

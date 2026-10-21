@@ -9,7 +9,6 @@ import { VoteCore } from './core/vote';
 import {
   Account,
   AllElectionStatus,
-  AnonymousVote,
   CensusType,
   CspVote,
   ElectionStatus,
@@ -21,8 +20,6 @@ import {
   PublishedElection,
   RemoteSigner,
   SendTokensOptions,
-  StrategyCensus,
-  TokenCensus,
   UnpublishedElection,
   Vote,
   VotesLeftCountOptions,
@@ -40,11 +37,9 @@ import {
 import {
   AccountData,
   AccountService,
-  AnonymousService,
   ArchivedAccountData,
   CensusProof,
   CensusService,
-  ChainCircuits,
   ChainService,
   CspCensusProof,
   CspProofType,
@@ -61,7 +56,6 @@ import {
   VoteService,
   VoteSteps,
   VoteStepValue,
-  ZkProof,
 } from './services';
 import { isAddress } from '@ethersproject/address';
 
@@ -128,7 +122,6 @@ export class VocdoniSDKClient {
 
   public censusService: CensusService;
   public chainService: ChainService;
-  public anonymousService: AnonymousService;
   public cspService: CspService;
   public electionService: ElectionService;
   public voteService: VoteService;
@@ -172,7 +165,6 @@ export class VocdoniSDKClient {
       url: opts.faucet?.url ?? FAUCET_URL[opts.env] ?? undefined,
       token_limit: opts.faucet?.token_limit,
     });
-    this.anonymousService = new AnonymousService({ url: this.url });
     this.electionService = new ElectionService({
       url: this.url,
       censusService: this.censusService,
@@ -280,72 +272,6 @@ export class VocdoniSDKClient {
     return wallet.getAddress().then((address) => this.censusService.fetchProof(censusId, address));
   }
 
-  private setAccountSIK(
-    electionId: string,
-    signature: string,
-    password: string,
-    censusProof: CensusProof,
-    wallet: Wallet | Signer | RemoteSigner
-  ): Promise<void> {
-    return wallet
-      .getAddress()
-      .then((address) => AnonymousService.calcSik(address, signature, password))
-      .then((calculatedSIK) => {
-        const registerSIKTx = AccountCore.generateRegisterSIKTransaction(
-          electionId,
-          calculatedSIK,
-          censusProof.proof,
-          censusProof.value
-        );
-        return this.accountService.signTransaction(registerSIKTx.tx, registerSIKTx.message, wallet);
-      })
-      .then((signedTx) => this.chainService.submitTx(signedTx))
-      .then((hash) => this.chainService.waitForTransaction(hash));
-  }
-
-  /**
-   * Calculates ZK proof from given wallet.
-   *
-   * @param election -
-   * @param wallet -
-   * @param signature -
-   * @param votePackage -
-   * @param password -
-   */
-  private async calcZKProofForWallet(
-    election: PublishedElection,
-    wallet: Wallet | Signer | RemoteSigner,
-    signature: string,
-    votePackage: Buffer,
-    password: string = '0'
-  ): Promise<ZkProof> {
-    const [address, censusProof] = await Promise.all([
-      wallet.getAddress(),
-      this.fetchProofForWallet(election.census.censusId, wallet),
-    ]);
-
-    return this.anonymousService
-      .fetchAccountSIK(address)
-      .catch(() => this.setAccountSIK(election.id, signature, password, censusProof, wallet))
-      .then(() => this.anonymousService.fetchZKProof(address))
-      .then((zkProof) =>
-        AnonymousService.prepareCircuitInputs(
-          election.id,
-          address,
-          password,
-          signature,
-          censusProof.value,
-          censusProof.value,
-          zkProof.censusRoot,
-          zkProof.censusSiblings,
-          censusProof.root,
-          censusProof.siblings,
-          votePackage
-        )
-      )
-      .then((circuits) => this.anonymousService.generateZkProof(circuits));
-  }
-
   /**
    * Creates an account with information.
    * @category Account
@@ -353,12 +279,7 @@ export class VocdoniSDKClient {
    * @param options - Additional options,
    * like extra information of the account, or the faucet package string.
    */
-  async createAccountInfo(options: {
-    account: Account;
-    faucetPackage?: string;
-    signedSikPayload?: string;
-    password?: string;
-  }): Promise<AccountData> {
+  async createAccountInfo(options: { account: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     invariant(options.account, 'No account');
 
@@ -370,10 +291,6 @@ export class VocdoniSDKClient {
 
     const address = await this.wallet.getAddress();
 
-    const calculatedSik = options?.signedSikPayload
-      ? await AnonymousService.calcSik(address, options.signedSikPayload, options.password)
-      : null;
-
     const accountData = Promise.all([
       this.fetchChainId(),
       this.fileService.calculateCID(JSON.stringify(options.account.generateMetadata())),
@@ -383,8 +300,7 @@ export class VocdoniSDKClient {
         JSON.stringify(options.account.generateMetadata()),
         data[1],
         faucetPackage.payload,
-        faucetPackage.signature,
-        calculatedSik
+        faucetPackage.signature
       )
     );
 
@@ -443,37 +359,20 @@ export class VocdoniSDKClient {
    * @param options - Additional options, like extra information of the account,
    * or the faucet package string
    */
-  createAccount(options?: {
-    account?: Account;
-    faucetPackage?: string;
-    sik?: boolean;
-    password?: string;
-  }): Promise<AccountData> {
+  createAccount(options?: { account?: Account; faucetPackage?: string }): Promise<AccountData> {
     invariant(this.wallet, 'No wallet or signer set');
     const settings = {
       account: null,
       faucetPackage: null,
-      sik: true,
-      password: '0',
       ...options,
     };
 
-    return this.fetchAccount().catch(() => {
-      if (settings?.sik) {
-        return this.anonymousService.signSIKPayload(this.wallet).then((signedPayload) =>
-          this.createAccountInfo({
-            account: settings?.account ?? new Account(),
-            faucetPackage: settings?.faucetPackage,
-            signedSikPayload: signedPayload,
-            password: settings.password,
-          })
-        );
-      }
-      return this.createAccountInfo({
+    return this.fetchAccount().catch(() =>
+      this.createAccountInfo({
         account: settings?.account ?? new Account(),
         faucetPackage: settings?.faucetPackage,
-      });
-    });
+      })
+    );
   }
 
   /**
@@ -559,16 +458,13 @@ export class VocdoniSDKClient {
       election.maxCensusSize || election.census.type !== CensusType.CSP,
       'CSP Census needs a max census size set in the election'
     );
+    invariant(!election.electionType.anonymous, 'Anonymous elections are not supported');
 
     const chainData = await this.chainService.fetchChainData();
 
     yield {
       key: ElectionCreationSteps.GET_CHAIN_DATA,
     };
-
-    if (election.electionType.anonymous && election.census.type !== CensusType.CSP) {
-      election.census.type = CensusType.ANONYMOUS;
-    }
 
     if (!election.census.isPublished) {
       await this.censusService.createCensus(election.census as PlainCensus | WeightedCensus);
@@ -579,14 +475,6 @@ export class VocdoniSDKClient {
       });
     } else if (election.maxCensusSize && election.maxCensusSize > chainData.maxCensusSize) {
       throw new Error('Max census size for the election is greater than allowed size: ' + chainData.maxCensusSize);
-    }
-
-    if (election.census instanceof TokenCensus) {
-      election.meta = { ...election.meta, ...{ token: election.census.token } };
-    }
-
-    if (election.census instanceof StrategyCensus) {
-      election.meta = { ...election.meta, ...{ strategy: election.census.strategy } };
     }
 
     yield {
@@ -897,7 +785,7 @@ export class VocdoniSDKClient {
    * @param vote - The vote (or votes) to be sent.
    * @returns Vote confirmation id.
    */
-  async submitVote(vote: Vote | CspVote | AnonymousVote): Promise<string> {
+  async submitVote(vote: Vote | CspVote): Promise<string> {
     for await (const step of this.submitVoteSteps(vote)) {
       switch (step.key) {
         case VoteSteps.DONE:
@@ -914,7 +802,7 @@ export class VocdoniSDKClient {
    * @param vote - The vote (or votes) to be sent.
    * @returns Vote confirmation id.
    */
-  async *submitVoteSteps(vote: Vote | CspVote | AnonymousVote): AsyncGenerator<VoteStepValue> {
+  async *submitVoteSteps(vote: Vote | CspVote): AsyncGenerator<VoteStepValue> {
     if (this.election instanceof UnpublishedElection) {
       throw Error('Election is not published');
     }
@@ -924,6 +812,9 @@ export class VocdoniSDKClient {
     }
 
     const election = await this.fetchElection();
+    if (election.electionType.anonymous) {
+      throw Error('Anonymous voting is not supported');
+    }
 
     yield {
       key: VoteSteps.GET_ELECTION,
@@ -938,30 +829,11 @@ export class VocdoniSDKClient {
     }
     const { votePackage } = VoteCore.packageVoteContent(vote.votes, processKeys);
 
-    let censusProof: CspCensusProof | CensusProof | ZkProof;
+    let censusProof: CspCensusProof | CensusProof;
     if (election.census.type == CensusType.WEIGHTED) {
       censusProof = await this.fetchProofForWallet(election.census.censusId, this.wallet);
       yield {
         key: VoteSteps.GET_PROOF,
-      };
-    } else if (election.census.type == CensusType.ANONYMOUS) {
-      let signature: string;
-      if (vote instanceof AnonymousVote) {
-        signature = vote.signature ?? (await this.anonymousService.signSIKPayload(this.wallet));
-      } else {
-        signature = await this.anonymousService.signSIKPayload(this.wallet);
-      }
-      yield {
-        key: VoteSteps.GET_SIGNATURE,
-        signature,
-      };
-      if (vote instanceof AnonymousVote) {
-        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature, votePackage, vote.password);
-      } else {
-        censusProof = await this.calcZKProofForWallet(election, this.wallet, signature, votePackage);
-      }
-      yield {
-        key: VoteSteps.CALC_ZK_PROOF,
       };
     } else if (election.census.type == CensusType.CSP && vote instanceof CspVote) {
       censusProof = {
@@ -984,15 +856,10 @@ export class VocdoniSDKClient {
       key: VoteSteps.GENERATE_TX,
     };
 
-    let payload: string;
-    if (!this.election.electionType.anonymous) {
-      payload = await this.voteService.signTransaction(voteTx.tx, voteTx.message, this.wallet);
-      yield {
-        key: VoteSteps.SIGN_TX,
-      };
-    } else {
-      payload = this.voteService.encodeTransaction(voteTx.tx);
-    }
+    const payload = await this.voteService.signTransaction(voteTx.tx, voteTx.message, this.wallet);
+    yield {
+      key: VoteSteps.SIGN_TX,
+    };
 
     // Vote
     const voteId = await this.voteService
@@ -1058,24 +925,6 @@ export class VocdoniSDKClient {
    */
   fetchCensusInfo(censusId: string): Promise<{ size: number; weight: bigint; type: CensusType }> {
     return this.censusService.get(censusId);
-  }
-
-  /**
-   * Fetches circuits for anonymous voting
-   *
-   * @param circuits - Additional options for custom circuits
-   */
-  fetchCircuits(circuits?: Omit<ChainCircuits, 'zKeyData' | 'vKeyData' | 'wasmData'>): Promise<ChainCircuits> {
-    return this.anonymousService.fetchCircuits(circuits);
-  }
-
-  /**
-   * Sets circuits for anonymous voting
-   *
-   * @param circuits - Custom circuits
-   */
-  setCircuits(circuits: ChainCircuits): ChainCircuits {
-    return this.anonymousService.setCircuits(circuits);
   }
 
   async cspUrl(): Promise<string> {
