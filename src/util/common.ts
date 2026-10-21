@@ -20,6 +20,17 @@ export function getBytes(count: number): Uint8Array {
 }
 
 /**
+ * Generates a random RFC 4122 version 4 UUID.
+ */
+export function randomUUID(): string {
+  const bytes = getBytes(16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
+}
+
+/**
  * Generates a random seed and returns a 32 byte keccak256 hash of it (starting with "0x")
  */
 export function getHex(): string {

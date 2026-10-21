@@ -20,21 +20,18 @@ describe('Census Service tests', () => {
     expect(service.auth).toBeUndefined();
   });
   it('should have set the correct parameters', async () => {
-    const wallet = Wallet.createRandom();
-    const service = new CensusService({ url: URL, auth: { identifier: 'test', wallet } });
+    const service = new CensusService({ url: URL, auth: { identifier: 'test' } });
     expect(service.url).toEqual(URL);
-    expect(service.auth).toEqual({ identifier: 'test', wallet });
+    expect(service.auth).toEqual({ identifier: 'test' });
     await service.fetchAccountToken();
-    expect(service.auth).toEqual({ identifier: 'test', wallet });
+    expect(service.auth).toEqual({ identifier: 'test' });
   });
   it('should fetch the auth information correctly', async () => {
     const service = new CensusService({ url: URL });
     expect(service.url).toBeDefined();
     expect(service.auth).toBeUndefined();
     await service.fetchAccountToken();
-    expect(service.auth.identifier).toBeDefined();
-    expect(service.auth.identifier.length).toBeGreaterThan(0);
-    expect(service.auth.wallet).toBeInstanceOf(Wallet);
+    expect(service.auth.identifier).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   });
   it('should create a census and return the correct information', async () => {
     const numVotes = 10;
