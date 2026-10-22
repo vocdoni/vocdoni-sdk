@@ -80,7 +80,12 @@ export abstract class Census {
   }
 
   static isCspCensusOrigin(censusOrigin: CensusTypeEnum | string): boolean {
-    return censusOrigin === CensusTypeEnum.OFF_CHAIN_CA || censusOrigin === CensusTypeEnum.OFF_CHAIN_CA_V2;
+    return (
+      censusOrigin === CensusTypeEnum.OFF_CHAIN_CA ||
+      censusOrigin === CensusTypeEnum.OFF_CHAIN_CA_V2 ||
+      censusOrigin === CensusTypeEnum.OFF_CHAIN_CA_V3_ECDSA ||
+      censusOrigin === CensusTypeEnum.OFF_CHAIN_CA_V3_BLIND
+    );
   }
 
   static censusTypeFromCensusOrigin(censusOrigin: CensusTypeEnum | string, anonymous: boolean = false): CensusType {

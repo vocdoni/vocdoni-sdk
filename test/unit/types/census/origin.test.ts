@@ -18,6 +18,13 @@ describe('Census origin mapping tests', () => {
     expect(Census.isCspCensusOrigin('OFF_CHAIN_TREE_WEIGHTED')).toBe(false);
   });
 
+  it('should read V3 CSP origins as a CSP census', () => {
+    expect(Census.censusTypeFromCensusOrigin('OFF_CHAIN_CA_V3_ECDSA')).toEqual(CensusType.CSP);
+    expect(Census.censusTypeFromCensusOrigin('OFF_CHAIN_CA_V3_BLIND', true)).toEqual(CensusType.CSP);
+    expect(Census.isCspCensusOrigin('OFF_CHAIN_CA_V3_ECDSA')).toBe(true);
+    expect(Census.isCspCensusOrigin('OFF_CHAIN_CA_V3_BLIND')).toBe(true);
+  });
+
   it.each(['OFF_CHAIN_CA', 'OFF_CHAIN_CA_V2'])('should build a CspCensus for a %s election', async (censusOrigin) => {
     const service = new ElectionService({});
     const census = await (service as any).buildCensus({

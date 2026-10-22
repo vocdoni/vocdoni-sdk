@@ -969,6 +969,7 @@ export class VocdoniSDKClient {
         signature: vote.signature,
         proof_type: vote.proof_type,
         weight: vote.weight,
+        weightCertificate: vote.weightCertificate,
       };
       yield {
         key: VoteSteps.GET_PROOF,

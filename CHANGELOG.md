@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `CspWeightCertificate` type (`{ weightKey, signature }`) for V3 per-election-key CSP elections. `cspSign` populates it from the server response when the CSP returns both `weightKey` and `weightCertificate`; it is carried by `CspSignature`, `CspVote`, and `CspCensusProof` and encoded into `ProofCA.weightCertificate` when submitting a vote.
+- `Vote.cspProofCA(electionId, proof)` public static helper that builds a `ProofCA` from a `CspCensusProof`, defaulting the type to `ECDSA_BLIND` when a weight certificate is present (and to `ECDSA_BLIND_PIDSALTED` otherwise). Throws when a weight certificate is combined with a non-`ECDSA_BLIND` type.
+- `CensusTypeEnum.OFF_CHAIN_CA_V3_ECDSA` (`= 5`) and `OFF_CHAIN_CA_V3_BLIND` (`= 6`) in the API election and chain transaction enums. Both are recognized as CSP origins by `Census.isCspCensusOrigin` and `Census.censusTypeFromCensusOrigin`. Note: `createElection` continues to produce `OFF_CHAIN_CA_V2` elections; V3 origins are for reading the CSP elections the saas-backend publishes on vochain-sequencer.
+
 ## [0.10.0] - 2026-10-01
 
 ### Changed

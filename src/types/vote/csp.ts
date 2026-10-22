@@ -1,5 +1,5 @@
 import { Vote } from './vote';
-import { CspProofType } from '../../services';
+import { CspProofType, CspWeightCertificate } from '../../services';
 import { normalizeVoteWeight } from '../../util/weight';
 
 export class CspVote extends Vote {
@@ -8,18 +8,32 @@ export class CspVote extends Vote {
   private _weight: bigint;
 
   /**
+   * The weight certificate from a V3 per-election-key CSP, when present. The chain requires it to
+   * verify that the vote weight was attested by the correct election key.
+   */
+  public weightCertificate?: CspWeightCertificate;
+
+  /**
    * Constructs a csp vote
    *
    * @param votes - The list of votes values
    * @param signature - The CSP signature
-   * @param proof -_type The CSP proof type
+   * @param proof_type - The CSP proof type
    * @param weight - The vote weight
+   * @param weightCertificate - The weight certificate from a V3 per-election-key CSP
    */
-  public constructor(votes: Array<number | bigint>, signature: string, proof_type?: CspProofType, weight?: bigint) {
+  public constructor(
+    votes: Array<number | bigint>,
+    signature: string,
+    proof_type?: CspProofType,
+    weight?: bigint,
+    weightCertificate?: CspWeightCertificate
+  ) {
     super(votes);
     this.signature = signature;
     this.proof_type = proof_type;
     this.weight = weight;
+    this.weightCertificate = weightCertificate;
   }
 
   get signature(): string {

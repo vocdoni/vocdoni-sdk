@@ -1,5 +1,6 @@
-import { CAbundle } from '@vocdoni/proto/vochain';
+import { CAbundle, ProofCA, ProofCA_Type } from '@vocdoni/proto/vochain';
 import { VoteCore } from '../../../../src/core/vote';
+import { CspProofType } from '../../../../src/services/csp';
 
 const ELECTION_ID = '934234098f1c8d4b7d0c73f2f6b0d2b3a2f7b0e1c2d3e4f5a6b7c8d9e0f1a2b3';
 const ADDRESS = '0x0000000000000000000000000000000000000001';
@@ -45,6 +46,58 @@ describe('Vote core tests', () => {
       expect(() => VoteCore.encodeVoteWeight(2e19 as unknown as bigint)).toThrow(
         'Vote weight is outside the safe integer range and has lost precision as a number; pass it as a bigint or string'
       );
+    });
+  });
+
+  describe('cspProofCA', () => {
+    const WEIGHT_KEY = '02' + '11'.repeat(32);
+    const WEIGHT_SIG = '22'.repeat(65);
+    const PROOF_SIG = '33'.repeat(65);
+
+    it('should produce ECDSA_BLIND type and include the weight certificate when one is given', () => {
+      const proof = {
+        address: ADDRESS,
+        signature: PROOF_SIG,
+        weight: 42n,
+        weightCertificate: { weightKey: WEIGHT_KEY, signature: WEIGHT_SIG },
+      };
+      const ca = VoteCore.cspProofCA(ELECTION_ID, proof);
+      expect(ca.type).toBe(ProofCA_Type.ECDSA_BLIND);
+      expect(Buffer.from(ca.weightCertificate.weightKey).toString('hex')).toBe(WEIGHT_KEY);
+      expect(Buffer.from(ca.weightCertificate.signature).toString('hex')).toBe(WEIGHT_SIG);
+    });
+
+    it('should produce ECDSA_BLIND_PIDSALTED with no weightCertificate when none is given', () => {
+      const proof = { address: ADDRESS, signature: PROOF_SIG, weight: 42n };
+      const ca = VoteCore.cspProofCA(ELECTION_ID, proof);
+      expect(ca.type).toBe(ProofCA_Type.ECDSA_BLIND_PIDSALTED);
+      expect(ca.weightCertificate).toBeUndefined();
+    });
+
+    it('should throw when a weight certificate is combined with a non-ECDSA_BLIND proof type', () => {
+      const proof = {
+        address: ADDRESS,
+        signature: PROOF_SIG,
+        weight: 42n,
+        weightCertificate: { weightKey: WEIGHT_KEY, signature: WEIGHT_SIG },
+        proof_type: CspProofType.ECDSA_BLIND_PIDSALTED,
+      };
+      expect(() => VoteCore.cspProofCA(ELECTION_ID, proof)).toThrow(
+        'A weight certificate is only valid on an ECDSA_BLIND proof'
+      );
+    });
+
+    it('should round-trip the weight certificate through protobuf encoding', () => {
+      const proof = {
+        address: ADDRESS,
+        signature: PROOF_SIG,
+        weight: 42n,
+        weightCertificate: { weightKey: WEIGHT_KEY, signature: WEIGHT_SIG },
+      };
+      const ca = VoteCore.cspProofCA(ELECTION_ID, proof);
+      const decoded = ProofCA.decode(ProofCA.encode(ca).finish());
+      expect(Buffer.from(decoded.weightCertificate.weightKey).toString('hex')).toBe(WEIGHT_KEY);
+      expect(Buffer.from(decoded.weightCertificate.signature).toString('hex')).toBe(WEIGHT_SIG);
     });
   });
 
