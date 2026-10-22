@@ -1,5 +1,6 @@
 import {
   CAbundle,
+  CAWeightCertificate,
   Proof,
   ProofArbo,
   ProofArbo_KeyType,
@@ -124,15 +125,8 @@ export abstract class VoteCore extends TransactionCore {
     } else if (type == CensusType.CSP) {
       const proof = censusProof as CspCensusProof;
 
-      // Populate the proof
-      const caProof = ProofCA.fromPartial({
-        type: proof.proof_type ? (proof.proof_type as unknown as ProofCA_Type) : ProofCA_Type.ECDSA_BLIND_PIDSALTED,
-        signature: new Uint8Array(Buffer.from(strip0x(proof.signature), 'hex')),
-        bundle: this.cspCaBundle(electionId, proof.address, proof.weight),
-      });
-
       return Proof.fromPartial({
-        payload: { $case: 'ca', ca: caProof },
+        payload: { $case: 'ca', ca: this.cspProofCA(electionId, proof) },
       });
     }
     // else if (censusOrigin.isErc20 || censusOrigin.isErc721 || censusOrigin.isErc1155 || censusOrigin.isErc777) {
@@ -163,6 +157,39 @@ export abstract class VoteCore extends TransactionCore {
     else {
       throw new Error('This process type is not supported yet');
     }
+  }
+
+  /**
+   * Builds a `ProofCA` from a `CspCensusProof`.
+   *
+   * When the proof carries a `weightCertificate` and no explicit `proof_type`, the type defaults to
+   * `ECDSA_BLIND` (the only type compatible with a weight certificate). Without a weight certificate
+   * the default is `ECDSA_BLIND_PIDSALTED`. Combining a weight certificate with any non-`ECDSA_BLIND`
+   * type is rejected.
+   *
+   * @param electionId - The election identifier
+   * @param proof - The CSP census proof
+   */
+  public static cspProofCA(electionId: string, proof: CspCensusProof): ProofCA {
+    const type = proof.proof_type
+      ? (proof.proof_type as unknown as ProofCA_Type)
+      : proof.weightCertificate
+      ? ProofCA_Type.ECDSA_BLIND
+      : ProofCA_Type.ECDSA_BLIND_PIDSALTED;
+    if (proof.weightCertificate && type !== ProofCA_Type.ECDSA_BLIND) {
+      throw new Error('A weight certificate is only valid on an ECDSA_BLIND proof');
+    }
+    return ProofCA.fromPartial({
+      type,
+      signature: new Uint8Array(Buffer.from(strip0x(proof.signature), 'hex')),
+      bundle: this.cspCaBundle(electionId, proof.address, proof.weight),
+      weightCertificate: proof.weightCertificate
+        ? CAWeightCertificate.fromPartial({
+            weightKey: new Uint8Array(Buffer.from(strip0x(proof.weightCertificate.weightKey), 'hex')),
+            signature: new Uint8Array(Buffer.from(strip0x(proof.weightCertificate.signature), 'hex')),
+          })
+        : undefined,
+    });
   }
 
   public static cspCaBundle(electionId: string, address: string, weight?: bigint) {

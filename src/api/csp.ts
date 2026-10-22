@@ -66,6 +66,21 @@ export interface ICspSignResponse {
    * The blind signature
    */
   signature: string;
+
+  /**
+   * The 33-byte compressed weight key (hex), present only on V3 per-election-key CSP responses.
+   */
+  weightKey?: string;
+
+  /**
+   * The 65-byte weight certificate signature (hex), present only alongside `weightKey`.
+   */
+  weightCertificate?: string;
+
+  /**
+   * The CSP proof type override, when the CSP dictates the type.
+   */
+  proofType?: string;
 }
 
 export abstract class CspAPI extends API {

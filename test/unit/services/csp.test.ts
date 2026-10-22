@@ -161,4 +161,38 @@ describe('Csp service unit tests', () => {
       expect(vote.weight).toBeUndefined();
     });
   });
+
+  describe('CspService weight certificate', () => {
+    const WEIGHT_KEY = '02' + '11'.repeat(32);
+    const WEIGHT_CERT = '22'.repeat(65);
+
+    beforeEach(() => {
+      mockedSign.mockResolvedValue({
+        signature: 'blinded-signature',
+        weightKey: WEIGHT_KEY,
+        weightCertificate: WEIGHT_CERT,
+      } as any);
+    });
+
+    afterEach(() => {
+      mockedSign.mockResolvedValue({ signature: 'blinded-signature' });
+    });
+
+    it('should populate weightCertificate on CspSignature when the server returns both weightKey and weightCertificate', async () => {
+      const signed = await buildService().cspSign(ELECTION_ID, ADDRESS, 'token', 42n);
+      expect(signed.weightCertificate).toEqual({ weightKey: WEIGHT_KEY, signature: WEIGHT_CERT });
+    });
+
+    it('should leave weightCertificate undefined when the server returns neither', async () => {
+      mockedSign.mockResolvedValue({ signature: 'blinded-signature' });
+      const signed = await buildService().cspSign(ELECTION_ID, ADDRESS, 'token', 42n);
+      expect(signed.weightCertificate).toBeUndefined();
+    });
+
+    it('should propagate weightCertificate from cspSign into cspVote', async () => {
+      const signed = await buildService().cspSign(ELECTION_ID, ADDRESS, 'token', 42n);
+      const vote = buildService().cspVote(new Vote([1]), signed);
+      expect((vote as CspVote).weightCertificate).toEqual({ weightKey: WEIGHT_KEY, signature: WEIGHT_CERT });
+    });
+  });
 });

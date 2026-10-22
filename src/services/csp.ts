@@ -20,23 +20,41 @@ export enum CspProofType {
 }
 
 /**
+ * A weight certificate returned by a V3 per-election-key CSP: the 33-byte compressed weight key and
+ * the 65-byte signature by the election key over the certificate message that binds the weight key
+ * to one election and one vote weight. Both are hex strings.
+ */
+export type CspWeightCertificate = {
+  weightKey: string;
+  signature: string;
+};
+
+/**
  * A CSP signature together with the weight it was signed for (`undefined` if unweighted).
  *
  * The CSP signature is only valid against a bundle built with that exact weight, so `cspSign` returns
  * both and `cspVote` accepts them together: the weight travels with the signature wherever it goes.
  * To send it elsewhere as JSON (bigints are not JSON-serializable), serialize the weight with
  * `weight.toString()`: `cspVote` also accepts the weight as a decimal string.
+ *
+ * On V3 per-election-key elections the CSP additionally returns a `weightCertificate`, which the chain
+ * uses to verify that the weight was attested by the correct election key.
  */
 export type CspSignature = {
   signature: string;
   weight?: bigint;
+  weightCertificate?: CspWeightCertificate;
 };
 
 /**
  * What `cspVote` accepts as a signature: a `CspSignature` as returned by `cspSign`, or one rebuilt from
  * JSON, where the weight was serialized with `weight.toString()` (or as a safe-integer number).
  */
-export type CspSignatureInput = { signature: string; weight?: bigint | number | string };
+export type CspSignatureInput = {
+  signature: string;
+  weight?: bigint | number | string;
+  weightCertificate?: CspWeightCertificate;
+};
 
 export class CspService extends Service implements CspServiceProperties {
   public info: ICspInfoResponse;
@@ -101,14 +119,20 @@ export class CspService extends Service implements CspServiceProperties {
     const signedWeight = weight == null ? undefined : normalizeVoteWeight(weight);
     const { hexBlinded: blindedPayload, userSecretData } = getBlindedPayload(electionId, token, address, signedWeight);
 
-    const { signature: blindSignature } = await CspAPI.sign(
-      this.url,
-      electionId,
-      this.info.signatureType[0],
-      blindedPayload,
-      token
-    );
-    return { signature: CensusBlind.unblind(blindSignature, userSecretData), weight: signedWeight };
+    const response = await CspAPI.sign(this.url, electionId, this.info.signatureType[0], blindedPayload, token);
+    const unblinded = CensusBlind.unblind(response.signature, userSecretData);
+
+    // A V3 per-election-key CSP returns both weightKey and weightCertificate together; having only one
+    // of the two is a protocol error.
+    const hasKey = response.weightKey != null;
+    const hasCert = response.weightCertificate != null;
+    if (hasKey !== hasCert) {
+      throw new Error('CSP response has weightKey without weightCertificate or vice versa');
+    }
+    const weightCertificate =
+      hasKey && hasCert ? { weightKey: response.weightKey, signature: response.weightCertificate } : undefined;
+
+    return { signature: unblinded, weight: signedWeight, weightCertificate };
   }
 
   cspVote(vote: Vote, signature: string | CspSignatureInput, proof_type?: CspProofType, weight?: bigint): CspVote {
@@ -153,7 +177,7 @@ export class CspService extends Service implements CspServiceProperties {
       );
     }
 
-    const cspVote = new CspVote(vote.votes, signature.signature, proof_type, signedWeight);
+    const cspVote = new CspVote(vote.votes, signature.signature, proof_type, signedWeight, signature.weightCertificate);
     cspVote.memo = vote.memo;
     return cspVote;
   }
