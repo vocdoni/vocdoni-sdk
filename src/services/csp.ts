@@ -21,7 +21,8 @@ export enum CspProofType {
 
 /**
  * A weight certificate returned by a V3 per-election-key CSP: the 33-byte compressed weight key and
- * the 65-byte signature produced by the election key over the weight bundle. Both are hex strings.
+ * the 65-byte signature by the election key over the certificate message that binds the weight key
+ * to one election and one vote weight. Both are hex strings.
  */
 export type CspWeightCertificate = {
   weightKey: string;
