@@ -12,6 +12,7 @@ import { Census } from '../census';
 import { Election, CustomMeta, IElectionParameters, IElectionType, IVoteType } from './election';
 import { SDK_VERSION } from '../../version';
 import { Asymmetric } from '../../util/encryption';
+import { withVoteMinimums } from './minimums';
 
 /**
  * Represents an unpublished election
@@ -89,7 +90,9 @@ export class UnpublishedElection extends Election {
       costExponent: typeof value?.costExponent === 'number' ? value.costExponent : 1,
       maxValue: typeof value?.maxValue === 'number' ? value.maxValue : null,
       maxCount: typeof value?.maxCount === 'number' ? value.maxCount : null,
-      maxTotalCost: typeof value?.maxCount === 'number' ? value.maxTotalCost : null,
+      maxTotalCost: typeof value?.maxTotalCost === 'number' ? value.maxTotalCost : null,
+      minValue: typeof value?.minValue === 'number' ? value.minValue : 0,
+      minTotalCost: typeof value?.minTotalCost === 'number' ? value.minTotalCost : 0,
     };
   }
 
@@ -149,7 +152,7 @@ export class UnpublishedElection extends Election {
     const maxTotalCost = this.voteType.maxTotalCost ?? 0;
     const costExponent = this.voteType.costExponent;
 
-    return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
+    return withVoteMinimums({ maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent }, this.voteType);
   }
 
   get duration(): number {

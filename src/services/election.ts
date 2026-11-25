@@ -223,6 +223,8 @@ export class ElectionService extends Service implements ElectionServicePropertie
         maxCount: electionInfo.tallyMode.maxCount,
         maxValue: electionInfo.tallyMode.maxValue,
         maxTotalCost: electionInfo.tallyMode.maxTotalCost,
+        minValue: electionInfo.tallyMode.minValue ?? 0,
+        minTotalCost: electionInfo.tallyMode.minTotalCost ?? 0,
       },
       questions: electionInfo.metadata?.questions.map((question, qIndex) => ({
         title: question.title,

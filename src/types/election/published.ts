@@ -3,6 +3,7 @@ import { MultiLanguage } from '../../util/lang';
 import { ElectionResultsType, ElectionResultsTypeNames, IQuestion } from '../metadata';
 import { PublishedCensus } from '../census';
 import { Vote } from '../vote';
+import { checkVoteMinimums } from './minimums';
 import { MultiChoiceElection } from './multichoice';
 import { BudgetElection } from './budget';
 import { ApprovalElection } from './approval';
@@ -138,6 +139,8 @@ export class PublishedElection extends Election {
         throw new Error('Invalid choice value');
       }
     });
+
+    checkVoteMinimums(vote, voteType);
   }
 
   get title(): MultiLanguage<string> {

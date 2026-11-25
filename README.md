@@ -259,6 +259,8 @@ const election = Election.from({
     maxVoteOverwrites: 0, // number of times a vote can be overwritten
     costFromWeight: false, // for cuadrating voting
     costExponent: 10000, // for cuadrating voting
+    minValue: 0, // smallest value of every ballot field (0 = no minimum)
+    minTotalCost: 0, // smallest sum of value^costExponent of a ballot (0 = no minimum; needs costExponent <= 8)
   }
 })
 ~~~

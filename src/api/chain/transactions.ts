@@ -268,6 +268,8 @@ interface ProcessVoteOptions {
   maxVoteOverwrites: number;
   maxTotalCost: number;
   costExponent: number;
+  minValue: number;
+  minTotalCost: number;
 }
 
 declare enum SourceNetworkId {
