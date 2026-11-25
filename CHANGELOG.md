@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Ballot minimums: `voteType.minValue` (smallest value of every ballot field) and `voteType.minTotalCost` (smallest `Σ value^costExponent`, with `0^0 = 1`) can be set on any election, including the typed ones (multichoice, approval, budget, quadratic), and are sent in the process vote options. Both default to `0` (no minimum). The chain does not count a ballot below either minimum, and rejects it on submission when votes are not encrypted.
+- Creating an election throws when `minValue > maxValue` (with `maxValue > 0`), `minTotalCost > maxTotalCost` (with `maxTotalCost > 0`), or `costExponent > 8` with `minTotalCost > 0`, as the chain rejects those vote options.
+- Published elections read `minValue` and `minTotalCost` from the API `tallyMode` (`0` when absent), and `checkVote` enforces them.
+
+### Changed
+
+- Bumped `@vocdoni/proto` to `1.18.0`, which adds `ProcessVoteOptions.minValue` and `minTotalCost`.
+
+### Fixed
+
+- `voteType.maxTotalCost` passed to `Election.from` / `UnpublishedElection` is no longer dropped when `voteType.maxCount` is not set.
+
 ## [0.10.0] - 2026-10-01
 
 ### Changed

@@ -82,6 +82,8 @@ describe('Election tests', () => {
       maxCount: null,
       maxTotalCost: null,
       maxValue: null,
+      minValue: 0,
+      minTotalCost: 0,
     });
   });
   it('should have no questions', () => {

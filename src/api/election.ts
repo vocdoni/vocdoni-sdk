@@ -113,6 +113,16 @@ export interface ITallyMode {
    * The cost exponent of the vote
    */
   costExponent: number;
+
+  /**
+   * The min value of the vote's values, 0 or absent when there is no minimum
+   */
+  minValue?: number;
+
+  /**
+   * The min total cost of the votes, 0 or absent when there is no minimum
+   */
+  minTotalCost?: number;
 }
 
 export interface IElectionCreateResponse {

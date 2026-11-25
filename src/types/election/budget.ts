@@ -9,6 +9,7 @@ import {
   getElectionMetadataTemplate,
 } from '../metadata';
 import { Vote } from '../vote';
+import { checkVoteMinimums, withVoteMinimums } from './minimums';
 
 export interface IBudgetElectionParametersInfo extends IElectionParameters {
   minStep?: number;
@@ -81,7 +82,7 @@ export class BudgetElection extends UnpublishedElection {
     const maxTotalCost = this.useCensusWeightAsBudget ? 0 : this.maxBudget;
     const costExponent = 1;
 
-    return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
+    return withVoteMinimums({ maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent }, this.voteType);
   }
 
   public generateEnvelopeType(): object {
@@ -128,6 +129,8 @@ export class BudgetElection extends UnpublishedElection {
         throw new Error('Not full budget used');
       }
     }
+
+    checkVoteMinimums(vote, voteType);
   }
 
   get minStep(): number {

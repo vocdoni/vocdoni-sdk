@@ -130,6 +130,8 @@ describe('Election integration tests', () => {
           maxCount: 1,
           maxValue: 1,
           maxTotalCost: 0,
+          minValue: 0,
+          minTotalCost: 0,
         });
         expect(publishedElection.manuallyEnded).toBeFalsy();
         expect(publishedElection.chainId).toBeDefined();

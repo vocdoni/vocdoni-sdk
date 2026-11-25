@@ -3,6 +3,7 @@ import { CustomMeta, IElectionParameters, IVoteType } from './election';
 import { UnpublishedElection } from './unpublished';
 import { Choice, ElectionMetadata, ElectionResultsTypeNames, getElectionMetadataTemplate } from '../metadata';
 import { Vote } from '../vote';
+import { checkVoteMinimums, withVoteMinimums } from './minimums';
 
 export interface IApprovalElectionParameters extends IElectionParameters {}
 
@@ -52,7 +53,7 @@ export class ApprovalElection extends UnpublishedElection {
     const maxTotalCost = 0;
     const costExponent = this.voteType.costExponent;
 
-    return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
+    return withVoteMinimums({ maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent }, this.voteType);
   }
 
   public generateEnvelopeType(): object {
@@ -89,5 +90,7 @@ export class ApprovalElection extends UnpublishedElection {
         throw new Error('Invalid choice value');
       }
     });
+
+    checkVoteMinimums(vote, voteType);
   }
 }

@@ -9,6 +9,7 @@ import {
   getElectionMetadataTemplate,
 } from '../metadata';
 import { Vote } from '../vote';
+import { checkVoteMinimums, withVoteMinimums } from './minimums';
 import invariant from 'tiny-invariant';
 
 export interface IMultiChoiceElectionParameters extends IElectionParameters {
@@ -72,7 +73,7 @@ export class MultiChoiceElection extends UnpublishedElection {
     const maxTotalCost = 0;
     const costExponent = this.voteType.costExponent;
 
-    return { maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent };
+    return withVoteMinimums({ maxCount, maxValue, maxVoteOverwrites, maxTotalCost, costExponent }, this.voteType);
   }
 
   public generateEnvelopeType(): object {
@@ -124,6 +125,8 @@ export class MultiChoiceElection extends UnpublishedElection {
         throw new Error('Invalid choice value');
       }
     });
+
+    checkVoteMinimums(vote, voteType);
   }
 
   get maxNumberOfChoices(): number {

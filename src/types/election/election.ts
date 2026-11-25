@@ -67,6 +67,23 @@ export interface IVoteType {
    * A value of 0 implies no maximum limit or that this parameter is not applicable in the current voting context.
    */
   maxTotalCost?: number;
+  /**
+   * Defines the minimum acceptable value for every ballot field. The chain does not count a ballot with a smaller
+   * value, and rejects it on submission when votes are not encrypted. An empty ballot has no field and passes.
+   *
+   * It cannot be greater than `maxValue` when `maxValue` is set. Defaults to 0, which means no minimum.
+   */
+  minValue?: number;
+  /**
+   * Defines the minimum total cost of a ballot, computed as for `maxTotalCost`:
+   * totalCost = Σ (value[i] ^ costExponent) >= minTotalCost, where 0^0 = 1.
+   *
+   * For instance, with `costExponent` 1 it requires spending at least this many credits, and with `costExponent` 0
+   * it requires at least this many fields. It cannot be greater than `maxTotalCost` when `maxTotalCost` is set, and
+   * requires a `costExponent` of 8 or less. With `costFromWeight` it stays a fixed lower bound while the voter's
+   * weight is the upper one. Defaults to 0, which means no minimum.
+   */
+  minTotalCost?: number;
 }
 
 export interface IElectionType {
